@@ -504,8 +504,10 @@ main() {
     divider
     info "Attempt ${attempt}/${MAX_ATTEMPTS} — Milestone ${ms_num}: ${ms_title}"
 
-    # Show current tracker state
-    grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" | while IFS= read -r row; do
+    # Show current tracker state (only Milestone Tracker rows)
+    grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
+      | grep -E '\`(not_started|in_progress|done)\`' \
+      | while IFS= read -r row; do
       if echo "${row}" | grep -q '`done`'; then
         success "  ${row}"
       else
@@ -579,7 +581,9 @@ A previous Copilot session did not fully complete a milestone. Please:
 
   echo ""
   header "Final Tracker State"
-  grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" | while IFS= read -r row; do
+  grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
+    | grep -E '\`(not_started|in_progress|done)\`' \
+    | while IFS= read -r row; do
     if echo "${row}" | grep -q '`done`'; then
       success "  ${row}"
     else
