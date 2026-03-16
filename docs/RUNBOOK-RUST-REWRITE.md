@@ -16,7 +16,7 @@ Update this table as each milestone is completed. This is the **single source of
 | 2 | Shared library — CLI parsing & common infra | `done` | 2026-03-16 | 2026-03-16 | `docs/lessons/rust-rewrite-m2.md` |
 | 3 | sldo-plan binary — runbook generation | `done` | 2026-03-16 | 2026-03-16 | `docs/lessons/rust-rewrite-m3.md` |
 | 4 | sldo-run binary — milestone execution | `done` | 2026-03-16 | 2026-03-16 | `docs/lessons/rust-rewrite-m4.md` |
-| 5 | Integration tests, docs & migration | `not_started` | | | |
+| 5 | Integration tests, docs & migration | `done` | 2026-03-16 | 2026-03-16 | `docs/lessons/rust-rewrite-m5.md` |
 
 <!-- Status values: not_started | in_progress | done -->
 <!-- Lessons files go in docs/lessons/rust-rewrite-m<N>.md -->
@@ -821,12 +821,12 @@ Complete the Post-Milestone Protocol above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo test --workspace` — all tests pass (including integration tests)
-- [ ] `cargo clippy --workspace` — no warnings
-- [ ] `README.md` documents both Bash and Rust CLIs
-- [ ] `docs/MIGRATION.md` exists and covers all flags
-- [ ] Original Bash scripts unchanged: `git diff src/` shows no changes
-- [ ] `cargo install --path crates/sldo-plan` and `cargo install --path crates/sldo-run` succeed
+- [x] `cargo test --workspace` — all tests pass (including integration tests)
+- [x] `cargo clippy --workspace` — no warnings
+- [x] `README.md` documents both Bash and Rust CLIs
+- [x] `docs/MIGRATION.md` exists and covers all flags
+- [x] Original Bash scripts unchanged: `git diff src/` shows no changes
+- [x] `cargo install --path crates/sldo-plan` and `cargo install --path crates/sldo-run` succeed
 
 #### Post-Flight
 
