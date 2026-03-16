@@ -33,7 +33,40 @@ Takes a requirements prompt (text file) and a repository, then uses GitHub Copil
 Drives GitHub Copilot CLI through the milestones in an existing runbook, one at a time, verifying build and tests after each pass.
 
 ```bash
-./src/run-milestones.sh
+./src/run-milestones.sh <runbook> <repo-dir> [options]
+```
+
+**Arguments:**
+- `runbook` — Path to the runbook markdown file (relative to repo or absolute)
+- `repo-dir` — Path to the target repository
+
+**Options:**
+- `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
+- `-a, --max-attempts <N>` — Max Copilot invocations (default: 150)
+- `-c, --cooldown <secs>` — Pause between retries (default: 5)
+- `--build-cmd <cmd>` — Custom build verification command (repeatable)
+- `--test-cmd <cmd>` — Custom test verification command (repeatable)
+
+**Auto-detection:** If no `--build-cmd` / `--test-cmd` are given, the script auto-detects commands from the project's build files (Cargo.toml, package.json, go.mod, Makefile, etc.).
+
+**Safety:** Refuses to run if the repo is on `main` or `master` branch.
+
+**Examples:**
+```bash
+# Auto-detect build/test commands from the repo
+./src/run-milestones.sh docs/RUNBOOK.md /path/to/my-project
+
+# Specify explicit build and test commands
+./src/run-milestones.sh docs/RUNBOOK.md /path/to/my-project \
+  --build-cmd "cargo build --workspace" \
+  --test-cmd "cargo test --workspace"
+
+# Multiple build and test commands
+./src/run-milestones.sh docs/RUNBOOK-UI.md /path/to/my-project \
+  --build-cmd "cargo build --workspace" \
+  --build-cmd "cd frontend && npm run build" \
+  --test-cmd "cargo test --workspace" \
+  --test-cmd "cd frontend && npx vitest run"
 ```
 
 ## Runbook Template

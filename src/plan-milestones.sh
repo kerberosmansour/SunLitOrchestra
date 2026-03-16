@@ -454,10 +454,11 @@ validate_runbook() {
     fi
   done
 
-  # Check milestone tracker has entries
+  # Check milestone tracker has entries (count rows with status keywords)
   local milestone_count
-  milestone_count=$(grep -cE '^\| [0-9]+ \|' "${runbook_path}" || echo "0")
-  if (( milestone_count > 0 )); then
+  milestone_count=$(grep -E '^\| [0-9]+ \|' "${runbook_path}" | grep -c 'not_started\|in_progress\|done' || true)
+  milestone_count=$(echo "${milestone_count}" | tr -d '[:space:]')
+  if [[ -n "${milestone_count}" ]] && (( milestone_count > 0 )); then
     success "Milestone count: ${milestone_count}"
   else
     warn "No milestones found in tracker table."
@@ -466,17 +467,18 @@ validate_runbook() {
 
   # Check for unfilled template placeholders
   local placeholder_count
-  placeholder_count=$(grep -cE '\[.*\.(rs|ts|tsx|js|json|toml|yaml|md)\]' "${runbook_path}" \
-    | grep -c '\[.*file path\]' || echo "0")
-  if (( placeholder_count > 0 )); then
+  placeholder_count=$(grep -cE '\[file path\]|\[Milestone [0-9]+ title\]|\[description\]|\[One-sentence' "${runbook_path}" || true)
+  placeholder_count=$(echo "${placeholder_count}" | tr -d '[:space:]')
+  if [[ -n "${placeholder_count}" ]] && (( placeholder_count > 0 )); then
     warn "Found ${placeholder_count} possible unfilled placeholders."
     issues=$((issues + 1))
   fi
 
-  # Check that status values are not_started
+  # Check that no milestones in the tracker are marked done (they should all be not_started)
   local done_count
-  done_count=$(grep -cE '`done`' "${runbook_path}" || echo "0")
-  if (( done_count > 0 )); then
+  done_count=$(grep -E '^\| [0-9]+ \|' "${runbook_path}" | grep -c '\`done\`' || true)
+  done_count=$(echo "${done_count}" | tr -d '[:space:]')
+  if [[ -n "${done_count}" ]] && (( done_count > 0 )); then
     warn "Some milestones are marked 'done' — they should all be 'not_started'."
     issues=$((issues + 1))
   fi
