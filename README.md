@@ -2,43 +2,64 @@
 
 A toolkit for orchestrating AI-driven software development through structured, milestone-based runbooks.
 
-## Scripts
+## Installation (Rust CLI — recommended)
 
-### `src/plan-milestones.sh` — Generate a Runbook
-
-Takes a requirements prompt (text file) and a repository, then uses GitHub Copilot CLI to analyse the codebase and produce a milestone-based runbook following the [runbook template](docs/runbook-template.md).
+Install the Rust binaries with Cargo:
 
 ```bash
-./src/plan-milestones.sh <prompt-file> <repo-dir> [options]
+cargo install --path crates/sldo-plan
+cargo install --path crates/sldo-run
+```
+
+Or build from source:
+
+```bash
+cargo build --workspace --release
+# Binaries at target/release/sldo-plan and target/release/sldo-run
+```
+
+## Rust CLI
+
+The Rust implementation is the preferred way to use SunLitOrchestrate. It provides type-safe argument parsing, structured error handling, and cross-platform support.
+
+### `sldo-plan` — Generate a Runbook
+
+Generates a milestone-based runbook from a requirements prompt and a repository using GitHub Copilot CLI.
+
+```bash
+sldo-plan <prompt-file> <repo-dir> [options]
 ```
 
 **Arguments:**
-- `prompt-file` — Path to a text/markdown file describing the desired changes
-- `repo-dir` — Path to the target repository
+- `<prompt-file>` — Path to a text/markdown file describing the desired changes
+- `<repo-dir>` — Path to the target repository
 
 **Options:**
 - `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
 - `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
 - `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
+- `-h, --help` — Show help
 
 **Safety:** Refuses to run if the repo is on `main` or `master` branch.
 
 **Example:**
 ```bash
-./src/plan-milestones.sh requirements.txt /path/to/my-project -o docs/RUNBOOK-FEATURE.md
+sldo-plan requirements.txt /path/to/my-project -o docs/RUNBOOK-FEATURE.md
+# Or via cargo:
+cargo run -p sldo-plan -- requirements.txt /path/to/repo -o docs/RUNBOOK-FEATURE.md
 ```
 
-### `src/run-milestones.sh` — Execute a Runbook
+### `sldo-run` — Execute a Runbook
 
 Drives GitHub Copilot CLI through the milestones in an existing runbook, one at a time, verifying build and tests after each pass.
 
 ```bash
-./src/run-milestones.sh <runbook> <repo-dir> [options]
+sldo-run <runbook> <repo-dir> [options]
 ```
 
 **Arguments:**
-- `runbook` — Path to the runbook markdown file (relative to repo or absolute)
-- `repo-dir` — Path to the target repository
+- `<runbook>` — Path to the runbook markdown file (relative to repo or absolute)
+- `<repo-dir>` — Path to the target repository
 
 **Options:**
 - `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
@@ -46,36 +67,27 @@ Drives GitHub Copilot CLI through the milestones in an existing runbook, one at 
 - `-c, --cooldown <secs>` — Pause between retries (default: 5)
 - `--build-cmd <cmd>` — Custom build verification command (repeatable)
 - `--test-cmd <cmd>` — Custom test verification command (repeatable)
+- `-h, --help` — Show help
 
-**Auto-detection:** If no `--build-cmd` / `--test-cmd` are given, the script auto-detects commands from the project's build files (Cargo.toml, package.json, go.mod, Makefile, etc.).
+**Auto-detection:** If no `--build-cmd` / `--test-cmd` are given, the tool auto-detects commands from the project's build files (Cargo.toml, package.json, go.mod, Makefile, etc.).
 
 **Safety:** Refuses to run if the repo is on `main` or `master` branch.
 
 **Examples:**
 ```bash
 # Auto-detect build/test commands from the repo
-./src/run-milestones.sh docs/RUNBOOK.md /path/to/my-project
+sldo-run docs/RUNBOOK.md /path/to/my-project
 
 # Specify explicit build and test commands
-./src/run-milestones.sh docs/RUNBOOK.md /path/to/my-project \
+sldo-run docs/RUNBOOK.md /path/to/my-project \
   --build-cmd "cargo build --workspace" \
   --test-cmd "cargo test --workspace"
 
-# Multiple build and test commands
-./src/run-milestones.sh docs/RUNBOOK-UI.md /path/to/my-project \
-  --build-cmd "cargo build --workspace" \
-  --build-cmd "cd frontend && npm run build" \
-  --test-cmd "cargo test --workspace" \
-  --test-cmd "cd frontend && npx vitest run"
+# Or via cargo:
+cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
 ```
 
-## Runbook Template
-
-See [docs/runbook-template.md](docs/runbook-template.md) for the milestone template structure used by the planning script.
-
-## Rust Rewrite (in progress)
-
-The project is being rewritten from Bash into Rust. The Cargo workspace lives alongside the original scripts:
+### Project Structure
 
 ```
 crates/
@@ -84,37 +96,37 @@ crates/
 └── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
 ```
 
-Build and test the Rust workspace:
+Build and test the workspace:
 
 ```bash
 cargo build --workspace
 cargo test --workspace
 ```
 
-### `sldo-plan` — Rust CLI for Runbook Generation
+### Migrating from Bash
 
-Rust equivalent of `plan-milestones.sh`. Generates a milestone-based runbook using GitHub Copilot CLI.
+See [docs/MIGRATION.md](docs/MIGRATION.md) for a complete migration guide with flag mapping and behavioral differences.
+
+## Legacy Bash Scripts
+
+> **Note:** The Bash scripts below are the original implementation. They remain functional but the Rust CLI above is the preferred implementation.
+
+### `src/plan-milestones.sh` — Generate a Runbook (legacy)
 
 ```bash
-sldo-plan <prompt-file> <repo-dir> [options]
+./src/plan-milestones.sh <prompt-file> <repo-dir> [options]
 ```
 
 **Options:**
 - `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
 - `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
 - `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
+- `-h, --help` — Show this help message
 
-**Example:**
-```bash
-cargo run -p sldo-plan -- requirements.txt /path/to/repo -o docs/RUNBOOK-FEATURE.md
-```
-
-### `sldo-run` — Rust CLI for Milestone Execution
-
-Rust equivalent of `run-milestones.sh`. Drives GitHub Copilot CLI through runbook milestones, verifying build and tests after each pass.
+### `src/run-milestones.sh` — Execute a Runbook (legacy)
 
 ```bash
-sldo-run <runbook> <repo-dir> [options]
+./src/run-milestones.sh <runbook> <repo-dir> [options]
 ```
 
 **Options:**
@@ -123,13 +135,8 @@ sldo-run <runbook> <repo-dir> [options]
 - `-c, --cooldown <secs>` — Pause between retries (default: 5)
 - `--build-cmd <cmd>` — Custom build verification command (repeatable)
 - `--test-cmd <cmd>` — Custom test verification command (repeatable)
+- `-h, --help` — Show this help message
 
-**Auto-detection:** If no `--build-cmd` / `--test-cmd` are given, the tool auto-detects commands from the project's build files (Cargo.toml, package.json, go.mod, Makefile, etc.).
+## Runbook Template
 
-**Example:**
-```bash
-cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
-cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo --build-cmd "cargo build" --test-cmd "cargo test"
-```
-
-The original Bash scripts in `src/` remain fully functional during the transition.
+See [docs/runbook-template.md](docs/runbook-template.md) for the milestone template structure used by both implementations.
