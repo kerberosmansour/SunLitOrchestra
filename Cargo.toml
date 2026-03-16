@@ -1,0 +1,42 @@
+[workspace]
+members = [
+    "crates/sldo-common",
+    "crates/sldo-plan",
+    "crates/sldo-run",
+]
+resolver = "2"
+
+[workspace.dependencies]
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+thiserror = "2"
+colored = "2"
+regex = "1"
+chrono = "0.4"
+which = "7"
+
+# Root package hosts workspace-level E2E / integration tests.
+[package]
+name = "sunlit-orchestrate-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+sldo-common = { path = "crates/sldo-common" }
+
+[[test]]
+name = "e2e_scaffold_m1"
+path = "tests/e2e_scaffold_m1.rs"
+
+[[test]]
+name = "e2e_common_m2"
+path = "tests/e2e_common_m2.rs"
+
+[[test]]
+name = "e2e_plan_m3"
+path = "tests/e2e_plan_m3.rs"
+
+[[test]]
+name = "e2e_run_m4"
+path = "tests/e2e_run_m4.rs"
