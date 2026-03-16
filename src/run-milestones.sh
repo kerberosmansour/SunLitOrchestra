@@ -353,9 +353,16 @@ preflight() {
 all_milestones_done() {
   # Returns 0 (true) if every milestone row in the tracker has status `done`
   # Tracker rows look like: | 9 | Description | `done` | ...
+  # Only match rows that have a backtick-wrapped status field (the Milestone
+  # Tracker), not other numbered tables (e.g. Documentation Update Table).
+  local tracker_rows
+  tracker_rows=$(grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
+    | grep -E '`(not_started|in_progress|done)`' || true)
+  if [[ -z "${tracker_rows}" ]]; then
+    return 1  # No tracker rows found — not done
+  fi
   local not_done
-  not_done=$(grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
-    | grep -v '`done`' || true)
+  not_done=$(echo "${tracker_rows}" | grep -v '`done`' || true)
   [[ -z "${not_done}" ]]
 }
 
@@ -422,7 +429,9 @@ PROMPT
 # ── Detect current milestone ─────────────────────────────────────────────────
 current_milestone_number() {
   # Return the number of the first milestone whose status is NOT `done`
+  # Only match Milestone Tracker rows (those with backtick-wrapped status)
   grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
+    | grep -E '\`(not_started|in_progress|done)\`' \
     | grep -v '\`done\`' \
     | head -1 \
     | sed 's/^| *\([0-9]*\) .*/\1/' \
@@ -431,7 +440,9 @@ current_milestone_number() {
 
 current_milestone_title() {
   # Return the title of the first incomplete milestone
+  # Only match Milestone Tracker rows (those with backtick-wrapped status)
   grep -E '^\| [0-9]+ \|' "${PROJECT_DIR}/${RUNBOOK}" \
+    | grep -E '\`(not_started|in_progress|done)\`' \
     | grep -v '\`done\`' \
     | head -1 \
     | awk -F'|' '{gsub(/^ +| +$/, "", $3); print $3}' \
