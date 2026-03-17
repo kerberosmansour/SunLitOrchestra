@@ -1,11 +1,12 @@
-import { useState, useCallback } from "react";
-import type { Message, AppPhase, MilestoneRow } from "./types";
+import { useState, useCallback, useEffect } from "react";
+import type { Message, AppPhase, MilestoneRow, AppSettings } from "./types";
 import Sidebar from "./components/Sidebar";
 import HomeScreen from "./components/HomeScreen";
 import ConversationView from "./components/ConversationView";
 import MarkdownEditor from "./components/MarkdownEditor";
 import MilestoneTracker from "./components/MilestoneTracker";
 import ExecutionView from "./components/ExecutionView";
+import SettingsPanel from "./components/SettingsPanel";
 import type { LogEntry, BuildTestEntry } from "./hooks/useExecution";
 import type { MilestoneStartedEvent, ExecutionCompleteEvent } from "./types";
 
@@ -27,6 +28,16 @@ function App() {
   const [currentMilestone, setCurrentMilestone] = useState<MilestoneStartedEvent | null>(null);
   const [completionSummary, setCompletionSummary] = useState<ExecutionCompleteEvent | null>(null);
   const [executionRunning, setExecutionRunning] = useState(false);
+  const [appSettings, setAppSettings] = useState<AppSettings>({
+    provider: "copilot",
+    model: "claude-opus-4.6",
+    allow_flags: ["--allow-tool=write"],
+    deny_flags: ["--deny-tool=shell(rm -rf /)"],
+    max_attempts: 150,
+    cooldown_secs: 5,
+    max_iterations: 3,
+    repo_dir: null,
+  });
 
   const handleSubmitPrompt = useCallback((text: string) => {
     const userMsg: Message = {
@@ -64,7 +75,7 @@ function App() {
   }, []);
 
   const handleSelectSettings = useCallback(() => {
-    // Settings panel will be added in M6
+    setPhase("settings");
   }, []);
 
   const transitionToReviewing = useCallback(
@@ -97,6 +108,49 @@ function App() {
     setExecutionRunning(false);
   }, []);
 
+  const handleSaveSettings = useCallback((newSettings: AppSettings) => {
+    setAppSettings(newSettings);
+    // In a real implementation, this calls update_settings Tauri command.
+    setPhase("home");
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setPhase("home");
+  }, []);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMod = e.metaKey || e.ctrlKey;
+
+      // Cmd/Ctrl+N — New session
+      if (isMod && e.key === "n") {
+        e.preventDefault();
+        handleNewSession();
+        return;
+      }
+
+      // Cmd/Ctrl+, — Open settings
+      if (isMod && e.key === ",") {
+        e.preventDefault();
+        handleSelectSettings();
+        return;
+      }
+
+      // Escape — Close settings or cancel recording
+      if (e.key === "Escape") {
+        setPhase((current) => {
+          if (current === "settings") return "home";
+          return current;
+        });
+        return;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleNewSession, handleSelectSettings]);
+
   return (
     <div className="sunlit-shell" style={{ display: "flex" }}>
       <Sidebar
@@ -106,6 +160,12 @@ function App() {
       <main className="page" style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
         {phase === "home" ? (
           <HomeScreen onSubmitPrompt={handleSubmitPrompt} />
+        ) : phase === "settings" ? (
+          <SettingsPanel
+            settings={appSettings}
+            onSave={handleSaveSettings}
+            onClose={handleCloseSettings}
+          />
         ) : phase === "reviewing" ? (
           <div className="reviewing-layout" style={{ display: "flex", flex: 1, overflow: "hidden" }}>
             <div className="reviewing-editor" style={{ flex: 1, overflow: "auto", padding: "1rem" }}>

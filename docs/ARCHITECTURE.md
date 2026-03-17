@@ -58,8 +58,24 @@ Tauri commands are registered in `main.rs` via `invoke_handler`:
 
 ```rust
 tauri::Builder::default()
+    .setup(|app| {
+        // Load persisted settings on startup
+        let settings = state::load_settings(&app.path().app_data_dir()?);
+        *app.state::<AppState>().settings.lock().unwrap() = settings;
+        Ok(())
+    })
     .manage(AppState::default())
-    .invoke_handler(tauri::generate_handler![commands::plan::start_planning])
+    .invoke_handler(tauri::generate_handler![
+        commands::plan::start_planning,
+        commands::plan::read_runbook,
+        commands::plan::save_runbook,
+        commands::run::start_execution,
+        commands::run::cancel_execution,
+        commands::settings::get_settings,
+        commands::settings::update_settings,
+        commands::settings::get_available_providers,
+        commands::settings::get_available_models,
+    ])
     .run(tauri::generate_context!())
 ```
 
@@ -108,7 +124,9 @@ where
 `AppState` (in `state.rs`) holds:
 
 - `current_session: Mutex<Option<PlanningSession>>` — tracks active planning session
-- `settings: Mutex<AppSettings>` — model, max iterations, repo directory
+- `settings: Mutex<AppSettings>` — provider, model, allow/deny flags, execution params, repo directory
+- `cancel_execution: Arc<AtomicBool>` — cancellation flag for execution loop
+- `execution_running: Arc<AtomicBool>` — whether an execution is currently running
 
 ### ConversationView Streaming
 
@@ -213,3 +231,165 @@ After clicking "Execute Plan", the app transitions to the `"executing"` phase wh
 - Build/test results — pass/fail indicators for verification commands
 - Cancel button — stops execution mid-run
 - MilestoneTracker (sidebar) — live progress with active milestone highlight
+
+### Provider Trait & Settings (M6)
+
+The `Provider` trait (in `provider.rs`) abstracts agent invocation so the system can support multiple coding agents:
+
+```rust
+pub trait Provider: Send + Sync {
+    fn name(&self) -> &str;
+    fn available_models(&self) -> Vec<String>;
+    fn invoke(&self, prompt: &str, model: &str, allow_flags: &[String],
+              deny_flags: &[String], working_dir: &Path, log_file: &LogFile,
+              on_line: Box<dyn FnMut(&str, &str) + Send>) -> Result<i32>;
+}
+```
+
+- `CopilotProvider` wraps `CopilotInvocation::run_with_callback()`
+- `get_provider(name)` factory function returns a boxed provider by name
+- `available_providers()` lists all registered provider names
+
+**Settings Persistence:**
+
+`AppSettings` (in `state.rs`) is serialized as JSON to `<tauri_app_data_dir>/settings.json`:
+
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `provider` | `String` | `"copilot"` | Active agent provider |
+| `model` | `String` | `"claude-opus-4.6"` | Model for planning/execution |
+| `allow_flags` | `Vec<String>` | `toolflags::plan_allow_flags()` | Tool permission allow flags |
+| `deny_flags` | `Vec<String>` | `toolflags::plan_deny_flags()` | Tool permission deny flags |
+| `max_attempts` | `u32` | `150` | Max execution attempts |
+| `cooldown_secs` | `u64` | `5` | Cooldown between attempts |
+| `max_iterations` | `u32` | `3` | Max planning iterations |
+| `repo_dir` | `Option<String>` | `None` | Repository directory |
+
+- Settings are loaded on app startup via `setup()` hook
+- Invalid/missing settings.json falls back to defaults with a warning
+- Planning and execution commands read from managed `AppSettings` instead of hardcoded values
+
+**Settings Commands:**
+
+| Command | Input | Output | Purpose |
+|---|---|---|---|
+| `get_settings` | _(none)_ | `AppSettings` | Read current in-memory settings |
+| `update_settings` | `AppSettings` | `()` | Persist to disk and update state |
+| `get_available_providers` | _(none)_ | `Vec<String>` | List provider names |
+| `get_available_models` | `provider_name: String` | `Vec<String>` | List models for a provider |
+
+**Frontend Components (M6):**
+
+- `SettingsPanel` — Form with provider selector, model input, tool flags editor, execution params, save button
+- `AppSettings` TypeScript type mirrors the Rust struct
+
+**App Phase: "settings":**
+
+Clicking "Settings" in the sidebar transitions to the `"settings"` phase, rendering the `SettingsPanel` component with current settings values.
+
+### Voice Input & Speech-to-Text (M7)
+
+**Architecture:**
+
+The voice feature uses a three-layer design:
+
+1. **Frontend** — `VoiceButton` component + `useVoice` hook manage `MediaRecorder` API lifecycle
+2. **Tauri Command** — `transcribe_audio` receives base64-encoded audio, proxies to STT provider
+3. **STT Provider** — Initially OpenAI Whisper API; the backend handles the API key securely
+
+**Security:** The `OPENAI_API_KEY` is never sent to the frontend. The Tauri backend reads it from the environment (via `dotenvy` loading `.env` if present) and proxies the STT request.
+
+**Voice Command:**
+
+| Command | Input | Output | Purpose |
+|---|---|---|---|
+| `transcribe_audio` | `audio_base64: String` | `String` | Send audio to STT, return transcribed text |
+
+**Frontend Components (M7):**
+
+- `VoiceButton` — Three-state button: idle (🎙), recording (⏹ pulsing), transcribing (⏳ spinner)
+- `useVoice` hook — Manages `MediaRecorder`, converts audio to base64, invokes Tauri command
+- `ChatInput` — Integrates `VoiceButton` next to the Send button; transcription populates textarea
+
+**Data Flow:**
+
+```
+User clicks 🎙 → MediaRecorder.start() → User clicks ⏹ → MediaRecorder.stop()
+→ Blob → base64 → invoke("transcribe_audio") → Rust backend
+→ dotenvy loads .env → reqwest POST to OpenAI Whisper API
+→ transcribed text → frontend → textarea populated
+```
+
+**Error Handling:**
+
+- Missing API key → descriptive error mentioning "API key"
+- Invalid base64 → error mentioning "base64"
+- Network failure → error mentioning "connection"
+- Empty transcription → error mentioning "empty"
+
+### Polish, Error Boundaries & Keyboard Shortcuts (M8)
+
+**Error Boundary:**
+
+The app uses a React `ErrorBoundary` class component (in `components/ErrorBoundary.tsx`) that wraps the entire application in `main.tsx`. If any child component throws during rendering:
+
+1. `getDerivedStateFromError` captures the error and switches to fallback UI
+2. Fallback shows "Something went wrong" with the error message and a "Try Again" button
+3. "Try Again" resets the boundary state, re-rendering children
+
+**Keyboard Shortcuts:**
+
+Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
+
+| Shortcut | Action |
+|---|---|
+| `Cmd/Ctrl+Enter` | Submit prompt (handled in `ChatInput.tsx` via `onKeyDown`) |
+| `Cmd/Ctrl+N` | New session — resets all state to home screen |
+| `Cmd/Ctrl+,` | Open settings panel |
+| `Escape` | Close settings panel |
+
+**Concurrency Safety:**
+
+- `AppState.execution_running: Arc<AtomicBool>` prevents concurrent execution runs
+- `PlanningSession.in_progress` prevents concurrent planning sessions
+- Both use `compare_exchange` with `SeqCst` ordering for thread-safe checks
+
+## Test Architecture
+
+### Backend Tests
+
+| Suite | Location | Tests | Purpose |
+|---|---|---|---|
+| sldo-common unit | `crates/sldo-common/src/*.rs` | 48 | Core library validation |
+| sldo-plan unit | `crates/sldo-plan/src/main.rs` | 21 | Planning CLI tests |
+| sldo-run unit | `crates/sldo-run/src/main.rs` | 13 | Execution CLI tests |
+| sldo-tauri unit | `crates/sldo-tauri/src/**/*.rs` | 56 | Tauri backend tests |
+| E2E scaffold | `tests/e2e_scaffold_m1.rs` | 4 | Framework validation |
+| E2E common | `tests/e2e_common_m2.rs` | 7 | Shared library E2E |
+| E2E plan | `tests/e2e_plan_m3.rs` | 4 | Planning CLI E2E |
+| E2E run | `tests/e2e_run_m4.rs` | 4 | Execution CLI E2E |
+| E2E integration | `tests/e2e_integration_m5.rs` | 4 | Cross-crate integration |
+| E2E tauri M1 | `tests/e2e_tauri_m1.rs` | 7 | Tauri scaffold E2E |
+| E2E tauri M3 | `tests/e2e_tauri_m3.rs` | 5 | Planning backend E2E |
+| E2E tauri M4 | `tests/e2e_tauri_m4.rs` | 3 | Editor backend E2E |
+| E2E tauri M5 | `tests/e2e_tauri_m5.rs` | 10 | Execution backend E2E |
+| E2E tauri M6 | `tests/e2e_tauri_m6.rs` | 6 | Settings/provider E2E |
+| E2E tauri M7 | `tests/e2e_tauri_m7.rs` | 2 | Voice backend E2E |
+| E2E tauri M8 | `tests/e2e_tauri_m8.rs` | 6 | Integration & polish E2E |
+
+**Total backend tests: 200**
+
+### Frontend Tests
+
+| Suite | Location | Tests | Purpose |
+|---|---|---|---|
+| BDD component tests | `ui/src/components/*.test.tsx` | 55+ | Component behavior validation |
+| E2E chatui | `ui/src/e2e/chatui.e2e.test.tsx` | 4 | Chat UI runtime validation |
+| E2E planning | `ui/src/e2e/planning.e2e.test.tsx` | 2 | Planning flow validation |
+| E2E editor | `ui/src/e2e/editor.e2e.test.tsx` | 3+ | Editor runtime validation |
+| E2E execution | `ui/src/e2e/execution.e2e.test.tsx` | 3 | Execution flow validation |
+| E2E settings | `ui/src/e2e/settings.e2e.test.tsx` | 3 | Settings panel validation |
+| E2E voice | `ui/src/e2e/voice.e2e.test.tsx` | 3 | Voice input validation |
+| E2E integration | `ui/src/e2e/integration.e2e.test.tsx` | 6 | Full workflow integration |
+
+**Total frontend tests: 90**

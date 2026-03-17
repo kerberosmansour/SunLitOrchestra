@@ -11,7 +11,6 @@ use sldo_common::copilot::CopilotInvocation;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
 use sldo_common::runbook;
-use sldo_common::toolflags;
 
 use crate::events::{PlanCompleteEvent, PlanErrorEvent, PlanProgressEvent};
 use crate::state::{AppState, PlanningSession};
@@ -352,6 +351,8 @@ pub async fn start_planning(
                     &output_clone,
                     &settings.model,
                     settings.max_iterations,
+                    &settings.allow_flags,
+                    &settings.deny_flags,
                 )
             }));
 
@@ -396,6 +397,8 @@ fn run_planning_sync(
     output_path: &Path,
     model: &str,
     max_iterations: u32,
+    allow_flags: &[String],
+    deny_flags: &[String],
 ) -> Result<(), anyhow::Error> {
     // Ensure output directory exists
     if let Some(parent) = output_path.parent() {
@@ -417,8 +420,8 @@ fn run_planning_sync(
         let invocation = CopilotInvocation {
             prompt: planning_prompt,
             model: model.to_string(),
-            allow_flags: toolflags::plan_allow_flags(),
-            deny_flags: toolflags::plan_deny_flags(),
+            allow_flags: allow_flags.to_vec(),
+            deny_flags: deny_flags.to_vec(),
             working_dir: repo_dir.to_path_buf(),
         };
 

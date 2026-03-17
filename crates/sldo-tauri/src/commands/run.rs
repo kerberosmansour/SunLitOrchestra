@@ -13,7 +13,6 @@ use sldo_common::copilot::CopilotInvocation;
 use sldo_common::detect;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::runbook;
-use sldo_common::toolflags;
 
 use crate::events::{
     BuildTestResultEvent, ExecutionCompleteEvent, ExecutionProgressEvent,
@@ -202,15 +201,17 @@ pub async fn start_execution(
             }
         };
 
-        let allow_flags = toolflags::run_allow_flags();
-        let deny_flags = toolflags::run_deny_flags();
-        let model = {
-            // Read model from settings if available
-            "claude-opus-4.6".to_string()
+        let (allow_flags, deny_flags, model, max_attempts, cooldown_secs) = {
+            let state_ref = app.state::<AppState>();
+            let settings = state_ref.settings.lock().unwrap();
+            (
+                settings.allow_flags.clone(),
+                settings.deny_flags.clone(),
+                settings.model.clone(),
+                settings.max_attempts,
+                settings.cooldown_secs,
+            )
         };
-
-        let max_attempts: u32 = 150;
-        let cooldown_secs: u64 = 5;
         let mut attempt: u32 = 0;
         let mut milestones_completed: u32 = 0;
 
