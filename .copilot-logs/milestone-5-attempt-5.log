@@ -375,4 +375,401 @@ Now let's run the frontend tests to see if everything passes:
   │ vitest run 2>&1 | tail -40
   └ 21 lines...
 
-All 56 frontend tests pass
+All 56 frontend tests pass (12 new). Let's also run the full Rust test suite:
+
+● Run all Rust tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -50
+  └ 50 lines...
+
+All tests pass. Now let me handle the post-milestone tasks. Let me check existing smoke tests and verify backward compatibility:
+
+● Verify build and CLI backward compat (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5 && echo "---" && cargo run --bin sldo-run -- --help 2>&1 | head -10
+  └ 10 lines...
+
+● Verify sldo-run CLI works (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo run -p sldo-run --
+  │ --help 2>&1 | head -10
+  └ 11 lines...
+
+Good, CLI backward compatibility confirmed. Now let me update ARCHITECTURE.md with the execution flow docs:
+
+● Read ARCHITECTURE.md
+  │ docs/ARCHITECTURE.md
+  └ L1:50 (50 lines read)
+
+● Check file length (shell)
+  │ wc -l /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/ARCHITECTURE.md
+  └ 2 lines...
+
+● Read ARCHITECTURE.md
+  │ docs/ARCHITECTURE.md
+  └ L50:157 (108 lines read)
+
+Now add the M5 execution section:
+
+● Edit ARCHITECTURE.md +58
+  └ docs/ARCHITECTURE.md
+
+Now let me read the Documentation Update table at the bottom of the runbook to see if there's anything else:
+
+● Find doc update table (shell)
+  │ grep -n "Documentation Update"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-TAURI-DESKTOP.md
+  └ 4 lines...
+
+● Read RUNBOOK-TAURI-DESKTOP.md
+  │ docs/RUNBOOK-TAURI-DESKTOP.md
+  └ L1277:1320 (14 lines read)
+
+M5 needs only ARCHITECTURE.md update (done) and no README update. Now write the lessons-learned file:
+
+● Create tauri-desktop-m5.md +53
+  └ docs/lessons/tauri-desktop-m5.md
+
+Now update the milestone tracker to `done`:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now run the final check — all build and test commands:
+
+● Final build check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5
+  └ 6 lines...
+
+● Final Rust test check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -30
+  └ 29 lines...
+
+● Final frontend test check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -20
+  └ 19 lines...
+
+All green. Here's a summary:
+
+## Milestone 5 — Execution Backend: Complete ✅
+
+**What was done:**
+
+- **Rust backend**: Created `commands/run.rs` with `start_execution` (async loop via `tokio::spawn`) and `cancel_execution` (sets `AtomicBool` flag). Added 5 execution event types to `events.rs`. Added cancellation/running flags to `state.rs`.
+
+- **Frontend**: Created `ExecutionView` component (log panel, build/test results, cancel button, sidebar tracker), `useExecution` hook (event listeners + Tauri command wrappers). Updated `MilestoneTracker` with `activeMilestone` prop. Wired executing phase in `App.tsx`.
+
+- **Tests**: 10 Rust E2E tests, 7 Rust unit tests (run.rs), 8 event/state BDD tests, 9 ExecutionView BDD tests, 3 execution E2E frontend tests — **all 56 frontend + all Rust tests pass**.
+
+- **Docs**: Updated `ARCHITECTURE.md` with execution flow, events, and cancellation pattern. Wrote `docs/lessons/tauri-desktop-m5.md`.
+
+
+Total usage est:        3 Premium requests
+API time spent:         12m 10s
+Total session time:     12m 10s
+Total code changes:     +1779 -5
+Breakdown by AI model:
+ claude-opus-4.6         4.1m in, 31.9k out, 3.9m cached (Est. 3 Premium requests)
+ claude-haiku-4.5        162.6k in, 18.7k out, 113.7k cached (Est. 0 Premium requests)
+
+[2026-03-17 18:16:58] Exit code: 0
+[2026-03-17 18:16:58] Milestone: 5 — Execution backend — milestone runner & live progress
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+warning: fields `id` and `prompt` are never read
+  --> crates/sldo-tauri/src/state.rs:23:9
+   |
+21 | pub struct PlanningSession {
+   |            --------------- fields in this struct
+22 |     /// Unique session identifier.
+23 |     pub id: String,
+   |         ^^
+24 |     /// The user's original prompt.
+25 |     pub prompt: String,
+   |         ^^^^^^
+   |
+   = note: `PlanningSession` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `repo_dir` is never read
+  --> crates/sldo-tauri/src/state.rs:40:9
+   |
+34 | pub struct AppSettings {
+   |            ----------- field in this struct
+...
+40 |     pub repo_dir: Option<PathBuf>,
+   |         ^^^^^^^^
+   |
+   = note: `AppSettings` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: `sldo-tauri` (bin "sldo-tauri") generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.04s
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+warning: field `prompt` is never read
+  --> crates/sldo-tauri/src/state.rs:25:9
+   |
+21 | pub struct PlanningSession {
+   |            --------------- field in this struct
+...
+25 |     pub prompt: String,
+   |         ^^^^^^
+   |
+   = note: `PlanningSession` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sldo-tauri` (bin "sldo-tauri" test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.92s
+     Running unittests src/lib.rs (target/debug/deps/sldo_common-55f1242b0e9c4358)
+
+running 48 tests
+test color::tests::divider_prints_to_stderr ... ok
+test color::tests::header_prints_to_stderr ... ok
+test copilot::tests::copilot_invocation_builds_correctly ... ok
+test copilot::tests::copilot_invocation_working_dir ... ok
+test color::tests::fail_prints_to_stderr ... ok
+test color::tests::info_prints_to_stderr ... ok
+test color::tests::warn_prints_to_stderr ... ok
+test color::tests::success_prints_to_stderr ... ok
+test detect::tests::detect_cargo_project ... ok
+test detect::tests::detect_cargo_test_commands ... ok
+test git::tests::protected_branch_check_master ... ok
+test git::tests::protected_branch_check_main ... ok
+test git::tests::safe_branch_check ... ok
+test detect::tests::no_build_files_empty_dir ... ok
+test detect::tests::detect_npm_project_with_build_script ... ok
+test detect::tests::detect_go_project ... ok
+test logging::tests::log_file_appends_timestamped_line ... ok
+test detect::tests::detect_makefile_with_build_target ... ok
+test preflight::tests::check_file_exists_with_existing_file ... ok
+test preflight::tests::check_file_exists_with_missing_file ... ok
+test logging::tests::log_file_creates_parent_dirs ... ok
+test preflight::tests::check_copilot_installed_does_not_panic ... ok
+test logging::tests::ensure_log_dir_creates_copilot_logs ... ok
+test runbook::tests::milestone_status_display ... ok
+test runbook::tests::milestone_status_from_str ... ok
+test color::tests::timestamp_format ... ok
+test runbook::tests::mixed_status_parsing ... ok
+test runbook::tests::all_done_false_when_not_all_done ... ok
+test runbook::tests::next_incomplete_finds_first_non_done ... ok
+test tests::version_returns_non_empty_string ... ok
+test toolflags::tests::plan_allow_flags_contains_write ... ok
+test runbook::tests::all_done_detection ... ok
+test toolflags::tests::plan_deny_flags_contains_rm_rf_root ... ok
+test toolflags::tests::run_allow_flags_contains_cargo ... ok
+test tests::version_is_valid_semver ... ok
+test runbook::tests::parse_tracker_table ... ok
+test toolflags::tests::plan_allow_flags_contains_shell_cat ... ok
+test toolflags::tests::run_allow_flags_contains_rm ... ok
+test toolflags::tests::run_deny_flags_contains_force_push ... ok
+test runbook::tests::next_incomplete_returns_none_when_all_done ... ok
+test runbook::tests::parse_tracker_extracts_dates_and_lessons ... ok
+test git::tests::detect_non_git_dir ... ok
+test git::tests::detect_git_repo ... ok
+test git::tests::current_branch_returns_non_empty ... ok
+test preflight::tests::check_git_safety_on_own_repo ... ok
+test copilot::tests::run_still_works_after_refactor ... ok
+test copilot::tests::copilot_invocation_run_handles_missing_binary ... ok
+test copilot::tests::run_with_callback_receives_all_lines ... ok
+
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.13s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_plan-42562d353093f8f3)
+
+running 21 tests
+test tests::first_iteration_prompt ... ok
+test tests::missing_file_returns_issue ... ok
+test tests::resolve_output_absolute ... ok
+test tests::refinement_iteration_prompt ... ok
+test tests::resolve_output_default ... ok
+test tests::resolve_output_relative ... ok
+test tests::default_output_is_none ... ok
+test tests::default_max_iterations ... ok
+test tests::default_model ... ok
+test tests::custom_model ... ok
+test tests::custom_max_iterations ... ok
+test tests::custom_output ... ok
+test tests::missing_args_errors ... ok
+test tests::template_missing_returns_fallback ... ok
+test tests::help_flag_exits_zero ... ok
+test tests::template_exists_returns_content ... ok
+test tests::small_file_returns_issue ... ok
+test tests::unfilled_placeholders_returns_issue ... ok
+test tests::missing_section_returns_issue ... ok
+test tests::done_milestones_returns_issue ... ok
+test tests::valid_runbook_returns_empty_issues ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_run-2a1188be9a62e28f)
+
+running 13 tests
+test tests::first_attempt_prompt ... ok
+test tests::default_cooldown ... ok
+test tests::empty_command_list ... ok
+test tests::custom_cooldown ... ok
+test tests::default_model ... ok
+test tests::custom_max_attempts ... ok
+test tests::missing_args ... ok
+test tests::multiple_test_cmds ... ok
+test tests::retry_prompt ... ok
+test tests::multiple_build_cmds ... ok
+test tests::help_flag ... ok
+test tests::successful_command ... ok
+test tests::failed_command ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_tauri-470a1efc24c8b454)
+
+running 39 tests
+test commands::plan::tests::build_planning_prompt_iteration_2_has_refinement ... ok
+test commands::plan::tests::build_planning_prompt_contains_requirements ... ok
+test commands::plan::tests::read_runbook_missing_file_returns_error ... ok
+test commands::plan::tests::milestone_row_dto_from_runbook_row ... ok
+test commands::plan::tests::read_template_fallback ... ok
+test commands::plan::tests::resolve_output_path_absolute ... ok
+test commands::plan::tests::resolve_output_path_default ... ok
+test commands::plan::tests::resolve_output_path_relative ... ok
+test commands::plan::tests::validate_runbook_missing_file ... ok
+test commands::plan::tests::copilot_not_installed_returns_error_mentioning_copilot ... ok
+test commands::run::tests::build_execution_prompt_contains_runbook_path ... ok
+test commands::plan::tests::validate_runbook_valid_content ... ok
+test commands::run::tests::build_execution_prompt_contains_build_commands ... ok
+test commands::run::tests::build_execution_prompt_first_attempt_no_retry ... ok
+test commands::run::tests::build_execution_prompt_no_commands_shows_placeholder ... ok
+test commands::run::tests::build_execution_prompt_retry_includes_attempt ... ok
+test events::tests::build_test_result_event_serializes ... ok
+test events::tests::execution_complete_event_deserializes ... ok
+test events::tests::execution_complete_event_serializes ... ok
+test events::tests::execution_progress_event_serializes ... ok
+test events::tests::milestone_completed_event_serializes ... ok
+test events::tests::milestone_started_event_serializes ... ok
+test events::tests::plan_complete_event_serializes ... ok
+test events::tests::plan_error_event_serializes ... ok
+test events::tests::plan_progress_event_deserializes ... ok
+test events::tests::plan_progress_event_serializes ... ok
+test state::tests::app_settings_default_values ... ok
+test state::tests::app_state_default_has_no_session ... ok
+test state::tests::app_state_has_cancel_flag ... ok
+test state::tests::app_state_has_execution_running_flag ... ok
+test state::tests::cancel_flag_can_be_set ... ok
+test state::tests::planning_session_tracks_state ... ok
+test tests::tauri_crate_depends_on_common ... ok
+test commands::plan::tests::save_runbook_invalid_content_returns_warnings ... ok
+test commands::plan::tests::save_runbook_writes_and_validates ... ok
+test commands::plan::tests::read_runbook_returns_content_and_milestones ... ok
+test commands::run::tests::run_verification_command_success ... ok
+test commands::run::tests::run_verification_command_failure ... ok
+test commands::plan::tests::protected_branch_rejected ... ok
+
+test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/e2e_common_m2.rs (target/debug/deps/e2e_common_m2-2ca3e9d0b6d33f92)
+
+running 4 tests
+test detect_commands_on_own_repo ... ok
+test parse_real_template_tracker ... ok
+test parse_actual_runbook_tracker ... ok
+test git_checks_on_own_repo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/e2e_integration_m5.rs (target/debug/deps/e2e_integration_m5-eacfd00aeea95887)
+
+running 7 tests
+test cli_flag_parity_plan ... ok
+test plan_rejects_protected_branch ... ok
+test cli_flag_parity_run ... ok
+test run_rejects_protected_branch ... ok
+test run_detects_all_done ... ok
+test plan_end_to_end_with_mock ... ok
+test run_end_to_end_with_mock ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s
+
+     Running tests/e2e_plan_m3.rs (target/debug/deps/e2e_plan_m3-53365c1568699498)
+
+running 4 tests
+test plan_reads_real_template ... ok
+test plan_validates_own_runbook ... ok
+test plan_missing_args_exits_nonzero ... ok
+test plan_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_run_m4.rs (target/debug/deps/e2e_run_m4-a6954d1b70a37313)
+
+running 4 tests
+test run_detects_cargo_in_own_repo ... ok
+test run_parses_tracker_from_real_runbook ... ok
+test run_missing_args_exits_nonzero ... ok
+test run_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_scaffold_m1.rs (target/debug/deps/e2e_scaffold_m1-519cd68069fe6d8b)
+
+running 4 tests
+test common_version_exists ... ok
+test plan_binary_runs ... ok
+test run_binary_runs ... ok
+test workspace_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+
+     Running tests/e2e_tauri_m1.rs (target/debug/deps/e2e_tauri_m1-a1bcb2d27f499ce8)
+
+running 7 tests
+test tauri_references_common ... ok
+test app_css_contains_design_tokens ... ok
+test logo_available_in_public ... ok
+test frontend_dist_exists_after_build ... ok
+test tauri_crate_compiles ... ok
+test workspace_builds_with_tauri_crate ... ok
+test existing_tests_still_pass ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.66s
+
+     Running tests/e2e_tauri_m3.rs (target/debug/deps/e2e_tauri_m3-2a76bc43d658f946)
+
+running 5 tests
+test event_types_serialize_for_tauri ... ok
+test plan_allow_flags_used ... ok
+test plan_command_rejects_missing_copilot ... ok
+test copilot_run_with_callback_captures_lines ... ok
+test existing_run_method_backward_compatible ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+     Running tests/e2e_tauri_m4.rs (target/debug/deps/e2e_tauri_m4-2cab80d78306ba40)
+
+running 3 tests
+test save_invalid_content_returns_warnings ... ok
+test save_and_reparse_roundtrip ... ok
+test read_runbook_parses_real_file ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m5.rs (target/debug/deps/e2e_tauri_m5-c0ecdb01806ae56a)
+
+running 10 tests
+test cancellation_flag_stops_loop ... ok
+test build_test_result_event_serializes ... ok
+test execution_progress_event_serializes ... ok
+test execution_complete_event_serializes ... ok
+test milestone_completed_event_serializes ... ok
+test milestone_started_event_serializes ... ok
+test detect_build_commands_in_own_repo ... ok
+test all_done_runbook_detected ... ok
+test execution_parses_real_runbook ... ok
+test not_started_runbook_has_next_incomplete ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sldo_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
