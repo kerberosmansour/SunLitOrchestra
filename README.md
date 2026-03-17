@@ -108,6 +108,13 @@ cargo test --workspace
 
 SunLitOrchestrate includes a Tauri v2 desktop application that provides a graphical interface for AI-driven planning and execution.
 
+### UI Overview
+
+The desktop app features a chatbot-style interface:
+- **Home screen** — centered prompt input with sample prompt chips and hero branding
+- **Conversation view** — scrollable message thread with user/assistant messages and input pinned at bottom
+- **Sidebar** — navigation with logo, session management, and settings access
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) v18+ (for the React frontend)
@@ -131,6 +138,13 @@ cd crates/sldo-tauri/ui && npm run build
 
 # Build the full app
 cargo tauri build
+```
+
+### Testing
+
+```bash
+# Run frontend unit and component tests
+cd crates/sldo-tauri/ui && npm test
 ```
 
 ### Migrating from Bash
