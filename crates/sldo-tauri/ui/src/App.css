@@ -5965,4 +5965,29 @@ textarea:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+
+/* ── M2: Chat Input Wrapper ──────────────────────────────────── */
+
+.chatInputWrapper {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-end;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-sm);
+}
+
+.chatInputWrapper .textarea {
+  flex: 1;
+  resize: none;
+  min-height: 44px;
+  max-height: 200px;
+}
+
+.chatInputSubmit {
+  flex-shrink: 0;
+  min-width: auto;
+  padding: 10px 16px;
+}
 }

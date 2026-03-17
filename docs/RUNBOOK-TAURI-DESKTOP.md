@@ -13,8 +13,8 @@ Update this table as each milestone is completed. This is the **single source of
 | # | Milestone | Status | Started | Completed | Lessons File |
 |---|---|---|---|---|---|
 | 1 | Tauri workspace scaffolding & shell app | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m1.md` |
-| 2 | Chatbot UI — prompt screen & conversation layout | `in_progress` | 2026-03-17 | | |
-| 3 | Planning backend — Tauri commands & streaming | `not_started` | | | |
+| 2 | Chatbot UI — prompt screen & conversation layout | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m2.md` |
+| 3 | Planning backend — Tauri commands & streaming | `in_progress` | 2026-03-17 | | |
 | 4 | Markdown plan editor & runbook persistence | `not_started` | | | |
 | 5 | Execution backend — milestone runner & live progress | `not_started` | | | |
 | 6 | Settings panel & provider architecture | `not_started` | | | |
@@ -476,7 +476,7 @@ Complete the Post-Milestone Protocol above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `npm run build` in `crates/sldo-tauri/ui` succeeds
+- [x] `npm run build` in `crates/sldo-tauri/ui` succeeds
 - [ ] `cargo tauri dev` shows home screen with centered prompt
 - [ ] Clicking a prompt chip populates the input
 - [ ] Submitting a prompt transitions to conversation view

@@ -23,6 +23,21 @@ impl CopilotInvocation {
     /// Spawn the copilot process, pipe stdout/stderr to both the terminal and
     /// the log file, and return the exit code.
     pub fn run(&self, log_file: &LogFile) -> Result<i32> {
+        self.run_with_callback(log_file, |line, stream| {
+            match stream {
+                "stdout" => println!("{}", line),
+                _ => eprintln!("{}", line),
+            }
+        })
+    }
+
+    /// Spawn the copilot process, calling `on_line` for each stdout/stderr line
+    /// instead of printing directly. The callback receives the line content and
+    /// the stream name (`"stdout"` or `"stderr"`).
+    pub fn run_with_callback<F>(&self, log_file: &LogFile, mut on_line: F) -> Result<i32>
+    where
+        F: FnMut(&str, &str),
+    {
         let mut cmd = Command::new("copilot");
         cmd.arg("-p")
             .arg(&self.prompt)
@@ -48,7 +63,7 @@ impl CopilotInvocation {
         if let Some(stdout) = child.stdout.take() {
             let reader = BufReader::new(stdout);
             for line in reader.lines().map_while(Result::ok) {
-                println!("{}", line);
+                on_line(&line, "stdout");
                 let _ = log_file.append(&line);
             }
         }
@@ -57,7 +72,7 @@ impl CopilotInvocation {
         if let Some(stderr) = child.stderr.take() {
             let reader = BufReader::new(stderr);
             for line in reader.lines().map_while(Result::ok) {
-                eprintln!("{}", line);
+                on_line(&line, "stderr");
                 let _ = log_file.append(&format!("STDERR: {}", line));
             }
         }
