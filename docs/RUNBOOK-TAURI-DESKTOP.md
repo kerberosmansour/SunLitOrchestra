@@ -16,7 +16,7 @@ Update this table as each milestone is completed. This is the **single source of
 | 2 | Chatbot UI — prompt screen & conversation layout | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m2.md` |
 | 3 | Planning backend — Tauri commands & streaming | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m3.md` |
 | 4 | Markdown plan editor & runbook persistence | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m4.md` |
-| 5 | Execution backend — milestone runner & live progress | `in_progress` | 2026-03-17 | | |
+| 5 | Execution backend — milestone runner & live progress | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m5.md` |
 | 6 | Settings panel & provider architecture | `not_started` | | | |
 | 7 | Voice input & speech-to-text integration | `not_started` | | | |
 | 8 | Polish, integration tests & documentation | `not_started` | | | |
