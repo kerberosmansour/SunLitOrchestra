@@ -7,9 +7,10 @@ import type { MilestoneRow } from "../types";
 
 interface MilestoneTrackerProps {
   milestones: MilestoneRow[];
+  activeMilestone?: number;
 }
 
-function MilestoneTracker({ milestones }: MilestoneTrackerProps) {
+function MilestoneTracker({ milestones, activeMilestone }: MilestoneTrackerProps) {
   if (milestones.length === 0) {
     return (
       <div className="milestone-tracker milestone-tracker--empty">
@@ -40,7 +41,10 @@ function MilestoneTracker({ milestones }: MilestoneTrackerProps) {
 
       <div className="milestone-tracker__list">
         {milestones.map((m) => (
-          <div key={m.number} className="milestone-tracker__row">
+          <div
+            key={m.number}
+            className={`milestone-tracker__row${activeMilestone === m.number ? " milestone-tracker__row--active" : ""}`}
+          >
             <span
               className={`milestone-status milestone-status--${m.status}`}
               title={m.status}

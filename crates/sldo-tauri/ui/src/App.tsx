@@ -5,6 +5,9 @@ import HomeScreen from "./components/HomeScreen";
 import ConversationView from "./components/ConversationView";
 import MarkdownEditor from "./components/MarkdownEditor";
 import MilestoneTracker from "./components/MilestoneTracker";
+import ExecutionView from "./components/ExecutionView";
+import type { LogEntry, BuildTestEntry } from "./hooks/useExecution";
+import type { MilestoneStartedEvent, ExecutionCompleteEvent } from "./types";
 
 let messageCounter = 0;
 function nextId(): string {
@@ -19,6 +22,11 @@ function App() {
   const [milestones, setMilestones] = useState<MilestoneRow[]>([]);
   const [_runbookPath, setRunbookPath] = useState<string | null>(null);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+  const [executionLogs, setExecutionLogs] = useState<LogEntry[]>([]);
+  const [buildTestResults, setBuildTestResults] = useState<BuildTestEntry[]>([]);
+  const [currentMilestone, setCurrentMilestone] = useState<MilestoneStartedEvent | null>(null);
+  const [completionSummary, setCompletionSummary] = useState<ExecutionCompleteEvent | null>(null);
+  const [executionRunning, setExecutionRunning] = useState(false);
 
   const handleSubmitPrompt = useCallback((text: string) => {
     const userMsg: Message = {
@@ -47,6 +55,11 @@ function App() {
     setMilestones([]);
     setRunbookPath(null);
     setValidationWarnings([]);
+    setExecutionLogs([]);
+    setBuildTestResults([]);
+    setCurrentMilestone(null);
+    setCompletionSummary(null);
+    setExecutionRunning(false);
     messageCounter = 0;
   }, []);
 
@@ -73,6 +86,15 @@ function App() {
 
   const handleExecutePlan = useCallback(() => {
     setPhase("executing");
+    setExecutionRunning(true);
+    setExecutionLogs([]);
+    setBuildTestResults([]);
+    setCurrentMilestone(null);
+    setCompletionSummary(null);
+  }, []);
+
+  const handleCancelExecution = useCallback(() => {
+    setExecutionRunning(false);
   }, []);
 
   return (
@@ -104,6 +126,16 @@ function App() {
               </button>
             </div>
           </div>
+        ) : phase === "executing" ? (
+          <ExecutionView
+            milestones={milestones}
+            currentMilestone={currentMilestone}
+            logs={executionLogs}
+            buildTestResults={buildTestResults}
+            completionSummary={completionSummary}
+            isRunning={executionRunning}
+            onCancel={handleCancelExecution}
+          />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             <ConversationView

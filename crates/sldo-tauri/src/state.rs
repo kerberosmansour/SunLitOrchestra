@@ -1,7 +1,8 @@
 //! Managed application state for the Tauri backend.
 
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::atomic::AtomicBool;
+use std::sync::{Arc, Mutex};
 
 /// Top-level application state, managed by Tauri.
 pub struct AppState {
@@ -9,6 +10,10 @@ pub struct AppState {
     pub current_session: Mutex<Option<PlanningSession>>,
     /// Application settings.
     pub settings: Mutex<AppSettings>,
+    /// Cancellation flag for execution — set to `true` to stop the loop.
+    pub cancel_execution: Arc<AtomicBool>,
+    /// Whether an execution is currently running.
+    pub execution_running: Arc<AtomicBool>,
 }
 
 /// A planning session tracking an active or completed planning run.
@@ -50,6 +55,8 @@ impl Default for AppState {
         Self {
             current_session: Mutex::new(None),
             settings: Mutex::new(AppSettings::default()),
+            cancel_execution: Arc::new(AtomicBool::new(false)),
+            execution_running: Arc::new(AtomicBool::new(false)),
         }
     }
 }
@@ -91,5 +98,39 @@ mod tests {
         assert_eq!(session.id, "test-123");
         assert!(session.in_progress);
         assert!(session.runbook_path.is_none());
+    }
+
+    // ── Execution state BDD tests (M5) ──────────────────────────────────
+
+    #[test]
+    fn app_state_has_cancel_flag() {
+        // Given: Default AppState
+        let state = AppState::default();
+        // Then: Cancel flag is initially false
+        assert!(
+            !state.cancel_execution.load(std::sync::atomic::Ordering::Relaxed),
+            "Cancel flag should start as false"
+        );
+    }
+
+    #[test]
+    fn app_state_has_execution_running_flag() {
+        // Given: Default AppState
+        let state = AppState::default();
+        // Then: Execution running flag is initially false
+        assert!(
+            !state.execution_running.load(std::sync::atomic::Ordering::Relaxed),
+            "Execution running should start as false"
+        );
+    }
+
+    #[test]
+    fn cancel_flag_can_be_set() {
+        // Given: Default AppState
+        let state = AppState::default();
+        // When: Cancel flag is set to true
+        state.cancel_execution.store(true, std::sync::atomic::Ordering::Relaxed);
+        // Then: It reads as true
+        assert!(state.cancel_execution.load(std::sync::atomic::Ordering::Relaxed));
     }
 }
