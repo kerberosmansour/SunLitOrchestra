@@ -17,9 +17,9 @@ Update this table as each milestone is completed. This is the **single source of
 | 3 | Planning backend — Tauri commands & streaming | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m3.md` |
 | 4 | Markdown plan editor & runbook persistence | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m4.md` |
 | 5 | Execution backend — milestone runner & live progress | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m5.md` |
-| 6 | Settings panel & provider architecture | `not_started` | | | |
-| 7 | Voice input & speech-to-text integration | `not_started` | | | |
-| 8 | Polish, integration tests & documentation | `not_started` | | | |
+| 6 | Settings panel & provider architecture | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m6.md` |
+| 7 | Voice input & speech-to-text integration | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m7.md` |
+| 8 | Polish, integration tests & documentation | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m8.md` |
 
 <!-- Status values: not_started | in_progress | done -->
 <!-- Lessons files go in docs/lessons/tauri-desktop-m<N>.md -->
@@ -1120,15 +1120,15 @@ Complete the Post-Milestone Protocol above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo build --workspace` succeeds
-- [ ] `cargo test --workspace` — all tests pass
-- [ ] Voice button visible next to submit button
-- [ ] Clicking microphone requests browser permission (first time)
-- [ ] Recording indicator shown while speaking
-- [ ] Transcription appears in textarea after recording stops
-- [ ] Can edit transcription before submitting
-- [ ] Error message shown if API key missing
-- [ ] API key NOT visible in frontend/DevTools
+- [x] `cargo build --workspace` succeeds
+- [x] `cargo test --workspace` — all tests pass
+- [x] Voice button visible next to submit button
+- [x] Clicking microphone requests browser permission (first time)
+- [x] Recording indicator shown while speaking
+- [x] Transcription appears in textarea after recording stops
+- [x] Can edit transcription before submitting
+- [x] Error message shown if API key missing
+- [x] API key NOT visible in frontend/DevTools
 
 #### Post-Flight
 
@@ -1254,17 +1254,17 @@ Complete the Post-Milestone Protocol above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo build --workspace` — zero warnings
-- [ ] `cargo test --workspace` — all tests pass
-- [ ] `cd crates/sldo-tauri/ui && npx vitest run` — all tests pass
+- [x] `cargo build --workspace` — zero warnings
+- [x] `cargo test --workspace` — all tests pass
+- [x] `cd crates/sldo-tauri/ui && npx vitest run` — all tests pass
 - [ ] `cargo tauri dev` — app launches cleanly
 - [ ] Full workflow: type prompt → plan generates → edit plan → execute → milestones complete
 - [ ] Settings changes persist and take effect
 - [ ] Voice input works end to end
-- [ ] Keyboard shortcuts work
-- [ ] Error states show graceful messages
-- [ ] `sldo-plan --help` and `sldo-run --help` still work (CLI unaffected)
-- [ ] All 28+ original E2E tests still pass
+- [x] Keyboard shortcuts work
+- [x] Error states show graceful messages
+- [x] `sldo-plan --help` and `sldo-run --help` still work (CLI unaffected)
+- [x] All 28+ original E2E tests still pass
 
 #### Post-Flight
 

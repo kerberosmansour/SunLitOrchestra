@@ -27,6 +27,7 @@ publish = false
 sldo-common = { path = "crates/sldo-common" }
 serde_json = "1"
 serde = { version = "1", features = ["derive"] }
+dotenvy = "0.15"
 
 [[test]]
 name = "e2e_scaffold_m1"
@@ -63,3 +64,15 @@ path = "tests/e2e_tauri_m4.rs"
 [[test]]
 name = "e2e_tauri_m5"
 path = "tests/e2e_tauri_m5.rs"
+
+[[test]]
+name = "e2e_tauri_m6"
+path = "tests/e2e_tauri_m6.rs"
+
+[[test]]
+name = "e2e_tauri_m7"
+path = "tests/e2e_tauri_m7.rs"
+
+[[test]]
+name = "e2e_tauri_m8"
+path = "tests/e2e_tauri_m8.rs"

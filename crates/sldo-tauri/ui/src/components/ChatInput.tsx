@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, type KeyboardEvent, type ChangeEvent } from "react";
+import VoiceButton from "./VoiceButton";
 
 interface ChatInputProps {
   onSubmit: (text: string) => void;
@@ -33,6 +34,7 @@ function ChatInput({ onSubmit, initialValue }: ChatInputProps) {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Cmd/Ctrl+Enter or plain Enter (without Shift) submits
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
@@ -41,6 +43,13 @@ function ChatInput({ onSubmit, initialValue }: ChatInputProps) {
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
+  };
+
+  const handleTranscription = (text: string) => {
+    setValue((prev) => {
+      const separator = prev.trim() ? " " : "";
+      return prev + separator + text;
+    });
   };
 
   return (
@@ -62,6 +71,7 @@ function ChatInput({ onSubmit, initialValue }: ChatInputProps) {
       >
         Send
       </button>
+      <VoiceButton onTranscription={handleTranscription} />
     </div>
   );
 }
