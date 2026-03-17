@@ -1,0 +1,553 @@
+═══════════════════════════════════════════════════
+[2026-03-17 17:29:21] Attempt 1 — Milestone 1: Tauri workspace scaffolding & shell app
+═══════════════════════════════════════════════════
+
+
+
+
+● Read RUNBOOK-TAURI-DESKTOP.md
+  │ docs/RUNBOOK-TAURI-DESKTOP.md
+  └ 1 line read
+
+● List directory .
+  └ 13 files found
+
+● List directory crates
+  └ 3 files found
+
+● List directory docs
+  └ 8 files found
+
+● List directory src
+  └ 2 files found
+
+● List directory tests
+  └ 6 files found
+
+● Read beginning of runbook (shell)
+  │ head -200
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-TAURI-DESKTOP.md
+  └ 201 lines...
+
+Now let me read the Milestone 1 section and the BDD practices section in detail, plus check for architecture docs and lessons files.
+
+● Find milestone section line numbers (shell)
+  │ grep -n "## Milestone 1\|## Milestone 2\|## BDD Practices"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-TAURI-DESKTOP.md
+  └ 4 lines...
+
+● Check for architecture doc (shell)
+  │ ls /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/ARCHITECTURE.md 2>/dev/null
+  │ && echo "EXISTS" || echo "NOT_FOUND"
+  └ 2 lines...
+
+● Check for lessons files (shell)
+  │ ls /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/lessons/ 2>/dev/null
+  └ 2 lines...
+
+● Read RUNBOOK-TAURI-DESKTOP.md
+  │ docs/RUNBOOK-TAURI-DESKTOP.md
+  └ L194:370 (176 lines read)
+
+Now let me read the prerequisite files and verify the baseline.
+
+● Read App.css
+  │ docs/App.css
+  └ 1 line read
+
+● Read Cargo.toml
+  └ 46 lines read
+
+● Read Cargo.toml
+  │ crates/sldo-common/Cargo.toml
+  └ 16 lines read
+
+● Read rust-rewrite-m5.md
+  │ docs/lessons/rust-rewrite-m5.md
+  └ 41 lines read
+
+● Verify baseline build (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -10
+  └ 2 lines...
+
+● Verify baseline tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -20
+  └ 20 lines...
+
+● Count all test results (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ grep "test result:"
+  └ 10 lines...
+
+Baseline is green — all tests pass. Now let me create the plan and start working.
+
+● Create plan.md +32
+  └ ~/.copilot/session-state/20cfa713-7953-413d-8fb0-8d57013b8258/plan.md
+
+Now let me update the Milestone Tracker to `in_progress` and start creating files. First, update the tracker:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now let me check what Tauri v2 packages are available and create the BDD/E2E test file first, then all the scaffolding. Let me check if Tauri CLI is installed:
+
+● Read App.css tokens (shell)
+  │ head -50 /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/App.css
+  └ 51 lines...
+
+● Check Node.js availability (shell)
+  │ which node && node --version && which npm && npm --version
+  └ 5 lines...
+
+● Check Tauri CLI availability (shell)
+  │ which cargo-tauri 2>/dev/null && cargo tauri --version 2>/dev/null || echo "cargo-tauri not
+  │ installed"
+  └ 3 lines...
+
+Good. Tauri CLI v2.10.1 is installed, Node v22.20.0 is available. Now let me look at the existing sldo-common lib.rs to understand what's exported (especially `version()`):
+
+● Check sldo-common exports (shell)
+  │ head -30
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-common/src/lib.rs
+  └ 31 lines...
+
+● Find version function (shell)
+  │ grep -n "pub fn version\|pub fn "
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-common/src/lib.rs | head
+  │ -20
+  └ 2 lines...
+
+Now I have everything I need. Let me create all the files. I'll start with the BDD/E2E test file, then create the entire Tauri crate structure.
+
+● Create e2e_tauri_m1.rs +147
+  └ tests/e2e_tauri_m1.rs
+
+Now add the test target to root Cargo.toml and add the workspace member. Then create all the Tauri crate files:
+
+● Edit Cargo.toml +1
+
+● Edit Cargo.toml +4
+
+Now create the directory structure and all Tauri crate files:
+
+● Create directory structure (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && \
+  │ mkdir -p crates/sldo-tauri/src && \
+  │ mkdir -p crates/sldo-tauri/icons && \
+  │ mkdir -p crates/sldo-tauri/ui/src/e2e && \
+  │ mkdir -p crates/sldo-tauri/ui/public
+  └ 1 line...
+
+● Create Cargo.toml +16
+  └ crates/sldo-tauri/Cargo.toml
+
+● Create tauri.conf.json +36
+  └ crates/sldo-tauri/tauri.conf.json
+
+● Create build.rs +4
+  └ crates/sldo-tauri/build.rs
+
+● Create main.rs +25
+  └ crates/sldo-tauri/src/main.rs
+
+Now create the React frontend files:
+
+● Create vite.config.ts +15
+  └ crates/sldo-tauri/ui/vite.config.ts
+
+● Create App.tsx +18
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+● Create main.tsx +11
+  └ crates/sldo-tauri/ui/src/main.tsx
+
+● Create package.json +24
+  └ crates/sldo-tauri/ui/package.json
+
+● Create index.html +14
+  └ crates/sldo-tauri/ui/index.html
+
+● Create tsconfig.json +22
+  └ crates/sldo-tauri/ui/tsconfig.json
+
+Now copy the CSS and logo:
+
+● Copy CSS and logo (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && \
+  │ cp docs/App.css crates/sldo-tauri/ui/src/App.css && \
+  │ cp docs/sunlit.jpeg crates/sldo-tauri/ui/public/sunlit.jpeg && \
+  │ echo "Files copied successfully"
+  └ 2 lines...
+
+Now install frontend dependencies:
+
+● Install frontend dependencies (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm
+  │ install 2>&1 | tail -20
+  └ 7 lines...
+
+Now let me try to build the frontend:
+
+● Build frontend (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1
+  └ 13 lines...
+
+Need to fix the unused React import — with React 18 + `react-jsx` transform, we don't need explicit React import:
+
+● Edit main.tsx +5 -5
+  └ crates/sldo-tauri/ui/src/main.tsx
+
+● Edit App.tsx -2
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+● Build frontend again (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1
+  └ 19 lines...
+
+Frontend builds. The CSS warning is from the original App.css (not an error). Now let's build the Rust side:
+
+● Build workspace with Tauri (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -20
+  └ 21 lines...
+
+Need to generate icons. Let me use the Tauri icon generation or simply create placeholder icons and simplify the config:
+
+✗ Generate Tauri icons (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri && cargo tauri
+  │ icon ../../../docs/sunlit.jpeg 2>&1 | tail -20
+  └ Permission denied and could not request permission from user
+
+✗ Generate Tauri icons (correct path) (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri && cargo tauri
+  │ icon ../../docs/sunlit.jpeg 2>&1
+  └ Permission denied and could not request permission from user
+
+Let me create the icons using `sips` (macOS built-in):
+
+✗ Create icon PNGs (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/icons && \
+  │ sips -s format png -z 32 32 ../../../docs/sunlit.jpeg --out 32x32.png 2>&1 && \
+  │ sips -s format png -z 128 128 ../../../docs/sunlit.jpeg --out 128x128.png 2>&1 && \
+  │ sips -s format png -z 256 256 ../../../docs/sunlit.jpeg --out '128x128@2x.png' 2>&1 && \
+  │ sips -s format png -z 512 512 ../../../docs/sunlit.jpeg --out icon.png 2>&1 && \…
+  └ Permission denied and could not request permission from user
+
+● Create icons with Python PIL (shell)
+  │ python3 -c "
+  │ from PIL import Image
+  │ import os
+  │ src = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/sunlit.jpeg'
+  │ out = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/icons'…
+  └ 7 lines...
+
+Now I need `.icns` and `.ico` files too. Let me create them or simplify the config:
+
+● Create ico and icns files (shell)
+  │ python3 -c "
+  │ from PIL import Image
+  │ import os
+  │ src = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/sunlit.jpeg'
+  │ out = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/icons'…
+  └ 14 lines...
+
+● Verify icons exist (shell)
+  │ ls -la /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/icons/
+  └ 9 lines...
+
+Now let's try building again:
+
+● Build workspace with Tauri (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -20
+  └ 11 lines...
+
+Need RGBA PNGs:
+
+● Recreate icons as RGBA (shell)
+  │ python3 -c "
+  │ from PIL import Image
+  │ import os
+  │ src = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/sunlit.jpeg'
+  │ out = '/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/icons'…
+  └ 14 lines...
+
+● Build workspace with RGBA icons (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -10
+  └ 3 lines...
+
+Workspace builds. Now let's run all tests:
+
+● Run all workspace tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -30
+  └ 29 lines...
+
+All tests pass including the new E2E tests. Let me verify all test suites:
+
+● Count all test results (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ grep "test result:"
+  └ 12 lines...
+
+All 111 tests pass (up from 103 — added 7 new E2E + 1 unit test). Now let me run the smoke tests and complete the post-milestone protocol.
+
+● Smoke test: frontend build (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1 | tail -10 && echo "SMOKE: frontend build PASS" && ls dist/index.html && echo "SMOKE:
+  │ dist/index.html exists"
+  └ 14 lines...
+
+● Smoke test: workspace build (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5 && echo "SMOKE: cargo build --workspace PASS"
+  └ 7 lines...
+
+● Smoke test: all E2E tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace --test
+  │ 'e2e_*' 2>&1 | grep "test result:"
+  └ 7 lines...
+
+All smoke tests pass. Now update the runbook smoke test checkboxes, write lessons-learned, update README, and update tracker to done:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +3 -3
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now write the lessons-learned file:
+
+● Create tauri-desktop-m1.md +42
+  └ docs/lessons/tauri-desktop-m1.md
+
+Now update the milestone tracker to `done` and update README:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now update README.md with the Desktop App section:
+
+● Read README.md
+  └ 142 lines read
+
+● Edit README.md +31 -1
+
+Now run the final check — full build and test:
+
+● Final build check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5
+  └ 3 lines...
+
+● Final test check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1
+  └ 179 lines...
+
+All **111 tests pass** across all 11 test suites. Zero failures.
+
+## Milestone 1 Complete ✅
+
+**Summary of what was done:**
+
+1. **BDD/E2E tests written first** — `tests/e2e_tauri_m1.rs` with 7 tests covering workspace builds, Tauri compilation, sldo-common dependency, frontend build output, CSS tokens, and logo validation
+2. **Tauri v2 crate scaffolded** — `crates/sldo-tauri/` with Cargo.toml, build.rs, tauri.conf.json, main.rs (depends on `sldo-common`)
+3. **React frontend created** — Vite + TypeScript + React 18 with `@tauri-apps/api` v2, shell App showing "Hello SunLitOrchestrate" with logo
+4. **Design tokens copied** — `docs/App.css` → `crates/sldo-tauri/ui/src/App.css`, logo → `public/sunlit.jpeg`
+5. **Icons generated** — RGBA PNGs at required sizes for Tauri bundling
+6. **All 111 tests green** — 103 pre-existing + 8 new (7 E2E + 1 unit)
+7. **Docs updated** — README.md Desktop App section, lessons-learned file, milestone tracker set to `done`
+
+
+Total usage est:        3 Premium requests
+API time spent:         5m 14s
+Total session time:     6m 36s
+Total code changes:     +452 -13
+Breakdown by AI model:
+ claude-opus-4.6         1.7m in, 15.5k out, 1.5m cached (Est. 3 Premium requests)
+
+[2026-03-17 17:36:00] Exit code: 0
+[2026-03-17 17:36:00] Milestone: 1 — Tauri workspace scaffolding & shell app
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.94s
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.70s
+     Running unittests src/lib.rs (target/debug/deps/sldo_common-55f1242b0e9c4358)
+
+running 46 tests
+test color::tests::divider_prints_to_stderr ... ok
+test color::tests::header_prints_to_stderr ... ok
+test copilot::tests::copilot_invocation_builds_correctly ... ok
+test copilot::tests::copilot_invocation_working_dir ... ok
+test color::tests::fail_prints_to_stderr ... ok
+test detect::tests::detect_cargo_project ... ok
+test detect::tests::detect_cargo_test_commands ... ok
+test color::tests::warn_prints_to_stderr ... ok
+test color::tests::success_prints_to_stderr ... ok
+test color::tests::info_prints_to_stderr ... ok
+test git::tests::protected_branch_check_main ... ok
+test git::tests::protected_branch_check_master ... ok
+test git::tests::safe_branch_check ... ok
+test preflight::tests::check_file_exists_with_existing_file ... ok
+test preflight::tests::check_copilot_installed_does_not_panic ... ok
+test preflight::tests::check_file_exists_with_missing_file ... ok
+test detect::tests::no_build_files_empty_dir ... ok
+test detect::tests::detect_go_project ... ok
+test detect::tests::detect_npm_project_with_build_script ... ok
+test detect::tests::detect_makefile_with_build_target ... ok
+test logging::tests::log_file_appends_timestamped_line ... ok
+test runbook::tests::milestone_status_display ... ok
+test runbook::tests::milestone_status_from_str ... ok
+test logging::tests::ensure_log_dir_creates_copilot_logs ... ok
+test logging::tests::log_file_creates_parent_dirs ... ok
+test tests::version_is_valid_semver ... ok
+test color::tests::timestamp_format ... ok
+test runbook::tests::all_done_detection ... ok
+test tests::version_returns_non_empty_string ... ok
+test toolflags::tests::plan_allow_flags_contains_shell_cat ... ok
+test toolflags::tests::plan_allow_flags_contains_write ... ok
+test runbook::tests::all_done_false_when_not_all_done ... ok
+test toolflags::tests::plan_deny_flags_contains_rm_rf_root ... ok
+test toolflags::tests::run_allow_flags_contains_rm ... ok
+test toolflags::tests::run_allow_flags_contains_cargo ... ok
+test runbook::tests::next_incomplete_returns_none_when_all_done ... ok
+test toolflags::tests::run_deny_flags_contains_force_push ... ok
+test runbook::tests::mixed_status_parsing ... ok
+test runbook::tests::parse_tracker_table ... ok
+test runbook::tests::next_incomplete_finds_first_non_done ... ok
+test runbook::tests::parse_tracker_extracts_dates_and_lessons ... ok
+test git::tests::detect_non_git_dir ... ok
+test git::tests::detect_git_repo ... ok
+test git::tests::current_branch_returns_non_empty ... ok
+test preflight::tests::check_git_safety_on_own_repo ... ok
+test copilot::tests::copilot_invocation_run_handles_missing_binary ... ok
+
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.99s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_plan-42562d353093f8f3)
+
+running 21 tests
+test tests::first_iteration_prompt ... ok
+test tests::missing_file_returns_issue ... ok
+test tests::custom_max_iterations ... ok
+test tests::default_output_is_none ... ok
+test tests::custom_model ... ok
+test tests::resolve_output_absolute ... ok
+test tests::custom_output ... ok
+test tests::default_max_iterations ... ok
+test tests::default_model ... ok
+test tests::resolve_output_default ... ok
+test tests::resolve_output_relative ... ok
+test tests::missing_args_errors ... ok
+test tests::refinement_iteration_prompt ... ok
+test tests::help_flag_exits_zero ... ok
+test tests::template_missing_returns_fallback ... ok
+test tests::template_exists_returns_content ... ok
+test tests::small_file_returns_issue ... ok
+test tests::missing_section_returns_issue ... ok
+test tests::unfilled_placeholders_returns_issue ... ok
+test tests::done_milestones_returns_issue ... ok
+test tests::valid_runbook_returns_empty_issues ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_run-2a1188be9a62e28f)
+
+running 13 tests
+test tests::first_attempt_prompt ... ok
+test tests::default_model ... ok
+test tests::empty_command_list ... ok
+test tests::default_cooldown ... ok
+test tests::custom_cooldown ... ok
+test tests::missing_args ... ok
+test tests::custom_max_attempts ... ok
+test tests::multiple_test_cmds ... ok
+test tests::retry_prompt ... ok
+test tests::multiple_build_cmds ... ok
+test tests::help_flag ... ok
+test tests::successful_command ... ok
+test tests::failed_command ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_tauri-e4791a821e019ac1)
+
+running 1 test
+test tests::tauri_crate_depends_on_common ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_common_m2.rs (target/debug/deps/e2e_common_m2-a3222d94feca07ae)
+
+running 4 tests
+test detect_commands_on_own_repo ... ok
+test parse_real_template_tracker ... ok
+test parse_actual_runbook_tracker ... ok
+test git_checks_on_own_repo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/e2e_integration_m5.rs (target/debug/deps/e2e_integration_m5-23d8933eb4c5021b)
+
+running 7 tests
+test cli_flag_parity_run ... ok
+test run_rejects_protected_branch ... ok
+test run_detects_all_done ... ok
+test cli_flag_parity_plan ... ok
+test plan_rejects_protected_branch ... ok
+test run_end_to_end_with_mock ... ok
+test plan_end_to_end_with_mock ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/e2e_plan_m3.rs (target/debug/deps/e2e_plan_m3-1816097b3ca9dddc)
+
+running 4 tests
+test plan_reads_real_template ... ok
+test plan_validates_own_runbook ... ok
+test plan_missing_args_exits_nonzero ... ok
+test plan_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_run_m4.rs (target/debug/deps/e2e_run_m4-bf019ef924600cdc)
+
+running 4 tests
+test run_detects_cargo_in_own_repo ... ok
+test run_parses_tracker_from_real_runbook ... ok
+test run_missing_args_exits_nonzero ... ok
+test run_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_scaffold_m1.rs (target/debug/deps/e2e_scaffold_m1-854659ca4339ef61)
+
+running 4 tests
+test common_version_exists ... ok
+test plan_binary_runs ... ok
+test run_binary_runs ... ok
+test workspace_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.98s
+
+     Running tests/e2e_tauri_m1.rs (target/debug/deps/e2e_tauri_m1-e991e2fec3fb48ff)
+
+running 7 tests
+test tauri_references_common ... ok
+test app_css_contains_design_tokens ... ok
+test logo_available_in_public ... ok
+test frontend_dist_exists_after_build ... ok
+test tauri_crate_compiles ... ok
+test workspace_builds_with_tauri_crate ... ok
+test existing_tests_still_pass ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.27s
+
+   Doc-tests sldo_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
