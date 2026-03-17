@@ -172,3 +172,147 @@ Now let me update the milestone tracker to `in_progress` and start writing tests
 ● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
   └ docs/RUNBOOK-TAURI-DESKTOP.md
 
+Now let me read the existing test files for patterns, then create all test files:
+
+● Read planning.e2e.test.tsx
+  │ crates/sldo-tauri/ui/src/e2e/planning.e2e.test.tsx
+  └ 69 lines read
+
+● Read test-setup.ts
+  │ crates/sldo-tauri/ui/src/test-setup.ts
+  └ 1 line read
+
+● Read StreamingPlan.test.tsx
+  │ crates/sldo-tauri/ui/src/components/StreamingPlan.test.tsx
+  └ 129 lines read
+
+Good, I have a clear picture of the test patterns. Now let me create all the test files and implementation files. I'll start with all the BDD and E2E test files:
+
+● Create editor.e2e.test.tsx +104
+  └ crates/sldo-tauri/ui/src/e2e/editor.e2e.test.tsx
+
+● Create MarkdownEditor.test.tsx +173
+  └ crates/sldo-tauri/ui/src/components/MarkdownEditor.test.tsx
+
+● Create MilestoneTracker.test.tsx +89
+  └ crates/sldo-tauri/ui/src/components/MilestoneTracker.test.tsx
+
+Now create the Rust E2E test file:
+
+● Create e2e_tauri_m4.rs +120
+  └ tests/e2e_tauri_m4.rs
+
+Now register the E2E test in the workspace Cargo.toml:
+
+● Edit Cargo.toml +4
+
+Now let me add the TypeScript types and create the production components:
+
+● Edit index.ts +20
+  └ crates/sldo-tauri/ui/src/types/index.ts
+
+Now create the MarkdownEditor component:
+
+● Create MarkdownEditor.tsx +124
+  └ crates/sldo-tauri/ui/src/components/MarkdownEditor.tsx
+
+Now create the MilestoneTracker component:
+
+● Create MilestoneTracker.tsx +74
+  └ crates/sldo-tauri/ui/src/components/MilestoneTracker.tsx
+
+Now add `read_runbook` and `save_runbook` Tauri commands to the backend. Let me update `commands/plan.rs`:
+
+● Edit plan.rs +111
+  └ crates/sldo-tauri/src/commands/plan.rs
+
+Now I need to add the `read_runbook` and `save_runbook` tests at the end of the plan.rs test module, and also register the new commands in `main.rs`:
+
+● Read plan.rs
+  │ crates/sldo-tauri/src/commands/plan.rs
+  └ L490:640 (140 lines read)
+
+● Edit plan.rs +126
+  └ crates/sldo-tauri/src/commands/plan.rs
+
+Now register the new commands in `main.rs`:
+
+● Edit main.rs +5 -1
+  └ crates/sldo-tauri/src/main.rs
+
+Now update `usePlan.ts` to add `loadRunbook` and `saveRunbook` functions:
+
+● Edit usePlan.ts +30
+  └ crates/sldo-tauri/ui/src/hooks/usePlan.ts
+
+Now update `App.tsx` to wire the "reviewing" phase with MarkdownEditor and MilestoneTracker:
+
+● Edit App.tsx +52 -1
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+Now let's build and test everything:
+
+● Build workspace (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -15
+  └ 16 lines...
+
+Build succeeds. Now let's run the Rust tests:
+
+● Run all Rust tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -40
+  └ 41 lines...
+
+TypeScript strict mode is flagging unused variables. Let me fix `App.tsx`:
+
+● Edit App.tsx +1 -1
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+The `handleReviewRunbook` function is also unused. Looking at the milestone spec, this function is meant to be called when the plan-complete event fires (transition to reviewing phase). Since we're building the wiring, let me make it an exported property or use an underscore pattern. Actually, the function needs to be used — it's exposed for when plan-complete fires. Let me check the App.test.tsx to understand how it's tested:
+
+● Read App.test.tsx
+  │ crates/sldo-tauri/ui/src/components/App.test.tsx
+  └ 46 lines read
+
+I need to wire `handleReviewRunbook` so it's used. Let me restructure App.tsx to add a "Review Plan" button in the planning phase:
+
+● Edit App.tsx +1 -1
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+Now I need to use `transitionToReviewing` somewhere. Let me add an `onPlanComplete` button to the planning phase. Actually, since the milestone spec says "After planning completes (plan-complete event), phase transitions to reviewing", and we're using mocked data for now (real Copilot integration isn't available), let me pass the callback to ConversationView. But I don't want to change ConversationView (M2/M3 component). Let me instead add a "Review Plan" button that overlays the planning phase:
+
+● Edit App.tsx +17 -4
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+Now let me also check if `_runbookPath` with underscore prefix works in tsconfig with `noUnusedLocals`:
+
+● TypeScript type check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx tsc
+  │ --noEmit 2>&1
+  └ 2 lines...
+
+TypeScript passes. Now let me run the frontend tests:
+
+● Run frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1
+  └ 146 lines...
+
+The warning text includes the ⚠️ emoji prefix, so the text matcher can't find exact text. The rendered DOM shows `⚠️ Missing section: Milestone Tracker` (with the emoji prefix). Let me fix the test to use a more flexible matcher:
+
+● Edit MarkdownEditor.test.tsx +2 -2
+  └ crates/sldo-tauri/ui/src/components/MarkdownEditor.test.tsx
+
+● Re-run frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -20
+  └ 19 lines...
+
+All 44 frontend tests pass. Now let me run the full Rust test suite:
+
+● Run all Rust tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -50
+  └ 49 lines...
+

@@ -54,3 +54,7 @@ path = "tests/e2e_tauri_m1.rs"
 [[test]]
 name = "e2e_tauri_m3"
 path = "tests/e2e_tauri_m3.rs"
+
+[[test]]
+name = "e2e_tauri_m4"
+path = "tests/e2e_tauri_m4.rs"

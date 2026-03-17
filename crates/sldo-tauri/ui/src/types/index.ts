@@ -41,3 +41,23 @@ export interface PlanErrorEvent {
 
 /** Status of a planning operation. */
 export type PlanStatus = "idle" | "streaming" | "complete" | "error";
+
+/** Status of a milestone in the tracker table. */
+export type MilestoneStatus = "done" | "in_progress" | "not_started";
+
+/** A single row from the Milestone Tracker table. */
+export interface MilestoneRow {
+  number: number;
+  title: string;
+  status: MilestoneStatus;
+  started?: string;
+  completed?: string;
+  lessons_file?: string;
+}
+
+/** Data returned by the read_runbook Tauri command. */
+export interface RunbookData {
+  content: string;
+  milestones: MilestoneRow[];
+  path: string;
+}
