@@ -572,3 +572,151 @@ I’m mapping the repo and capturing a working plan first, then I’ll synthesiz
   │ 1. Inspect repository structure, docs, workspace config, tests, and CI.…
   └ 6 lines...
 
+● Explore Surveying repository
+  │ Check legacy bash for reference (shell)
+  │   │ head -30 /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/src/plan-milestones.sh
+  │   └ 31 lines...
+  └ Verify build works (shell)
+      │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace
+      2>&1 |
+      │ tail -15
+      └ 2 lines...
+
+● List directory docs
+  └ 7 files found
+
+● Search (glob)
+  │ "**/package.json"
+  └ No matches found
+
+● Read 1773757397960-copilot-tool-output-yadmqq.txt
+  │ /var/folders/vp/gxpwxv35781228dln1w431pw0000gn/T/1773757397960-copilot-tool-output-yadmqq.txt
+  └ L1:220 (219 lines read)
+
+● Search (glob)
+  │ "**/.github/workflows/*"
+  └ No matches found
+
+● Read Cargo.toml
+  └ 46 lines read
+
+● Read README.md
+  └ 142 lines read
+
+I’ve got the high-level map; now I’m spot-checking the actual Rust modules, tests, and docs so the runbook can cite real files and commands instead of assumptions.
+
+● Read main.rs
+  │ crates/sldo-run/src/main.rs
+  └ L1:260 (260 lines read)
+
+● Read main.rs
+  │ crates/sldo-plan/src/main.rs
+  └ L1:260 (260 lines read)
+
+● Read Cargo.toml
+  │ crates/sldo-common/Cargo.toml
+  └ 16 lines read
+
+● Read lib.rs
+  │ crates/sldo-common/src/lib.rs
+  └ 42 lines read
+
+● Read Cargo.toml
+  │ crates/sldo-plan/Cargo.toml
+  └ 14 lines read
+
+● Read tauri-desktop-requirements.md
+  │ docs/tauri-desktop-requirements.md
+  └ L1:260 (118 lines read)
+
+● Read Cargo.toml
+  │ crates/sldo-run/Cargo.toml
+  └ 14 lines read
+
+I’ve confirmed the workspace is purely Rust today and there’s no existing frontend package or CI workflow, so I’m validating the exact test surface and the shared modules the Tauri layer must reuse.
+
+● Read e2e_integration_m5.rs
+  │ tests/e2e_integration_m5.rs
+  └ L1:260 (260 lines read)
+
+● Read runbook-template.md
+  │ docs/runbook-template.md
+  └ L1:220 (220 lines read)
+
+● Read runbook.rs
+  │ crates/sldo-common/src/runbook.rs
+  └ 255 lines read
+
+● Read toolflags.rs
+  │ crates/sldo-common/src/toolflags.rs
+  └ 222 lines read
+
+● Read copilot.rs
+  │ crates/sldo-common/src/copilot.rs
+  └ 147 lines read
+
+● Read e2e_plan_m3.rs
+  │ tests/e2e_plan_m3.rs
+  └ L1:220 (87 lines read)
+
+● Read detect.rs
+  │ crates/sldo-common/src/detect.rs
+  └ 263 lines read
+
+I’ve got enough structure to draft milestones, but I’m validating the live baseline now so the runbook can tell the next agent exactly what “green” looks like before any Tauri work starts.
+
+● List directory tests
+  └ 6 files found
+
+● List directory crates/sldo-common/src
+  └ 9 files found
+
+● Search (glob)
+  │ "**/ARCHITECTURE.md"
+  └ No matches found
+
+● Search (grep)
+  │ "#\[test\]" in *.rs
+  └ 16 files found
+
+● Run workspace tests (shell)
+  │ cargo test --workspace
+  └ 158 lines...
+
+I’m gathering the last repo-specific details for the runbook narrative: historical docs, fixtures, and legacy scripts that the Tauri layer must wrap without regressing.
+
+● List directory docs/lessons
+  └ 5 files found
+
+● List directory src
+  └ 2 files found
+
+● List directory tests/fixtures
+  └ 3 files found
+
+● Read App.css
+  │ docs/App.css
+  └ L1:120 (120 lines read)
+
+● Search (grep)
+  │ "runbook-template|docs/RUNBOOK.md|check_git_safety|ensure_log_dir|CopilotInvocation" in *.rs
+  └ 56 lines found
+
+I’m zooming in on the exact orchestration seams now—the places where the CLIs resolve templates, safety checks, logging, and Copilot execution—so the milestones can anchor on the real integration points.
+
+● Read main.rs
+  │ crates/sldo-plan/src/main.rs
+  └ L360:470 (111 lines read)
+
+● Read main.rs
+  │ crates/sldo-run/src/main.rs
+  └ L220:340 (121 lines read)
+
+● Read logging.rs
+  │ crates/sldo-common/src/logging.rs
+  └ 110 lines read
+
+● Read preflight.rs
+  │ crates/sldo-common/src/preflight.rs
+  └ 97 lines read
+
