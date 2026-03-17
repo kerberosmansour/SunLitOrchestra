@@ -123,3 +123,35 @@ interface ConversationViewProps {
 ```
 
 When `streamingLines` is non-empty, a streaming output block renders below the conversation messages, showing each line with its stream class (`streamLine--stdout` or `streamLine--stderr`).
+
+### Runbook Persistence & Editor (M4)
+
+After planning completes, the runbook is loaded into a Markdown editor for review and editing.
+
+**Backend Commands:**
+
+| Command | Input | Output | Purpose |
+|---|---|---|---|
+| `read_runbook` | `path: String` | `RunbookData { content, milestones, path }` | Read file, parse tracker, return content + milestones |
+| `save_runbook` | `path: String, content: String` | `Vec<String>` (warnings) | Write to disk, re-validate, return any issues |
+
+**Data Flow:**
+
+1. `plan-complete` event fires with `runbook_path`
+2. Frontend calls `read_runbook(path)` → gets content + parsed milestones
+3. MarkdownEditor displays content in edit/preview toggle
+4. MilestoneTracker renders milestone rows with color-coded status
+5. User edits and saves → `save_runbook(path, content)` validates and writes
+6. Warnings (missing sections, empty tracker) displayed below editor
+
+**Frontend Components (M4):**
+
+- `MarkdownEditor` — Toggle between raw textarea (edit) and rendered preview. Supports Ctrl+S, auto-save on blur, validation warnings display
+- `MilestoneTracker` — Renders milestone rows with status icons (✅ done, 🔄 in_progress, ⬜ not_started) and progress bar
+
+**App Phase: "reviewing":**
+
+After planning, the app transitions to the `"reviewing"` phase which shows:
+- MarkdownEditor (main area) — editable runbook content
+- MilestoneTracker (sidebar) — milestone progress overview
+- "Execute Plan" button — transitions to `"executing"` phase (wired in M5)
