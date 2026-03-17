@@ -155,3 +155,61 @@ After planning, the app transitions to the `"reviewing"` phase which shows:
 - MarkdownEditor (main area) — editable runbook content
 - MilestoneTracker (sidebar) — milestone progress overview
 - "Execute Plan" button — transitions to `"executing"` phase (wired in M5)
+
+### Execution Backend & Live Progress (M5)
+
+The execution backend drives Copilot through runbook milestones, streaming live progress to the frontend.
+
+**Backend Commands:**
+
+| Command | Input | Output | Purpose |
+|---|---|---|---|
+| `start_execution` | `runbook_path: String, repo_dir: String` | `String` (status message) | Starts async execution loop on `tokio::spawn` |
+| `cancel_execution` | _(none)_ | `String` (status message) | Sets `AtomicBool` cancellation flag to stop the loop |
+
+**Execution Flow:**
+
+1. Frontend calls `start_execution(runbookPath, repoDir)`
+2. Backend validates inputs, parses tracker, detects build/test commands
+3. If all milestones done, emits `execution-complete` immediately
+4. Otherwise, spawns async loop via `tokio::spawn`:
+   - Reads runbook, finds next incomplete milestone
+   - Emits `milestone-started` event
+   - Builds execution prompt (matching `sldo-run` pattern)
+   - Invokes Copilot via `run_with_callback`, emitting `execution-progress` for each line
+   - Runs build/test verification commands, emitting `build-test-result` for each
+   - Emits `milestone-completed`
+   - Checks cancellation flag before next iteration
+   - Sleeps cooldown between attempts
+5. On completion (or cancellation), emits `execution-complete` with summary
+
+**Cancellation Pattern:**
+
+- `AppState` contains `cancel_execution: Arc<AtomicBool>` and `execution_running: Arc<AtomicBool>`
+- `cancel_execution` command sets the flag to `true`
+- The execution loop checks `cancel_flag.load(Ordering::Relaxed)` between iterations
+- On cancel, the loop breaks and emits `execution-complete`
+
+**Execution Event Types** (defined in `events.rs`):
+
+| Event | Payload | When |
+|---|---|---|
+| `milestone-started` | `MilestoneStartedEvent { milestone_number, title, attempt }` | Each milestone attempt begins |
+| `execution-progress` | `ExecutionProgressEvent { line, stream, timestamp }` | Each line of Copilot output |
+| `build-test-result` | `BuildTestResultEvent { command, success, output }` | After each build/test command |
+| `milestone-completed` | `MilestoneCompletedEvent { milestone_number, success }` | Milestone attempt finishes |
+| `execution-complete` | `ExecutionCompleteEvent { all_done, milestones_completed, total }` | Entire execution run ends |
+
+**Frontend Components (M5):**
+
+- `ExecutionView` — Main execution display with log panel, build/test results, cancel button, and sidebar milestone tracker
+- `useExecution` hook — Wraps `start_execution`/`cancel_execution` commands and listens to all execution events
+- `MilestoneTracker` — Updated with optional `activeMilestone` prop to highlight the currently executing milestone
+
+**App Phase: "executing":**
+
+After clicking "Execute Plan", the app transitions to the `"executing"` phase which shows:
+- Log panel (main area) — streaming agent output with stdout/stderr distinction
+- Build/test results — pass/fail indicators for verification commands
+- Cancel button — stops execution mid-run
+- MilestoneTracker (sidebar) — live progress with active milestone highlight
