@@ -61,3 +61,42 @@ export interface RunbookData {
   milestones: MilestoneRow[];
   path: string;
 }
+
+// ── Execution types (M5) ────────────────────────────────────────────────
+
+/** Status of an execution run. */
+export type ExecutionStatus = "idle" | "running" | "complete" | "cancelled" | "error";
+
+/** Payload emitted when a milestone execution attempt begins. */
+export interface MilestoneStartedEvent {
+  milestone_number: number;
+  title: string;
+  attempt: number;
+}
+
+/** Payload emitted for each line of agent output during execution. */
+export interface ExecutionProgressEvent {
+  line: string;
+  stream: "stdout" | "stderr";
+  timestamp: string;
+}
+
+/** Payload emitted after a build or test verification command completes. */
+export interface BuildTestResultEvent {
+  command: string;
+  success: boolean;
+  output: string;
+}
+
+/** Payload emitted when a single milestone attempt completes. */
+export interface MilestoneCompletedEvent {
+  milestone_number: number;
+  success: boolean;
+}
+
+/** Payload emitted when the entire execution run finishes. */
+export interface ExecutionCompleteEvent {
+  all_done: boolean;
+  milestones_completed: number;
+  total: number;
+}

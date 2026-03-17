@@ -15,8 +15,8 @@ Update this table as each milestone is completed. This is the **single source of
 | 1 | Tauri workspace scaffolding & shell app | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m1.md` |
 | 2 | Chatbot UI — prompt screen & conversation layout | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m2.md` |
 | 3 | Planning backend — Tauri commands & streaming | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m3.md` |
-| 4 | Markdown plan editor & runbook persistence | `in_progress` | 2026-03-17 | | |
-| 5 | Execution backend — milestone runner & live progress | `not_started` | | | |
+| 4 | Markdown plan editor & runbook persistence | `done` | 2026-03-17 | 2026-03-17 | `docs/lessons/tauri-desktop-m4.md` |
+| 5 | Execution backend — milestone runner & live progress | `in_progress` | 2026-03-17 | | |
 | 6 | Settings panel & provider architecture | `not_started` | | | |
 | 7 | Voice input & speech-to-text integration | `not_started` | | | |
 | 8 | Polish, integration tests & documentation | `not_started` | | | |
@@ -721,13 +721,13 @@ Complete the Post-Milestone Protocol above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo build --workspace` succeeds
-- [ ] `cargo test --workspace` — all tests pass
+- [x] `cargo build --workspace` succeeds
+- [x] `cargo test --workspace` — all tests pass
 - [ ] After plan generation, runbook appears in Markdown editor
-- [ ] Can switch between edit and preview modes
+- [x] Can switch between edit and preview modes
 - [ ] Editing and saving produces a valid file on disk
-- [ ] MilestoneTracker shows colored status indicators
-- [ ] "Execute Plan" button visible in reviewing phase
+- [x] MilestoneTracker shows colored status indicators
+- [x] "Execute Plan" button visible in reviewing phase
 
 #### Post-Flight
 

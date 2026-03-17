@@ -16,6 +16,8 @@ fn main() {
             commands::plan::start_planning,
             commands::plan::read_runbook,
             commands::plan::save_runbook,
+            commands::run::start_execution,
+            commands::run::cancel_execution,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
