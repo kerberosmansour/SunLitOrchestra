@@ -93,7 +93,8 @@ cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
 crates/
 ├── sldo-common/   # Shared library (CLI parsing, colour output, git checks, runbook parsing)
 ├── sldo-plan/     # Binary: runbook generation (replaces plan-milestones.sh)
-└── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
+├── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
+└── sldo-tauri/    # Desktop app: Tauri v2 + React GUI for planning and execution
 ```
 
 Build and test the workspace:
@@ -101,6 +102,35 @@ Build and test the workspace:
 ```bash
 cargo build --workspace
 cargo test --workspace
+```
+
+## Desktop App
+
+SunLitOrchestrate includes a Tauri v2 desktop application that provides a graphical interface for AI-driven planning and execution.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+ (for the React frontend)
+- Rust toolchain with Tauri CLI: `cargo install tauri-cli --version '^2'`
+
+### Development
+
+```bash
+# Install frontend dependencies (first time only)
+cd crates/sldo-tauri/ui && npm install
+
+# Launch the desktop app in development mode
+cargo tauri dev
+```
+
+### Build
+
+```bash
+# Build the frontend
+cd crates/sldo-tauri/ui && npm run build
+
+# Build the full app
+cargo tauri build
 ```
 
 ### Migrating from Bash

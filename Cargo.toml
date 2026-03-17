@@ -3,6 +3,7 @@ members = [
     "crates/sldo-common",
     "crates/sldo-plan",
     "crates/sldo-run",
+    "crates/sldo-tauri",
 ]
 resolver = "2"
 
@@ -44,3 +45,7 @@ path = "tests/e2e_run_m4.rs"
 [[test]]
 name = "e2e_integration_m5"
 path = "tests/e2e_integration_m5.rs"
+
+[[test]]
+name = "e2e_tauri_m1"
+path = "tests/e2e_tauri_m1.rs"
