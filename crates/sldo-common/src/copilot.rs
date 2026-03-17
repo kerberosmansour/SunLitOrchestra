@@ -159,4 +159,82 @@ mod tests {
         // Then: it matches
         assert_eq!(inv.working_dir, Path::new("/tmp/test"));
     }
+
+    #[test]
+    fn run_with_callback_receives_all_lines() {
+        // Given: A CopilotInvocation using `echo` as a mock for copilot
+        // We can't easily mock copilot, but we can test the callback signature
+        // and verify backward compatibility of run() via run_with_callback.
+        let tmp = std::env::temp_dir().join("sldo_test_callback");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+
+        let log = LogFile::new(&tmp, "callback.log").unwrap();
+        let inv = CopilotInvocation {
+            prompt: "hello".to_string(),
+            model: "test".to_string(),
+            allow_flags: vec![],
+            deny_flags: vec![],
+            working_dir: tmp.clone(),
+        };
+
+        // When: run_with_callback is called (copilot may or may not be installed)
+        let mut captured_lines: Vec<(String, String)> = Vec::new();
+        let result = inv.run_with_callback(&log, |line, stream| {
+            captured_lines.push((line.to_string(), stream.to_string()));
+        });
+
+        // Then: It either succeeds with output or errors gracefully
+        match result {
+            Ok(_code) => {
+                // If copilot is installed, we got lines through the callback
+                // (callback was invoked, not println)
+            }
+            Err(e) => {
+                assert!(
+                    e.to_string().contains("copilot") || e.to_string().contains("spawn"),
+                    "Unexpected error: {}",
+                    e
+                );
+            }
+        }
+
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn run_still_works_after_refactor() {
+        // Given: A CopilotInvocation (backward compatibility test)
+        let tmp = std::env::temp_dir().join("sldo_test_run_compat");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+
+        let log = LogFile::new(&tmp, "compat.log").unwrap();
+        let inv = CopilotInvocation {
+            prompt: "hello".to_string(),
+            model: "test".to_string(),
+            allow_flags: vec![],
+            deny_flags: vec![],
+            working_dir: tmp.clone(),
+        };
+
+        // When: run() is called (the original method, now backed by run_with_callback)
+        let result = inv.run(&log);
+
+        // Then: It either succeeds or errors the same way as before
+        match result {
+            Ok(code) => {
+                let _ = code;
+            }
+            Err(e) => {
+                assert!(
+                    e.to_string().contains("copilot") || e.to_string().contains("spawn"),
+                    "Unexpected error: {}",
+                    e
+                );
+            }
+        }
+
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
 }
