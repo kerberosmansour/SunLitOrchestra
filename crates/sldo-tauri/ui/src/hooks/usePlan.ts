@@ -3,6 +3,8 @@
  *
  * Returns planning status, accumulated streaming messages, runbook path, and
  * error state. Listens for plan-progress, plan-complete, and plan-error events.
+ *
+ * Also provides loadRunbook() and saveRunbook() for the editor (M4).
  */
 import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
@@ -12,6 +14,7 @@ import type {
   PlanCompleteEvent,
   PlanErrorEvent,
   PlanStatus,
+  RunbookData,
 } from "../types";
 
 export interface UsePlanResult {
@@ -20,7 +23,10 @@ export interface UsePlanResult {
   runbookPath: string | null;
   error: string | null;
   validationIssues: string[];
+  runbookData: RunbookData | null;
   startPlanning: (prompt: string, repoDir: string, outputPath?: string) => Promise<void>;
+  loadRunbook: (path: string) => Promise<RunbookData>;
+  saveRunbook: (path: string, content: string) => Promise<string[]>;
   reset: () => void;
 }
 
@@ -29,6 +35,7 @@ export function usePlan(): UsePlanResult {
   const [runbookPath, setRunbookPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [validationIssues, setValidationIssues] = useState<string[]>([]);
+  const [runbookData, setRunbookData] = useState<RunbookData | null>(null);
 
   const { events: progressEvents, reset: resetProgress } =
     useStreamingEvents<PlanProgressEvent>("plan-progress");
@@ -74,11 +81,31 @@ export function usePlan(): UsePlanResult {
     [resetProgress]
   );
 
+  const loadRunbook = useCallback(async (path: string): Promise<RunbookData> => {
+    const data = await invoke<RunbookData>("read_runbook", { path });
+    setRunbookData(data);
+    return data;
+  }, []);
+
+  const saveRunbook = useCallback(async (path: string, content: string): Promise<string[]> => {
+    const warnings = await invoke<string[]>("save_runbook", { path, content });
+    setValidationIssues(warnings);
+    // Reload after save to refresh milestones
+    try {
+      const data = await invoke<RunbookData>("read_runbook", { path });
+      setRunbookData(data);
+    } catch {
+      // Reload failure is non-fatal
+    }
+    return warnings;
+  }, []);
+
   const reset = useCallback(() => {
     setStatus("idle");
     setError(null);
     setRunbookPath(null);
     setValidationIssues([]);
+    setRunbookData(null);
     resetProgress();
   }, [resetProgress]);
 
@@ -88,7 +115,10 @@ export function usePlan(): UsePlanResult {
     runbookPath,
     error,
     validationIssues,
+    runbookData,
     startPlanning,
+    loadRunbook,
+    saveRunbook,
     reset,
   };
 }

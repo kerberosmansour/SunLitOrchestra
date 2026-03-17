@@ -1,17 +1,128 @@
 //! Planning Tauri commands — validates inputs, builds prompt, invokes Copilot,
 //! and emits streaming events to the frontend.
+//! Also provides runbook read/save commands for the Markdown editor (M4).
 
 use std::path::{Path, PathBuf};
 
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
 use sldo_common::copilot::CopilotInvocation;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
+use sldo_common::runbook;
 use sldo_common::toolflags;
 
 use crate::events::{PlanCompleteEvent, PlanErrorEvent, PlanProgressEvent};
 use crate::state::{AppState, PlanningSession};
+
+/// Data returned by the `read_runbook` command.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunbookData {
+    /// Raw Markdown content of the runbook file.
+    pub content: String,
+    /// Parsed milestone rows from the tracker table.
+    pub milestones: Vec<MilestoneRowDto>,
+    /// Absolute path to the runbook file.
+    pub path: String,
+}
+
+/// Serializable milestone row DTO for the frontend.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MilestoneRowDto {
+    pub number: u32,
+    pub title: String,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub started: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub completed: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lessons_file: Option<String>,
+}
+
+impl From<&runbook::MilestoneRow> for MilestoneRowDto {
+    fn from(row: &runbook::MilestoneRow) -> Self {
+        Self {
+            number: row.number,
+            title: row.title.clone(),
+            status: row.status.to_string(),
+            started: row.started.clone(),
+            completed: row.completed.clone(),
+            lessons_file: row.lessons_file.clone(),
+        }
+    }
+}
+
+/// Read a runbook file and return its content and parsed milestones.
+#[tauri::command]
+pub fn read_runbook(path: String) -> Result<RunbookData, String> {
+    let file_path = Path::new(&path);
+
+    if !file_path.exists() {
+        return Err(format!("Runbook file not found: {}", path));
+    }
+
+    let content = std::fs::read_to_string(file_path)
+        .map_err(|e| format!("Failed to read runbook: {}", e))?;
+
+    let milestones: Vec<MilestoneRowDto> = runbook::parse_tracker(&content)
+        .iter()
+        .map(MilestoneRowDto::from)
+        .collect();
+
+    Ok(RunbookData {
+        content,
+        milestones,
+        path,
+    })
+}
+
+/// Save runbook content to disk and re-parse to validate.
+/// Returns a list of validation warnings (empty if valid).
+#[tauri::command]
+pub fn save_runbook(path: String, content: String) -> Result<Vec<String>, String> {
+    let file_path = Path::new(&path);
+
+    // Ensure parent directory exists
+    if let Some(parent) = file_path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create directory: {}", e))?;
+    }
+
+    // Write content to disk
+    std::fs::write(file_path, &content)
+        .map_err(|e| format!("Failed to write runbook: {}", e))?;
+
+    // Validate the saved content
+    let mut warnings = Vec::new();
+
+    // Check required sections
+    let required_sections = [
+        "Milestone Tracker",
+        "Pre-Milestone Protocol",
+        "Post-Milestone Protocol",
+        "Background Context",
+    ];
+    for section in &required_sections {
+        if !content.contains(section) {
+            warnings.push(format!("Missing section: {}", section));
+        }
+    }
+
+    // Check milestone table is parseable
+    let milestones = runbook::parse_tracker(&content);
+    if milestones.is_empty() {
+        warnings.push("No milestones found in tracker table".to_string());
+    }
+
+    // Check file size
+    if content.len() < 500 {
+        warnings.push(format!("Runbook is suspiciously small ({} bytes)", content.len()));
+    }
+
+    Ok(warnings)
+}
 
 /// Default output path relative to the repo directory.
 const DEFAULT_OUTPUT_SUBPATH: &str = "docs/RUNBOOK.md";
@@ -514,5 +625,131 @@ mod tests {
         );
 
         let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn read_runbook_returns_content_and_milestones() {
+        // Given: A temp file with valid runbook content
+        let tmp = std::env::temp_dir().join("sldo_test_read_runbook");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("RUNBOOK.md");
+        let content = r#"# Test Runbook
+
+## Milestone Tracker
+
+| # | Milestone | Status | Started | Completed | Lessons File |
+|---|---|---|---|---|---|
+| 1 | Setup | `done` | 2026-01-01 | 2026-01-02 | |
+| 2 | Core | `in_progress` | 2026-01-03 | | |
+"#;
+        std::fs::write(&path, content).unwrap();
+
+        // When: read_runbook is called
+        let result = read_runbook(path.display().to_string());
+
+        // Then: Returns content and parsed milestones
+        assert!(result.is_ok());
+        let data = result.unwrap();
+        assert!(data.content.contains("Test Runbook"));
+        assert_eq!(data.milestones.len(), 2);
+        assert_eq!(data.milestones[0].title, "Setup");
+        assert_eq!(data.milestones[0].status, "done");
+        assert_eq!(data.milestones[1].title, "Core");
+        assert_eq!(data.milestones[1].status, "in_progress");
+
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn read_runbook_missing_file_returns_error() {
+        // Given: A non-existent path
+        let result = read_runbook("/nonexistent/RUNBOOK.md".to_string());
+
+        // Then: Returns error
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not found"));
+    }
+
+    #[test]
+    fn save_runbook_writes_and_validates() {
+        // Given: Valid runbook content
+        let tmp = std::env::temp_dir().join("sldo_test_save_runbook");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("RUNBOOK.md");
+        let content = format!(
+            "{}\n{}\n{}\n{}\n{}",
+            "# Test Runbook\n\n## Milestone Tracker\n\n| # | Milestone | Status | Started | Completed | Lessons File |\n|---|---|---|---|---|---|\n| 1 | Setup | `done` | 2026-01-01 | 2026-01-02 | |",
+            "\n## Pre-Milestone Protocol\n\nDo stuff.\n",
+            "## Post-Milestone Protocol\n\nDo more stuff.\n",
+            "## Background Context\n\n### Current State\n\nSome state.\n",
+            "Extra content to make it over 500 bytes. ".repeat(15)
+        );
+
+        // When: save_runbook is called
+        let result = save_runbook(path.display().to_string(), content.clone());
+
+        // Then: File written, no warnings
+        assert!(result.is_ok());
+        let warnings = result.unwrap();
+        assert!(warnings.is_empty(), "Unexpected warnings: {:?}", warnings);
+
+        // And: File on disk matches
+        let on_disk = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(on_disk, content);
+
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn save_runbook_invalid_content_returns_warnings() {
+        // Given: Content missing milestone table
+        let tmp = std::env::temp_dir().join("sldo_test_save_runbook_invalid");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("RUNBOOK.md");
+        let content = "# Just a title\n\nSome text.\n";
+
+        // When: save_runbook is called
+        let result = save_runbook(path.display().to_string(), content.to_string());
+
+        // Then: Returns warnings
+        assert!(result.is_ok());
+        let warnings = result.unwrap();
+        assert!(!warnings.is_empty(), "Expected warnings for invalid content");
+        // Should mention missing sections
+        assert!(
+            warnings.iter().any(|w| w.contains("Missing section")),
+            "Expected 'Missing section' warning, got: {:?}",
+            warnings
+        );
+
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn milestone_row_dto_from_runbook_row() {
+        // Given: A runbook MilestoneRow
+        use sldo_common::runbook::{MilestoneRow, MilestoneStatus};
+        let row = MilestoneRow {
+            number: 1,
+            title: "Setup".to_string(),
+            status: MilestoneStatus::Done,
+            started: Some("2026-01-01".to_string()),
+            completed: Some("2026-01-02".to_string()),
+            lessons_file: None,
+        };
+
+        // When: Convert to DTO
+        let dto = MilestoneRowDto::from(&row);
+
+        // Then: Fields match
+        assert_eq!(dto.number, 1);
+        assert_eq!(dto.title, "Setup");
+        assert_eq!(dto.status, "done");
+        assert_eq!(dto.started.as_deref(), Some("2026-01-01"));
+        assert_eq!(dto.completed.as_deref(), Some("2026-01-02"));
+        assert!(dto.lessons_file.is_none());
     }
 }
