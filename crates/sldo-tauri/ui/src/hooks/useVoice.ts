@@ -65,6 +65,9 @@ export function useVoice(onTranscription?: (text: string) => void): UseVoiceRetu
     chunksRef.current = [];
 
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Microphone access is not available in this environment");
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       const recorder = new MediaRecorder(stream);
