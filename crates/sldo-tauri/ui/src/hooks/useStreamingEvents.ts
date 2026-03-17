@@ -21,15 +21,19 @@ export function useStreamingEvents<T>(eventName: string): StreamingEventsResult<
     let cancelled = false;
 
     const setup = async () => {
-      const unlisten = await listen<T>(eventName, (event) => {
-        if (!cancelled) {
-          setEvents((prev) => [...prev, event.payload]);
+      try {
+        const unlisten = await listen<T>(eventName, (event) => {
+          if (!cancelled) {
+            setEvents((prev) => [...prev, event.payload]);
+          }
+        });
+        if (cancelled) {
+          unlisten();
+        } else {
+          unlistenRef.current = unlisten;
         }
-      });
-      if (cancelled) {
-        unlisten();
-      } else {
-        unlistenRef.current = unlisten;
+      } catch (err) {
+        console.error(`Failed to listen for event "${eventName}":`, err);
       }
     };
 
