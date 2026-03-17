@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicotrop/tauri-schema/master/tauri.schema.json",
+  "productName": "SunLitOrchestrate",
+  "version": "0.1.0",
+  "identifier": "com.sunlit.orchestrate",
+  "build": {
+    "frontendDist": "./ui/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "cd ui && npm run dev",
+    "beforeBuildCommand": "cd ui && npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SunLitOrchestrate",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
