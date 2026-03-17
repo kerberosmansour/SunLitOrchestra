@@ -6,7 +6,7 @@
  *
  * Also provides loadRunbook() and saveRunbook() for the editor (M4).
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useStreamingEvents } from "./useStreamingEvents";
 import type {
@@ -36,28 +36,34 @@ export function usePlan(): UsePlanResult {
   const [error, setError] = useState<string | null>(null);
   const [validationIssues, setValidationIssues] = useState<string[]>([]);
   const [runbookData, setRunbookData] = useState<RunbookData | null>(null);
+  const statusRef = useRef<PlanStatus>(status);
+  statusRef.current = status;
 
   const { events: progressEvents, reset: resetProgress } =
     useStreamingEvents<PlanProgressEvent>("plan-progress");
-  const { events: completeEvents } =
+  const { events: completeEvents, reset: resetComplete } =
     useStreamingEvents<PlanCompleteEvent>("plan-complete");
-  const { events: errorEvents } =
+  const { events: errorEvents, reset: resetError } =
     useStreamingEvents<PlanErrorEvent>("plan-error");
 
-  // Process complete events
-  if (completeEvents.length > 0 && status === "streaming") {
-    const latest = completeEvents[completeEvents.length - 1];
-    setStatus("complete");
-    setRunbookPath(latest.runbook_path);
-    setValidationIssues(latest.validation_issues);
-  }
+  // Process complete events in useEffect to avoid render-time state updates
+  useEffect(() => {
+    if (completeEvents.length > 0 && statusRef.current === "streaming") {
+      const latest = completeEvents[completeEvents.length - 1];
+      setStatus("complete");
+      setRunbookPath(latest.runbook_path);
+      setValidationIssues(latest.validation_issues);
+    }
+  }, [completeEvents]);
 
-  // Process error events
-  if (errorEvents.length > 0 && status === "streaming") {
-    const latest = errorEvents[errorEvents.length - 1];
-    setStatus("error");
-    setError(latest.error);
-  }
+  // Process error events in useEffect
+  useEffect(() => {
+    if (errorEvents.length > 0 && statusRef.current === "streaming") {
+      const latest = errorEvents[errorEvents.length - 1];
+      setStatus("error");
+      setError(latest.error);
+    }
+  }, [errorEvents]);
 
   const startPlanning = useCallback(
     async (prompt: string, repoDir: string, outputPath?: string) => {
@@ -66,6 +72,8 @@ export function usePlan(): UsePlanResult {
       setRunbookPath(null);
       setValidationIssues([]);
       resetProgress();
+      resetComplete();
+      resetError();
 
       try {
         await invoke("start_planning", {
@@ -78,7 +86,7 @@ export function usePlan(): UsePlanResult {
         setError(e instanceof Error ? e.message : String(e));
       }
     },
-    [resetProgress]
+    [resetProgress, resetComplete, resetError]
   );
 
   const loadRunbook = useCallback(async (path: string): Promise<RunbookData> => {
@@ -107,7 +115,9 @@ export function usePlan(): UsePlanResult {
     setValidationIssues([]);
     setRunbookData(null);
     resetProgress();
-  }, [resetProgress]);
+    resetComplete();
+    resetError();
+  }, [resetProgress, resetComplete, resetError]);
 
   return {
     status,

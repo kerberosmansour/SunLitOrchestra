@@ -180,8 +180,9 @@ pub async fn start_execution(
     let runbook_str = runbook_path.clone();
     let repo_dir_owned = repo_dir.clone();
 
-    // Spawn execution loop
-    tokio::spawn(async move {
+    // Spawn execution loop on a blocking thread so synchronous process I/O
+    // does not starve the tokio async runtime.
+    tokio::task::spawn_blocking(move || {
         let repo = Path::new(&repo_dir_owned);
 
         let log_dir = match ensure_log_dir(repo) {
@@ -356,7 +357,7 @@ pub async fn start_execution(
 
             // Cooldown between attempts
             if !cancel_flag.load(Ordering::Relaxed) && attempt < max_attempts {
-                tokio::time::sleep(tokio::time::Duration::from_secs(cooldown_secs)).await;
+                std::thread::sleep(std::time::Duration::from_secs(cooldown_secs));
             }
         }
 
