@@ -114,11 +114,60 @@ The desktop app features a chatbot-style interface:
 - **Home screen** — centered prompt input with sample prompt chips and hero branding
 - **Conversation view** — scrollable message thread with user/assistant messages and input pinned at bottom
 - **Sidebar** — navigation with logo, session management, and settings access
+- **Plan editor** — Markdown editor with edit/preview toggle, milestone tracker sidebar, and validation warnings
+- **Execution view** — live streaming agent output, build/test results, milestone progress, and cancel button
+- **Settings panel** — provider/model selection, tool flags editor, execution parameters, and repository directory
+- **Voice input** — microphone button in the chat input area for speech-to-text transcription
+- **Error boundary** — graceful fallback UI when components crash, with "Try Again" recovery
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Cmd/Ctrl+Enter` | Submit prompt |
+| `Cmd/Ctrl+N` | New session |
+| `Cmd/Ctrl+,` | Open settings |
+| `Escape` | Close settings panel |
+| `Shift+Enter` | Insert newline in prompt |
+| `Cmd/Ctrl+S` | Save runbook (in editor) |
+
+### Workflow
+
+1. **Prompt** — Type or speak your requirements on the home screen
+2. **Plan** — The app invokes the coding agent to generate a milestone-based runbook
+3. **Review** — Edit the runbook in the Markdown editor; review milestones in the tracker
+4. **Execute** — Click "Execute Plan" to run milestones; monitor live output and build/test results
+5. **Cancel** — Click "Cancel Execution" at any time to stop
+
+### Configuration
+
+Open Settings (`Cmd/Ctrl+,`) to configure:
+
+| Setting | Default | Description |
+|---|---|---|
+| Provider | `copilot` | Coding agent backend |
+| Model | `claude-opus-4.6` | AI model for planning/execution |
+| Max Attempts | `150` | Maximum execution attempts per run |
+| Cooldown | `5` seconds | Delay between execution attempts |
+| Max Iterations | `3` | Planning refinement iterations |
+| Repository Directory | _(none)_ | Target repo for planning/execution |
+| Allow Flags | Tool permissions | Copilot CLI `--allow-tool` flags |
+| Deny Flags | Tool restrictions | Copilot CLI `--deny-tool` flags |
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) v18+ (for the React frontend)
 - Rust toolchain with Tauri CLI: `cargo install tauri-cli --version '^2'`
+
+### Voice Input Setup
+
+To enable speech-to-text, set your OpenAI API key in a `.env` file at the project root:
+
+```bash
+echo 'OPENAI_API_KEY=sk-your-key-here' >> .env
+```
+
+The API key is read by the Tauri backend only — it is never sent to the frontend.
 
 ### Development
 
@@ -143,9 +192,21 @@ cargo tauri build
 ### Testing
 
 ```bash
-# Run frontend unit and component tests
+# Run frontend unit and component tests (90 tests)
 cd crates/sldo-tauri/ui && npm test
+
+# Run all backend tests including Tauri E2E (200 tests)
+cargo test --workspace
 ```
+
+### Troubleshooting
+
+| Issue | Solution |
+|---|---|
+| `cargo tauri dev` fails | Ensure Node.js v18+ is installed and `cd crates/sldo-tauri/ui && npm install` has been run |
+| Voice input doesn't work | Set `OPENAI_API_KEY` in `.env` file at project root |
+| Settings not persisting | Check Tauri app data directory permissions |
+| Build warnings about unused fields | These are intentional — fields used at runtime via serialization |
 
 ### Migrating from Bash
 

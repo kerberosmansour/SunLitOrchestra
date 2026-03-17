@@ -1,5 +1,5 @@
 /** Application phase — drives layout and routing decisions. */
-export type AppPhase = "home" | "planning" | "reviewing" | "executing";
+export type AppPhase = "home" | "planning" | "reviewing" | "executing" | "settings";
 
 /** Role of a conversation message. */
 export type MessageRole = "user" | "assistant" | "system";
@@ -99,4 +99,29 @@ export interface ExecutionCompleteEvent {
   all_done: boolean;
   milestones_completed: number;
   total: number;
+}
+
+// ── Settings types (M6) ─────────────────────────────────────────────────
+
+/** Persistent application settings. */
+export interface AppSettings {
+  provider: string;
+  model: string;
+  allow_flags: string[];
+  deny_flags: string[];
+  max_attempts: number;
+  cooldown_secs: number;
+  max_iterations: number;
+  repo_dir: string | null;
+}
+
+// ── Voice types (M7) ───────────────────────────────────────────────────
+
+/** State of the voice recording button. */
+export type VoiceState = "idle" | "recording" | "transcribing";
+
+/** Props for the VoiceButton component. */
+export interface VoiceButtonProps {
+  /** Called with the transcribed text after a successful recording. */
+  onTranscription: (text: string) => void;
 }
