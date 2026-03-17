@@ -18,3 +18,4 @@ anyhow = "1"
 reqwest = { version = "0.12", features = ["multipart"] }
 dotenvy = "0.15"
 base64 = "0.22"
+rig-core = { version = "0.33", features = ["audio"] }
