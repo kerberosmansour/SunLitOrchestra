@@ -34,6 +34,10 @@ impl CopilotInvocation {
     /// Spawn the copilot process, calling `on_line` for each stdout/stderr line
     /// instead of printing directly. The callback receives the line content and
     /// the stream name (`"stdout"` or `"stderr"`).
+    ///
+    /// Stdout and stderr are read concurrently via separate threads to avoid
+    /// pipe-buffer deadlocks (the classic sequential-read problem where a full
+    /// stderr buffer blocks the child while we're still draining stdout).
     pub fn run_with_callback<F>(&self, log_file: &LogFile, mut on_line: F) -> Result<i32>
     where
         F: FnMut(&str, &str),
@@ -59,23 +63,51 @@ impl CopilotInvocation {
 
         let mut child = cmd.spawn().context("Failed to spawn copilot process")?;
 
-        // Stream stdout
-        if let Some(stdout) = child.stdout.take() {
-            let reader = BufReader::new(stdout);
-            for line in reader.lines().map_while(Result::ok) {
-                on_line(&line, "stdout");
+        let stdout = child.stdout.take();
+        let stderr = child.stderr.take();
+
+        // Use a channel so both reader threads can send lines to the callback
+        // on the current thread, preserving the FnMut requirement.
+        let (tx, rx) = std::sync::mpsc::channel::<(String, String)>();
+
+        let tx_out = tx.clone();
+        let stdout_thread = std::thread::spawn(move || {
+            if let Some(stdout) = stdout {
+                let reader = BufReader::new(stdout);
+                for line in reader.lines().map_while(Result::ok) {
+                    if tx_out.send((line, "stdout".to_string())).is_err() {
+                        break;
+                    }
+                }
+            }
+        });
+
+        let tx_err = tx.clone();
+        let stderr_thread = std::thread::spawn(move || {
+            if let Some(stderr) = stderr {
+                let reader = BufReader::new(stderr);
+                for line in reader.lines().map_while(Result::ok) {
+                    if tx_err.send((line, "stderr".to_string())).is_err() {
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Drop our copy so rx.iter() terminates when both threads finish.
+        drop(tx);
+
+        for (line, stream) in rx.iter() {
+            on_line(&line, &stream);
+            if stream == "stderr" {
+                let _ = log_file.append(&format!("STDERR: {}", line));
+            } else {
                 let _ = log_file.append(&line);
             }
         }
 
-        // Stream stderr
-        if let Some(stderr) = child.stderr.take() {
-            let reader = BufReader::new(stderr);
-            for line in reader.lines().map_while(Result::ok) {
-                on_line(&line, "stderr");
-                let _ = log_file.append(&format!("STDERR: {}", line));
-            }
-        }
+        let _ = stdout_thread.join();
+        let _ = stderr_thread.join();
 
         let status = child.wait().context("Failed to wait for copilot process")?;
         let code = status.code().unwrap_or(-1);

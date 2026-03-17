@@ -335,13 +335,14 @@ pub async fn start_planning(
 
     let output_str = output.display().to_string();
 
-    // Spawn async task for streaming
+    // Spawn on a blocking thread so the synchronous process I/O does not
+    // starve the tokio async runtime.
     let app_handle = app.clone();
     let prompt_clone = prompt.clone();
     let output_clone = output.clone();
     let repo_clone = repo.clone();
 
-    tokio::spawn(async move {
+    tokio::task::spawn_blocking(move || {
         let result: Result<Result<(), anyhow::Error>, _> =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 run_planning_sync(
@@ -389,7 +390,7 @@ pub async fn start_planning(
     Ok(output_str)
 }
 
-/// Synchronous planning execution (runs inside tokio::spawn).
+/// Synchronous planning execution (runs inside spawn_blocking).
 fn run_planning_sync(
     app: &AppHandle,
     prompt: &str,
