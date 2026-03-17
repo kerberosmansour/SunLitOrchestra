@@ -196,3 +196,413 @@ Now create the TypeScript types first (needed by tests):
   └ crates/sldo-tauri/ui/src/types/index.ts
 
 Now write all the BDD test files before production code:
+
+● Create ChatInput.test.tsx +61
+  └ crates/sldo-tauri/ui/src/components/ChatInput.test.tsx
+
+● Create HomeScreen.test.tsx +44
+  └ crates/sldo-tauri/ui/src/components/HomeScreen.test.tsx
+
+● Create Sidebar.test.tsx +45
+  └ crates/sldo-tauri/ui/src/components/Sidebar.test.tsx
+
+● Create ConversationView.test.tsx +64
+  └ crates/sldo-tauri/ui/src/components/ConversationView.test.tsx
+
+● Create App.test.tsx +47
+  └ crates/sldo-tauri/ui/src/components/App.test.tsx
+
+● Create chatui.e2e.test.tsx +50
+  └ crates/sldo-tauri/ui/src/e2e/chatui.e2e.test.tsx
+
+Now let me implement the production components. Let me first check the tsconfig for noUnusedLocals/noUnusedParameters since M1 lessons warned about this:
+
+● Create ChatInput.tsx +70
+  └ crates/sldo-tauri/ui/src/components/ChatInput.tsx
+
+● Create Sidebar.tsx +58
+  └ crates/sldo-tauri/ui/src/components/Sidebar.tsx
+
+● Create ConversationView.tsx +44
+  └ crates/sldo-tauri/ui/src/components/ConversationView.tsx
+
+● Create HomeScreen.tsx +54
+  └ crates/sldo-tauri/ui/src/components/HomeScreen.tsx
+
+Now update App.tsx with the state-driven layout:
+
+● Edit App.tsx +59 -7
+  └ crates/sldo-tauri/ui/src/App.tsx
+
+Now let's add some custom CSS for the chatInput wrapper at the end of App.css (M2-specific styles):
+
+● Check end of App.css (shell)
+  │ tail -5
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/App.css
+  └ 6 lines...
+
+● Count lines in App.css (shell)
+  │ wc -l
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/App.css
+  └ 2 lines...
+
+● Read App.css
+  │ crates/sldo-tauri/ui/src/App.css
+  └ L5955:5967 (13 lines read)
+
+● Edit App.css +25
+  └ crates/sldo-tauri/ui/src/App.css
+
+Now let's run the frontend tests:
+
+● Run frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1
+  └ 10 lines...
+
+● Read test output tail (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -80
+  └ 79 lines...
+
+The `scrollIntoView` is not available in jsdom. Let me fix ConversationView to handle this gracefully:
+
+● Edit ConversationView.tsx +3 -1
+  └ crates/sldo-tauri/ui/src/components/ConversationView.tsx
+
+● Run frontend tests again (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -30
+  └ 14 lines...
+
+All 22 frontend tests pass. Now let's verify the frontend build and backend build:
+
+● Build frontend (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1 | tail -15
+  └ 5 lines...
+
+The tsc picks up test files. I need to either exclude test files from the build or fix the import. Let me fix the unused import:
+
+● Edit App.test.tsx +1 -1
+  └ crates/sldo-tauri/ui/src/components/App.test.tsx
+
+But there's a more fundamental problem — tsc is checking test files. Let me exclude them from the build tsconfig:
+
+● Edit tsconfig.json +2 -1
+  └ crates/sldo-tauri/ui/tsconfig.json
+
+● Build frontend after tsconfig fix (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1 | tail -15
+  └ 16 lines...
+
+Frontend builds successfully. That CSS warning is the extra `}` from the original App.css (noted in M1 lessons). Now let's run the full backend build and tests:
+
+● Full build and test (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5 && cargo test --workspace 2>&1 | tail -20
+  └ 22 lines...
+
+All backend tests pass. Let me also run the frontend tests one more time and the E2E tests:
+
+● Run E2E frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run --include 'src/e2e/**' 2>&1 | tail -15
+  └ 15 lines...
+
+● Run all frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -15
+  └ 14 lines...
+
+The E2E tests use a glob pattern, not `--include`. Let me fix that:
+
+● Run E2E tests with glob (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 'src/e2e/**' 2>&1 | tail -15
+  └ 8 lines...
+
+● Run E2E tests by name filter (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 'chatui' 2>&1 | tail -15
+  └ 9 lines...
+
+All tests pass. Now let me also run the existing regression tests to confirm no breakage:
+
+● Run existing E2E regression tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace --test
+  │ 'e2e_*' 2>&1 | tail -20
+  └ 20 lines...
+
+All regression tests pass. Now let me complete the Post-Milestone Protocol.
+
+Let me update the smoke test checkboxes in the runbook:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now write the lessons-learned file:
+
+● Create tauri-desktop-m2.md +43
+  └ docs/lessons/tauri-desktop-m2.md
+
+Now update the milestone tracker to `done`:
+
+● Edit RUNBOOK-TAURI-DESKTOP.md +1 -1
+  └ docs/RUNBOOK-TAURI-DESKTOP.md
+
+Now update README.md per the Documentation Update table:
+
+● Check README for desktop section (shell)
+  │ grep -n -i "desktop\|tauri\|GUI"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/README.md | head -20
+  └ 11 lines...
+
+● View desktop app section (shell)
+  │ sed -n '107,137p' /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/README.md
+  └ 31 lines...
+
+● Edit README.md +14
+
+Now let me do the final check — run everything one last time:
+
+● Final frontend build check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npm run
+  │ build 2>&1 | tail -10
+  └ 11 lines...
+
+● Final build check (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -5
+  └ 3 lines...
+
+● Final frontend test (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -15
+  └ 14 lines...
+
+● Final cargo test (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -20
+  └ 19 lines...
+
+All green. Let me verify the final state:
+
+**Milestone 2 — Chatbot UI: Prompt Screen & Conversation Layout — COMPLETE ✅**
+
+### Summary
+- **22 frontend tests** passing (6 test files: ChatInput, HomeScreen, ConversationView, Sidebar, App integration, E2E runtime)
+- **All existing backend tests** passing (7 M1 E2E + all pre-existing tests)
+- **Frontend builds** successfully via `npm run build`
+- **Backend builds** via `cargo build --workspace`
+
+### Files created/modified
+| File | Action |
+|---|---|
+| `src/types/index.ts` | NEW: `AppPhase`, `Message`, `Session` types |
+| `src/components/ChatInput.tsx` | NEW: Auto-resizing textarea with Enter-to-submit |
+| `src/components/HomeScreen.tsx` | NEW: Centered prompt with hero and prompt chips |
+| `src/components/ConversationView.tsx` | NEW: Scrollable message list with auto-scroll |
+| `src/components/Sidebar.tsx` | NEW: Navigation with logo, sessions, settings |
+| `src/App.tsx` | MODIFIED: State-driven layout (home → planning) |
+| `src/App.css` | MODIFIED: Added chatInputWrapper styles |
+| `tsconfig.json` | MODIFIED: Excluded test files from build |
+| `vite.config.ts` | MODIFIED: Added vitest config |
+| `package.json` | MODIFIED: Added test scripts + dev deps |
+| 6 test files | NEW: BDD + E2E tests written before production code |
+| `docs/lessons/tauri-desktop-m2.md` | NEW: Lessons learned |
+| `docs/RUNBOOK-TAURI-DESKTOP.md` | MODIFIED: Tracker → `done` |
+| `README.md` | MODIFIED: Added UI overview and testing section |
+
+
+Total usage est:        3 Premium requests
+API time spent:         6m 12s
+Total session time:     7m 24s
+Total code changes:     +747 -14
+Breakdown by AI model:
+ claude-opus-4.6         2.4m in, 19.6k out, 2.3m cached (Est. 3 Premium requests)
+
+[2026-03-17 17:43:41] Exit code: 0
+[2026-03-17 17:43:41] Milestone: 2 — Chatbot UI — prompt screen & conversation layout
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.93s
+   Compiling sldo-tauri v0.1.0 (/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running unittests src/lib.rs (target/debug/deps/sldo_common-55f1242b0e9c4358)
+
+running 46 tests
+test color::tests::divider_prints_to_stderr ... ok
+test color::tests::header_prints_to_stderr ... ok
+test copilot::tests::copilot_invocation_builds_correctly ... ok
+test copilot::tests::copilot_invocation_working_dir ... ok
+test color::tests::fail_prints_to_stderr ... ok
+test detect::tests::detect_cargo_project ... ok
+test color::tests::info_prints_to_stderr ... ok
+test detect::tests::detect_cargo_test_commands ... ok
+test color::tests::warn_prints_to_stderr ... ok
+test color::tests::success_prints_to_stderr ... ok
+test git::tests::protected_branch_check_main ... ok
+test git::tests::protected_branch_check_master ... ok
+test git::tests::safe_branch_check ... ok
+test preflight::tests::check_file_exists_with_existing_file ... ok
+test preflight::tests::check_file_exists_with_missing_file ... ok
+test preflight::tests::check_copilot_installed_does_not_panic ... ok
+test detect::tests::no_build_files_empty_dir ... ok
+test detect::tests::detect_go_project ... ok
+test detect::tests::detect_npm_project_with_build_script ... ok
+test detect::tests::detect_makefile_with_build_target ... ok
+test runbook::tests::milestone_status_display ... ok
+test runbook::tests::milestone_status_from_str ... ok
+test logging::tests::ensure_log_dir_creates_copilot_logs ... ok
+test logging::tests::log_file_appends_timestamped_line ... ok
+test logging::tests::log_file_creates_parent_dirs ... ok
+test runbook::tests::all_done_detection ... ok
+test color::tests::timestamp_format ... ok
+test tests::version_is_valid_semver ... ok
+test runbook::tests::all_done_false_when_not_all_done ... ok
+test tests::version_returns_non_empty_string ... ok
+test toolflags::tests::plan_allow_flags_contains_shell_cat ... ok
+test toolflags::tests::plan_allow_flags_contains_write ... ok
+test runbook::tests::mixed_status_parsing ... ok
+test toolflags::tests::plan_deny_flags_contains_rm_rf_root ... ok
+test toolflags::tests::run_allow_flags_contains_cargo ... ok
+test toolflags::tests::run_allow_flags_contains_rm ... ok
+test toolflags::tests::run_deny_flags_contains_force_push ... ok
+test runbook::tests::next_incomplete_returns_none_when_all_done ... ok
+test runbook::tests::next_incomplete_finds_first_non_done ... ok
+test runbook::tests::parse_tracker_extracts_dates_and_lessons ... ok
+test runbook::tests::parse_tracker_table ... ok
+test git::tests::detect_non_git_dir ... ok
+test git::tests::detect_git_repo ... ok
+test git::tests::current_branch_returns_non_empty ... ok
+test preflight::tests::check_git_safety_on_own_repo ... ok
+test copilot::tests::copilot_invocation_run_handles_missing_binary ... ok
+
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_plan-42562d353093f8f3)
+
+running 21 tests
+test tests::first_iteration_prompt ... ok
+test tests::missing_file_returns_issue ... ok
+test tests::default_model ... ok
+test tests::custom_model ... ok
+test tests::default_max_iterations ... ok
+test tests::custom_max_iterations ... ok
+test tests::resolve_output_absolute ... ok
+test tests::refinement_iteration_prompt ... ok
+test tests::custom_output ... ok
+test tests::default_output_is_none ... ok
+test tests::resolve_output_relative ... ok
+test tests::missing_args_errors ... ok
+test tests::resolve_output_default ... ok
+test tests::help_flag_exits_zero ... ok
+test tests::template_missing_returns_fallback ... ok
+test tests::template_exists_returns_content ... ok
+test tests::small_file_returns_issue ... ok
+test tests::missing_section_returns_issue ... ok
+test tests::unfilled_placeholders_returns_issue ... ok
+test tests::done_milestones_returns_issue ... ok
+test tests::valid_runbook_returns_empty_issues ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_run-2a1188be9a62e28f)
+
+running 13 tests
+test tests::first_attempt_prompt ... ok
+test tests::empty_command_list ... ok
+test tests::missing_args ... ok
+test tests::custom_max_attempts ... ok
+test tests::multiple_build_cmds ... ok
+test tests::multiple_test_cmds ... ok
+test tests::default_model ... ok
+test tests::default_cooldown ... ok
+test tests::custom_cooldown ... ok
+test tests::retry_prompt ... ok
+test tests::help_flag ... ok
+test tests::failed_command ... ok
+test tests::successful_command ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_tauri-e4791a821e019ac1)
+
+running 1 test
+test tests::tauri_crate_depends_on_common ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_common_m2.rs (target/debug/deps/e2e_common_m2-a3222d94feca07ae)
+
+running 4 tests
+test detect_commands_on_own_repo ... ok
+test parse_real_template_tracker ... ok
+test parse_actual_runbook_tracker ... ok
+test git_checks_on_own_repo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/e2e_integration_m5.rs (target/debug/deps/e2e_integration_m5-23d8933eb4c5021b)
+
+running 7 tests
+test cli_flag_parity_plan ... ok
+test plan_rejects_protected_branch ... ok
+test cli_flag_parity_run ... ok
+test run_rejects_protected_branch ... ok
+test run_detects_all_done ... ok
+test plan_end_to_end_with_mock ... ok
+test run_end_to_end_with_mock ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+     Running tests/e2e_plan_m3.rs (target/debug/deps/e2e_plan_m3-1816097b3ca9dddc)
+
+running 4 tests
+test plan_reads_real_template ... ok
+test plan_validates_own_runbook ... ok
+test plan_missing_args_exits_nonzero ... ok
+test plan_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_run_m4.rs (target/debug/deps/e2e_run_m4-bf019ef924600cdc)
+
+running 4 tests
+test run_detects_cargo_in_own_repo ... ok
+test run_parses_tracker_from_real_runbook ... ok
+test run_missing_args_exits_nonzero ... ok
+test run_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_scaffold_m1.rs (target/debug/deps/e2e_scaffold_m1-854659ca4339ef61)
+
+running 4 tests
+test common_version_exists ... ok
+test plan_binary_runs ... ok
+test run_binary_runs ... ok
+test workspace_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+     Running tests/e2e_tauri_m1.rs (target/debug/deps/e2e_tauri_m1-e991e2fec3fb48ff)
+
+running 7 tests
+test tauri_references_common ... ok
+test app_css_contains_design_tokens ... ok
+test logo_available_in_public ... ok
+test frontend_dist_exists_after_build ... ok
+test workspace_builds_with_tauri_crate ... ok
+test tauri_crate_compiles ... ok
+test existing_tests_still_pass ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.33s
+
+   Doc-tests sldo_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
