@@ -20,3 +20,24 @@ export interface Session {
   phase: AppPhase;
   runbookPath?: string;
 }
+
+/** Payload emitted for each line of Copilot output during planning. */
+export interface PlanProgressEvent {
+  line: string;
+  stream: "stdout" | "stderr";
+  timestamp: string;
+}
+
+/** Payload emitted when planning completes successfully. */
+export interface PlanCompleteEvent {
+  runbook_path: string;
+  validation_issues: string[];
+}
+
+/** Payload emitted when planning fails. */
+export interface PlanErrorEvent {
+  error: string;
+}
+
+/** Status of a planning operation. */
+export type PlanStatus = "idle" | "streaming" | "complete" | "error";

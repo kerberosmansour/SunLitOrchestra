@@ -1,21 +1,22 @@
 import { useEffect, useRef } from "react";
-import type { Message } from "../types";
+import type { Message, PlanProgressEvent } from "../types";
 import ChatInput from "./ChatInput";
 
 interface ConversationViewProps {
   messages: Message[];
   onSubmit: (text: string) => void;
+  streamingLines?: PlanProgressEvent[];
 }
 
-function ConversationView({ messages, onSubmit }: ConversationViewProps) {
+function ConversationView({ messages, onSubmit, streamingLines }: ConversationViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages or streaming lines
   useEffect(() => {
     if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === "function") {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, streamingLines]);
 
   return (
     <div className="agentPage--active">
@@ -34,6 +35,20 @@ function ConversationView({ messages, onSubmit }: ConversationViewProps) {
               </div>
             </div>
           ))}
+          {streamingLines && streamingLines.length > 0 && (
+            <div className="conversationMessage--assistant">
+              <div className="messageAgent">
+                <span className="messageAvatar">☀️</span>
+                <div className="messageContent streamingOutput">
+                  {streamingLines.map((line, i) => (
+                    <div key={i} className={`streamLine streamLine--${line.stream}`}>
+                      {line.line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
