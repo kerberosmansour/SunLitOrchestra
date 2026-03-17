@@ -1,7 +1,30 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../App";
+
+// Mock Tauri APIs so hooks don't crash outside Tauri runtime
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn().mockResolvedValue(vi.fn()),
+}));
+
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn().mockImplementation((cmd: string) => {
+    if (cmd === "get_settings") {
+      return Promise.resolve({
+        provider: "copilot",
+        model: "claude-opus-4.6",
+        allow_flags: [],
+        deny_flags: [],
+        max_attempts: 150,
+        cooldown_secs: 5,
+        max_iterations: 3,
+        repo_dir: "/tmp/test-repo",
+      });
+    }
+    return Promise.resolve(null);
+  }),
+}));
 
 describe("E2E: Chatbot UI Runtime Validation", () => {
   it("home_screen_renders_without_errors", () => {
