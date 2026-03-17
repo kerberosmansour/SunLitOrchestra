@@ -25,6 +25,7 @@ publish = false
 
 [dev-dependencies]
 sldo-common = { path = "crates/sldo-common" }
+serde_json = "1"
 
 [[test]]
 name = "e2e_scaffold_m1"
@@ -49,3 +50,7 @@ path = "tests/e2e_integration_m5.rs"
 [[test]]
 name = "e2e_tauri_m1"
 path = "tests/e2e_tauri_m1.rs"
+
+[[test]]
+name = "e2e_tauri_m3"
+path = "tests/e2e_tauri_m3.rs"

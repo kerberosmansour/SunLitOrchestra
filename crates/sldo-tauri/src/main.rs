@@ -3,10 +3,16 @@
     windows_subsystem = "windows"
 )]
 
-use tauri;
+mod commands;
+mod events;
+mod state;
+
+use state::AppState;
 
 fn main() {
     tauri::Builder::default()
+        .manage(AppState::default())
+        .invoke_handler(tauri::generate_handler![commands::plan::start_planning])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

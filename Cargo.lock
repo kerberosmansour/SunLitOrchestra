@@ -3218,6 +3218,8 @@ dependencies = [
 name = "sldo-tauri"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "chrono",
  "serde",
  "serde_json",
  "sldo-common",
@@ -3355,6 +3357,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 name = "sunlit-orchestrate-tests"
 version = "0.1.0"
 dependencies = [
+ "serde_json",
  "sldo-common",
 ]
 
