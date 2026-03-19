@@ -303,7 +303,8 @@ The voice feature uses a three-layer design:
 
 | Command | Input | Output | Purpose |
 |---|---|---|---|
-| `transcribe_audio` | `audio_base64: String` | `String` | Send audio to STT, return transcribed text |
+| `transcribe_audio` | `audio_base64: String` | `String` | Send audio to STT via Rig abstraction (chat input) |
+| `transcribe_audio_standalone` | `audio_base64: String, mime_type: String` | `String` | Direct reqwest multipart POST to OpenAI with MIME-aware filename (standalone page) |
 
 **Frontend Components (M7):**
 
@@ -384,7 +385,7 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | sldo-common unit | `crates/sldo-common/src/*.rs` | 48 | Core library validation |
 | sldo-plan unit | `crates/sldo-plan/src/main.rs` | 21 | Planning CLI tests |
 | sldo-run unit | `crates/sldo-run/src/main.rs` | 13 | Execution CLI tests |
-| sldo-tauri unit | `crates/sldo-tauri/src/**/*.rs` | 56 | Tauri backend tests |
+| sldo-tauri unit | `crates/sldo-tauri/src/**/*.rs` | 65 | Tauri backend tests |
 | E2E scaffold | `tests/e2e_scaffold_m1.rs` | 4 | Framework validation |
 | E2E common | `tests/e2e_common_m2.rs` | 7 | Shared library E2E |
 | E2E plan | `tests/e2e_plan_m3.rs` | 4 | Planning CLI E2E |
@@ -398,8 +399,9 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | E2E tauri M7 | `tests/e2e_tauri_m7.rs` | 2 | Voice backend E2E |
 | E2E tauri M8 | `tests/e2e_tauri_m8.rs` | 6 | Integration & polish E2E |
 | E2E voice-tx M1 | `tests/e2e_voice_tx_m1.rs` | 2 | Voice transcriber route E2E |
+| E2E voice-tx M2 | `tests/e2e_voice_tx_m2.rs` | 5 | Standalone transcription backend E2E |
 
-**Total backend tests: 202**
+**Total backend tests: 216**
 
 ### Frontend Tests
 
