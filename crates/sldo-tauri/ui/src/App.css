@@ -5991,3 +5991,81 @@ textarea:focus-visible {
   padding: 10px 16px;
 }
 }
+
+/* ── Voice Transcriber — standalone page ─────────────────── */
+
+.voiceTranscriber {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+  animation: pageEnter var(--duration-enter) var(--ease-out) both;
+}
+
+.voiceTranscriber h1 {
+  font-size: var(--font-display);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--text);
+  margin: 0 0 var(--space-sm);
+}
+
+.voiceTranscriberDescription {
+  color: var(--muted);
+  font-size: var(--font-body);
+  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-lg);
+}
+
+.voiceTranscriberControls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: var(--space-lg);
+}
+
+.voiceTranscriberStatus {
+  font-style: italic;
+  color: var(--muted);
+  font-size: var(--font-body);
+  margin: 0 0 var(--space-md);
+}
+
+.voiceTranscriberTextarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 180px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(8, 7, 6, 0.9);
+  color: var(--text);
+  padding: 16px;
+  line-height: 1.6;
+  font-size: 0.98rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.voiceTranscriberTextarea::placeholder {
+  color: #8f826f;
+}
+
+.voiceTranscriberTextarea:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 4px rgba(242, 180, 76, 0.12);
+}
+
+.voiceTranscriberError {
+  margin-top: var(--space-sm);
+  min-height: 1.25em;
+  font-size: var(--font-body);
+  color: #ffd5d5;
+}
+
+.voiceTranscriberError[data-has-error="true"] {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(188, 54, 54, 0.12);
+  border: 1px solid rgba(255, 124, 124, 0.22);
+}

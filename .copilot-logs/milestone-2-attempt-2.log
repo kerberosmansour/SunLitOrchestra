@@ -1060,3 +1060,285 @@ test git::tests::detect_non_git_dir ... ok
 test git::tests::detect_git_repo ... ok
 test git::tests::current_branch_returns_non_empty ... ok
 test preflight::tests::check_git_safety_on_own_repo ... ok
+test copilot::tests::copilot_invocation_run_handles_missing_binary ... ok
+test copilot::tests::run_still_works_after_refactor ... ok
+test copilot::tests::run_with_callback_receives_all_lines ... ok
+
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.88s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_plan-59a19d9fe3c1cf31)
+
+running 21 tests
+test tests::first_iteration_prompt ... ok
+test tests::missing_file_returns_issue ... ok
+test tests::refinement_iteration_prompt ... ok
+test tests::custom_max_iterations ... ok
+test tests::custom_model ... ok
+test tests::custom_output ... ok
+test tests::resolve_output_absolute ... ok
+test tests::default_max_iterations ... ok
+test tests::resolve_output_default ... ok
+test tests::default_model ... ok
+test tests::default_output_is_none ... ok
+test tests::resolve_output_relative ... ok
+test tests::help_flag_exits_zero ... ok
+test tests::missing_args_errors ... ok
+test tests::template_missing_returns_fallback ... ok
+test tests::template_exists_returns_content ... ok
+test tests::small_file_returns_issue ... ok
+test tests::missing_section_returns_issue ... ok
+test tests::unfilled_placeholders_returns_issue ... ok
+test tests::done_milestones_returns_issue ... ok
+test tests::valid_runbook_returns_empty_issues ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_run-807f6ef6d292e19c)
+
+running 13 tests
+test tests::empty_command_list ... ok
+test tests::first_attempt_prompt ... ok
+test tests::default_model ... ok
+test tests::default_cooldown ... ok
+test tests::custom_max_attempts ... ok
+test tests::custom_cooldown ... ok
+test tests::multiple_build_cmds ... ok
+test tests::multiple_test_cmds ... ok
+test tests::missing_args ... ok
+test tests::retry_prompt ... ok
+test tests::help_flag ... ok
+test tests::successful_command ... ok
+test tests::failed_command ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_tauri-a6562586c660e958)
+
+running 65 tests
+test commands::plan::tests::build_planning_prompt_contains_requirements ... ok
+test commands::plan::tests::build_planning_prompt_iteration_2_has_refinement ... ok
+test commands::plan::tests::milestone_row_dto_from_runbook_row ... ok
+test commands::plan::tests::read_runbook_missing_file_returns_error ... ok
+test commands::plan::tests::read_template_fallback ... ok
+test commands::plan::tests::resolve_output_path_absolute ... ok
+test commands::plan::tests::resolve_output_path_default ... ok
+test commands::plan::tests::resolve_output_path_relative ... ok
+test commands::plan::tests::validate_runbook_missing_file ... ok
+test commands::plan::tests::copilot_not_installed_returns_error_mentioning_copilot ... ok
+test commands::run::tests::build_execution_prompt_contains_runbook_path ... ok
+test commands::run::tests::build_execution_prompt_no_commands_shows_placeholder ... ok
+test commands::run::tests::build_execution_prompt_first_attempt_no_retry ... ok
+test commands::settings::tests::get_available_models_for_copilot ... ok
+test commands::run::tests::build_execution_prompt_contains_build_commands ... ok
+test commands::settings::tests::get_available_models_for_unknown_provider ... ok
+test commands::run::tests::build_execution_prompt_retry_includes_attempt ... ok
+test commands::settings::tests::get_available_providers_returns_copilot ... ok
+test commands::plan::tests::validate_runbook_valid_content ... ok
+test commands::voice::tests::mime_type_mp4_maps_to_m4a_extension ... ok
+test commands::voice::tests::invalid_base64_returns_error ... ok
+test commands::voice::tests::mime_type_wav_maps_to_wav_extension ... ok
+test commands::voice::tests::mime_type_ogg_maps_to_ogg_extension ... ok
+test commands::voice::tests::existing_transcribe_audio_still_exists ... ok
+test commands::voice::tests::mime_type_webm_maps_to_webm_extension ... ok
+test commands::voice::tests::standalone_empty_audio_returns_error ... ok
+test commands::voice::tests::standalone_invalid_base64_returns_decode_error ... ok
+test commands::voice::tests::empty_audio_returns_error ... ok
+test events::tests::execution_complete_event_deserializes ... ok
+test events::tests::build_test_result_event_serializes ... ok
+test events::tests::execution_progress_event_serializes ... ok
+test commands::voice::tests::unknown_mime_type_defaults_to_webm ... ok
+test events::tests::milestone_completed_event_serializes ... ok
+test events::tests::execution_complete_event_serializes ... ok
+test events::tests::milestone_started_event_serializes ... ok
+test events::tests::plan_complete_event_serializes ... ok
+test events::tests::plan_error_event_serializes ... ok
+test events::tests::plan_progress_event_deserializes ... ok
+test events::tests::plan_progress_event_serializes ... ok
+test provider::tests::available_providers_includes_copilot ... ok
+test provider::tests::copilot_provider_has_models ... ok
+test provider::tests::copilot_provider_name_is_copilot ... ok
+test provider::tests::get_provider_returns_copilot ... ok
+test provider::tests::get_provider_returns_none_for_unknown ... ok
+test state::tests::app_settings_default_flags_match_toolflags ... ok
+test state::tests::app_settings_default_values ... ok
+test state::tests::app_state_default_has_no_session ... ok
+test state::tests::app_state_has_cancel_flag ... ok
+test state::tests::app_state_has_execution_running_flag ... ok
+test state::tests::cancel_flag_can_be_set ... ok
+test state::tests::load_settings_returns_defaults_when_no_file ... ok
+test state::tests::planning_session_tracks_state ... ok
+test state::tests::settings_deserializes_from_json ... ok
+test state::tests::settings_serializes_to_json ... ok
+test tests::tauri_crate_depends_on_common ... ok
+test state::tests::load_settings_handles_corrupted_file ... ok
+test state::tests::save_and_load_settings_roundtrip ... ok
+test commands::plan::tests::save_runbook_invalid_content_returns_warnings ... ok
+test commands::plan::tests::save_runbook_writes_and_validates ... ok
+test commands::plan::tests::read_runbook_returns_content_and_milestones ... ok
+test commands::voice::tests::missing_api_key_returns_error ... ok
+test commands::voice::tests::standalone_missing_api_key_returns_clear_error ... ok
+test commands::run::tests::run_verification_command_failure ... ok
+test commands::run::tests::run_verification_command_success ... ok
+test commands::plan::tests::protected_branch_rejected ... ok
+
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/e2e_common_m2.rs (target/debug/deps/e2e_common_m2-ecfdb4b615b89e52)
+
+running 4 tests
+test detect_commands_on_own_repo ... ok
+test parse_real_template_tracker ... ok
+test parse_actual_runbook_tracker ... ok
+test git_checks_on_own_repo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/e2e_integration_m5.rs (target/debug/deps/e2e_integration_m5-8d1607a4203a91d3)
+
+running 7 tests
+test run_rejects_protected_branch ... ok
+test run_detects_all_done ... ok
+test cli_flag_parity_run ... ok
+test cli_flag_parity_plan ... ok
+test plan_rejects_protected_branch ... ok
+test run_end_to_end_with_mock ... ok
+test plan_end_to_end_with_mock ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+
+     Running tests/e2e_plan_m3.rs (target/debug/deps/e2e_plan_m3-0d446e8a1d73020f)
+
+running 4 tests
+test plan_reads_real_template ... ok
+test plan_validates_own_runbook ... ok
+test plan_missing_args_exits_nonzero ... ok
+test plan_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_run_m4.rs (target/debug/deps/e2e_run_m4-3b7b480d042b920e)
+
+running 4 tests
+test run_detects_cargo_in_own_repo ... ok
+test run_parses_tracker_from_real_runbook ... ok
+test run_missing_args_exits_nonzero ... ok
+test run_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_scaffold_m1.rs (target/debug/deps/e2e_scaffold_m1-5984c5569c65e99d)
+
+running 4 tests
+test common_version_exists ... ok
+test run_binary_runs ... ok
+test plan_binary_runs ... ok
+test workspace_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/e2e_tauri_m1.rs (target/debug/deps/e2e_tauri_m1-c752589ed885c766)
+
+running 7 tests
+test tauri_references_common ... ok
+test app_css_contains_design_tokens ... ok
+test logo_available_in_public ... ok
+test tauri_crate_compiles ... ok
+test workspace_builds_with_tauri_crate ... ok
+test frontend_dist_exists_after_build ... ok
+test existing_tests_still_pass ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.29s
+
+     Running tests/e2e_tauri_m3.rs (target/debug/deps/e2e_tauri_m3-ae15be6e427b1e2c)
+
+running 5 tests
+test event_types_serialize_for_tauri ... ok
+test plan_allow_flags_used ... ok
+test plan_command_rejects_missing_copilot ... ok
+test copilot_run_with_callback_captures_lines ... ok
+test existing_run_method_backward_compatible ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.93s
+
+     Running tests/e2e_tauri_m4.rs (target/debug/deps/e2e_tauri_m4-726801bb7365d8d7)
+
+running 3 tests
+test save_invalid_content_returns_warnings ... ok
+test save_and_reparse_roundtrip ... ok
+test read_runbook_parses_real_file ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m5.rs (target/debug/deps/e2e_tauri_m5-ee43c973e278ebcc)
+
+running 10 tests
+test build_test_result_event_serializes ... ok
+test execution_progress_event_serializes ... ok
+test cancellation_flag_stops_loop ... ok
+test milestone_completed_event_serializes ... ok
+test execution_complete_event_serializes ... ok
+test milestone_started_event_serializes ... ok
+test detect_build_commands_in_own_repo ... ok
+test all_done_runbook_detected ... ok
+test not_started_runbook_has_next_incomplete ... ok
+test execution_parses_real_runbook ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m6.rs (target/debug/deps/e2e_tauri_m6-baa96fdbd6a18109)
+
+running 6 tests
+test copilot_provider_has_correct_name ... ok
+test default_settings_created ... ok
+test settings_default_deny_flags_match_toolflags ... ok
+test settings_default_allow_flags_match_toolflags ... ok
+test invalid_settings_json_falls_back_to_defaults ... ok
+test settings_roundtrip_json ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m7.rs (target/debug/deps/e2e_tauri_m7-0b7daa23369c596e)
+
+running 2 tests
+test missing_api_key_returns_error ... ok
+test env_file_loading_works ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m8.rs (target/debug/deps/e2e_tauri_m8-63f646b15c12ffcb)
+
+running 6 tests
+test full_workspace_builds_clean ... ok
+test all_tauri_e2e_tests_registered ... ok
+test concurrent_plan_prevention ... ok
+test planning_lock_prevents_concurrent_plans ... ok
+test settings_defaults_valid ... ok
+test settings_json_schema_has_all_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_voice_tx_m1.rs (target/debug/deps/e2e_voice_tx_m1-ce8fa31e165dce25)
+
+running 2 tests
+test workspace_compiles_with_transcriber_route ... ok
+test app_phase_type_includes_transcriber ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_voice_tx_m2.rs (target/debug/deps/e2e_voice_tx_m2-a54416919b6210be)
+
+running 5 tests
+test invalid_base64_error ... ok
+test standalone_command_registered ... ok
+test empty_audio_rejected ... ok
+test mime_type_resolution_unit ... ok
+test missing_api_key_error ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sldo_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

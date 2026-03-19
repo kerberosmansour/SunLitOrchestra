@@ -350,14 +350,37 @@ The app includes a dedicated standalone voice transcription page, separate from 
 
 **Component: `VoiceTranscriber.tsx`**
 
-A placeholder page with:
+A functional recording page with:
 - Heading: "Tauri Voice Transcriber"
 - Description text
-- Start/stop recording buttons (disabled until M3 wires recording hooks)
-- Transcript textarea (read-only, empty)
-- Error display area
+- Start recording button (enabled when idle, disabled when recording/transcribing)
+- Stop recording button (enabled only when recording)
+- Status display: "Listening to your microphone…" during recording, "Transcribing with OpenAI…" during transcription
+- Transcript textarea (editable, populated after transcription)
+- Error display area (red-bordered box on error)
 
-**Design rule:** `VoiceTranscriber` is fully separate from `VoiceButton` — it does not reuse `useVoice`. It will use its own `useStandaloneVoice` hook (added in M3).
+**Hook: `useStandaloneVoice.ts`**
+
+Manages the full MediaRecorder lifecycle for the standalone transcriber:
+- `startRecording()`: requests microphone via `getUserMedia`, creates `MediaRecorder` with MIME type preference (`audio/webm;codecs=opus` → `audio/webm` → `audio/mp4` → `audio/ogg;codecs=opus`), collects chunks via `ondataavailable`
+- `stopRecording()`: stops recorder, in `onstop` combines chunks, converts to base64 via `FileReader.readAsDataURL`, invokes `transcribe_audio_standalone` Tauri command with actual `mimeType`
+- State: `isRecording`, `isTranscribing`, `transcript`, `error`, `setTranscript`
+- Cleanup: releases microphone tracks on stop and on unmount
+- Empty recording guard: rejects 0-byte recordings with "No audio was captured" before calling the backend
+
+**macOS Microphone Permission:**
+
+The file `crates/sldo-tauri/Info.plist` declares `NSMicrophoneUsageDescription` so that macOS prompts the user for microphone access on first use. This plist entry is required for any macOS app that accesses the microphone via `getUserMedia`.
+
+**Styling:**
+
+`VoiceTranscriber` uses CSS classes defined in `App.css` (prefixed with `voiceTranscriber`) that follow the app's design system — dark background, gold accent tokens, consistent border-radius, and the same font/spacing scale used throughout. Inline styles have been removed in favor of these shared classes.
+
+**Production Security Guidance:**
+
+The `OPENAI_API_KEY` is loaded server-side by the Tauri backend — it is never exposed to the frontend process. For local development, place the key in a `.env` file at the project root. **Do not ship a shared API key in a distributed binary.** In production, each user should provide their own key (via environment variable, `.env` file, or a future settings UI backed by the OS keychain).
+
+**Design rule:** `VoiceTranscriber` is fully separate from `VoiceButton` — it does not reuse `useVoice`. It uses its own `useStandaloneVoice` hook.
 
 **Keyboard Shortcuts:**
 
@@ -400,8 +423,10 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | E2E tauri M8 | `tests/e2e_tauri_m8.rs` | 6 | Integration & polish E2E |
 | E2E voice-tx M1 | `tests/e2e_voice_tx_m1.rs` | 2 | Voice transcriber route E2E |
 | E2E voice-tx M2 | `tests/e2e_voice_tx_m2.rs` | 5 | Standalone transcription backend E2E |
+| E2E voice-tx M4 | `tests/e2e_voice_tx_m4.rs` | 4 | Edge cases & macOS permission E2E |
+| E2E voice-tx M5 | `tests/e2e_voice_tx_m5.rs` | 3 | Polish & documentation E2E |
 
-**Total backend tests: 216**
+**Total backend tests: 223**
 
 ### Frontend Tests
 
@@ -414,6 +439,7 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | E2E execution | `ui/src/e2e/execution.e2e.test.tsx` | 3 | Execution flow validation |
 | E2E settings | `ui/src/e2e/settings.e2e.test.tsx` | 3 | Settings panel validation |
 | E2E voice | `ui/src/e2e/voice.e2e.test.tsx` | 3 | Voice input validation |
+| E2E transcriber | `ui/src/e2e/transcriber.e2e.test.tsx` | 4 | Standalone transcriber E2E |
 | E2E integration | `ui/src/e2e/integration.e2e.test.tsx` | 6 | Full workflow integration |
 
-**Total frontend tests: 98**
+**Total frontend tests: 122**
