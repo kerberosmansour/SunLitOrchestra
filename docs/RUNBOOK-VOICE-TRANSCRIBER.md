@@ -38,9 +38,9 @@ Update this table as each milestone is completed. This is the single source of t
 |---|---|---|---|---|---|---|
 | 1 | Standalone voice transcriber page & route | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m1.md` | Added transcriber phase, VoiceTranscriber component, sidebar button, routing. 8 new frontend + 2 E2E tests. |
 | 2 | Rust transcription backend with direct reqwest | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m2.md` | Added transcribe_audio_standalone command with direct reqwest multipart, MIME-to-extension mapping, 9 new unit tests + 5 E2E tests. |
-| 3 | React recording UI with MediaRecorder | `not_started` | | | | |
-| 4 | End-to-end wiring, error handling & macOS permission | `not_started` | | | | |
-| 5 | Polish, production shape guidance & documentation | `not_started` | | | | |
+| 3 | React recording UI with MediaRecorder | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m3.md` | Added useStandaloneVoice hook with MediaRecorder lifecycle, MIME preference, base64 via FileReader. Wired VoiceTranscriber with functional start/stop, status display, error handling, editable textarea. 12 hook + 9 component + 4 E2E new tests. |
+| 4 | End-to-end wiring, error handling & macOS permission | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m4.md` | Added Info.plist for macOS mic permission, empty recording guard, 8 new BDD + 4 E2E tests covering edge cases. |
+| 5 | Polish, production shape guidance & documentation | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m5.md` | Polished VoiceTranscriber styling with CSS design tokens, added ARCHITECTURE.md and README.md documentation with production security guidance, 3 new E2E tests, fixed flaky test. |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/lessons/voice-tx-m<N>.md -->
