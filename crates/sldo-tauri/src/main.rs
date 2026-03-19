@@ -36,6 +36,7 @@ fn main() {
             commands::settings::get_available_providers,
             commands::settings::get_available_models,
             commands::voice::transcribe_audio,
+            commands::voice::transcribe_audio_standalone,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

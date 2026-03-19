@@ -337,6 +337,27 @@ The app uses a React `ErrorBoundary` class component (in `components/ErrorBounda
 2. Fallback shows "Something went wrong" with the error message and a "Try Again" button
 3. "Try Again" resets the boundary state, re-rendering children
 
+### Voice Transcriber — Standalone Page (voice-tx M1)
+
+The app includes a dedicated standalone voice transcription page, separate from the chat-embedded `VoiceButton`. This page is accessible via the "Transcriber" button in the sidebar.
+
+**Routing:**
+
+- `AppPhase` type includes `"transcriber"` as a valid phase
+- `App.tsx` renders `VoiceTranscriber` when the phase is `"transcriber"`
+- `Sidebar.tsx` has a "Transcriber" button that sets the app phase
+
+**Component: `VoiceTranscriber.tsx`**
+
+A placeholder page with:
+- Heading: "Tauri Voice Transcriber"
+- Description text
+- Start/stop recording buttons (disabled until M3 wires recording hooks)
+- Transcript textarea (read-only, empty)
+- Error display area
+
+**Design rule:** `VoiceTranscriber` is fully separate from `VoiceButton` — it does not reuse `useVoice`. It will use its own `useStandaloneVoice` hook (added in M3).
+
 **Keyboard Shortcuts:**
 
 Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
@@ -376,8 +397,9 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | E2E tauri M6 | `tests/e2e_tauri_m6.rs` | 6 | Settings/provider E2E |
 | E2E tauri M7 | `tests/e2e_tauri_m7.rs` | 2 | Voice backend E2E |
 | E2E tauri M8 | `tests/e2e_tauri_m8.rs` | 6 | Integration & polish E2E |
+| E2E voice-tx M1 | `tests/e2e_voice_tx_m1.rs` | 2 | Voice transcriber route E2E |
 
-**Total backend tests: 200**
+**Total backend tests: 202**
 
 ### Frontend Tests
 
@@ -392,4 +414,4 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 | E2E voice | `ui/src/e2e/voice.e2e.test.tsx` | 3 | Voice input validation |
 | E2E integration | `ui/src/e2e/integration.e2e.test.tsx` | 6 | Full workflow integration |
 
-**Total frontend tests: 90**
+**Total frontend tests: 98**

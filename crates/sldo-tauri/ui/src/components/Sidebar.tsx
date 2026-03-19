@@ -1,9 +1,10 @@
 interface SidebarProps {
   onNewSession: () => void;
   onSelectSettings: () => void;
+  onSelectTranscriber?: () => void;
 }
 
-function Sidebar({ onNewSession, onSelectSettings }: SidebarProps) {
+function Sidebar({ onNewSession, onSelectSettings, onSelectTranscriber }: SidebarProps) {
   return (
     <nav className="sidebar">
       <div className="sidebarBrand">
@@ -37,6 +38,17 @@ function Sidebar({ onNewSession, onSelectSettings }: SidebarProps) {
               </span>
             </li>
           </ul>
+        </div>
+
+        <div className="sidebarSection">
+          <button
+            className="sidebarLink"
+            onClick={onSelectTranscriber}
+            aria-label="Transcriber"
+          >
+            <span className="sidebarIcon">🎙</span>
+            <span className="sidebarLabel">Transcriber</span>
+          </button>
         </div>
       </div>
 

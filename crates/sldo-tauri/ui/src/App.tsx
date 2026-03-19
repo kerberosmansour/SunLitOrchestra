@@ -8,6 +8,7 @@ import MarkdownEditor from "./components/MarkdownEditor";
 import MilestoneTracker from "./components/MilestoneTracker";
 import ExecutionView from "./components/ExecutionView";
 import SettingsPanel from "./components/SettingsPanel";
+import VoiceTranscriber from "./components/VoiceTranscriber";
 import { usePlan } from "./hooks/usePlan";
 import { useExecution } from "./hooks/useExecution";
 
@@ -159,6 +160,10 @@ function App() {
     setPhase("settings");
   }, [phase]);
 
+  const handleSelectTranscriber = useCallback(() => {
+    setPhase("transcriber");
+  }, []);
+
   const handleSaveRunbook = useCallback(async (content: string) => {
     if (plan.runbookData?.path) {
       try {
@@ -242,6 +247,7 @@ function App() {
       <Sidebar
         onNewSession={handleNewSession}
         onSelectSettings={handleSelectSettings}
+        onSelectTranscriber={handleSelectTranscriber}
       />
       <main className="page" style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
         {phase === "home" ? (
@@ -283,6 +289,8 @@ function App() {
             isRunning={execution.status === "running"}
             onCancel={handleCancelExecution}
           />
+        ) : phase === "transcriber" ? (
+          <VoiceTranscriber />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             <ConversationView
