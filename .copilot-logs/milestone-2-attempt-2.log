@@ -606,3 +606,235 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
+═══════════════════════════════════════════════════
+[2026-03-19 19:47:53] Attempt 2 — Milestone 2: Rust transcription backend with direct reqwest
+═══════════════════════════════════════════════════
+
+
+
+
+● Read RUNBOOK-VOICE-TRANSCRIBER.md
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 1 line read
+
+● List directory .
+  └ 16 files found
+
+● List directory crates
+  └ 4 files found
+
+● List directory docs
+  └ 14 files found
+
+● List directory src
+  └ 2 files found
+
+● List directory tests
+  └ 14 files found
+
+● Read runbook header and milestone tracker (shell)
+  │ head -200
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 201 lines...
+
+● Find M2 section in runbook (shell)
+  │ grep -n "## Milestone 2"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 2 lines...
+
+● Read RUNBOOK-VOICE-TRANSCRIBER.md
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ L629:950 (321 lines read)
+
+● Read ARCHITECTURE.md
+  │ docs/ARCHITECTURE.md
+  └ 417 lines read
+
+● Read voice-tx-m1.md
+  │ docs/lessons/voice-tx-m1.md
+  └ 59 lines read
+
+Now let me read the files I need to understand and verify the baseline.
+
+● Read voice.rs
+  │ crates/sldo-tauri/src/commands/voice.rs
+  └ 128 lines read
+
+● Read e2e_voice_tx_m1.rs
+  │ tests/e2e_voice_tx_m1.rs
+  └ 41 lines read
+
+● Read main.rs
+  │ crates/sldo-tauri/src/main.rs
+  └ 54 lines read
+
+● Read Cargo.toml
+  │ crates/sldo-tauri/Cargo.toml
+  └ 21 lines read
+
+● Verify baseline build (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -20
+  └ 21 lines...
+
+Build passes. Now let me run the tests:
+
+● Verify baseline tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -30
+  └ 30 lines...
+
+All tests pass. Let me check the full count:
+
+● Count baseline test results (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ grep "^test result:"
+  └ 19 lines...
+
+Baseline: 202 tests, all green. Now let me proceed with M2 implementation. First, update the tracker to `in_progress`, then write tests before production code.
+
+● Find M2 tracker row (shell)
+  │ grep -n "Rust transcription backend"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/RUNBOOK-VOICE-TRANSCRIBER.md |
+  │ head -5
+  └ 2 lines...
+
+● Edit RUNBOOK-VOICE-TRANSCRIBER.md +1 -1
+  └ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+
+Now, write the BDD unit tests in voice.rs and the E2E test file. Per the runbook, tests come first.
+
+● Create e2e_voice_tx_m2.rs +128
+  └ tests/e2e_voice_tx_m2.rs
+
+Now add BDD unit tests to voice.rs and implement `transcribe_audio_standalone`. Let me first check if reqwest already has `rustls-tls`:
+
+● Check reqwest features (shell)
+  │ grep -n "reqwest"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/Cargo.toml
+  └ 2 lines...
+
+Now implement the full voice.rs changes — add MIME mapping helper, the `transcribe_audio_standalone` function, and BDD unit tests:
+
+● Edit voice.rs +6 -6
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+Now add the MIME mapping function and `transcribe_audio_standalone` after the existing `transcribe_audio` function, before the `#[cfg(test)]` block:
+
+● Edit voice.rs +85
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+Now add the BDD unit tests for the new functionality:
+
+● Edit voice.rs +144 -1
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+Now register the command in main.rs:
+
+● Edit main.rs +1
+  └ crates/sldo-tauri/src/main.rs
+
+Now build and test:
+
+● Build after changes (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -20
+  └ 21 lines...
+
+I need the `json` feature for reqwest. Let me check what's available and fix:
+
+● Edit Cargo.toml +1 -1
+  └ crates/sldo-tauri/Cargo.toml
+
+Actually, let me avoid adding the `json` feature — the runbook only allows `rustls-tls`. I'll parse the response body manually with `serde_json`:
+
+● Edit Cargo.toml +1 -1
+  └ crates/sldo-tauri/Cargo.toml
+
+Now update the response parsing in voice.rs to use `serde_json::from_str` instead of `.json()`:
+
+● Edit voice.rs +5 -2
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+● Build after fix (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -15
+  └ 16 lines...
+
+Build passes. Now run all tests:
+
+● Run full test suite (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -40
+  └ 41 lines...
+
+The E2E test needs `base64` as a workspace-level dependency. Let me check the workspace Cargo.toml:
+
+● Read Cargo.toml
+  └ 78 lines read
+
+I see the workspace doesn't have base64 as a dev dependency, and the `e2e_voice_tx_m1` test entry is also missing. Let me check:
+
+● Check if voice_tx tests registered (shell)
+  │ grep "e2e_voice_tx" /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/Cargo.toml
+  └ 1 line...
+
+The M1 test entry is missing from Cargo.toml but the test still ran (Rust auto-discovers test files). I need to add both `base64` dev-dependency and the test entries. Let me add `base64` to dev-dependencies and register both test files:
+
+● Edit Cargo.toml +1
+
+Now add the test entries at the end of the file:
+
+● Edit Cargo.toml +8
+
+Now fix the E2E test file — move the `use` import to the top:
+
+● Edit e2e_voice_tx_m2.rs +2 -2
+  └ tests/e2e_voice_tx_m2.rs
+
+● Run full test suite after changes (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ grep "^test result:"
+  └ 5 lines...
+
+2 failures. Let me see which ones:
+
+● See which tests failed (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test -p sldo-tauri 2>&1
+  │ | grep -A 20 "FAILED\|failures"
+  └ 46 lines...
+
+Two issues:
+1. `existing_transcribe_audio_still_exists` — file path is relative to workspace root but the test runs from the crate directory. I should use the function directly rather than reading the file.
+2. `standalone_missing_api_key_returns_clear_error` — likely `.env` file is being loaded by `dotenvy`. Need to avoid calling `dotenvy::dotenv()` in the test.
+
+Let me fix both tests:
+
+● Read voice.rs
+  │ crates/sldo-tauri/src/commands/voice.rs
+  └ L260:360 (100 lines read)
+
+● Edit voice.rs +10 -7
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+● Edit voice.rs +8 -4
+  └ crates/sldo-tauri/src/commands/voice.rs
+
+● Run all tests after fixes (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ grep "^test result:"
+  └ 20 lines...
+
+All 216 tests pass (202 original + 9 new from M2 + 5 E2E). Let me verify the specific test counts:
+
+- sldo-tauri: 65 (was 56, +9 new unit tests)
+- e2e_voice_tx_m2: 5 tests
+
+Let me also verify `cargo build -p sldo-tauri` as per the smoke tests:
+
+● Smoke test: build sldo-tauri (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build -p sldo-tauri 2>&1
+  │ | tail -5
+  └ 6 lines...
+
+Now complete the post-milestone protocol. Let me write the lessons file, completion summary, update
