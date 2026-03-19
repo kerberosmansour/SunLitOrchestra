@@ -41,4 +41,26 @@ describe("Feature: Sidebar navigation", () => {
     // Then: Settings link is visible
     expect(screen.getByRole("button", { name: /settings/i })).toBeInTheDocument();
   });
+
+  it("sidebar shows transcriber button", () => {
+    // Given: Sidebar rendered
+    // When: User sees sidebar
+    render(<Sidebar onNewSession={() => {}} onSelectSettings={() => {}} onSelectTranscriber={() => {}} />);
+
+    // Then: "Transcriber" button/link is visible
+    expect(screen.getByRole("button", { name: /transcriber/i })).toBeInTheDocument();
+  });
+
+  it("Transcriber button calls onSelectTranscriber", async () => {
+    // Given: Sidebar rendered with transcriber callback
+    const user = userEvent.setup();
+    const onSelectTranscriber = vi.fn();
+    render(<Sidebar onNewSession={() => {}} onSelectSettings={() => {}} onSelectTranscriber={onSelectTranscriber} />);
+
+    // When: User clicks "Transcriber"
+    await user.click(screen.getByRole("button", { name: /transcriber/i }));
+
+    // Then: Callback is invoked
+    expect(onSelectTranscriber).toHaveBeenCalled();
+  });
 });

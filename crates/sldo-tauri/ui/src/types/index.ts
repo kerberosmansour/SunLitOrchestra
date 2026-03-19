@@ -1,5 +1,5 @@
 /** Application phase — drives layout and routing decisions. */
-export type AppPhase = "home" | "planning" | "reviewing" | "executing" | "settings";
+export type AppPhase = "home" | "planning" | "reviewing" | "executing" | "settings" | "transcriber";
 
 /** Role of a conversation message. */
 export type MessageRole = "user" | "assistant" | "system";

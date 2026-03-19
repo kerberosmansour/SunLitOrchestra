@@ -28,6 +28,7 @@ sldo-common = { path = "crates/sldo-common" }
 serde_json = "1"
 serde = { version = "1", features = ["derive"] }
 dotenvy = "0.15"
+base64 = "0.22"
 
 [[test]]
 name = "e2e_scaffold_m1"
@@ -76,3 +77,11 @@ path = "tests/e2e_tauri_m7.rs"
 [[test]]
 name = "e2e_tauri_m8"
 path = "tests/e2e_tauri_m8.rs"
+
+[[test]]
+name = "e2e_voice_tx_m1"
+path = "tests/e2e_voice_tx_m1.rs"
+
+[[test]]
+name = "e2e_voice_tx_m2"
+path = "tests/e2e_voice_tx_m2.rs"

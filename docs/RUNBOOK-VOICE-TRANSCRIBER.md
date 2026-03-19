@@ -36,8 +36,8 @@ Update this table as each milestone is completed. This is the single source of t
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | Standalone voice transcriber page & route | `not_started` | | | | |
-| 2 | Rust transcription backend with direct reqwest | `not_started` | | | | |
+| 1 | Standalone voice transcriber page & route | `done` | 2026-03-19 | 2026-03-19 | `docs/lessons/voice-tx-m1.md` | Added transcriber phase, VoiceTranscriber component, sidebar button, routing. 8 new frontend + 2 E2E tests. |
+| 2 | Rust transcription backend with direct reqwest | `in_progress` | 2026-03-19 | | | |
 | 3 | React recording UI with MediaRecorder | `not_started` | | | | |
 | 4 | End-to-end wiring, error handling & macOS permission | `not_started` | | | | |
 | 5 | Polish, production shape guidance & documentation | `not_started` | | | | |
