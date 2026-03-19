@@ -118,6 +118,9 @@ The desktop app features a chatbot-style interface:
 - **Execution view** — live streaming agent output, build/test results, milestone progress, and cancel button
 - **Settings panel** — provider/model selection, tool flags editor, execution parameters, and repository directory
 - **Voice input** — microphone button in the chat input area for speech-to-text transcription
+- **Standalone voice transcriber** — dedicated page for recording and transcribing audio via OpenAI (accessible from sidebar)
+
+> **macOS microphone permission**: The bundled app includes `Info.plist` with `NSMicrophoneUsageDescription` so macOS will prompt for microphone access on first use. No additional setup is required.
 - **Error boundary** — graceful fallback UI when components crash, with "Try Again" recovery
 
 ### Keyboard Shortcuts
@@ -169,6 +172,24 @@ echo 'OPENAI_API_KEY=sk-your-key-here' >> .env
 
 The API key is read by the Tauri backend only — it is never sent to the frontend.
 
+### Voice Transcriber (Standalone Page)
+
+The desktop app includes a dedicated **Voice Transcriber** page — a focused recording-and-transcription interface separate from the chat input. Access it via the **Transcriber** button in the sidebar.
+
+**How to use:**
+1. Open the app and click **Transcriber** in the sidebar.
+2. Click **🎙 Start recording** to begin capturing audio from your microphone.
+3. Click **⏹ Stop recording** when done. The audio is sent to OpenAI for transcription.
+4. The transcript appears in the editable textarea below.
+
+**Requirements:**
+- An `OPENAI_API_KEY` in your `.env` file (see Voice Input Setup above).
+- On **macOS**, the app will prompt for microphone permission on first use (via `Info.plist`).
+
+**Production Security — API Keys:**
+
+> ⚠️ **Do not ship a shared OpenAI API key in a distributed application binary.** The key is loaded server-side by the Tauri Rust backend and is never exposed to the frontend. For local development, a `.env` file is sufficient. In a production distribution, each user should supply their own API key via environment variable, `.env` file, or a future settings UI backed by the OS keychain.
+
 ### Development
 
 ```bash
@@ -205,6 +226,8 @@ cargo test --workspace
 |---|---|
 | `cargo tauri dev` fails | Ensure Node.js v18+ is installed and `cd crates/sldo-tauri/ui && npm install` has been run |
 | Voice input doesn't work | Set `OPENAI_API_KEY` in `.env` file at project root |
+| Transcriber shows "No audio was captured" | Microphone may not be connected or permission was denied — check System Preferences > Privacy > Microphone |
+| macOS microphone prompt not appearing | Ensure `Info.plist` is present in `crates/sldo-tauri/` with `NSMicrophoneUsageDescription` |
 | Settings not persisting | Check Tauri app data directory permissions |
 | Build warnings about unused fields | These are intentional — fields used at runtime via serialization |
 

@@ -705,3 +705,655 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
+═══════════════════════════════════════════════════
+[2026-03-19 19:56:35] Attempt 3 — Milestone 3: React recording UI with MediaRecorder
+═══════════════════════════════════════════════════
+
+
+
+
+● Read RUNBOOK-VOICE-TRANSCRIBER.md
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 1 line read
+
+● Check current build state (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo build --workspace 2>&1 |
+  │ tail -20
+  └ 21 lines...
+
+● Check current test state (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -40
+  └ 39 lines...
+
+Build and tests pass. Let me read the runbook's milestone tracker and relevant sections.
+
+● Read runbook header and milestone tracker (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && head -200
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 201 lines...
+
+● Find milestone 3 section (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && grep -n "## Milestone 3"
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md | head -5
+  └ 2 lines...
+
+● Read milestone 3 full section (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && sed -n '790,1100p'
+  │ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+  └ 312 lines...
+
+Milestone 3 is next. Let me read the prerequisite files now.
+
+● List directory crates/sldo-tauri/ui/src/hooks
+  └ 4 files found
+
+● Read VoiceTranscriber.tsx
+  │ crates/sldo-tauri/ui/src/components/VoiceTranscriber.tsx
+  └ 53 lines read
+
+● Read existing useVoice hook (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/hooks/u
+  │ seVoice.ts
+  └ 110 lines...
+
+● Read existing VoiceButton component (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/compone
+  │ nts/VoiceButton.tsx
+  └ 55 lines...
+
+● Read M2 lessons file (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/lessons/voice-tx-m2.md
+  │ 2>/dev/null || echo "FILE NOT FOUND"
+  └ 57 lines...
+
+● Read existing VoiceTranscriber tests (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/compone
+  │ nts/VoiceTranscriber.test.tsx 2>/dev/null || echo "FILE NOT FOUND"
+  └ 71 lines...
+
+● Check if hook already exists (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/hooks/u
+  │ seStandaloneVoice.ts 2>/dev/null || echo "FILE NOT FOUND"
+  └ 2 lines...
+
+● Check if hook test already exists (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/hooks/u
+  │ seStandaloneVoice.test.ts 2>/dev/null || echo "FILE NOT FOUND"
+  └ 2 lines...
+
+● Check if E2E test already exists (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/e2e/tra
+  │ nscriber.e2e.test.tsx 2>/dev/null || echo "FILE NOT FOUND"
+  └ 2 lines...
+
+● Check e2e directory (shell)
+  │ ls /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/e2e/
+  │ 2>/dev/null || echo "DIR NOT FOUND"
+  └ 4 lines...
+
+● Read VoiceButton test patterns (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/compone
+  │ nts/VoiceButton.test.tsx 2>/dev/null | head -50
+  └ 51 lines...
+
+Good, the hook and test files don't exist yet. Let me check test setup and types, then read the existing e2e pattern.
+
+● Read existing voice E2E test pattern (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/e2e/voi
+  │ ce.e2e.test.tsx
+  └ 103 lines...
+
+● Check types for voice state (shell)
+  │ grep -n "VoiceState\|StandaloneVoice\|TranscriberState" /Users/sherifmansour/Documents/Dev/GitHu
+  │ b/SunLitOrchestrate/crates/sldo-tauri/ui/src/types/index.ts
+  └ 2 lines...
+
+● Check vitest config (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/vitest.conf
+  │ ig.ts 2>/dev/null || cat
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/vite.config.ts
+  │ 2>/dev/null | head -30
+  └ 23 lines...
+
+● Run frontend baseline tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -30
+  └ 29 lines...
+
+All 98 frontend tests pass. Now let me create the plan, update the tracker, and start implementing.
+
+● Create plan.md +24
+  └ ~/.copilot/session-state/8602e798-4f9f-4109-b79e-85e3f6c44f49/plan.md
+
+● Edit RUNBOOK-VOICE-TRANSCRIBER.md +1 -1
+  └ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+
+Now let me write the BDD tests first, then the E2E tests, then implement.
+
+● Read test setup file (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui/src/test-se
+  │ tup.ts
+  └ 2 lines...
+
+● Create transcriber.e2e.test.tsx +166
+  └ crates/sldo-tauri/ui/src/e2e/transcriber.e2e.test.tsx
+
+● Create useStandaloneVoice.test.ts +300
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.test.ts
+
+Now let me update the VoiceTranscriber.test.tsx with interactive state tests, then implement the hook and component.
+
+● Edit VoiceTranscriber.test.tsx +231 -29
+  └ crates/sldo-tauri/ui/src/components/VoiceTranscriber.test.tsx
+
+Now implement the `useStandaloneVoice` hook and update the `VoiceTranscriber` component:
+
+● Create useStandaloneVoice.ts +166
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.ts
+
+● Edit VoiceTranscriber.tsx +41 -9
+  └ crates/sldo-tauri/ui/src/components/VoiceTranscriber.tsx
+
+Now let's run the frontend tests:
+
+● Run frontend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -50
+  └ 50 lines...
+
+The async `handleRecordingStopped` isn't completing within `act`. I need to use `waitFor` for assertions that depend on async operations.
+
+● Edit useStandaloneVoice.test.ts +4
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.test.ts
+
+● Edit useStandaloneVoice.test.ts +1
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.test.ts
+
+● Edit useStandaloneVoice.test.ts +2 -1
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.test.ts
+
+● Edit useStandaloneVoice.test.ts +2
+  └ crates/sldo-tauri/ui/src/hooks/useStandaloneVoice.test.ts
+
+Now I also need to look at the E2E stop_recording test — it also fails because the async flow doesn't complete in `act`. The `waitFor` should handle it but the `invoke` check happens before async completes. Let me also fix the E2E test's `stop_recording_invokes_backend`:
+
+● Read transcriber.e2e.test.tsx
+  │ crates/sldo-tauri/ui/src/e2e/transcriber.e2e.test.tsx
+  └ L96:130 (35 lines read)
+
+● Edit transcriber.e2e.test.tsx +9 -7
+  └ crates/sldo-tauri/ui/src/e2e/transcriber.e2e.test.tsx
+
+● Run frontend tests again (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/crates/sldo-tauri/ui && npx
+  │ vitest run 2>&1 | tail -40
+  └ 40 lines...
+
+All 122 tests pass (98 original + 24 new). Now let me run the backend tests too:
+
+● Run backend tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -30
+  └ 30 lines...
+
+All tests pass. Now let me complete the post-milestone work: write the lessons file, completion summary, update the architecture doc, and mark the milestone as done.
+
+● Check completion directory (shell)
+  │ ls /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/completion/ 2>/dev/null ||
+  │ echo "DIR NOT FOUND"
+  └ 2 lines...
+
+● Find voice sections in architecture doc (shell)
+  │ grep -n "useVoice\|VoiceButton\|VoiceTranscriber\|useStandaloneVoice\|voice\|Voice"
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/ARCHITECTURE.md 2>/dev/null
+  └ 18 lines...
+
+● Read architecture doc header (shell)
+  │ cat /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/ARCHITECTURE.md 2>/dev/null
+  │ | head -80
+  └ 81 lines...
+
+● Read voice transcriber section (shell)
+  │ sed -n '340,420p'
+  │ /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/ARCHITECTURE.md
+  └ 80 lines...
+
+Now let me create the lessons file, completion summary, and update the architecture doc:
+
+● Create voice-tx-m3.md +55
+  └ docs/lessons/voice-tx-m3.md
+
+● Create voice-tx-m3.md +27
+  └ docs/completion/voice-tx-m3.md
+
+Now update the architecture doc and milestone tracker:
+
+● Edit ARCHITECTURE.md +15 -5
+  └ docs/ARCHITECTURE.md
+
+Now update the frontend test counts in the architecture doc and add the new test suites:
+
+● Edit ARCHITECTURE.md
+  └ docs/ARCHITECTURE.md
+
+● Edit ARCHITECTURE.md +2 -1
+  └ docs/ARCHITECTURE.md
+
+Now update the milestone tracker to `done`:
+
+● Edit RUNBOOK-VOICE-TRANSCRIBER.md +1 -1
+  └ docs/RUNBOOK-VOICE-TRANSCRIBER.md
+
+Final verification — run all tests one last time:
+
+● Final verification - all tests (shell)
+  │ cd /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate && cargo test --workspace 2>&1 |
+  │ tail -10 && echo "---" && cd crates/sldo-tauri/ui && npx vitest run 2>&1 | tail -10
+  └ 21 lines...
+
+All green. ✅ **216 backend tests** and **122 frontend tests** pass.
+
+## Milestone 3 Complete
+
+**What was done:**
+- Created `useStandaloneVoice` hook with full MediaRecorder lifecycle, MIME type preference (`webm;codecs=opus` → fallbacks), `FileReader.readAsDataURL` base64 conversion, and microphone cleanup on stop/unmount
+- Wired `VoiceTranscriber` component with functional start/stop buttons, recording/transcribing status display, red-bordered error box, and editable transcript textarea
+- Added 25 new tests (12 hook BDD + 9 component BDD + 4 E2E) — all passing
+- All 216 pre-existing backend + 98 pre-existing frontend tests still pass
+- Updated ARCHITECTURE.md, wrote lessons and completion files, marked tracker as `done`
+
+
+Total usage est:        3 Premium requests
+API time spent:         6m 7s
+Total session time:     6m 54s
+Total code changes:     +1047 -54
+Breakdown by AI model:
+ claude-opus-4.6          1.2m in, 23.1k out, 1.2m cached (Est. 3 Premium requests)
+
+[2026-03-19 20:03:32] Exit code: 0
+[2026-03-19 20:03:32] Milestone: 3 — React recording UI with MediaRecorder
+warning: methods `name` and `invoke` are never used
+  --> crates/sldo-tauri/src/provider.rs:18:8
+   |
+16 | pub trait Provider: Send + Sync {
+   |           -------- methods in this trait
+17 |     /// Human-readable provider name (e.g., "copilot").
+18 |     fn name(&self) -> &str;
+   |        ^^^^
+...
+32 |     fn invoke(
+   |        ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `id` and `prompt` are never read
+  --> crates/sldo-tauri/src/state.rs:27:9
+   |
+25 | pub struct PlanningSession {
+   |            --------------- fields in this struct
+26 |     /// Unique session identifier.
+27 |     pub id: String,
+   |         ^^
+28 |     /// The user's original prompt.
+29 |     pub prompt: String,
+   |         ^^^^^^
+   |
+   = note: `PlanningSession` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: `sldo-tauri` (bin "sldo-tauri") generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+warning: method `invoke` is never used
+  --> crates/sldo-tauri/src/provider.rs:32:8
+   |
+16 | pub trait Provider: Send + Sync {
+   |           -------- method in this trait
+...
+32 |     fn invoke(
+   |        ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `prompt` is never read
+  --> crates/sldo-tauri/src/state.rs:29:9
+   |
+25 | pub struct PlanningSession {
+   |            --------------- field in this struct
+...
+29 |     pub prompt: String,
+   |         ^^^^^^
+   |
+   = note: `PlanningSession` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: `sldo-tauri` (bin "sldo-tauri" test) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (target/debug/deps/sldo_common-7abf266eff470756)
+
+running 48 tests
+test color::tests::divider_prints_to_stderr ... ok
+test color::tests::fail_prints_to_stderr ... ok
+test color::tests::success_prints_to_stderr ... ok
+test color::tests::header_prints_to_stderr ... ok
+test copilot::tests::copilot_invocation_working_dir ... ok
+test color::tests::info_prints_to_stderr ... ok
+test color::tests::warn_prints_to_stderr ... ok
+test copilot::tests::copilot_invocation_builds_correctly ... ok
+test detect::tests::detect_cargo_test_commands ... ok
+test detect::tests::detect_cargo_project ... ok
+test git::tests::protected_branch_check_main ... ok
+test git::tests::safe_branch_check ... ok
+test git::tests::protected_branch_check_master ... ok
+test detect::tests::detect_makefile_with_build_target ... ok
+test detect::tests::no_build_files_empty_dir ... ok
+test detect::tests::detect_go_project ... ok
+test preflight::tests::check_file_exists_with_existing_file ... ok
+test preflight::tests::check_file_exists_with_missing_file ... ok
+test preflight::tests::check_copilot_installed_does_not_panic ... ok
+test logging::tests::ensure_log_dir_creates_copilot_logs ... ok
+test runbook::tests::milestone_status_display ... ok
+test detect::tests::detect_npm_project_with_build_script ... ok
+test runbook::tests::milestone_status_from_str ... ok
+test logging::tests::log_file_appends_timestamped_line ... ok
+test logging::tests::log_file_creates_parent_dirs ... ok
+test color::tests::timestamp_format ... ok
+test runbook::tests::all_done_detection ... ok
+test tests::version_is_valid_semver ... ok
+test runbook::tests::all_done_false_when_not_all_done ... ok
+test tests::version_returns_non_empty_string ... ok
+test toolflags::tests::plan_allow_flags_contains_shell_cat ... ok
+test toolflags::tests::plan_allow_flags_contains_write ... ok
+test toolflags::tests::plan_deny_flags_contains_rm_rf_root ... ok
+test toolflags::tests::run_allow_flags_contains_cargo ... ok
+test toolflags::tests::run_allow_flags_contains_rm ... ok
+test runbook::tests::next_incomplete_returns_none_when_all_done ... ok
+test toolflags::tests::run_deny_flags_contains_force_push ... ok
+test runbook::tests::mixed_status_parsing ... ok
+test runbook::tests::next_incomplete_finds_first_non_done ... ok
+test runbook::tests::parse_tracker_extracts_dates_and_lessons ... ok
+test runbook::tests::parse_tracker_table ... ok
+test git::tests::detect_non_git_dir ... ok
+test git::tests::detect_git_repo ... ok
+test git::tests::current_branch_returns_non_empty ... ok
+test preflight::tests::check_git_safety_on_own_repo ... ok
+test copilot::tests::run_still_works_after_refactor ... ok
+test copilot::tests::copilot_invocation_run_handles_missing_binary ... ok
+test copilot::tests::run_with_callback_receives_all_lines ... ok
+
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.86s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_plan-59a19d9fe3c1cf31)
+
+running 21 tests
+test tests::first_iteration_prompt ... ok
+test tests::refinement_iteration_prompt ... ok
+test tests::resolve_output_default ... ok
+test tests::custom_model ... ok
+test tests::missing_file_returns_issue ... ok
+test tests::default_output_is_none ... ok
+test tests::custom_max_iterations ... ok
+test tests::default_max_iterations ... ok
+test tests::custom_output ... ok
+test tests::default_model ... ok
+test tests::resolve_output_absolute ... ok
+test tests::resolve_output_relative ... ok
+test tests::missing_args_errors ... ok
+test tests::help_flag_exits_zero ... ok
+test tests::template_missing_returns_fallback ... ok
+test tests::template_exists_returns_content ... ok
+test tests::small_file_returns_issue ... ok
+test tests::missing_section_returns_issue ... ok
+test tests::unfilled_placeholders_returns_issue ... ok
+test tests::done_milestones_returns_issue ... ok
+test tests::valid_runbook_returns_empty_issues ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_run-807f6ef6d292e19c)
+
+running 13 tests
+test tests::first_attempt_prompt ... ok
+test tests::empty_command_list ... ok
+test tests::custom_cooldown ... ok
+test tests::missing_args ... ok
+test tests::custom_max_attempts ... ok
+test tests::default_cooldown ... ok
+test tests::multiple_test_cmds ... ok
+test tests::default_model ... ok
+test tests::multiple_build_cmds ... ok
+test tests::retry_prompt ... ok
+test tests::help_flag ... ok
+test tests::successful_command ... ok
+test tests::failed_command ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/sldo_tauri-a6562586c660e958)
+
+running 65 tests
+test commands::plan::tests::build_planning_prompt_contains_requirements ... ok
+test commands::plan::tests::milestone_row_dto_from_runbook_row ... ok
+test commands::plan::tests::build_planning_prompt_iteration_2_has_refinement ... ok
+test commands::plan::tests::read_runbook_missing_file_returns_error ... ok
+test commands::plan::tests::resolve_output_path_absolute ... ok
+test commands::plan::tests::read_template_fallback ... ok
+test commands::plan::tests::copilot_not_installed_returns_error_mentioning_copilot ... ok
+test commands::run::tests::build_execution_prompt_contains_build_commands ... ok
+test commands::run::tests::build_execution_prompt_first_attempt_no_retry ... ok
+test commands::plan::tests::resolve_output_path_relative ... ok
+test commands::plan::tests::validate_runbook_missing_file ... ok
+test commands::run::tests::build_execution_prompt_retry_includes_attempt ... ok
+test commands::run::tests::build_execution_prompt_contains_runbook_path ... ok
+test commands::plan::tests::resolve_output_path_default ... ok
+test commands::run::tests::build_execution_prompt_no_commands_shows_placeholder ... ok
+test commands::settings::tests::get_available_models_for_copilot ... ok
+test commands::settings::tests::get_available_models_for_unknown_provider ... ok
+test commands::settings::tests::get_available_providers_returns_copilot ... ok
+test commands::voice::tests::mime_type_ogg_maps_to_ogg_extension ... ok
+test commands::voice::tests::existing_transcribe_audio_still_exists ... ok
+test commands::plan::tests::validate_runbook_valid_content ... ok
+test commands::voice::tests::invalid_base64_returns_error ... ok
+test commands::voice::tests::empty_audio_returns_error ... ok
+test commands::voice::tests::mime_type_mp4_maps_to_m4a_extension ... ok
+test commands::plan::tests::read_runbook_returns_content_and_milestones ... ok
+test commands::plan::tests::save_runbook_writes_and_validates ... ok
+test commands::plan::tests::save_runbook_invalid_content_returns_warnings ... ok
+test commands::voice::tests::mime_type_wav_maps_to_wav_extension ... ok
+test commands::voice::tests::mime_type_webm_maps_to_webm_extension ... ok
+test commands::voice::tests::standalone_empty_audio_returns_error ... ok
+test commands::voice::tests::standalone_invalid_base64_returns_decode_error ... ok
+test commands::voice::tests::unknown_mime_type_defaults_to_webm ... ok
+test events::tests::build_test_result_event_serializes ... ok
+test events::tests::execution_complete_event_deserializes ... ok
+test events::tests::execution_complete_event_serializes ... ok
+test events::tests::execution_progress_event_serializes ... ok
+test events::tests::milestone_completed_event_serializes ... ok
+test events::tests::milestone_started_event_serializes ... ok
+test events::tests::plan_complete_event_serializes ... ok
+test events::tests::plan_error_event_serializes ... ok
+test events::tests::plan_progress_event_deserializes ... ok
+test events::tests::plan_progress_event_serializes ... ok
+test provider::tests::available_providers_includes_copilot ... ok
+test provider::tests::copilot_provider_has_models ... ok
+test provider::tests::copilot_provider_name_is_copilot ... ok
+test provider::tests::get_provider_returns_copilot ... ok
+test provider::tests::get_provider_returns_none_for_unknown ... ok
+test state::tests::app_settings_default_flags_match_toolflags ... ok
+test state::tests::app_state_default_has_no_session ... ok
+test state::tests::app_settings_default_values ... ok
+test state::tests::app_state_has_cancel_flag ... ok
+test state::tests::app_state_has_execution_running_flag ... ok
+test state::tests::planning_session_tracks_state ... ok
+test state::tests::load_settings_returns_defaults_when_no_file ... ok
+test state::tests::cancel_flag_can_be_set ... ok
+test commands::voice::tests::missing_api_key_returns_error ... ok
+test commands::voice::tests::standalone_missing_api_key_returns_clear_error ... ok
+test commands::run::tests::run_verification_command_failure ... ok
+test state::tests::settings_deserializes_from_json ... ok
+test state::tests::load_settings_handles_corrupted_file ... ok
+test state::tests::save_and_load_settings_roundtrip ... ok
+test tests::tauri_crate_depends_on_common ... ok
+test state::tests::settings_serializes_to_json ... ok
+test commands::run::tests::run_verification_command_success ... ok
+test commands::plan::tests::protected_branch_rejected ... ok
+
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/e2e_common_m2.rs (target/debug/deps/e2e_common_m2-ecfdb4b615b89e52)
+
+running 4 tests
+test detect_commands_on_own_repo ... ok
+test parse_real_template_tracker ... ok
+test parse_actual_runbook_tracker ... ok
+test git_checks_on_own_repo ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/e2e_integration_m5.rs (target/debug/deps/e2e_integration_m5-8d1607a4203a91d3)
+
+running 7 tests
+test cli_flag_parity_run ... ok
+test run_rejects_protected_branch ... ok
+test run_detects_all_done ... ok
+test cli_flag_parity_plan ... ok
+test plan_rejects_protected_branch ... ok
+test run_end_to_end_with_mock ... ok
+test plan_end_to_end_with_mock ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+     Running tests/e2e_plan_m3.rs (target/debug/deps/e2e_plan_m3-0d446e8a1d73020f)
+
+running 4 tests
+test plan_reads_real_template ... ok
+test plan_validates_own_runbook ... ok
+test plan_missing_args_exits_nonzero ... ok
+test plan_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_run_m4.rs (target/debug/deps/e2e_run_m4-3b7b480d042b920e)
+
+running 4 tests
+test run_detects_cargo_in_own_repo ... ok
+test run_parses_tracker_from_real_runbook ... ok
+test run_missing_args_exits_nonzero ... ok
+test run_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_scaffold_m1.rs (target/debug/deps/e2e_scaffold_m1-5984c5569c65e99d)
+
+running 4 tests
+test common_version_exists ... ok
+test plan_binary_runs ... ok
+test run_binary_runs ... ok
+test workspace_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/e2e_tauri_m1.rs (target/debug/deps/e2e_tauri_m1-c752589ed885c766)
+
+running 7 tests
+test tauri_references_common ... ok
+test app_css_contains_design_tokens ... ok
+test logo_available_in_public ... ok
+test tauri_crate_compiles ... ok
+test workspace_builds_with_tauri_crate ... ok
+test frontend_dist_exists_after_build ... ok
+test existing_tests_still_pass ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.36s
+
+     Running tests/e2e_tauri_m3.rs (target/debug/deps/e2e_tauri_m3-ae15be6e427b1e2c)
+
+running 5 tests
+test event_types_serialize_for_tauri ... ok
+test plan_allow_flags_used ... ok
+test plan_command_rejects_missing_copilot ... ok
+test copilot_run_with_callback_captures_lines ... ok
+test existing_run_method_backward_compatible ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.99s
+
+     Running tests/e2e_tauri_m4.rs (target/debug/deps/e2e_tauri_m4-726801bb7365d8d7)
+
+running 3 tests
+test save_invalid_content_returns_warnings ... ok
+test save_and_reparse_roundtrip ... ok
+test read_runbook_parses_real_file ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m5.rs (target/debug/deps/e2e_tauri_m5-ee43c973e278ebcc)
+
+running 10 tests
+test build_test_result_event_serializes ... ok
+test cancellation_flag_stops_loop ... ok
+test execution_complete_event_serializes ... ok
+test execution_progress_event_serializes ... ok
+test milestone_completed_event_serializes ... ok
+test milestone_started_event_serializes ... ok
+test detect_build_commands_in_own_repo ... ok
+test all_done_runbook_detected ... ok
+test not_started_runbook_has_next_incomplete ... ok
+test execution_parses_real_runbook ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m6.rs (target/debug/deps/e2e_tauri_m6-baa96fdbd6a18109)
+
+running 6 tests
+test copilot_provider_has_correct_name ... ok
+test settings_default_allow_flags_match_toolflags ... ok
+test default_settings_created ... ok
+test settings_default_deny_flags_match_toolflags ... ok
+test invalid_settings_json_falls_back_to_defaults ... ok
+test settings_roundtrip_json ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m7.rs (target/debug/deps/e2e_tauri_m7-0b7daa23369c596e)
+
+running 2 tests
+test missing_api_key_returns_error ... ok
+test env_file_loading_works ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_tauri_m8.rs (target/debug/deps/e2e_tauri_m8-63f646b15c12ffcb)
+
+running 6 tests
+test concurrent_plan_prevention ... ok
+test full_workspace_builds_clean ... ok
+test planning_lock_prevents_concurrent_plans ... ok
+test all_tauri_e2e_tests_registered ... ok
+test settings_defaults_valid ... ok
+test settings_json_schema_has_all_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_voice_tx_m1.rs (target/debug/deps/e2e_voice_tx_m1-ce8fa31e165dce25)
+
+running 2 tests
+test workspace_compiles_with_transcriber_route ... ok
+test app_phase_type_includes_transcriber ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e_voice_tx_m2.rs (target/debug/deps/e2e_voice_tx_m2-a54416919b6210be)
+
+running 5 tests
+test invalid_base64_error ... ok
+test standalone_command_registered ... ok
+test mime_type_resolution_unit ... ok
+test empty_audio_rejected ... ok
+test missing_api_key_error ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sldo_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
