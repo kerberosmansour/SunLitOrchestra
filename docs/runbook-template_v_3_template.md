@@ -98,166 +98,61 @@ Provide a complete architecture diagram of the proposed end state after all mile
 
 ## High-Level Design for Formal Verification (TLA+ Section)
 
-This section captures the high-level protocol design of the system in a form suitable for formal verification with TLA+ and TLC model checking. It complements the architecture diagram by focusing on correctness-critical behavior, concurrency, and failure modes rather than implementation details.
+This section captures the system's abstract behavior as a protocol/state-machine design suitable for TLA+ modeling. It focuses on correctness-critical concurrency, state, and failure modes — not implementation details.
 
-**When to fill this section**: Complete this section before starting milestone implementation if the system involves concurrent actors, distributed state, ordering guarantees, resource ownership, or failure recovery. For simple CRUD systems with no concurrency concerns, this section may be marked `N/A` with a brief justification.
+**When to fill this section**: Before starting milestone implementation if the system involves concurrent actors, distributed state, ordering guarantees, resource ownership, or failure recovery. For simple CRUD systems with no concurrency concerns, mark `N/A` with a brief justification.
 
-**Who consumes this section**: A TLA+ modeling agent or a senior engineer writing formal specifications. The output should be precise enough to translate directly into a TLC-checkable TLA+ model.
-
-### Design Rules for This Section
-
-- Model behavior at the protocol/architecture level, not the code level.
-- Focus on "what can happen" and the correctness-critical "how", not implementation details like classes, APIs, thread pools, database schemas, serialization formats, logging, metrics, or deployment tooling — unless they affect correctness.
-- Use a ladder of abstraction:
-  - **Level 0**: System purpose and correctness properties
-  - **Level 1**: Black-box components and responsibilities
-  - **Level 2**: Abstract protocol / state machine
-  - **Level 3**: Implementation mapping / refinement notes
-- Prefer a few high-value state variables over detailed internal data structures.
-- Represent actors abstractly and symmetrically when possible (e.g., Client, Node, Replica, Coordinator, Worker).
-- Avoid unnecessary sources of state explosion:
-  - No concrete timestamps unless time is semantically required
-  - No UUIDs or rich payloads unless payload contents affect correctness
-  - No unbounded queues, logs, maps, retries, or history unless essential
-  - No modeling of many shards/keys/partitions unless cross-shard behavior is the point
-  - No separate actions for tiny bookkeeping updates if they can be merged safely
-- Collapse interchangeable entities into model-value style roles and note where symmetry is possible.
-- Bound everything needed for model checking.
-- Separate safety properties (check exhaustively) from liveness properties (check in a smaller dedicated model).
-- Make actions coarse enough to be readable, but small enough that each action changes only a few important variables.
-- Include failures and concurrency only at the level needed to expose correctness bugs (message loss, duplication, reordering, delay, crash/restart, stale leadership, partial commit, timeout) — do not include every possible operational concern.
+**Design guidance**: Omit low-level code, APIs, schemas, retries, logging, metrics, and deployment details. Avoid timestamps, UUIDs, large payloads, or unbounded queues unless correctness depends on them. Reduce the design to the smallest set of states and transitions that captures the real correctness risks.
 
 ### 1. System Goal
 
-[One paragraph on what the system must do. Focus on the correctness-critical aspects, not features or UX.]
+[One paragraph: what must the system do, focusing on correctness-critical aspects.]
 
-### 2. Engineering Boundary
+### 2. Main Components
 
-**In scope for formal verification**:
-- [Correctness-critical behavior 1]
-- [Correctness-critical behavior 2]
+For each component/actor, list only what matters for correctness.
 
-**Explicitly out of scope**:
-- [Detail intentionally abstracted away 1]
-- [Detail intentionally abstracted away 2]
-
-**Abstracted away for TLA+**:
-- [Implementation detail 1] — [why it does not affect correctness]
-- [Implementation detail 2] — [why it does not affect correctness]
-
-### 3. Core Components
-
-For each component, describe only what is relevant to correctness.
-
-#### [Component Name]
-
-- **Responsibility**: [What it does at the protocol level]
-- **Durable state**: [State that survives crashes — e.g., committed log, persisted config]
-- **Volatile state**: [State lost on crash — e.g., in-flight requests, cached values]
-- **Externally visible actions**: [Messages sent, events emitted, state transitions observable by other components]
-
-#### [Component Name]
-
-- **Responsibility**: [What it does]
-- **Durable state**: [State that survives crashes]
-- **Volatile state**: [State lost on crash]
-- **Externally visible actions**: [Observable actions]
-
-<!-- Repeat for each component -->
-
-### 4. Abstract State Model
-
-List the minimum set of state variables needed to capture correctness-critical behavior.
-
-| Variable | Type (abstract) | Why It Is Necessary | Explosion Risk |
+| Component | Responsibility | Key State (durable / volatile) | Visible Actions |
 |---|---|---|---|
-| `[variable_name]` | [e.g., set of Node, function Node → Status] | [What correctness property depends on this] | [low / medium / high — explain if high] |
-| `[variable_name]` | [e.g., sequence of Request] | [Why needed] | [risk level] |
+| [Name] | [Protocol-level role] | [State that matters for correctness] | [Messages, events, transitions] |
+| [Name] | [Role] | [State] | [Actions] |
 
-### 5. Events / Actions
+### 3. Abstract State
 
-Enumerate the major actions as abstract state transitions. Keep the action set minimal and readable.
+The minimum set of state variables needed to capture correctness. Flag anything likely to cause state explosion.
 
-#### [Action Name]
+| Variable | Type (abstract) | Why Necessary | Explosion Risk |
+|---|---|---|---|
+| `[var]` | [e.g., function Node → Status] | [Which property depends on this] | [low / medium / high] |
+| `[var]` | [e.g., bounded sequence of Request] | [Why needed] | [risk] |
 
-- **Preconditions**: [What must be true for this action to fire]
-- **State updates**: [Which variables change and how]
-- **Emitted messages / responses**: [What other components observe]
-- **Failure / interleaving relevance**: [Can this action fail partway? Can it interleave with other actions in a correctness-relevant way?]
+### 4. Key Actions / Transitions
 
-#### [Action Name]
+| Action | Preconditions | State Updates | Failure / Interleaving Notes |
+|---|---|---|---|
+| [Action name] | [What must be true] | [What changes] | [Can it fail partway? Concurrency-relevant?] |
+| [Action name] | [Preconditions] | [Updates] | [Notes] |
 
-- **Preconditions**: [Preconditions]
-- **State updates**: [Updates]
-- **Emitted messages / responses**: [Messages]
-- **Failure / interleaving relevance**: [Relevance]
+### 5. Safety Properties
 
-<!-- Repeat for each action -->
+Invariants that TLC should check exhaustively. Write in crisp English translatable to TLA+.
 
-### 6. Safety Properties
+- **[Property]**: [e.g., "No two nodes hold the lock simultaneously"]
+- **[Property]**: [Invariant statement]
 
-List invariants that engineers care about and that TLC should check. Write them in crisp English that can be translated into TLA+.
+### 6. Liveness Assumptions
 
-- **[Property name]**: [Invariant statement — e.g., "No two nodes hold the lock simultaneously", "Every committed write is visible to subsequent reads", "No resource is allocated to more than one owner"]
-- **[Property name]**: [Invariant statement]
-- **[Property name]**: [Invariant statement]
+Progress properties and their fairness requirements.
 
-### 7. Liveness Properties
+- **[Property]**: [e.g., "Every submitted request is eventually processed or rejected"] — Fairness: [weak/strong on which actions]
+- **[Property]**: [Statement] — Fairness: [assumption]
 
-List progress properties separately. Note fairness assumptions required.
+### 7. Simplifications Made for TLA+
 
-- **[Property name]**: [Liveness statement — e.g., "Every submitted request is eventually processed or explicitly rejected"] — Fairness: [weak/strong fairness on which actions] — **Check in**: [full model / smaller liveness model]
-- **[Property name]**: [Liveness statement] — Fairness: [assumption] — **Check in**: [model scope]
-
-### 8. Abstraction Choices
-
-Explain exactly what was removed or simplified to keep the model tractable. For each simplification, state why it preserves the bug classes we care about.
-
-| Simplification | What Was Removed | Why It Preserves Correctness |
-|---|---|---|
-| [Simplification name] | [Detail removed] | [Why the bug classes we care about are still covered] |
-| [Simplification name] | [Detail removed] | [Justification] |
-
-### 9. Finite Model Plan for TLC
-
-| Parameter | Suggested Value | Rationale |
-|---|---|---|
-| Number of nodes/actors | [e.g., 2–3] | [Why this is sufficient to expose bugs] |
-| Number of clients/requests | [e.g., 1–2] | [Why sufficient] |
-| Queue/log bound | [e.g., 2–3 entries] | [Why sufficient] |
-| Keys/shards/partitions | [e.g., 1] | [Unless cross-shard behavior is the point] |
-| Retry count | [e.g., 0–1] | [Why sufficient] |
-
-**Symmetry opportunities**: [Which sets of actors are interchangeable and can use TLC symmetry reduction?]
-
-**State constraints / bounds**: [Additional constraints to keep state space finite]
-
-**Recommended first safety model**: [Description of the initial model configuration for exhaustive safety checking]
-
-**Recommended smaller liveness model**: [Description of a reduced model for liveness checking — fewer actors, smaller bounds]
-
-### 10. Refinement Notes for Engineers
-
-Map the abstract design to likely implementation modules/services.
-
-| Abstract Component | Implementation Module/Service | Notes |
-|---|---|---|
-| [Abstract name] | [Code module, crate, service] | [What must be preserved from the abstract model] |
-| [Abstract name] | [Code module, crate, service] | [Notes] |
-
-**Implementation details that must preserve abstract invariants**:
-- [Detail] — maps to safety property [name]
-- [Detail] — maps to safety property [name]
-
-**Details intentionally left for lower-level design**:
-- [Detail]
-- [Detail]
-
-### 11. Red Flags
-
-- **Too detailed for TLA+**: [Identify any part of the design that has too much implementation detail for effective model checking]
-- **Too abstract for engineers**: [Identify any part that is now too abstract to be useful for implementation]
-- **Simpler alternative**: [If applicable, suggest a simpler modeling approach]
+| What Was Simplified | Why It Still Covers the Bugs We Care About |
+|---|---|
+| [Detail removed or bounded] | [Justification] |
+| [Detail removed or bounded] | [Justification] |
 
 ---
 
