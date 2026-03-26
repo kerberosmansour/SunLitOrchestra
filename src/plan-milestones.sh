@@ -23,7 +23,7 @@ set -euo pipefail
 
 # ── Defaults ─────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TEMPLATE_PATH="${SCRIPT_DIR}/../docs/runbook-template.md"
+TEMPLATE_PATH="${SCRIPT_DIR}/../docs/runbook-template_v_3_template.md"
 MODEL="claude-opus-4.6"
 MAX_ITERATIONS=3
 OUTPUT_PATH=""
