@@ -4,7 +4,7 @@
 #
 # Takes a text file (describing desired software changes) and a repo location
 # as input. Uses GitHub Copilot CLI to analyse the repo and produce a runbook
-# markdown file following the project's runbook template.
+# markdown file following the project's runbook template. Single pass.
 #
 # Usage:
 #   ./plan-milestones.sh <prompt-file> <repo-dir> [options]
@@ -12,7 +12,6 @@
 # Options:
 #   -o, --output <path>     Output runbook path (default: <repo>/docs/RUNBOOK.md)
 #   -m, --model <model>     Copilot model to use (default: claude-opus-4.6)
-#   -n, --max-iterations <N> Max planning refinement iterations (default: 3)
 #   -h, --help              Show this help message
 #
 # Examples:
@@ -25,9 +24,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TEMPLATE_PATH="${SCRIPT_DIR}/../docs/runbook-template_v_3_template.md"
 MODEL="claude-opus-4.6"
-MAX_ITERATIONS=3
 OUTPUT_PATH=""
-COOLDOWN_SECS=3
 LOG_DIR=""
 
 # Tool-permission flags — read-only exploration + write for the output file
@@ -130,13 +127,11 @@ Arguments:
 Options:
   -o, --output <path>       Output runbook path (default: <repo>/docs/RUNBOOK.md)
   -m, --model <model>       Copilot model (default: claude-opus-4.6)
-  -n, --max-iterations <N>  Max planning refinement iterations (default: 3)
   -h, --help                Show this help message
 
 Examples:
   $(basename "$0") requirements.txt /path/to/repo
   $(basename "$0") spec.md /path/to/repo -o docs/RUNBOOK-FEATURE.md
-  $(basename "$0") changes.txt . --model claude-opus-4.6 -n 5
 EOF
   exit 0
 }
@@ -162,10 +157,6 @@ parse_args() {
         ;;
       -m|--model)
         MODEL="$2"
-        shift 2
-        ;;
-      -n|--max-iterations)
-        MAX_ITERATIONS="$2"
         shift 2
         ;;
       -h|--help)
@@ -304,7 +295,6 @@ FALLBACK_TEMPLATE
 
 # ── Build the planning prompt ────────────────────────────────────────────────
 build_planning_prompt() {
-  local iteration="$1"
   local user_prompt
   user_prompt="$(cat "${PROMPT_FILE}")"
   local template
@@ -391,105 +381,6 @@ ${template}
 - Write the runbook output to \`${OUTPUT_PATH}\`.
 - The runbook file is the ONLY file you should create or modify.
 PROMPT
-
-  # Add iteration context for refinement passes
-  if (( iteration > 1 )); then
-    cat <<RETRY
-
-## REFINEMENT PASS ${iteration}
-
-A previous planning pass has already written a draft runbook to \`${OUTPUT_PATH}\`.
-Please:
-
-1. **Read the existing draft** at \`${OUTPUT_PATH}\`.
-2. **Re-explore the repo** to verify all file paths and commands in the draft are accurate.
-3. **Improve the runbook**:
-   - Fix any incorrect file paths, commands, or tech stack references.
-   - Add missing BDD scenarios or E2E tests.
-   - Ensure step-by-step instructions are concrete enough for an AI agent to follow.
-   - Verify milestone ordering makes sense (no forward dependencies).
-   - Fill in any placeholder text that was left from the template.
-4. **Overwrite** \`${OUTPUT_PATH}\` with the improved version.
-RETRY
-  fi
-}
-
-# ── Validate the generated runbook ───────────────────────────────────────────
-validate_runbook() {
-  local runbook_path="$1"
-  local issues=0
-
-  info "Validating generated runbook…"
-
-  if [[ ! -f "${runbook_path}" ]]; then
-    fail "Runbook file was not created at: ${runbook_path}"
-    return 1
-  fi
-
-  local size
-  size=$(wc -c < "${runbook_path}" | tr -d ' ')
-  if (( size < 500 )); then
-    warn "Runbook is suspiciously small (${size} bytes). May be incomplete."
-    issues=$((issues + 1))
-  else
-    success "Runbook size: ${size} bytes"
-  fi
-
-  # Check for key sections
-  local required_sections=(
-    "Milestone Tracker"
-    "Pre-Milestone Protocol"
-    "Post-Milestone Protocol"
-    "Background Context"
-    "Current State"
-    "BDD Acceptance Scenarios"
-  )
-
-  for section in "${required_sections[@]}"; do
-    if grep -q "${section}" "${runbook_path}"; then
-      success "Found section: ${section}"
-    else
-      warn "Missing section: ${section}"
-      issues=$((issues + 1))
-    fi
-  done
-
-  # Check milestone tracker has entries (count rows with status keywords)
-  local milestone_count
-  milestone_count=$(grep -E '^\| [0-9]+ \|' "${runbook_path}" | grep -c 'not_started\|in_progress\|done' || true)
-  milestone_count=$(echo "${milestone_count}" | tr -d '[:space:]')
-  if [[ -n "${milestone_count}" ]] && (( milestone_count > 0 )); then
-    success "Milestone count: ${milestone_count}"
-  else
-    warn "No milestones found in tracker table."
-    issues=$((issues + 1))
-  fi
-
-  # Check for unfilled template placeholders
-  local placeholder_count
-  placeholder_count=$(grep -cE '\[file path\]|\[Milestone [0-9]+ title\]|\[description\]|\[One-sentence' "${runbook_path}" || true)
-  placeholder_count=$(echo "${placeholder_count}" | tr -d '[:space:]')
-  if [[ -n "${placeholder_count}" ]] && (( placeholder_count > 0 )); then
-    warn "Found ${placeholder_count} possible unfilled placeholders."
-    issues=$((issues + 1))
-  fi
-
-  # Check that no milestones in the tracker are marked done (they should all be not_started)
-  local done_count
-  done_count=$(grep -E '^\| [0-9]+ \|' "${runbook_path}" | grep -c '\`done\`' || true)
-  done_count=$(echo "${done_count}" | tr -d '[:space:]')
-  if [[ -n "${done_count}" ]] && (( done_count > 0 )); then
-    warn "Some milestones are marked 'done' — they should all be 'not_started'."
-    issues=$((issues + 1))
-  fi
-
-  if (( issues == 0 )); then
-    success "Runbook validation passed — no issues found."
-    return 0
-  else
-    warn "Runbook validation found ${issues} issue(s). Will attempt refinement."
-    return 1
-  fi
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -501,64 +392,39 @@ main() {
   info "Repository:     ${REPO_DIR}"
   info "Output:         ${OUTPUT_PATH}"
   info "Model:          ${MODEL}"
-  info "Max iterations: ${MAX_ITERATIONS}"
   echo ""
 
   preflight
 
-  local start_time iteration=0
+  local start_time
   start_time="$(date +%s)"
 
   cd "${REPO_DIR}"
 
-  while (( iteration < MAX_ITERATIONS )); do
-    iteration=$((iteration + 1))
-    local log_file="${LOG_DIR}/plan-iteration-${iteration}.log"
+  local log_file="${LOG_DIR}/plan.log"
+  local prompt
+  prompt="$(build_planning_prompt)"
 
-    divider
-    if (( iteration == 1 )); then
-      info "Iteration ${iteration}/${MAX_ITERATIONS} — Initial planning pass"
-    else
-      info "Iteration ${iteration}/${MAX_ITERATIONS} — Refinement pass"
-    fi
-    divider
+  # Log
+  mkdir -p "${LOG_DIR}"
+  echo "═══════════════════════════════════════════════════" >> "${log_file}"
+  echo "[$(ts)] Planning pass" >> "${log_file}"
+  echo "═══════════════════════════════════════════════════" >> "${log_file}"
 
-    local prompt
-    prompt="$(build_planning_prompt "${iteration}")"
+  # Invoke Copilot CLI
+  local exit_code=0
+  copilot -p "${prompt}" \
+    --model "${MODEL}" \
+    "${ALLOW_FLAGS[@]}" \
+    "${DENY_FLAGS[@]}" \
+    2>&1 | tee -a "${log_file}" || exit_code=$?
 
-    # Log
-    mkdir -p "${LOG_DIR}"
-    echo "═══════════════════════════════════════════════════" >> "${log_file}"
-    echo "[$(ts)] Planning iteration ${iteration}" >> "${log_file}"
-    echo "═══════════════════════════════════════════════════" >> "${log_file}"
+  echo "" >> "${log_file}"
+  echo "[$(ts)] Exit code: ${exit_code}" >> "${log_file}"
 
-    # Invoke Copilot CLI
-    local exit_code=0
-    copilot -p "${prompt}" \
-      --model "${MODEL}" \
-      "${ALLOW_FLAGS[@]}" \
-      "${DENY_FLAGS[@]}" \
-      2>&1 | tee -a "${log_file}" || exit_code=$?
-
-    mkdir -p "${LOG_DIR}"
-    echo "" >> "${log_file}"
-    echo "[$(ts)] Exit code: ${exit_code}" >> "${log_file}"
-
-    if (( exit_code != 0 )); then
-      warn "Copilot exited with code ${exit_code}."
-    fi
-
-    # Validate the output
-    if validate_runbook "${OUTPUT_PATH}"; then
-      success "Runbook generated successfully after ${iteration} iteration(s)."
-      break
-    fi
-
-    if (( iteration < MAX_ITERATIONS )); then
-      info "Cooling down ${COOLDOWN_SECS}s before refinement…"
-      sleep "${COOLDOWN_SECS}"
-    fi
-  done
+  if (( exit_code != 0 )); then
+    warn "Copilot exited with code ${exit_code}."
+  fi
 
   local end_time
   end_time="$(date +%s)"
@@ -571,23 +437,8 @@ main() {
 
   if [[ -f "${OUTPUT_PATH}" ]]; then
     success "Runbook written to: ${OUTPUT_PATH}"
-
-    # Show summary
-    local milestone_count
-    milestone_count=$(grep -cE '^\| [0-9]+ \|' "${OUTPUT_PATH}" || echo "0")
-    info "Milestones planned: ${milestone_count}"
-
-    echo ""
-    info "Milestone Tracker:"
-    grep -E '^\|' "${OUTPUT_PATH}" | head -20
-    echo ""
-
-    success "You can now run the milestones with:"
-    info "  src/run-milestones.sh"
-    info "  (after updating RUNBOOK path in the script to point to ${OUTPUT_PATH})"
   else
-    fail "Runbook was not generated after ${MAX_ITERATIONS} iterations."
-    fail "Check logs in ${LOG_DIR}/ for details."
+    fail "Runbook was not generated. Check logs in ${LOG_DIR}/ for details."
   fi
 
   info "Total wall time: ${minutes}m ${seconds}s"
