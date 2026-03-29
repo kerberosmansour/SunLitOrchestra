@@ -35,6 +35,14 @@ PROJECT_DIR=""
 RUNBOOK=""
 LOG_DIR=""
 
+model_args() {
+  if [[ "${MODEL}" == "auto" ]]; then
+    return
+  fi
+
+  printf '%s\n' --model "${MODEL}"
+}
+
 # Tool-permission flags — broad access, deny destructive operations
 # NOTE: shell(cmd:*) means "cmd + any subcommands/args". Without :* it only
 #       matches the bare command with no arguments.
@@ -477,7 +485,11 @@ main() {
   header "Automated Milestone Runner"
   info "Repository: ${PROJECT_DIR}"
   info "Runbook:    ${RUNBOOK}"
-  info "Model:      ${MODEL}"
+  if [[ "${MODEL}" == "auto" ]]; then
+    info "Model:      auto (Copilot CLI default)"
+  else
+    info "Model:      ${MODEL}"
+  fi
   info "Max attempts: ${MAX_ATTEMPTS}"
   echo ""
 
@@ -551,8 +563,13 @@ A previous Copilot session did not fully complete a milestone. Please:
 
     # Invoke Copilot CLI
     local exit_code=0
+    local copilot_args=()
+    while IFS= read -r arg; do
+      copilot_args+=("${arg}")
+    done < <(model_args)
+
     copilot -p "${prompt}" \
-      --model "${MODEL}" \
+      "${copilot_args[@]}" \
       "${ALLOW_FLAGS[@]}" \
       "${DENY_FLAGS[@]}" \
       2>&1 | tee -a "${log_file}" || exit_code=$?
