@@ -10,7 +10,7 @@
 #   ./run-milestones.sh <runbook> <repo-dir> [options]
 #
 # Options:
-#   -m, --model <model>          Copilot model to use (default: claude-opus-4.6)
+#   -m, --model <model>          Copilot model to use (default: auto)
 #   -a, --max-attempts <N>       Max Copilot invocations (default: 150)
 #   -c, --cooldown <secs>        Pause between retries (default: 5)
 #   --build-cmd <cmd>            Custom build verification command (repeatable)
@@ -26,7 +26,7 @@ set -euo pipefail
 
 # ── Defaults ─────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MODEL="claude-opus-4.6"
+MODEL="auto"
 MAX_ATTEMPTS=150          # total Copilot invocations before giving up
 COOLDOWN_SECS=5           # pause between retries
 BUILD_CMDS=()
@@ -36,7 +36,7 @@ RUNBOOK=""
 LOG_DIR=""
 
 model_args() {
-  if [[ "${MODEL}" == "claude-opus-4.6" ]]; then
+  if [[ "${MODEL}" == "auto" ]]; then
     return
   fi
 
@@ -149,7 +149,7 @@ Arguments:
   repo-dir          Path to the target repository.
 
 Options:
-  -m, --model <model>          Copilot model (default: claude-opus-4.6)
+  -m, --model <model>          Copilot model (default: auto)
   -a, --max-attempts <N>       Max Copilot invocations (default: 150)
   -c, --cooldown <secs>        Pause between retries (default: 5)
   --build-cmd <cmd>            Custom build verification command (repeatable)
