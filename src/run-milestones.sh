@@ -36,7 +36,7 @@ RUNBOOK=""
 LOG_DIR=""
 
 model_args() {
-  if [[ "${MODEL}" == "auto" ]]; then
+  if [[ "${MODEL}" == "claude-opus-4.6" ]]; then
     return
   fi
 
@@ -47,6 +47,7 @@ model_args() {
 # NOTE: shell(cmd:*) means "cmd + any subcommands/args". Without :* it only
 #       matches the bare command with no arguments.
 ALLOW_FLAGS=(
+  --allow-tool='read'
   --allow-tool='write'
   # ── Build / test toolchain ──
   --allow-tool='shell(cargo:*)'
@@ -569,7 +570,7 @@ A previous Copilot session did not fully complete a milestone. Please:
     done < <(model_args)
 
     copilot -p "${prompt}" \
-      "${copilot_args[@]}" \
+      ${copilot_args[@]+"${copilot_args[@]}"} \
       "${ALLOW_FLAGS[@]}" \
       "${DENY_FLAGS[@]}" \
       2>&1 | tee -a "${log_file}" || exit_code=$?
