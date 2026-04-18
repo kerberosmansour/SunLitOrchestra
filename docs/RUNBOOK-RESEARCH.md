@@ -1223,7 +1223,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 
 **Goal**: Add web search capability to the research loop by constructing prompts that explicitly instruct Claude Code to use its web browsing / search tools to find current documentation, library comparisons, and best practices.
 
-**Context**: Claude Code CLI can be granted web browsing capabilities through tool permission flags. Rather than implementing a custom web search API, we instruct Claude Code to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Copilot to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
+**Context**: Claude Code CLI can be granted web browsing capabilities through tool permission flags. Rather than implementing a custom web search API, we instruct Claude Code to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Claude Code to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
 
 **Important design rule**: Web search is a *phase* in the research loop, not a separate tool. After the initial exploration pass, the research loop should perform dedicated web search iterations before deepening passes.
 
@@ -1242,7 +1242,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 | New dependencies allowed | `none` |
 | Migration allowed | `no` |
 | Compatibility commitments | All existing tests pass. Existing tool flags unchanged. |
-| Forbidden shortcuts | No hardcoded URLs, no bypassing Copilot for web access |
+| Forbidden shortcuts | No hardcoded URLs, no bypassing Claude Code for web access |
 
 #### Out of Scope / Must Not Do
 
@@ -1271,9 +1271,8 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
    - Asks for current documentation links, library versions, API references
    - Requests structured output: `## Web Search Results`, `## Documentation Found`, `## Library Versions`
    - Each call focuses on a subset of questions (controlled by `search_index`)
-4. Update `research_allow_flags()` in `toolflags.rs` to include web browsing permissions:
-   - `--allow-tool=shell(curl:*)` (if not already present)
-   - `--allow-tool=mcp__fetch__fetch` or similar web tools Copilot supports
+4. Update `research_allow_flags()` in `toolflags.rs` to include web tool permissions:
+   - `--allowedTools=Read,Write,Edit,Bash,Glob,Grep,WebFetch,WebSearch`
 5. Update research loop in `research.rs`:
    - After exploration phase (iteration 1), run web search phase:
      - For `i` in `1..=max_searches`: invoke Claude Code with `build_websearch_prompt(topic, questions, i)`
