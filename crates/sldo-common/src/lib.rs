@@ -33,10 +33,6 @@ mod tests {
         // When: version() is called
         let v = version();
         // Then: it looks like a semver string (contains at least one dot)
-        assert!(
-            v.contains('.'),
-            "version '{}' should be a semver string",
-            v
-        );
+        assert!(v.contains('.'), "version '{}' should be a semver string", v);
     }
 }
