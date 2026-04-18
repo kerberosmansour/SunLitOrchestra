@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 
 use sldo_common::color::{divider, fail, header, info, success, warn};
-use sldo_common::copilot::CopilotInvocation;
+use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
 use sldo_common::toolflags;
@@ -61,7 +61,7 @@ const FALLBACK_TEMPLATE: &str = r#"# [Runbook Title] — [Project Name]
 ///   Step 1 — Generate the runbook (resumable: continues from existing partial output).
 ///   Step 2 — Review & correct (ensures nothing is forgotten).
 #[derive(Parser, Debug)]
-#[command(name = "sldo-plan", about = "Generate a milestone-based runbook from a requirements prompt and a repository.")]
+#[command(name = "sldo-plan", about = "Generate a milestone-based runbook using Claude Code CLI.")]
 struct Cli {
     /// Path to a text/markdown file describing the desired changes.
     prompt_file: PathBuf,
@@ -396,8 +396,8 @@ fn run() -> Result<()> {
     // ── Pre-flight checks ────────────────────────────────────────────────
     header("Pre-flight checks");
 
-    let copilot_path = preflight::check_copilot_installed()?;
-    success(&format!("copilot CLI found: {}", copilot_path.display()));
+    let claude_path = preflight::check_claude_installed()?;
+    success(&format!("claude CLI found: {}", claude_path.display()));
 
     preflight::check_file_exists(&prompt_file, "Prompt file")?;
     success(&format!("Prompt file found: {}", prompt_file.display()));
@@ -453,7 +453,7 @@ fn run() -> Result<()> {
     let log_file = LogFile::new(&log_dir, "plan-step1-generate.log")?;
     log_file.append("Step 1: Generate runbook")?;
 
-    let invocation = CopilotInvocation {
+    let invocation = ClaudeInvocation {
         prompt: generate_prompt,
         model: cli.model.clone(),
         allow_flags: toolflags::plan_allow_flags(),
@@ -463,7 +463,7 @@ fn run() -> Result<()> {
 
     let exit_code = invocation.run(&log_file)?;
     if exit_code != 0 {
-        warn(&format!("Copilot exited with code {} during generation.", exit_code));
+        warn(&format!("claude exited with code {} during generation.", exit_code));
     }
 
     // Quick validation — if the file wasn't even created, bail early
@@ -495,7 +495,7 @@ fn run() -> Result<()> {
     let log_file = LogFile::new(&log_dir, "plan-step2-review.log")?;
     log_file.append("Step 2: Review & correct")?;
 
-    let invocation = CopilotInvocation {
+    let invocation = ClaudeInvocation {
         prompt: review_prompt,
         model: cli.model.clone(),
         allow_flags: toolflags::plan_allow_flags(),
@@ -505,7 +505,7 @@ fn run() -> Result<()> {
 
     let exit_code = invocation.run(&log_file)?;
     if exit_code != 0 {
-        warn(&format!("Copilot exited with code {} during review.", exit_code));
+        warn(&format!("claude exited with code {} during review.", exit_code));
     }
 
     // Final validation

@@ -36,7 +36,7 @@ pub struct PlanningSession {
 /// Persistent application settings, saved as JSON in Tauri app data directory.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AppSettings {
-    /// Which agent provider to use (e.g., "copilot").
+    /// Which agent provider to use (e.g., "claude").
     pub provider: String,
     /// Model to use for planning and execution.
     pub model: String,
@@ -57,8 +57,8 @@ pub struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            provider: "copilot".to_string(),
-            model: "claude-opus-4.6".to_string(),
+            provider: "claude".to_string(),
+            model: "claude-sonnet-4-6".to_string(),
             allow_flags: toolflags::plan_allow_flags(),
             deny_flags: toolflags::plan_deny_flags(),
             max_attempts: 150,
@@ -132,14 +132,14 @@ mod tests {
         // Given: Default AppSettings
         let settings = AppSettings::default();
         // Then: Has sensible defaults
-        assert_eq!(settings.provider, "copilot");
-        assert_eq!(settings.model, "claude-opus-4.6");
+        assert_eq!(settings.provider, "claude");
+        assert_eq!(settings.model, "claude-sonnet-4-6");
         assert_eq!(settings.max_iterations, 3);
         assert_eq!(settings.max_attempts, 150);
         assert_eq!(settings.cooldown_secs, 5);
         assert!(settings.repo_dir.is_none());
         assert!(!settings.allow_flags.is_empty());
-        assert!(!settings.deny_flags.is_empty());
+        assert!(settings.deny_flags.is_empty());
     }
 
     #[test]
@@ -209,8 +209,8 @@ mod tests {
         // When: Serialized to JSON
         let json = serde_json::to_string(&settings).unwrap();
         // Then: Contains expected fields
-        assert!(json.contains("\"provider\":\"copilot\""));
-        assert!(json.contains("\"model\":\"claude-opus-4.6\""));
+        assert!(json.contains("\"provider\":\"claude\""));
+        assert!(json.contains("\"model\":\"claude-sonnet-4-6\""));
         assert!(json.contains("\"max_attempts\":150"));
     }
 
@@ -218,9 +218,9 @@ mod tests {
     fn settings_deserializes_from_json() {
         // Given: A JSON string
         let json = r#"{
-            "provider": "copilot",
-            "model": "gpt-4o",
-            "allow_flags": ["--allow-tool=write"],
+            "provider": "claude",
+            "model": "claude-opus-4-7",
+            "allow_flags": ["--allowedTools=Read,Write,Bash"],
             "deny_flags": [],
             "max_attempts": 50,
             "cooldown_secs": 10,
@@ -230,7 +230,7 @@ mod tests {
         // When: Deserialized
         let settings: AppSettings = serde_json::from_str(json).unwrap();
         // Then: Fields match
-        assert_eq!(settings.model, "gpt-4o");
+        assert_eq!(settings.model, "claude-opus-4-7");
         assert_eq!(settings.max_attempts, 50);
         assert_eq!(settings.repo_dir, Some("/tmp/repo".to_string()));
     }
@@ -242,8 +242,8 @@ mod tests {
         // When: load_settings is called
         let settings = load_settings(dir);
         // Then: Returns defaults
-        assert_eq!(settings.model, "claude-opus-4.6");
-        assert_eq!(settings.provider, "copilot");
+        assert_eq!(settings.model, "claude-sonnet-4-6");
+        assert_eq!(settings.provider, "claude");
     }
 
     #[test]
@@ -254,9 +254,9 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
 
         let settings = AppSettings {
-            provider: "copilot".to_string(),
-            model: "gpt-4o".to_string(),
-            allow_flags: vec!["--allow-tool=write".to_string()],
+            provider: "claude".to_string(),
+            model: "claude-opus-4-7".to_string(),
+            allow_flags: vec!["--allowedTools=Read,Write,Bash".to_string()],
             deny_flags: vec![],
             max_attempts: 42,
             cooldown_secs: 7,
@@ -287,8 +287,8 @@ mod tests {
         let settings = load_settings(&dir);
 
         // Then: Returns defaults
-        assert_eq!(settings.model, "claude-opus-4.6");
-        assert_eq!(settings.provider, "copilot");
+        assert_eq!(settings.model, "claude-sonnet-4-6");
+        assert_eq!(settings.provider, "claude");
 
         // Cleanup
         let _ = std::fs::remove_dir_all(&dir);

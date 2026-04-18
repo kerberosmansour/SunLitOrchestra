@@ -39,10 +39,10 @@ impl LogFile {
     }
 }
 
-/// Ensure the `.copilot-logs/` directory exists under the given project dir.
+/// Ensure the `.sldo-logs/` directory exists under the given project dir.
 /// Returns the path to the log directory.
 pub fn ensure_log_dir(project_dir: &Path) -> Result<PathBuf> {
-    let log_dir = project_dir.join(".copilot-logs");
+    let log_dir = project_dir.join(".sldo-logs");
     fs::create_dir_all(&log_dir)
         .with_context(|| format!("Failed to create log dir: {}", log_dir.display()))?;
     Ok(log_dir)
@@ -100,8 +100,8 @@ mod tests {
         // When: ensure_log_dir is called
         let log_dir = ensure_log_dir(&tmp).unwrap();
 
-        // Then: .copilot-logs directory exists
-        assert!(log_dir.ends_with(".copilot-logs"));
+        // Then: .sldo-logs directory exists
+        assert!(log_dir.ends_with(".sldo-logs"));
         assert!(log_dir.exists());
 
         // Cleanup
