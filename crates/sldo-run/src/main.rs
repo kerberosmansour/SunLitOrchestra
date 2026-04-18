@@ -18,7 +18,10 @@ use sldo_common::toolflags;
 /// Drive GitHub Copilot CLI through milestones in a runbook, one at a time,
 /// verifying build and tests after each pass.
 #[derive(Parser, Debug)]
-#[command(name = "sldo-run", about = "Drive GitHub Copilot CLI through runbook milestones")]
+#[command(
+    name = "sldo-run",
+    about = "Drive GitHub Copilot CLI through runbook milestones"
+)]
 struct Cli {
     /// Path to the runbook markdown file (relative to repo or absolute)
     runbook: PathBuf,
@@ -183,10 +186,7 @@ pub fn verify_commands(label: &str, cmds: &[String], log_file: &LogFile) -> bool
 /// Print the current tracker state with coloured output.
 fn print_tracker_state(rows: &[runbook::MilestoneRow]) {
     for row in rows {
-        let line = format!(
-            "  | {} | {} | {} |",
-            row.number, row.title, row.status
-        );
+        let line = format!("  | {} | {} | {} |", row.number, row.title, row.status);
         if row.status == runbook::MilestoneStatus::Done {
             success(&line);
         } else {
@@ -304,8 +304,7 @@ fn run() -> Result<()> {
         divider();
 
         // Build prompt
-        let prompt =
-            build_execution_prompt(&runbook_str, &build_cmds, &test_cmds, attempt);
+        let prompt = build_execution_prompt(&runbook_str, &build_cmds, &test_cmds, attempt);
 
         // Log
         let log_filename = format!("milestone-{}-attempt-{}.log", ms_num, attempt);
@@ -344,10 +343,7 @@ fn run() -> Result<()> {
 
     header("Final Tracker State");
     for row in &rows {
-        let line = format!(
-            "  | {} | {} | {} |",
-            row.number, row.title, row.status
-        );
+        let line = format!("  | {} | {} | {} |", row.number, row.title, row.status);
         if row.status == runbook::MilestoneStatus::Done {
             success(&line);
         } else {
@@ -490,9 +486,18 @@ mod tests {
         // When: build_execution_prompt is called
         let prompt = build_execution_prompt("docs/RUNBOOK.md", &build_cmds, &test_cmds, 1);
         // Then: Contains "Read the runbook", build/test commands, does NOT contain "RETRY CONTEXT"
-        assert!(prompt.contains("Read the runbook"), "Should contain 'Read the runbook'");
-        assert!(prompt.contains("cargo build --workspace"), "Should contain build cmd");
-        assert!(prompt.contains("cargo test --workspace"), "Should contain test cmd");
+        assert!(
+            prompt.contains("Read the runbook"),
+            "Should contain 'Read the runbook'"
+        );
+        assert!(
+            prompt.contains("cargo build --workspace"),
+            "Should contain build cmd"
+        );
+        assert!(
+            prompt.contains("cargo test --workspace"),
+            "Should contain test cmd"
+        );
         assert!(
             !prompt.contains("RETRY CONTEXT"),
             "First attempt should not contain RETRY CONTEXT"
@@ -557,4 +562,3 @@ mod tests {
         let _ = std::fs::remove_dir_all(&tmp);
     }
 }
-
