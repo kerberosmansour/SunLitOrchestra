@@ -140,8 +140,25 @@ pub fn run_allow_flags() -> Vec<String> {
         "--allow-tool=shell(npx:*)",
         "--allow-tool=shell(pnpm:*)",
         "--allow-tool=shell(yarn:*)",
+        "--allow-tool=shell(corepack:*)",
         "--allow-tool=shell(tsc:*)",
         "--allow-tool=shell(vite:*)",
+        // Web fetching / documentation tools
+        "--allow-tool=shell(curl:*)",
+        "--allow-tool=shell(wget:*)",
+        "--allow-tool=shell(chub:*)",
+        "--allow-tool=fetch",
+        // Build systems / package managers
+        "--allow-tool=shell(make:*)",
+        "--allow-tool=shell(cmake:*)",
+        "--allow-tool=shell(pip:*)",
+        "--allow-tool=shell(pip3:*)",
+        "--allow-tool=shell(go:*)",
+        // Extra utilities
+        "--allow-tool=shell(tree:*)",
+        "--allow-tool=shell(tar:*)",
+        "--allow-tool=shell(unzip:*)",
+        "--allow-tool=shell(zip:*)",
     ]
     .into_iter()
     .map(String::from)
