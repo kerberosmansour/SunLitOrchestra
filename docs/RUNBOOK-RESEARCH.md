@@ -1039,7 +1039,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 - Research loop invokes Claude Code iteratively with appropriate prompts
 - Findings accumulate across iterations
 - Logs written for each iteration
-- Copilot failures handled gracefully
+- Claude Code failures handled gracefully
 - All tests pass, smoke tests checked
 - Lessons file written, tracker updated
 
