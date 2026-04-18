@@ -1,6 +1,6 @@
 //! E2E integration tests for Milestone 5 — Integration tests, docs & migration.
 //!
-//! These tests exercise the full plan and run workflows using a mock copilot
+//! These tests exercise the full plan and run workflows using a mock claude
 //! script, verify CLI flag parity between Rust and Bash, and validate that
 //! safety guards work at runtime.
 
@@ -73,22 +73,22 @@ fn create_temp_git_repo(suffix: &str) -> PathBuf {
     tmp
 }
 
-/// Set up a mock copilot directory with the mock script renamed as `copilot`.
+/// Set up a mock claude directory with the mock script renamed as `claude`.
 /// Each call uses a unique suffix to avoid race conditions in parallel tests.
-fn setup_mock_copilot_dir(suffix: &str) -> PathBuf {
+fn setup_mock_claude_dir(suffix: &str) -> PathBuf {
     let mock_dir = std::env::temp_dir().join(format!("sldo_e2e_m5_mock_{}", suffix));
     let _ = fs::remove_dir_all(&mock_dir);
     fs::create_dir_all(&mock_dir).unwrap();
 
-    let mock_src = workspace_root().join("tests/fixtures/mock-copilot.sh");
-    let mock_dst = mock_dir.join("copilot");
+    let mock_src = workspace_root().join("tests/fixtures/mock-claude.sh");
+    let mock_dst = mock_dir.join("claude");
     fs::copy(&mock_src, &mock_dst).unwrap();
     fs::set_permissions(&mock_dst, fs::Permissions::from_mode(0o755)).unwrap();
 
     mock_dir
 }
 
-/// Build a PATH string that puts our mock copilot first.
+/// Build a PATH string that puts our mock claude first.
 fn path_with_mock(mock_dir: &Path) -> String {
     let existing_path = std::env::var("PATH").unwrap_or_default();
     format!("{}:{}", mock_dir.display(), existing_path)
@@ -98,8 +98,8 @@ fn path_with_mock(mock_dir: &Path) -> String {
 
 #[test]
 fn plan_end_to_end_with_mock() {
-    // Given: Mock copilot on PATH, prompt file exists, temp git repo on feature branch
-    let mock_dir = setup_mock_copilot_dir("plan_e2e");
+    // Given: Mock claude on PATH, prompt file exists, temp git repo on feature branch
+    let mock_dir = setup_mock_claude_dir("plan_e2e");
     let repo = create_temp_git_repo("plan_e2e");
     let prompt_path = workspace_root().join("tests/fixtures/sample-prompt.txt");
 
@@ -112,7 +112,7 @@ fn plan_end_to_end_with_mock() {
 
     let output_path = repo.join("docs/RUNBOOK.md");
 
-    // When: sldo-plan is run with mock copilot
+    // When: sldo-plan is run with mock claude
     let output = Command::new(binary_path("sldo-plan"))
         .args([
             prompt_path.to_str().unwrap(),
@@ -149,7 +149,7 @@ fn plan_end_to_end_with_mock() {
 #[test]
 fn plan_rejects_protected_branch() {
     // Given: Repo is on `main` branch
-    let mock_dir = setup_mock_copilot_dir("plan_main");
+    let mock_dir = setup_mock_claude_dir("plan_main");
     let tmp = std::env::temp_dir().join("sldo_e2e_m5_plan_main");
     let _ = fs::remove_dir_all(&tmp);
     fs::create_dir_all(&tmp).unwrap();
@@ -219,8 +219,8 @@ fn plan_rejects_protected_branch() {
 
 #[test]
 fn run_end_to_end_with_mock() {
-    // Given: Mock copilot on PATH, runbook has 1 not_started milestone
-    let mock_dir = setup_mock_copilot_dir("run_e2e");
+    // Given: Mock claude on PATH, runbook has 1 not_started milestone
+    let mock_dir = setup_mock_claude_dir("run_e2e");
     let repo = create_temp_git_repo("run_e2e");
 
     // Copy sample runbook into the repo
@@ -232,7 +232,7 @@ fn run_end_to_end_with_mock() {
     )
     .unwrap();
 
-    // When: sldo-run is run with mock copilot (just 1 attempt to avoid long test)
+    // When: sldo-run is run with mock claude (just 1 attempt to avoid long test)
     let output = Command::new(binary_path("sldo-run"))
         .args([
             "docs/RUNBOOK.md",
@@ -246,7 +246,7 @@ fn run_end_to_end_with_mock() {
         .output()
         .expect("failed to execute sldo-run");
 
-    // Then: Mock copilot was invoked (process ran), exit code 0
+    // Then: Mock claude was invoked (process ran), exit code 0
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     // The binary should have run without crashing (exit 0)
@@ -264,7 +264,7 @@ fn run_end_to_end_with_mock() {
 #[test]
 fn run_detects_all_done() {
     // Given: Runbook has all milestones `done`
-    let mock_dir = setup_mock_copilot_dir("run_done");
+    let mock_dir = setup_mock_claude_dir("run_done");
     let repo = create_temp_git_repo("run_all_done");
 
     fs::create_dir_all(repo.join("docs")).unwrap();
@@ -317,7 +317,7 @@ fn run_detects_all_done() {
 #[test]
 fn run_rejects_protected_branch() {
     // Given: Repo is on `main` branch
-    let mock_dir = setup_mock_copilot_dir("run_main");
+    let mock_dir = setup_mock_claude_dir("run_main");
     let tmp = std::env::temp_dir().join("sldo_e2e_m5_run_main");
     let _ = fs::remove_dir_all(&tmp);
     fs::create_dir_all(&tmp).unwrap();

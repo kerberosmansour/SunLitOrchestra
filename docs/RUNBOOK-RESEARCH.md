@@ -92,8 +92,8 @@ Update this table as each milestone is completed. This is the single source of t
 | Component | Responsibility | Milestone Introduced/Changed | Key Interfaces |
 |---|---|---|---|
 | `sldo-research` CLI | Parse prompt, orchestrate research, produce dossier | M1 (scaffold), M2-M7 (features) | CLI args, dossier output file |
-| Research prompt builder | Construct Copilot prompts for research phases | M2 | `build_research_prompt()` |
-| Copilot research loop | Invoke Claude Code CLI iteratively to gather information | M3 | `ClaudeInvocation` from `sldo-common` |
+| Research prompt builder | Construct Claude Code prompts for research phases | M2 | `build_research_prompt()` |
+| Claude Code research loop | Invoke Claude Code CLI iteratively to gather information | M3 | `ClaudeInvocation` from `sldo-common` |
 | Web search integration | Search the web for API docs, libraries, best practices | M5 | `build_websearch_prompt()` |
 | Dossier validator | Check dossier completeness and structure | M4 | `validate_dossier()` |
 | Synthesis pass | Merge multi-source findings into coherent dossier | M6 | `build_synthesis_prompt()` |
@@ -106,7 +106,7 @@ Update this table as each milestone is completed. This is the single source of t
 |---|---|---|---|---|
 | User prompt | User (file/CLI) | `sldo-research` | File read / CLI arg | M1 |
 | Research prompt | `sldo-research` | Claude Code CLI | `ClaudeInvocation` | M2, M3 |
-| Copilot output | Claude Code CLI | Research collector | stdout line-by-line | M3 |
+| Claude Code output | Claude Code CLI | Research collector | stdout line-by-line | M3 |
 | Web search prompt | `sldo-research` | Claude Code CLI | `ClaudeInvocation` with web tools | M5 |
 | Raw findings | Research collector | Synthesis pass | In-memory / temp file | M6 |
 | Dossier output | Synthesis pass | Dossier file (.md) | File write | M4, M6 |
@@ -246,13 +246,13 @@ SunLitOrchestrate has two CLI tools forming a pipeline:
 
 1. **`sldo-plan`** (`crates/sldo-plan/src/main.rs`) — Takes a prompt file + repo dir, invokes Claude Code CLI to explore the repo and generate a runbook. Uses iterative refinement (default 3 passes). Validates the output against required sections and placeholder patterns.
 
-2. **`sldo-run`** (`crates/sldo-run/src/main.rs`) — Takes a runbook + repo dir, drives Copilot through milestones one at a time. Verifies build/tests after each. Loops until all milestones are `done`.
+2. **`sldo-run`** (`crates/sldo-run/src/main.rs`) — Takes a runbook + repo dir, drives Claude Code through milestones one at a time. Verifies build/tests after each. Loops until all milestones are `done`.
 
 3. **`sldo-common`** (`crates/sldo-common/src/`) — Shared library providing `ClaudeInvocation`, logging, color output, git safety, preflight checks, build/test command detection, and tool permission flags.
 
 4. **`run-milestones.sh`** (`src/run-milestones.sh`) — Bash predecessor of `sldo-run`, still functional.
 
-The current `sldo-plan` takes a raw user prompt and expects it to be detailed enough for the Copilot agent to produce a good runbook. There is no intermediate research step.
+The current `sldo-plan` takes a raw user prompt and expects it to be detailed enough for Claude Code to produce a good runbook. There is no intermediate research step.
 
 ### Problem
 
@@ -280,13 +280,13 @@ User Prompt ──▶ sldo-research ──▶ Research Dossier ──▶ sldo-pl
 
 ### Key Design Principles
 
-1. **Follow existing patterns**: `sldo-research` must follow the exact same patterns as `sldo-plan` and `sldo-run` — same CLI structure (clap derive), same use of `sldo-common`, same logging, same preflight checks, same Copilot invocation pattern.
+1. **Follow existing patterns**: `sldo-research` must follow the exact same patterns as `sldo-plan` and `sldo-run` — same CLI structure (clap derive), same use of `sldo-common`, same logging, same preflight checks, same Claude Code invocation pattern.
 
 2. **Dossier is a first-class artifact**: The research dossier is a structured markdown file that can be (a) reviewed by a human, (b) fed directly to `sldo-plan` as a prompt file, or (c) stored for reference. It is not a throwaway intermediate.
 
-3. **Iterative deepening**: Like `sldo-plan`'s refinement passes, research should use multiple Copilot invocations — first for broad topic exploration, then for specific deep-dives, then for synthesis. Each pass builds on the previous output.
+3. **Iterative deepening**: Like `sldo-plan`'s refinement passes, research should use multiple Claude Code invocations — first for broad topic exploration, then for specific deep-dives, then for synthesis. Each pass builds on the previous output.
 
-4. **Web search is a Copilot tool, not a custom integration**: Rather than implementing web search directly, we instruct Claude Code CLI to use its built-in web search / browsing capabilities via appropriate tool flags. This keeps the implementation simple and leverages Copilot's existing capabilities.
+4. **Web search is a Claude Code tool, not a custom integration**: Rather than implementing web search directly, we instruct Claude Code CLI to use its built-in `WebFetch` and `WebSearch` tools via `--allowedTools`. This keeps the implementation simple and leverages Claude Code's existing capabilities.
 
 5. **Separation of concerns**: Research is about *gathering and organizing information*. Planning is about *decomposing work into milestones*. Research output should be information-rich but NOT contain milestone plans.
 
@@ -575,7 +575,7 @@ Path: `docs/completion/research-m<N>.md`
 
 #### Out of Scope / Must Not Do
 
-- Do NOT implement any research logic or Copilot invocation
+- Do NOT implement any research logic or Claude Code invocation
 - Do NOT implement dossier generation or output writing
 - Do NOT modify `sldo-plan` or `sldo-run`
 - Do NOT add web search functionality
@@ -611,7 +611,7 @@ Path: `docs/completion/research-m<N>.md`
      - `--prompt <text>` — inline prompt string (alternative to file)
      - `--repo-dir <path>` — optional target repository to research in context of
      - `--output <path>` — output dossier path (default: `output/research-dossier.md`)
-     - `--model <model>` — Copilot model (default: `claude-opus-4.6`)
+     - `--model <model>` — Claude model (default: `claude-opus-4-7`)
      - `--max-iterations <N>` — max research deepening iterations (default: `3`)
      - `--max-searches <N>` — max web search invocations (default: `5`)
    - `run()` function following `sldo-plan`'s pattern:
@@ -738,11 +738,11 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 ### Milestone 2 — Research Prompt Builder
 
-**Goal**: Implement the prompt construction logic that generates structured Copilot prompts for the research phase — including topic decomposition, question generation, and repo-context prompts.
+**Goal**: Implement the prompt construction logic that generates structured Claude Code prompts for the research phase — including topic decomposition, question generation, and repo-context prompts.
 
-**Context**: `sldo-plan` has `build_planning_prompt()` which constructs prompts for planning. We need analogous functions for research. The research prompt builder must produce prompts that instruct Copilot to: (a) break down the topic into researchable sub-questions, (b) explore the target repo for relevant context, and (c) format findings in a structured way. The prompt output is a string fed to `ClaudeInvocation`. This milestone does NOT invoke Copilot — it only builds the prompts.
+**Context**: `sldo-plan` has `build_planning_prompt()` which constructs prompts for planning. We need analogous functions for research. The research prompt builder must produce prompts that instruct Claude Code to: (a) break down the topic into researchable sub-questions, (b) explore the target repo for relevant context, and (c) format findings in a structured way. The prompt output is a string fed to `ClaudeInvocation`. This milestone does NOT invoke Claude Code — it only builds the prompts.
 
-**Important design rule**: Research prompts must instruct Copilot to output findings in a structured markdown format (sections with headers) so that later milestones can parse and validate the output.
+**Important design rule**: Research prompts must instruct Claude Code to output findings in a structured markdown format (sections with headers) so that later milestones can parse and validate the output.
 
 **Refactor budget**: `No refactor permitted beyond direct implementation`
 
@@ -790,14 +790,14 @@ Complete the Global Exit Rules above. Key documentation updates:
 1. Write BDD tests first in `crates/sldo-research/src/prompt.rs` (`#[cfg(test)] mod tests`).
 2. Write E2E stubs at `tests/e2e_research_m2.rs`.
 3. Create `crates/sldo-research/src/prompt.rs` with:
-   - `build_exploration_prompt(prompt_content: &str, repo_dir: Option<&Path>) -> String` — First-pass prompt that instructs Copilot to:
+   - `build_exploration_prompt(prompt_content: &str, repo_dir: Option<&Path>) -> String` — First-pass prompt that instructs Claude Code to:
      - Decompose the topic into 5-10 specific research questions
      - If repo_dir is provided: explore the repo structure, tech stack, existing patterns, dependencies
      - Identify key concepts, libraries, APIs, and standards relevant to the topic
      - Output findings as structured markdown with headers: `## Topic Decomposition`, `## Key Questions`, `## Repo Context` (if applicable), `## Initial Findings`
    - `build_deepening_prompt(prompt_content: &str, previous_findings: &str, iteration: u32, repo_dir: Option<&Path>) -> String` — Subsequent-pass prompt that:
      - References the previous findings
-     - Instructs Copilot to answer the unanswered questions
+     - Instructs Claude Code to answer the unanswered questions
      - Explore deeper on each sub-topic
      - Evaluate specific libraries/tools with pros/cons
      - Output as structured markdown: `## Deepened Findings`, `## Library Evaluations`, `## Architecture Options`, `## Unanswered Questions`
@@ -895,13 +895,13 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 ---
 
-### Milestone 3 — Copilot-Driven Research Loop
+### Milestone 3 — Claude Code-Driven Research Loop
 
 **Goal**: Implement the core research loop that invokes Claude Code CLI iteratively — first for exploration, then for deepening — collecting findings into an in-memory buffer that accumulates across iterations.
 
 **Context**: `sldo-run` has a main loop that invokes Copilot and checks milestone status. `sldo-plan` has an iteration loop for refinement. `sldo-research` needs a similar loop but for research: invoke Claude Code with the exploration prompt, capture output, invoke again with deepening prompt referencing prior output, repeat for `max_iterations`. The key challenge is capturing Copilot's output (which goes to a file via the tool-write permission) and feeding it back into subsequent prompts. Use `ClaudeInvocation::run_with_callback()` for streaming output capture.
 
-**Important design rule**: The research loop must instruct Copilot to append findings to a scratch file (in the output dir), then read that file back after each iteration. This mirrors how `sldo-plan` writes to the output file and validates it.
+**Important design rule**: The research loop must instruct Claude Code to append findings to a scratch file (in the output dir), then read that file back after each iteration. This mirrors how `sldo-plan` writes to the output file and validates it.
 
 **Refactor budget**: `No refactor permitted beyond direct implementation`
 
@@ -918,7 +918,7 @@ Complete the Global Exit Rules above. Key documentation updates:
 | New dependencies allowed | `none` |
 | Migration allowed | `no` |
 | Compatibility commitments | All existing tests pass. CLI interface unchanged. |
-| Forbidden shortcuts | No skipping iterations, no swallowing Copilot errors, no fake output |
+| Forbidden shortcuts | No skipping iterations, no swallowing Claude Code errors, no fake output |
 
 #### Out of Scope / Must Not Do
 
@@ -978,12 +978,12 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 | Scenario | Category | Given | When | Then |
 |---|---|---|---|---|
-| Single iteration completes | happy path | valid prompt, max_iterations=1 | `research_loop(config)` | Copilot invoked once, findings returned |
-| Multiple iterations deepen | happy path | valid prompt, max_iterations=3 | `research_loop(config)` | Copilot invoked 3 times, each referencing prior findings |
+| Single iteration completes | happy path | valid prompt, max_iterations=1 | `research_loop(config)` | Claude Code invoked once, findings returned |
+| Multiple iterations deepen | happy path | valid prompt, max_iterations=3 | `research_loop(config)` | Claude Code invoked 3 times, each referencing prior findings |
 | Repo context gathered first | happy path | prompt + repo_dir | `research_loop(config)` | Repo context prompt runs before exploration |
 | No repo dir skips context | happy path | prompt only, no repo_dir | `research_loop(config)` | Starts directly with exploration prompt |
-| Copilot failure handled | partial failure | Copilot exits non-zero | `research_loop(config)` | Logs warning, continues to next iteration or returns partial findings |
-| Log files created | happy path | any valid config | `research_loop(config)` | `.copilot-logs/research-iteration-N.log` files exist |
+| Claude Code failure handled | partial failure | Claude Code exits non-zero | `research_loop(config)` | Logs warning, continues to next iteration or returns partial findings |
+| Log files created | happy path | any valid config | `research_loop(config)` | `.claude-logs/research-iteration-N.log` files exist |
 | Cooldown respected | happy path | cooldown=2, iterations=2 | `research_loop(config)` | At least 2 seconds between invocations |
 
 #### Regression Tests
@@ -1036,7 +1036,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 
 #### Definition of Done
 
-- Research loop invokes Copilot iteratively with appropriate prompts
+- Research loop invokes Claude Code iteratively with appropriate prompts
 - Findings accumulate across iterations
 - Logs written for each iteration
 - Copilot failures handled gracefully
@@ -1221,9 +1221,9 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 
 ### Milestone 5 — Web Search Integration
 
-**Goal**: Add web search capability to the research loop by constructing prompts that explicitly instruct Copilot to use its web browsing / search tools to find current documentation, library comparisons, and best practices.
+**Goal**: Add web search capability to the research loop by constructing prompts that explicitly instruct Claude Code to use its web browsing / search tools to find current documentation, library comparisons, and best practices.
 
-**Context**: Claude Code CLI can be granted web browsing capabilities through tool permission flags. Rather than implementing a custom web search API, we instruct Copilot to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Copilot to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
+**Context**: Claude Code CLI can be granted web browsing capabilities through tool permission flags. Rather than implementing a custom web search API, we instruct Claude Code to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Copilot to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
 
 **Important design rule**: Web search is a *phase* in the research loop, not a separate tool. After the initial exploration pass, the research loop should perform dedicated web search iterations before deepening passes.
 
@@ -1267,7 +1267,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 1. Write BDD tests for `build_websearch_prompt()` in `prompt.rs`.
 2. Write E2E stubs at `tests/e2e_research_m5.rs`.
 3. Add `build_websearch_prompt(topic: &str, questions: &str, search_index: u32) -> String` to `prompt.rs`:
-   - Instructs Copilot to search the web for specific sub-questions
+   - Instructs Claude Code to search the web for specific sub-questions
    - Asks for current documentation links, library versions, API references
    - Requests structured output: `## Web Search Results`, `## Documentation Found`, `## Library Versions`
    - Each call focuses on a subset of questions (controlled by `search_index`)
@@ -1295,7 +1295,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 | Web phase runs in loop | happy path | max_searches=3 | research loop runs | 3 web search invocations occur |
 | Zero searches skips web phase | happy path | max_searches=0 | research loop runs | no web search invocations |
 | Research flags include web tools | happy path | call `research_allow_flags()` | flags returned | contains web browsing permission |
-| Web search failure doesn't halt research | partial failure | web search Copilot call fails | research loop continues | deepening phase still runs with available findings |
+| Web search failure doesn't halt research | partial failure | web search Claude Code call fails | research loop continues | deepening phase still runs with available findings |
 
 #### Regression Tests
 
@@ -1353,9 +1353,9 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 
 **Goal**: Add a final synthesis pass to the research loop that takes all accumulated findings (exploration, web search, deepening) and produces a coherent, deduplicated, well-organized dossier — resolving contradictions and surfacing confidence levels.
 
-**Context**: After M3-M5, the research loop produces raw accumulated findings from multiple Copilot invocations. These findings may be repetitive, contradictory, or poorly organized. This milestone adds a synthesis phase: one final Copilot invocation that reads all raw findings and produces a clean, coherent dossier in the defined format from M4.
+**Context**: After M3-M5, the research loop produces raw accumulated findings from multiple Claude Code invocations. These findings may be repetitive, contradictory, or poorly organized. This milestone adds a synthesis phase: one final Claude Code invocation that reads all raw findings and produces a clean, coherent dossier in the defined format from M4.
 
-**Important design rule**: The synthesis prompt must instruct Copilot to organize findings into the dossier format (from M4), resolve contradictions, rank recommendations by confidence, and explicitly flag areas of uncertainty.
+**Important design rule**: The synthesis prompt must instruct Claude Code to organize findings into the dossier format (from M4), resolve contradictions, rank recommendations by confidence, and explicitly flag areas of uncertainty.
 
 **Refactor budget**: `Minimal local refactor permitted in listed files only`
 
@@ -1396,7 +1396,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 1. Write BDD tests for `build_synthesis_prompt()`.
 2. Write E2E stubs.
 3. Add `build_synthesis_prompt(prompt: &str, all_findings: &str, repo_context: Option<&str>) -> String` to `prompt.rs`:
-   - Instructs Copilot to read all raw findings
+   - Instructs Claude Code to read all raw findings
    - Organize into the dossier sections (Executive Summary, Key Findings, etc.)
    - Resolve contradictions — prefer more recent/authoritative sources
    - Rank recommendations by confidence (high/medium/low)
@@ -1405,7 +1405,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 4. Update research loop in `research.rs`:
    - After all iterations (exploration + web + deepening), run synthesis:
      - Concatenate all findings
-     - Invoke Copilot with `build_synthesis_prompt()`
+     - Invoke Claude Code with `build_synthesis_prompt()`
      - The synthesis output becomes the dossier content
    - Pass synthesized content to `write_dossier()`
 5. Make all tests pass.
@@ -1422,7 +1422,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 | Synthesis prompt requests dedup | happy path | any input | `build_synthesis_prompt(...)` | prompt instructs deduplication |
 | Synthesis prompt requests confidence levels | happy path | any input | `build_synthesis_prompt(...)` | prompt asks for confidence ranking |
 | Synthesis runs as final phase | happy path | research loop completes | loop execution | synthesis invocation happens last |
-| Synthesis failure returns raw findings | partial failure | synthesis Copilot call fails | research loop | raw findings still written to dossier (fallback) |
+| Synthesis failure returns raw findings | partial failure | synthesis Claude Code call fails | research loop | raw findings still written to dossier (fallback) |
 
 #### Regression Tests
 
