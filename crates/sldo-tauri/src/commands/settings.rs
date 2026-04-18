@@ -56,21 +56,21 @@ mod tests {
     // ── Feature: Settings commands ──────────────────────────────────────
 
     #[test]
-    fn get_available_providers_returns_copilot() {
+    fn get_available_providers_returns_claude() {
         // Given/When: get_available_providers is called
         let providers = get_available_providers();
-        // Then: Contains "copilot"
-        assert!(providers.contains(&"copilot".to_string()));
+        // Then: Contains "claude"
+        assert!(providers.contains(&"claude".to_string()));
     }
 
     #[test]
-    fn get_available_models_for_copilot() {
-        // Given: Provider name "copilot"
+    fn get_available_models_for_claude() {
+        // Given: Provider name "claude"
         // When: get_available_models is called
-        let models = get_available_models("copilot".to_string());
+        let models = get_available_models("claude".to_string());
         // Then: Returns non-empty list with known models
         assert!(!models.is_empty());
-        assert!(models.contains(&"claude-opus-4.6".to_string()));
+        assert!(models.contains(&"claude-sonnet-4-6".to_string()));
     }
 
     #[test]

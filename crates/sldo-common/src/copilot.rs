@@ -1,6 +1,6 @@
-//! Copilot CLI invocation.
+//! Claude Code CLI invocation.
 //!
-//! Builds and executes a `copilot` CLI command, piping output to both the
+//! Builds and executes a `claude` CLI command, piping output to both the
 //! terminal and a log file.
 
 use anyhow::{Context, Result};
@@ -10,8 +10,8 @@ use std::process::{Command, Stdio};
 
 use crate::logging::LogFile;
 
-/// Configuration for a single Copilot CLI invocation.
-pub struct CopilotInvocation {
+/// Configuration for a single Claude Code CLI invocation.
+pub struct ClaudeInvocation {
     pub prompt: String,
     pub model: String,
     pub allow_flags: Vec<String>,
@@ -19,7 +19,7 @@ pub struct CopilotInvocation {
     pub working_dir: PathBuf,
 }
 
-impl CopilotInvocation {
+impl ClaudeInvocation {
     /// Spawn the copilot process, pipe stdout/stderr to both the terminal and
     /// the log file, and return the exit code.
     pub fn run(&self, log_file: &LogFile) -> Result<i32> {
@@ -40,7 +40,7 @@ impl CopilotInvocation {
     where
         F: FnMut(&str, &str),
     {
-        let mut cmd = Command::new("copilot");
+        let mut cmd = Command::new("claude");
         cmd.arg("-p")
             .arg(&self.prompt)
             .arg("--model")
@@ -57,9 +57,9 @@ impl CopilotInvocation {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
-        log_file.append(&format!("Running copilot with model={}", self.model))?;
+        log_file.append(&format!("Running claude with model={}", self.model))?;
 
-        let mut child = cmd.spawn().context("Failed to spawn copilot process")?;
+        let mut child = cmd.spawn().context("Failed to spawn claude process")?;
 
         let stdout = child.stdout.take();
         let stderr = child.stderr.take();
@@ -107,9 +107,9 @@ impl CopilotInvocation {
         let _ = stdout_thread.join();
         let _ = stderr_thread.join();
 
-        let status = child.wait().context("Failed to wait for copilot process")?;
+        let status = child.wait().context("Failed to wait for claude process")?;
         let code = status.code().unwrap_or(-1);
-        log_file.append(&format!("copilot exited with code {}", code))?;
+        log_file.append(&format!("claude exited with code {}", code))?;
         Ok(code)
     }
 }
@@ -120,13 +120,13 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn copilot_invocation_builds_correctly() {
-        // Given: A CopilotInvocation with known fields
-        let inv = CopilotInvocation {
+    fn claude_invocation_builds_correctly() {
+        // Given: A ClaudeInvocation with known fields
+        let inv = ClaudeInvocation {
             prompt: "test prompt".to_string(),
             model: "test-model".to_string(),
-            allow_flags: vec!["--allow-tool=write".to_string()],
-            deny_flags: vec!["--deny-tool=shell(rm -rf /)".to_string()],
+            allow_flags: vec!["--allowedTools=Read,Write,Bash".to_string()],
+            deny_flags: vec![],
             working_dir: PathBuf::from("/tmp"),
         };
         // When: Fields are accessed
@@ -134,19 +134,19 @@ mod tests {
         assert_eq!(inv.prompt, "test prompt");
         assert_eq!(inv.model, "test-model");
         assert_eq!(inv.allow_flags.len(), 1);
-        assert_eq!(inv.deny_flags.len(), 1);
+        assert_eq!(inv.deny_flags.len(), 0);
     }
 
     #[test]
-    fn copilot_invocation_run_handles_missing_binary() {
-        // Given: A CopilotInvocation pointing at the working dir
-        // but copilot may not be installed
-        let tmp = std::env::temp_dir().join("sldo_test_copilot_run");
+    fn claude_invocation_run_handles_missing_binary() {
+        // Given: A ClaudeInvocation pointing at the working dir
+        // but claude may not be installed
+        let tmp = std::env::temp_dir().join("sldo_test_claude_run");
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();
 
-        let log = LogFile::new(&tmp, "copilot.log").unwrap();
-        let inv = CopilotInvocation {
+        let log = LogFile::new(&tmp, "claude.log").unwrap();
+        let inv = ClaudeInvocation {
             prompt: "hello".to_string(),
             model: "test".to_string(),
             allow_flags: vec![],
@@ -154,18 +154,18 @@ mod tests {
             working_dir: tmp.clone(),
         };
 
-        // When: run() is called and copilot is not installed
+        // When: run() is called and claude is not installed
         let result = inv.run(&log);
 
-        // Then: It either succeeds (copilot exists) or returns an error (not panics)
+        // Then: It either succeeds (claude exists) or returns an error (not panics)
         match result {
             Ok(code) => {
-                // copilot existed, we got some exit code
+                // claude existed, we got some exit code
                 let _ = code;
             }
             Err(e) => {
                 assert!(
-                    e.to_string().contains("copilot") || e.to_string().contains("spawn"),
+                    e.to_string().contains("claude") || e.to_string().contains("spawn"),
                     "Unexpected error: {}",
                     e
                 );
@@ -176,9 +176,9 @@ mod tests {
     }
 
     #[test]
-    fn copilot_invocation_working_dir() {
+    fn claude_invocation_working_dir() {
         // Given: An invocation with a specific working dir
-        let inv = CopilotInvocation {
+        let inv = ClaudeInvocation {
             prompt: "test".to_string(),
             model: "m".to_string(),
             allow_flags: vec![],
@@ -200,7 +200,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
 
         let log = LogFile::new(&tmp, "callback.log").unwrap();
-        let inv = CopilotInvocation {
+        let inv = ClaudeInvocation {
             prompt: "hello".to_string(),
             model: "test".to_string(),
             allow_flags: vec![],
@@ -208,7 +208,7 @@ mod tests {
             working_dir: tmp.clone(),
         };
 
-        // When: run_with_callback is called (copilot may or may not be installed)
+        // When: run_with_callback is called (claude may or may not be installed)
         let mut captured_lines: Vec<(String, String)> = Vec::new();
         let result = inv.run_with_callback(&log, |line, stream| {
             captured_lines.push((line.to_string(), stream.to_string()));
@@ -217,12 +217,12 @@ mod tests {
         // Then: It either succeeds with output or errors gracefully
         match result {
             Ok(_code) => {
-                // If copilot is installed, we got lines through the callback
+                // If claude is installed, we got lines through the callback
                 // (callback was invoked, not println)
             }
             Err(e) => {
                 assert!(
-                    e.to_string().contains("copilot") || e.to_string().contains("spawn"),
+                    e.to_string().contains("claude") || e.to_string().contains("spawn"),
                     "Unexpected error: {}",
                     e
                 );
@@ -240,7 +240,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
 
         let log = LogFile::new(&tmp, "compat.log").unwrap();
-        let inv = CopilotInvocation {
+        let inv = ClaudeInvocation {
             prompt: "hello".to_string(),
             model: "test".to_string(),
             allow_flags: vec![],
@@ -258,7 +258,7 @@ mod tests {
             }
             Err(e) => {
                 assert!(
-                    e.to_string().contains("copilot") || e.to_string().contains("spawn"),
+                    e.to_string().contains("claude") || e.to_string().contains("spawn"),
                     "Unexpected error: {}",
                     e
                 );

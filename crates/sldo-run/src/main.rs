@@ -8,19 +8,19 @@ use anyhow::{Context, Result};
 use clap::Parser;
 
 use sldo_common::color::{divider, fail, header, info, success, warn};
-use sldo_common::copilot::CopilotInvocation;
+use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::detect;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
 use sldo_common::runbook;
 use sldo_common::toolflags;
 
-/// Drive GitHub Copilot CLI through milestones in a runbook, one at a time,
+/// Drive Claude Code CLI through milestones in a runbook, one at a time,
 /// verifying build and tests after each pass.
 #[derive(Parser, Debug)]
 #[command(
     name = "sldo-run",
-    about = "Drive GitHub Copilot CLI through runbook milestones"
+    about = "Drive Claude Code CLI through runbook milestones"
 )]
 struct Cli {
     /// Path to the runbook markdown file (relative to repo or absolute)
@@ -105,7 +105,7 @@ pub fn build_execution_prompt(
 - Follow existing code style and naming conventions.
 - Do not commit secrets, API keys, or credentials.
 - Do NOT work on any subsequent milestone.
-- Do NOT delete or modify any files in `.copilot-logs/` — the automation script writes its logs there.
+- Do NOT delete or modify any files in `.sldo-logs/` — the automation script writes its logs there.
 - When running smoke tests that need a temporary directory, create it under `output/` and clean up only that directory afterward."#
     );
 
@@ -212,8 +212,8 @@ fn run() -> Result<()> {
 
     // Preflight checks
     header("Pre-flight checks");
-    preflight::check_copilot_installed()?;
-    success("copilot CLI found");
+    preflight::check_claude_installed()?;
+    success("claude CLI found");
 
     // Resolve runbook path
     let runbook_path = if cli.runbook.is_absolute() {
@@ -314,8 +314,8 @@ fn run() -> Result<()> {
             attempt, ms_num, ms_title
         ))?;
 
-        // Invoke copilot
-        let invocation = CopilotInvocation {
+        // Invoke claude
+        let invocation = ClaudeInvocation {
             prompt,
             model: cli.model.clone(),
             allow_flags: allow_flags.clone(),
@@ -324,7 +324,7 @@ fn run() -> Result<()> {
         };
 
         let exit_code = invocation.run(&log_file)?;
-        log_file.append(&format!("copilot exited with code {}", exit_code))?;
+        log_file.append(&format!("claude exited with code {}", exit_code))?;
 
         // Verify build + tests
         verify_commands("Build", &build_cmds, &log_file);

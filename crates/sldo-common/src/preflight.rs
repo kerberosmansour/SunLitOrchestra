@@ -5,11 +5,11 @@ use std::path::{Path, PathBuf};
 
 use crate::git;
 
-/// Check that the `copilot` CLI is installed and return its path.
-pub fn check_copilot_installed() -> Result<PathBuf> {
-    which::which("copilot").context(
-        "GitHub Copilot CLI ('copilot') not found on PATH. \
-         Install it: https://docs.github.com/en/copilot/concepts/agents/copilot-cli",
+/// Check that the `claude` CLI is installed and return its path.
+pub fn check_claude_installed() -> Result<PathBuf> {
+    which::which("claude").context(
+        "Claude Code CLI ('claude') not found on PATH. \
+         Install it: https://docs.anthropic.com/en/docs/claude-code",
     )
 }
 
@@ -84,14 +84,14 @@ mod tests {
     }
 
     #[test]
-    fn check_copilot_installed_does_not_panic() {
-        // Given: System may or may not have copilot
-        // When: check_copilot_installed is called
-        let result = check_copilot_installed();
+    fn check_claude_installed_does_not_panic() {
+        // Given: System may or may not have claude
+        // When: check_claude_installed is called
+        let result = check_claude_installed();
         // Then: Returns either Ok(path) or Err, never panics
         match result {
             Ok(path) => assert!(path.exists()),
-            Err(e) => assert!(e.to_string().contains("copilot")),
+            Err(e) => assert!(e.to_string().contains("claude")),
         }
     }
 }

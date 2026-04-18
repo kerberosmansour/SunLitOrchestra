@@ -9,7 +9,7 @@ use std::sync::atomic::Ordering;
 use chrono::Utc;
 use tauri::{AppHandle, Emitter, Manager};
 
-use sldo_common::copilot::CopilotInvocation;
+use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::detect;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::runbook;
@@ -281,9 +281,9 @@ pub async fn start_execution(
                 attempt, next.number, next.title
             ));
 
-            // Invoke Copilot, streaming output as events
+            // Invoke claude, streaming output as events
             let app_handle = app.clone();
-            let invocation = CopilotInvocation {
+            let invocation = ClaudeInvocation {
                 prompt,
                 model: model.clone(),
                 allow_flags: allow_flags.clone(),
@@ -304,10 +304,10 @@ pub async fn start_execution(
 
             match exit_code {
                 Ok(code) => {
-                    let _ = log_file.append(&format!("copilot exited with code {}", code));
+                    let _ = log_file.append(&format!("claude exited with code {}", code));
                 }
                 Err(e) => {
-                    let _ = log_file.append(&format!("copilot error: {}", e));
+                    let _ = log_file.append(&format!("claude error: {}", e));
                 }
             }
 
