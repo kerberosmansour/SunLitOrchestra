@@ -2,26 +2,26 @@
 //!
 //! These tests validate the planning backend integration:
 //! - `run_with_callback` captures output via closure
-//! - Planning command rejects missing copilot
+//! - Planning command rejects missing claude
 //! - Planning uses correct tool flags
 
 /// E2E: `run_with_callback` collects output via closure.
 ///
-/// Creates a mock scenario where CopilotInvocation is configured and
+/// Creates a mock scenario where ClaudeInvocation is configured and
 /// `run_with_callback` is called. Verifies the callback mechanism works
-/// (copilot may or may not be on PATH — we test the wiring, not copilot itself).
+/// (claude may or may not be on PATH — we test the wiring, not claude itself).
 #[test]
-fn copilot_run_with_callback_captures_lines() {
-    // Given: A CopilotInvocation configured with test parameters
+fn claude_run_with_callback_captures_lines() {
+    // Given: A ClaudeInvocation configured with test parameters
     let tmp = std::env::temp_dir().join("sldo_e2e_callback_m3");
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).unwrap();
 
     let log = sldo_common::logging::LogFile::new(&tmp, "e2e_callback.log").unwrap();
-    let inv = sldo_common::copilot::CopilotInvocation {
+    let inv = sldo_common::copilot::ClaudeInvocation {
         prompt: "test prompt".to_string(),
         model: "test-model".to_string(),
-        allow_flags: vec!["--allow-tool=write".to_string()],
+        allow_flags: vec!["--allowedTools=Read,Write,Bash".to_string()],
         deny_flags: vec![],
         working_dir: tmp.clone(),
     };
@@ -32,11 +32,10 @@ fn copilot_run_with_callback_captures_lines() {
         captured.push((line.to_string(), stream.to_string()));
     });
 
-    // Then: Either succeeds (copilot installed) or errors gracefully (not installed)
+    // Then: Either succeeds (claude installed) or errors gracefully (not installed)
     match result {
         Ok(code) => {
-            // If copilot is installed, callback received lines
-            // Exit code is whatever copilot returned
+            // If claude is installed, callback received lines
             assert!(code >= -1, "Exit code should be valid");
             // Verify streams are valid values
             for (_, stream) in &captured {
@@ -48,11 +47,11 @@ fn copilot_run_with_callback_captures_lines() {
             }
         }
         Err(e) => {
-            // Copilot not installed — error should mention copilot or spawn
+            // Claude not installed — error should mention claude or spawn
             let msg = e.to_string().to_lowercase();
             assert!(
-                msg.contains("copilot") || msg.contains("spawn"),
-                "Error should mention copilot or spawn: {}",
+                msg.contains("claude") || msg.contains("spawn"),
+                "Error should mention claude or spawn: {}",
                 msg
             );
             // No lines should have been captured
@@ -63,28 +62,28 @@ fn copilot_run_with_callback_captures_lines() {
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
-/// E2E: Preflight validation rejects missing copilot binary.
+/// E2E: Preflight validation rejects missing claude binary.
 ///
-/// Verifies that `check_copilot_installed()` returns an error with a
-/// meaningful message when copilot is not on PATH. This may pass or
-/// be a no-op if copilot is actually installed — the test verifies
+/// Verifies that `check_claude_installed()` returns an error with a
+/// meaningful message when claude is not on PATH. This may pass or
+/// be a no-op if claude is actually installed — the test verifies
 /// the error handling path exists.
 #[test]
-fn plan_command_rejects_missing_copilot() {
-    // Given: We check for copilot installation
-    let result = sldo_common::preflight::check_copilot_installed();
+fn plan_command_rejects_missing_claude() {
+    // Given: We check for claude installation
+    let result = sldo_common::preflight::check_claude_installed();
 
-    // Then: If copilot is not installed, error message mentions "copilot"
+    // Then: If claude is not installed, error message mentions "claude"
     match result {
         Ok(path) => {
-            // Copilot is installed — verify path exists
-            assert!(path.exists(), "Copilot binary should exist at: {:?}", path);
+            // Claude is installed — verify path exists
+            assert!(path.exists(), "Claude binary should exist at: {:?}", path);
         }
         Err(e) => {
             let msg = e.to_string().to_lowercase();
             assert!(
-                msg.contains("copilot"),
-                "Error should mention copilot: {}",
+                msg.contains("claude"),
+                "Error should mention claude: {}",
                 msg
             );
         }
@@ -104,21 +103,17 @@ fn plan_allow_flags_used() {
     // Then: Returns non-empty vec with expected flags
     assert!(!flags.is_empty(), "plan_allow_flags should return flags");
     assert!(
-        flags.contains(&"--allow-tool=write".to_string()),
-        "Should contain write permission"
+        flags.iter().any(|f| f.contains("Write")),
+        "Should contain Write permission"
     );
     assert!(
-        flags.iter().any(|f| f.contains("shell(git")),
-        "Should contain git shell permission"
+        flags.iter().any(|f| f.contains("Bash")),
+        "Should contain Bash permission"
     );
 
-    // Also verify deny flags
+    // Deny flags are empty for Claude Code CLI
     let deny = sldo_common::toolflags::plan_deny_flags();
-    assert!(!deny.is_empty(), "plan_deny_flags should return flags");
-    assert!(
-        deny.iter().any(|f| f.contains("rm -rf /")),
-        "Should deny dangerous rm"
-    );
+    assert!(deny.is_empty(), "plan_deny_flags should be empty for Claude Code CLI");
 }
 
 /// E2E: Verify the event types can be serialized for Tauri emission.
@@ -143,7 +138,7 @@ fn event_types_serialize_for_tauri() {
 
     // PlanErrorEvent
     let error_json = serde_json::json!({
-        "error": "copilot not found"
+        "error": "claude not found"
     });
     assert!(error_json["error"].is_string());
 }
@@ -151,13 +146,13 @@ fn event_types_serialize_for_tauri() {
 /// E2E: Verify backward compatibility — existing `run()` method still works.
 #[test]
 fn existing_run_method_backward_compatible() {
-    // Given: A CopilotInvocation
+    // Given: A ClaudeInvocation
     let tmp = std::env::temp_dir().join("sldo_e2e_run_compat_m3");
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).unwrap();
 
     let log = sldo_common::logging::LogFile::new(&tmp, "compat.log").unwrap();
-    let inv = sldo_common::copilot::CopilotInvocation {
+    let inv = sldo_common::copilot::ClaudeInvocation {
         prompt: "hello".to_string(),
         model: "test".to_string(),
         allow_flags: vec![],
@@ -171,13 +166,13 @@ fn existing_run_method_backward_compatible() {
     // Then: Behaves the same as before the refactor
     match result {
         Ok(code) => {
-            let _ = code; // copilot existed
+            let _ = code; // claude existed
         }
         Err(e) => {
             let msg = e.to_string().to_lowercase();
             assert!(
-                msg.contains("copilot") || msg.contains("spawn"),
-                "Error should mention copilot: {}",
+                msg.contains("claude") || msg.contains("spawn"),
+                "Error should mention claude: {}",
                 msg
             );
         }
@@ -186,7 +181,7 @@ fn existing_run_method_backward_compatible() {
     // Verify log file was written to
     let log_content = std::fs::read_to_string(log.path()).unwrap_or_default();
     assert!(
-        log_content.contains("Running copilot"),
+        log_content.contains("Running claude"),
         "Log should contain invocation entry"
     );
 

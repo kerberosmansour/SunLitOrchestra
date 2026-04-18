@@ -1,4 +1,4 @@
-//! Planning Tauri commands — validates inputs, builds prompt, invokes Copilot,
+//! Planning Tauri commands — validates inputs, builds prompt, invokes Claude Code CLI,
 //! and emits streaming events to the frontend.
 //! Also provides runbook read/save commands for the Markdown editor (M4).
 
@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use sldo_common::copilot::CopilotInvocation;
+use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
 use sldo_common::runbook;
@@ -311,8 +311,8 @@ pub async fn start_planning(
     let repo = PathBuf::from(&repo_dir);
     let output = resolve_output_path(output_path.as_deref(), &repo);
 
-    // Preflight: copilot installed
-    preflight::check_copilot_installed().map_err(|e| e.to_string())?;
+    // Preflight: claude installed
+    preflight::check_claude_installed().map_err(|e| e.to_string())?;
 
     // Preflight: git safety
     preflight::check_git_safety(&repo).map_err(|e| e.to_string())?;
@@ -418,7 +418,7 @@ fn run_planning_sync(
         let planning_prompt =
             build_planning_prompt(iteration, prompt, &template, output_path);
 
-        let invocation = CopilotInvocation {
+        let invocation = ClaudeInvocation {
             prompt: planning_prompt,
             model: model.to_string(),
             allow_flags: allow_flags.to_vec(),
@@ -442,7 +442,7 @@ fn run_planning_sync(
             let _ = app.emit(
                 "plan-progress",
                 PlanProgressEvent {
-                    line: format!("Copilot exited with code {}", exit_code),
+                    line: format!("claude exited with code {}", exit_code),
                     stream: "stderr".to_string(),
                     timestamp: now_iso(),
                 },
@@ -588,14 +588,14 @@ mod tests {
     }
 
     #[test]
-    fn copilot_not_installed_returns_error_mentioning_copilot() {
-        // Given: We check for copilot
-        // When: copilot may not be installed
-        let result = preflight::check_copilot_installed();
-        // Then: If error, message mentions "copilot"
+    fn claude_not_installed_returns_error_mentioning_claude() {
+        // Given: We check for claude
+        // When: claude may not be installed
+        let result = preflight::check_claude_installed();
+        // Then: If error, message mentions "claude"
         if let Err(e) = result {
             let msg = e.to_string().to_lowercase();
-            assert!(msg.contains("copilot"), "Error should mention copilot: {}", msg);
+            assert!(msg.contains("claude"), "Error should mention claude: {}", msg);
         }
     }
 
