@@ -401,7 +401,7 @@ fn cli_flag_parity_plan() {
     let help_text = String::from_utf8_lossy(&output.stdout);
 
     // Then: All flags from the Bash script are present in the Rust help:
-    // -o/--output, -m/--model, -n/--max-iterations, -h/--help
+    // -o/--output, -m/--model, -h/--help
     assert!(
         help_text.contains("--output") || help_text.contains("-o"),
         "Plan help should mention --output/-o flag, got: {}",
@@ -410,11 +410,6 @@ fn cli_flag_parity_plan() {
     assert!(
         help_text.contains("--model") || help_text.contains("-m"),
         "Plan help should mention --model/-m flag, got: {}",
-        help_text
-    );
-    assert!(
-        help_text.contains("--max-iterations") || help_text.contains("-n"),
-        "Plan help should mention --max-iterations/-n flag, got: {}",
         help_text
     );
     assert!(

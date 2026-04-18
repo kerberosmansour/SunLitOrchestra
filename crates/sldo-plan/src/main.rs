@@ -11,7 +11,7 @@ use sldo_common::logging::{ensure_log_dir, LogFile};
 use sldo_common::preflight;
 use sldo_common::toolflags;
 
-/// Default cooldown between planning iterations (seconds).
+/// Cooldown between steps (seconds).
 const COOLDOWN_SECS: u64 = 3;
 
 /// Default output path relative to the repo directory.
@@ -51,14 +51,15 @@ const FALLBACK_TEMPLATE: &str = r#"# [Runbook Title] — [Project Name]
 
 ---
 
+## Threat Model
 ## Documentation Update Table
 "#;
 
 /// Generate a milestone-based runbook from a requirements prompt and a repository.
 ///
-/// Takes a prompt file describing desired changes and a repository directory,
-/// then uses GitHub Copilot CLI to analyse the repo and produce a runbook
-/// markdown file following the project's runbook template.
+/// Two-step process:
+///   Step 1 — Generate the runbook (resumable: continues from existing partial output).
+///   Step 2 — Review & correct (ensures nothing is forgotten).
 #[derive(Parser, Debug)]
 #[command(name = "sldo-plan", about = "Generate a milestone-based runbook from a requirements prompt and a repository.")]
 struct Cli {
@@ -75,10 +76,6 @@ struct Cli {
     /// Copilot model to use.
     #[arg(short, long, default_value = "claude-opus-4.6")]
     model: String,
-
-    /// Max planning refinement iterations.
-    #[arg(short = 'n', long, default_value_t = 3)]
-    max_iterations: u32,
 }
 
 /// Resolve the output path: if provided, resolve relative to repo_dir;
@@ -99,17 +96,36 @@ pub fn read_template(template_path: &Path) -> String {
     }
 }
 
-/// Build the planning prompt for a given iteration.
+// ─── Step 1: Generate ────────────────────────────────────────────────────────
+
+/// Build the Step 1 prompt: generate the runbook in resumable chunks.
 ///
-/// For iteration 1, produces the initial planning prompt.
-/// For iteration > 1, appends a refinement section referencing the output file.
-pub fn build_planning_prompt(
-    iteration: u32,
+/// If the output file already exists with partial content, the prompt instructs
+/// Copilot to continue from where it left off rather than starting over.
+/// Includes a threat model section for application features (not CI/CD or cloud).
+pub fn build_generate_prompt(
     prompt_content: &str,
     template: &str,
     output_path: &Path,
+    existing_content: Option<&str>,
 ) -> String {
-    let mut prompt = format!(
+    let resume_section = match existing_content {
+        Some(content) if content.len() > 100 => format!(
+            r#"
+
+## RESUME FROM EXISTING DRAFT
+
+A previous run was interrupted. The file `{output}` already contains a partial
+runbook ({len} bytes). Read it, then **continue from where it left off**.
+Do NOT rewrite sections that are already complete — only fill in the remaining
+sections and milestones. Overwrite `{output}` with the combined result."#,
+            output = output_path.display(),
+            len = content.len(),
+        ),
+        _ => String::new(),
+    };
+
+    format!(
         r#"You are an expert software architect and planning agent. Your job is to analyse a
 repository and produce a detailed, actionable runbook of milestones that an AI
 coding agent can follow to implement the requested changes.
@@ -117,8 +133,6 @@ coding agent can follow to implement the requested changes.
 ## INPUT
 
 ### User Requirements
-
-The user has described the following desired changes:
 
 <requirements>
 {prompt_content}
@@ -135,87 +149,119 @@ Do not remove any sections — populate them all with concrete, repo-specific co
 
 ## YOUR TASK
 
-1. **Explore the repository thoroughly.** Read key files: README, package.json /
-   Cargo.toml / pyproject.toml / Makefile (whichever exist), directory structure,
-   architecture docs, existing test structure, CI config. Understand the tech stack,
-   project layout, build commands, and test commands.
+1. **Explore the repository thoroughly.** Read key files: README, Cargo.toml /
+   package.json / pyproject.toml / Makefile (whichever exist), directory structure,
+   architecture docs, existing test structure. Understand the tech stack, project
+   layout, build commands, and test commands.
 
-2. **Analyse the requirements** against the current codebase. Identify:
-   - Which files and modules need to change
-   - What new files need to be created
-   - What the correct build and test commands are
-   - What dependencies might need to be added
-   - What existing tests and features must not break
+2. **Analyse the requirements** against the current codebase. Identify which files
+   and modules need to change, what new files are needed, correct build/test
+   commands, dependencies to add, and existing tests that must not break.
 
-3. **Decompose into milestones.** Each milestone should be:
+3. **Decompose into milestones.** Each milestone must be:
    - Small enough for one focused coding session (1-3 hours of AI agent work)
-   - Self-contained: builds, tests pass, and the new feature works at the end
+   - Self-contained: builds, tests pass, and the app works at the end
    - Ordered by dependency — earlier milestones provide foundations for later ones
    - Concrete: reference real file paths, real function names, real test commands
+   - Iterative: the application should work after each milestone based on its
+     current capabilities — no milestone should leave the app in a broken state
 
-4. **For each milestone, fill in the template completely:**
-   - **Goal**: One clear sentence.
-   - **Context**: Reference specific files, modules, and current state.
-   - **Files Most Likely Touched**: Real file paths with specific changes.
-   - **Step-by-Step**: Numbered, actionable steps. Not vague — reference files and functions.
-   - **BDD Acceptance Scenarios**: Concrete Given/When/Then with realistic test data.
-   - **E2E Runtime Validation**: Tests that prove the system works at runtime.
-   - **Regression Tests**: List pre-existing tests that must still pass.
-   - **Smoke Tests**: Manual or scripted verification steps.
+4. **For each milestone, fill in the template completely** with concrete,
+   repo-specific content: Goal, Context, Files Most Likely Touched, Step-by-Step,
+   BDD Acceptance Scenarios, E2E Runtime Validation, Regression Tests, Smoke Tests.
 
-5. **Fill in background sections:**
-   - **Current State**: Describe the real repo state (reference actual files).
-   - **Problem**: Number the actual gaps the requirements describe.
-   - **Target Architecture**: ASCII diagram or description of the end state.
-   - **Key Design Principles**: Derive from the codebase style and requirements.
-   - **What to Keep / What to Change**: Concrete lists of files and modules.
-   - **Documentation Update Table**: What docs need updating per milestone.
+5. **Include a Threat Model section** in the runbook. This must cover:
+   - Security threats to the **application features** being built
+   - Input validation, authentication, authorization, data exposure risks
+   - Dependency supply-chain risks for new crates/packages being added
+   - Do NOT threat-model CI/CD pipelines, cloud infrastructure, or deployment
+   - For each threat: description, severity (high/medium/low), and mitigation
+     that should be implemented within the milestones
 
-6. **Populate protocols with real commands:**
-   - Replace placeholder test/build commands with the actual commands for this repo.
-   - Use the correct package manager, test runner, and build system.
-
-7. **Write the completed runbook** to: `{output}`
+6. **Write the completed runbook** to: `{output}`
+{resume_section}
 
 ## HARD RULES
 
 - Explore the repo BEFORE writing the runbook. Do not guess file paths or commands.
-- Every file path in the runbook must be a real path in the repo (or a clearly marked new file).
-- Every build/test command must be the actual command for this project's tech stack.
+- Every file path must be real (or clearly marked as new).
+- Every build/test command must be the actual command for this project.
 - Milestones must be strictly sequential — no circular dependencies.
-- Each milestone must leave the project in a buildable, testable state.
-- Do NOT implement any code changes. This is a PLANNING session only.
+- Each milestone must leave the project in a buildable, testable, working state.
+- Do NOT implement any code changes. PLANNING only.
 - Do NOT modify any existing source files in the repository.
 - Do NOT commit or push anything.
-- Write the runbook output to `{output}`.
-- The runbook file is the ONLY file you should create or modify."#,
+- The runbook file at `{output}` is the ONLY file you should create or modify."#,
         output = output_path.display(),
-    );
-
-    if iteration > 1 {
-        prompt.push_str(&format!(
-            r#"
-
-## REFINEMENT PASS {iteration}
-
-A previous planning pass has already written a draft runbook to `{output}`.
-Please:
-
-1. **Read the existing draft** at `{output}`.
-2. **Re-explore the repo** to verify all file paths and commands in the draft are accurate.
-3. **Improve the runbook**:
-   - Fix any incorrect file paths, commands, or tech stack references.
-   - Add missing BDD scenarios or E2E tests.
-   - Ensure step-by-step instructions are concrete enough for an AI agent to follow.
-   - Verify milestone ordering makes sense (no forward dependencies).
-   - Fill in any placeholder text that was left from the template.
-4. **Overwrite** `{output}` with the improved version."#,
-            output = output_path.display(),
-        ));
-    }
-
-    prompt
+    )
 }
+
+// ─── Step 2: Review & Correct ────────────────────────────────────────────────
+
+/// Build the Step 2 prompt: re-read the runbook and fix anything forgotten.
+///
+/// Checks for: .gitignore updates, cargo fmt / cargo clippy / cargo audit steps,
+/// smoke tests proving each milestone is iterative and the app works.
+pub fn build_review_prompt(output_path: &Path) -> String {
+    format!(
+        r#"You are a meticulous review agent. A runbook has been generated at `{output}`.
+Your job is to re-read it and fix anything that was forgotten or is incomplete.
+
+## YOUR TASK
+
+1. **Read the entire runbook** at `{output}`.
+
+2. **Check every milestone** for these commonly forgotten items and add them
+   if missing:
+
+   a. **`.gitignore`** — If the milestone creates new build artifacts, output
+      directories, or generated files, the step-by-step must include updating
+      `.gitignore`. Review what files the milestone produces and ensure they
+      are covered.
+
+   b. **`cargo fmt`** (or the project's equivalent formatter) — Every milestone's
+      step-by-step must end with running the formatter. If the project uses
+      Rust, that means `cargo fmt --all`. For JS/TS, `npx prettier --write .`
+      or equivalent.
+
+   c. **`cargo clippy`** (or equivalent linter) — Every milestone must run the
+      linter after implementation. For Rust: `cargo clippy --workspace -- -D warnings`.
+
+   d. **`cargo audit`** (or equivalent) — If the milestone adds new dependencies,
+      the step-by-step must include `cargo audit` (or `npm audit`, etc.) to
+      check for known vulnerabilities.
+
+   e. **Smoke test proving the app works** — Every milestone must have at least
+      one smoke test that proves the application works at its current level of
+      capability. This is NOT just "cargo test passes" — it must be a concrete
+      verification that a user-facing feature or system behavior works. The app
+      must be functional after each milestone, not just compilable.
+
+   f. **Iterative capability** — Verify that milestones are truly iterative.
+      After milestone 1, the app should do something useful. After milestone 2,
+      it should do more. Each milestone should extend — not just scaffold.
+
+3. **Check the Threat Model section** exists and covers application-level threats
+   (not CI/CD or cloud platform threats). If missing or incomplete, add it.
+
+4. **Check that all template placeholders are filled in.** No `[description]`,
+   `[file path]`, `[One-sentence`, or similar placeholder text should remain.
+
+5. **Write the corrected runbook** back to `{output}`. If nothing needs fixing,
+   write it back unchanged.
+
+## HARD RULES
+
+- Do NOT add new milestones or change the milestone structure.
+- Only add missing checklist items, fix forgotten steps, and fill placeholders.
+- Do NOT implement any code. REVIEW only.
+- Do NOT modify any source files in the repository.
+- The runbook file at `{output}` is the ONLY file you should modify."#,
+        output = output_path.display(),
+    )
+}
+
+// ─── Validation ──────────────────────────────────────────────────────────────
 
 /// Required sections that a valid runbook must contain.
 const REQUIRED_SECTIONS: &[&str] = &[
@@ -225,6 +271,7 @@ const REQUIRED_SECTIONS: &[&str] = &[
     "Background Context",
     "Current State",
     "BDD Acceptance Scenarios",
+    "Threat Model",
 ];
 
 /// Placeholder patterns that indicate unfilled template content.
@@ -273,14 +320,13 @@ pub fn validate_runbook(path: &Path) -> Vec<String> {
     }
 
     // Check milestone tracker has entries
+    let milestone_re = regex::Regex::new(r"^\|\s*\d+\s*\|").unwrap();
     let milestone_count = content
         .lines()
         .filter(|line| {
             let trimmed = line.trim_start();
             trimmed.starts_with('|')
-                && regex::Regex::new(r"^\|\s*\d+\s*\|")
-                    .unwrap()
-                    .is_match(trimmed)
+                && milestone_re.is_match(trimmed)
                 && (trimmed.contains("`not_started`")
                     || trimmed.contains("`in_progress`")
                     || trimmed.contains("`done`"))
@@ -310,9 +356,7 @@ pub fn validate_runbook(path: &Path) -> Vec<String> {
         .filter(|line| {
             let trimmed = line.trim_start();
             trimmed.starts_with('|')
-                && regex::Regex::new(r"^\|\s*\d+\s*\|")
-                    .unwrap()
-                    .is_match(trimmed)
+                && milestone_re.is_match(trimmed)
                 && trimmed.contains("`done`")
         })
         .count();
@@ -327,46 +371,36 @@ pub fn validate_runbook(path: &Path) -> Vec<String> {
     issues
 }
 
+// ─── Main ────────────────────────────────────────────────────────────────────
+
 fn run() -> Result<()> {
     let cli = Cli::parse();
 
     // Resolve paths
     let prompt_file = cli.prompt_file.canonicalize().with_context(|| {
-        format!(
-            "Prompt file not found: {}",
-            cli.prompt_file.display()
-        )
+        format!("Prompt file not found: {}", cli.prompt_file.display())
     })?;
 
     let repo_dir = cli.repo_dir.canonicalize().with_context(|| {
-        format!(
-            "Repository directory not found: {}",
-            cli.repo_dir.display()
-        )
+        format!("Repository directory not found: {}", cli.repo_dir.display())
     })?;
 
     let output_path = resolve_output_path(cli.output.as_deref(), &repo_dir);
 
     header("Milestone Planner — Runbook Generator");
-    info(&format!("Prompt file:    {}", prompt_file.display()));
-    info(&format!("Repository:     {}", repo_dir.display()));
-    info(&format!("Output:         {}", output_path.display()));
-    info(&format!("Model:          {}", cli.model));
-    info(&format!("Max iterations: {}", cli.max_iterations));
+    info(&format!("Prompt file: {}", prompt_file.display()));
+    info(&format!("Repository:  {}", repo_dir.display()));
+    info(&format!("Output:      {}", output_path.display()));
+    info(&format!("Model:       {}", cli.model));
 
-    // Pre-flight checks
+    // ── Pre-flight checks ────────────────────────────────────────────────
     header("Pre-flight checks");
 
     let copilot_path = preflight::check_copilot_installed()?;
     success(&format!("copilot CLI found: {}", copilot_path.display()));
 
     preflight::check_file_exists(&prompt_file, "Prompt file")?;
-    let prompt_size = std::fs::metadata(&prompt_file)?.len();
-    success(&format!(
-        "Prompt file found: {} ({} bytes)",
-        prompt_file.display(),
-        prompt_size
-    ));
+    success(&format!("Prompt file found: {}", prompt_file.display()));
 
     if !repo_dir.is_dir() {
         anyhow::bail!("Repository directory not found: {}", repo_dir.display());
@@ -374,106 +408,119 @@ fn run() -> Result<()> {
     success(&format!("Repository directory: {}", repo_dir.display()));
 
     let branch = preflight::check_git_safety(&repo_dir)?;
-    info(&format!("Current git branch: {}", branch));
-    success(&format!(
-        "Branch '{}' is not main/master — safe to proceed.",
-        branch
-    ));
+    success(&format!("Branch '{}' — safe to proceed.", branch));
 
-    // Resolve template path relative to binary or repo
     let template_path = repo_dir.join("docs/runbook-template.md");
     let template = read_template(&template_path);
     if template_path.exists() {
-        success(&format!("Runbook template found: {}", template_path.display()));
+        success(&format!("Runbook template: {}", template_path.display()));
     } else {
-        warn(&format!(
-            "Runbook template not found at {} — will use built-in template.",
-            template_path.display()
-        ));
+        warn("Runbook template not found — using built-in template.");
     }
 
-    // Ensure output directory exists
     if let Some(parent) = output_path.parent() {
         std::fs::create_dir_all(parent)?;
     }
-    success(&format!("Output will be written to: {}", output_path.display()));
 
-    // Set up logging
     let log_dir = ensure_log_dir(&repo_dir)?;
-    success(&format!("Log directory: {}", log_dir.display()));
 
-    // Read prompt content
     let prompt_content = std::fs::read_to_string(&prompt_file)
         .with_context(|| format!("Failed to read prompt file: {}", prompt_file.display()))?;
 
     let start = Instant::now();
 
-    for iteration in 1..=cli.max_iterations {
-        let log_file = LogFile::new(&log_dir, &format!("plan-iteration-{}.log", iteration))?;
+    // ── Step 1: Generate the runbook (resumable) ─────────────────────────
+    divider();
+    header("Step 1/2 — Generate runbook");
 
-        divider();
-        if iteration == 1 {
+    let existing_content = std::fs::read_to_string(&output_path).ok();
+    if let Some(ref content) = existing_content {
+        if content.len() > 100 {
             info(&format!(
-                "Iteration {}/{} — Initial planning pass",
-                iteration, cli.max_iterations
-            ));
-        } else {
-            info(&format!(
-                "Iteration {}/{} — Refinement pass",
-                iteration, cli.max_iterations
+                "Found existing partial runbook ({} bytes) — will resume.",
+                content.len()
             ));
         }
-        divider();
+    }
 
-        let prompt = build_planning_prompt(iteration, &prompt_content, &template, &output_path);
+    let generate_prompt = build_generate_prompt(
+        &prompt_content,
+        &template,
+        &output_path,
+        existing_content.as_deref(),
+    );
 
-        log_file.append(&format!(
-            "═══════════════════════════════════════════════════\nPlanning iteration {}",
-            iteration
-        ))?;
+    let log_file = LogFile::new(&log_dir, "plan-step1-generate.log")?;
+    log_file.append("Step 1: Generate runbook")?;
 
-        // Invoke Copilot CLI
-        let invocation = CopilotInvocation {
-            prompt,
-            model: cli.model.clone(),
-            allow_flags: toolflags::plan_allow_flags(),
-            deny_flags: toolflags::plan_deny_flags(),
-            working_dir: repo_dir.clone(),
-        };
+    let invocation = CopilotInvocation {
+        prompt: generate_prompt,
+        model: cli.model.clone(),
+        allow_flags: toolflags::plan_allow_flags(),
+        deny_flags: toolflags::plan_deny_flags(),
+        working_dir: repo_dir.clone(),
+    };
 
-        let exit_code = invocation.run(&log_file)?;
+    let exit_code = invocation.run(&log_file)?;
+    if exit_code != 0 {
+        warn(&format!("Copilot exited with code {} during generation.", exit_code));
+    }
 
-        if exit_code != 0 {
-            warn(&format!("Copilot exited with code {}.", exit_code));
+    // Quick validation — if the file wasn't even created, bail early
+    if !output_path.exists() {
+        fail("Runbook file was not created. Check logs for details.");
+        fail(&format!("Logs: {}/", log_dir.display()));
+        anyhow::bail!("Step 1 failed: runbook not created.");
+    }
+
+    let issues = validate_runbook(&output_path);
+    if issues.is_empty() {
+        success("Runbook generated — all sections present.");
+    } else {
+        for issue in &issues {
+            warn(issue);
         }
+        warn("Proceeding to review step which may fix these issues.");
+    }
 
-        // Validate the output
-        let issues = validate_runbook(&output_path);
-        if issues.is_empty() {
-            success(&format!(
-                "Runbook generated successfully after {} iteration(s).",
-                iteration
-            ));
-            break;
-        }
+    info(&format!("Cooling down {}s before review…", COOLDOWN_SECS));
+    thread::sleep(Duration::from_secs(COOLDOWN_SECS));
 
+    // ── Step 2: Review & correct ─────────────────────────────────────────
+    divider();
+    header("Step 2/2 — Review & correct");
+
+    let review_prompt = build_review_prompt(&output_path);
+
+    let log_file = LogFile::new(&log_dir, "plan-step2-review.log")?;
+    log_file.append("Step 2: Review & correct")?;
+
+    let invocation = CopilotInvocation {
+        prompt: review_prompt,
+        model: cli.model.clone(),
+        allow_flags: toolflags::plan_allow_flags(),
+        deny_flags: toolflags::plan_deny_flags(),
+        working_dir: repo_dir.clone(),
+    };
+
+    let exit_code = invocation.run(&log_file)?;
+    if exit_code != 0 {
+        warn(&format!("Copilot exited with code {} during review.", exit_code));
+    }
+
+    // Final validation
+    let issues = validate_runbook(&output_path);
+    if !issues.is_empty() {
         for issue in &issues {
             warn(issue);
         }
         warn(&format!(
-            "Runbook validation found {} issue(s). Will attempt refinement.",
+            "Runbook has {} remaining issue(s) after review. Manual inspection recommended.",
             issues.len()
         ));
-
-        if iteration < cli.max_iterations {
-            info(&format!(
-                "Cooling down {}s before refinement…",
-                COOLDOWN_SECS
-            ));
-            thread::sleep(Duration::from_secs(COOLDOWN_SECS));
-        }
     }
 
+    // ── Summary ──────────────────────────────────────────────────────────
     let elapsed = start.elapsed();
     let minutes = elapsed.as_secs() / 60;
     let seconds = elapsed.as_secs() % 60;
@@ -484,13 +531,10 @@ fn run() -> Result<()> {
         success(&format!("Runbook written to: {}", output_path.display()));
 
         let content = std::fs::read_to_string(&output_path).unwrap_or_default();
+        let milestone_re = regex::Regex::new(r"^\|\s*\d+\s*\|").unwrap();
         let milestone_count = content
             .lines()
-            .filter(|line| {
-                regex::Regex::new(r"^\|\s*\d+\s*\|")
-                    .unwrap()
-                    .is_match(line.trim_start())
-            })
+            .filter(|line| milestone_re.is_match(line.trim_start()))
             .count();
 
         info(&format!("Milestones planned: {}", milestone_count));
@@ -503,11 +547,8 @@ fn run() -> Result<()> {
         success("You can now run the milestones with:");
         info("  sldo-run <runbook> <repo-dir>");
     } else {
-        fail(&format!(
-            "Runbook was not generated after {} iterations.",
-            cli.max_iterations
-        ));
-        fail(&format!("Check logs in {}/ for details.", log_dir.display()));
+        fail("Runbook was not generated. Check logs for details.");
+        fail(&format!("Logs: {}/", log_dir.display()));
     }
 
     info(&format!("Total wall time: {}m {}s", minutes, seconds));
@@ -531,10 +572,7 @@ mod tests {
 
     #[test]
     fn help_flag_exits_zero() {
-        // Given: N/A
-        // When: sldo-plan --help is invoked
         let result = Cli::try_parse_from(["sldo-plan", "--help"]);
-        // Then: clap returns help error (which exits 0)
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayHelp);
@@ -542,19 +580,13 @@ mod tests {
 
     #[test]
     fn missing_args_errors() {
-        // Given: No arguments
-        // When: sldo-plan is invoked with no args
         let result = Cli::try_parse_from(["sldo-plan"]);
-        // Then: clap returns error
         assert!(result.is_err());
     }
 
     #[test]
     fn default_output_is_none() {
-        // Given: sldo-plan prompt.txt /tmp/repo
-        // When: Args are parsed
         let cli = Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo"]).unwrap();
-        // Then: output defaults to None (resolved later to <repo>/docs/RUNBOOK.md)
         assert!(cli.output.is_none());
 
         let output = resolve_output_path(cli.output.as_deref(), &cli.repo_dir);
@@ -563,67 +595,35 @@ mod tests {
 
     #[test]
     fn custom_output() {
-        // Given: sldo-plan prompt.txt /tmp/repo -o custom.md
-        // When: Args are parsed
         let cli =
             Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo", "-o", "custom.md"])
                 .unwrap();
-        // Then: output is resolved relative to repo_dir
         let output = resolve_output_path(cli.output.as_deref(), &cli.repo_dir);
         assert_eq!(output, PathBuf::from("/tmp/repo/custom.md"));
     }
 
     #[test]
     fn custom_model() {
-        // Given: sldo-plan prompt.txt /tmp/repo -m gpt-4
-        // When: Args are parsed
         let cli =
             Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo", "-m", "gpt-4"]).unwrap();
-        // Then: model is "gpt-4"
         assert_eq!(cli.model, "gpt-4");
     }
 
     #[test]
     fn default_model() {
-        // Given: sldo-plan prompt.txt /tmp/repo (no -m flag)
-        // When: Args are parsed
         let cli = Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo"]).unwrap();
-        // Then: model defaults to "claude-opus-4.6"
         assert_eq!(cli.model, "claude-opus-4.6");
-    }
-
-    #[test]
-    fn default_max_iterations() {
-        // Given: sldo-plan prompt.txt /tmp/repo (no -n flag)
-        // When: Args are parsed
-        let cli = Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo"]).unwrap();
-        // Then: max_iterations defaults to 3
-        assert_eq!(cli.max_iterations, 3);
-    }
-
-    #[test]
-    fn custom_max_iterations() {
-        // Given: sldo-plan prompt.txt /tmp/repo -n 5
-        // When: Args are parsed
-        let cli =
-            Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo", "-n", "5"]).unwrap();
-        // Then: max_iterations is 5
-        assert_eq!(cli.max_iterations, 5);
     }
 
     // ── Template reading ─────────────────────────────────────────────────
 
     #[test]
     fn template_exists_returns_content() {
-        // Given: docs/runbook-template.md is on disk
         let manifest_dir = env!("CARGO_MANIFEST_DIR");
         let workspace_root = Path::new(manifest_dir).parent().unwrap().parent().unwrap();
         let template_path = workspace_root.join("docs/runbook-template.md");
 
-        // When: read_template() is called
         let content = read_template(&template_path);
-
-        // Then: Returns file contents containing "Milestone Tracker"
         assert!(
             content.contains("Milestone Tracker"),
             "Template should contain 'Milestone Tracker'"
@@ -632,59 +632,103 @@ mod tests {
 
     #[test]
     fn template_missing_returns_fallback() {
-        // Given: Template path does not exist
         let path = Path::new("/nonexistent/path/to/template.md");
-
-        // When: read_template() is called
         let content = read_template(path);
-
-        // Then: Returns fallback template string containing "Milestone Tracker"
         assert!(
             content.contains("Milestone Tracker"),
             "Fallback template should contain 'Milestone Tracker'"
         );
     }
 
-    // ── Prompt construction ──────────────────────────────────────────────
+    // ── Generate prompt (Step 1) ─────────────────────────────────────────
 
     #[test]
-    fn first_iteration_prompt() {
-        // Given: iteration=1, prompt="Add search", template="..."
-        let prompt = build_planning_prompt(
-            1,
+    fn generate_prompt_fresh() {
+        // Given: no existing content
+        let prompt = build_generate_prompt(
             "Add search functionality",
             "# Template\n## Milestone Tracker",
             Path::new("/tmp/RUNBOOK.md"),
+            None,
         );
 
-        // Then: Contains key sections, does NOT contain "REFINEMENT PASS"
-        assert!(prompt.contains("User Requirements"));
+        // Then: contains key sections, no resume section
+        assert!(prompt.contains("Add search functionality"));
         assert!(prompt.contains("Runbook Template"));
         assert!(prompt.contains("YOUR TASK"));
-        assert!(prompt.contains("Add search functionality"));
-        assert!(!prompt.contains("REFINEMENT PASS"));
+        assert!(prompt.contains("Threat Model"));
+        assert!(!prompt.contains("RESUME FROM EXISTING DRAFT"));
     }
 
     #[test]
-    fn refinement_iteration_prompt() {
-        // Given: iteration=2, output="/tmp/RUNBOOK.md"
-        let prompt = build_planning_prompt(
-            2,
+    fn generate_prompt_resumes_from_partial() {
+        // Given: existing partial content > 100 bytes
+        let existing = "x".repeat(200);
+        let prompt = build_generate_prompt(
             "Add search",
             "# Template",
             Path::new("/tmp/RUNBOOK.md"),
+            Some(&existing),
         );
 
-        // Then: Contains "REFINEMENT PASS 2" and the output path
-        assert!(prompt.contains("REFINEMENT PASS 2"));
-        assert!(prompt.contains("/tmp/RUNBOOK.md"));
+        // Then: contains resume section
+        assert!(prompt.contains("RESUME FROM EXISTING DRAFT"));
+        assert!(prompt.contains("200 bytes"));
+    }
+
+    #[test]
+    fn generate_prompt_ignores_tiny_existing() {
+        // Given: existing content <= 100 bytes (too small to be meaningful)
+        let existing = "tiny";
+        let prompt = build_generate_prompt(
+            "Add search",
+            "# Template",
+            Path::new("/tmp/RUNBOOK.md"),
+            Some(existing),
+        );
+
+        // Then: no resume section — starts fresh
+        assert!(!prompt.contains("RESUME FROM EXISTING DRAFT"));
+    }
+
+    #[test]
+    fn generate_prompt_requires_threat_model_for_app_features() {
+        let prompt = build_generate_prompt(
+            "Add auth",
+            "# Template",
+            Path::new("/tmp/RUNBOOK.md"),
+            None,
+        );
+
+        assert!(prompt.contains("Threat Model"));
+        assert!(prompt.contains("application features"));
+        assert!(prompt.contains("Do NOT threat-model CI/CD"));
+    }
+
+    // ── Review prompt (Step 2) ───────────────────────────────────────────
+
+    #[test]
+    fn review_prompt_checks_for_forgotten_items() {
+        let prompt = build_review_prompt(Path::new("/tmp/RUNBOOK.md"));
+
+        assert!(prompt.contains(".gitignore"));
+        assert!(prompt.contains("cargo fmt"));
+        assert!(prompt.contains("cargo clippy"));
+        assert!(prompt.contains("cargo audit"));
+        assert!(prompt.contains("Smoke test"));
+        assert!(prompt.contains("Threat Model"));
+    }
+
+    #[test]
+    fn review_prompt_references_output_path() {
+        let prompt = build_review_prompt(Path::new("/my/output/RUNBOOK.md"));
+        assert!(prompt.contains("/my/output/RUNBOOK.md"));
     }
 
     // ── Runbook validation ───────────────────────────────────────────────
 
     #[test]
     fn valid_runbook_returns_empty_issues() {
-        // Given: File >500 bytes with all required sections, milestones all not_started
         let tmp = std::env::temp_dir().join("sldo_test_validate_valid");
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -714,34 +758,25 @@ Described here.
 ## BDD Acceptance Scenarios
 Scenarios here.
 
+## Threat Model
+Threats here.
+
 {}
 "#,
-            "x".repeat(300) // pad to > 500 bytes
+            "x".repeat(300)
         );
         fs::write(&runbook_path, &content).unwrap();
 
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(&runbook_path);
-
-        // Then: Returns empty issues list
-        assert!(
-            issues.is_empty(),
-            "Expected no issues, got: {:?}",
-            issues
-        );
+        assert!(issues.is_empty(), "Expected no issues, got: {:?}", issues);
 
         let _ = fs::remove_dir_all(&tmp);
     }
 
     #[test]
     fn missing_file_returns_issue() {
-        // Given: Path does not exist
         let path = Path::new("/nonexistent/path/to/RUNBOOK.md");
-
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(path);
-
-        // Then: Returns issue "file was not created"
         assert!(!issues.is_empty());
         assert!(
             issues[0].contains("not created") || issues[0].contains("not found"),
@@ -752,7 +787,6 @@ Scenarios here.
 
     #[test]
     fn small_file_returns_issue() {
-        // Given: File is 100 bytes
         let tmp = std::env::temp_dir().join("sldo_test_validate_small");
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -760,10 +794,7 @@ Scenarios here.
 
         fs::write(&runbook_path, "x".repeat(100)).unwrap();
 
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(&runbook_path);
-
-        // Then: Returns issue about suspicious size
         assert!(
             issues.iter().any(|i| i.contains("small") || i.contains("suspicious")),
             "Expected size issue, got: {:?}",
@@ -775,7 +806,6 @@ Scenarios here.
 
     #[test]
     fn missing_section_returns_issue() {
-        // Given: File lacks "BDD Acceptance Scenarios"
         let tmp = std::env::temp_dir().join("sldo_test_validate_section");
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -794,6 +824,7 @@ Scenarios here.
 ## Post-Milestone Protocol
 ## Background Context
 ### Current State
+## Threat Model
 
 {}
 "#,
@@ -801,10 +832,7 @@ Scenarios here.
         );
         fs::write(&runbook_path, &content).unwrap();
 
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(&runbook_path);
-
-        // Then: Returns issue about missing section
         assert!(
             issues.iter().any(|i| i.contains("Missing section") && i.contains("BDD Acceptance Scenarios")),
             "Expected missing BDD section issue, got: {:?}",
@@ -815,8 +843,45 @@ Scenarios here.
     }
 
     #[test]
+    fn missing_threat_model_returns_issue() {
+        let tmp = std::env::temp_dir().join("sldo_test_validate_threat");
+        let _ = fs::remove_dir_all(&tmp);
+        fs::create_dir_all(&tmp).unwrap();
+        let runbook_path = tmp.join("RUNBOOK.md");
+
+        let content = format!(
+            r#"# Test Runbook
+
+## Milestone Tracker
+
+| # | Milestone | Status | Started | Completed | Lessons File |
+|---|---|---|---|---|---|
+| 1 | First | `not_started` | | | |
+
+## Pre-Milestone Protocol
+## Post-Milestone Protocol
+## Background Context
+### Current State
+## BDD Acceptance Scenarios
+
+{}
+"#,
+            "x".repeat(300)
+        );
+        fs::write(&runbook_path, &content).unwrap();
+
+        let issues = validate_runbook(&runbook_path);
+        assert!(
+            issues.iter().any(|i| i.contains("Missing section") && i.contains("Threat Model")),
+            "Expected missing Threat Model issue, got: {:?}",
+            issues
+        );
+
+        let _ = fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
     fn unfilled_placeholders_returns_issue() {
-        // Given: File contains [description]
         let tmp = std::env::temp_dir().join("sldo_test_validate_placeholder");
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -838,6 +903,7 @@ Scenarios here.
 [description]
 
 ## BDD Acceptance Scenarios
+## Threat Model
 
 {}
 "#,
@@ -845,10 +911,7 @@ Scenarios here.
         );
         fs::write(&runbook_path, &content).unwrap();
 
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(&runbook_path);
-
-        // Then: Returns issue about placeholders
         assert!(
             issues.iter().any(|i| i.contains("placeholder")),
             "Expected placeholder issue, got: {:?}",
@@ -860,7 +923,6 @@ Scenarios here.
 
     #[test]
     fn done_milestones_returns_issue() {
-        // Given: A runbook with a milestone marked done
         let tmp = std::env::temp_dir().join("sldo_test_validate_done");
         let _ = fs::remove_dir_all(&tmp);
         fs::create_dir_all(&tmp).unwrap();
@@ -881,6 +943,7 @@ Scenarios here.
 ## Background Context
 ### Current State
 ## BDD Acceptance Scenarios
+## Threat Model
 
 {}
 "#,
@@ -888,10 +951,7 @@ Scenarios here.
         );
         fs::write(&runbook_path, &content).unwrap();
 
-        // When: validate_runbook(path) is called
         let issues = validate_runbook(&runbook_path);
-
-        // Then: Returns issue about done milestones
         assert!(
             issues.iter().any(|i| i.contains("done")),
             "Expected done milestone issue, got: {:?}",
@@ -905,26 +965,20 @@ Scenarios here.
 
     #[test]
     fn resolve_output_default() {
-        // Given: No output specified
         let output = resolve_output_path(None, Path::new("/tmp/repo"));
-        // Then: defaults to <repo>/docs/RUNBOOK.md
         assert_eq!(output, PathBuf::from("/tmp/repo/docs/RUNBOOK.md"));
     }
 
     #[test]
     fn resolve_output_relative() {
-        // Given: Relative output path
         let output = resolve_output_path(Some(Path::new("custom.md")), Path::new("/tmp/repo"));
-        // Then: resolved relative to repo_dir
         assert_eq!(output, PathBuf::from("/tmp/repo/custom.md"));
     }
 
     #[test]
     fn resolve_output_absolute() {
-        // Given: Absolute output path
         let output =
             resolve_output_path(Some(Path::new("/abs/path.md")), Path::new("/tmp/repo"));
-        // Then: used as-is
         assert_eq!(output, PathBuf::from("/abs/path.md"));
     }
 }
