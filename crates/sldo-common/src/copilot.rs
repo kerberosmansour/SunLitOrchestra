@@ -23,11 +23,9 @@ impl CopilotInvocation {
     /// Spawn the copilot process, pipe stdout/stderr to both the terminal and
     /// the log file, and return the exit code.
     pub fn run(&self, log_file: &LogFile) -> Result<i32> {
-        self.run_with_callback(log_file, |line, stream| {
-            match stream {
-                "stdout" => println!("{}", line),
-                _ => eprintln!("{}", line),
-            }
+        self.run_with_callback(log_file, |line, stream| match stream {
+            "stdout" => println!("{}", line),
+            _ => eprintln!("{}", line),
         })
     }
 

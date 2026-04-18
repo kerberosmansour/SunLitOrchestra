@@ -7,7 +7,12 @@ use std::process::Command;
 /// Check whether the given path is inside a git repository.
 pub fn is_git_repo(path: &Path) -> bool {
     Command::new("git")
-        .args(["-C", &path.to_string_lossy(), "rev-parse", "--is-inside-work-tree"])
+        .args([
+            "-C",
+            &path.to_string_lossy(),
+            "rev-parse",
+            "--is-inside-work-tree",
+        ])
         .output()
         .map(|o| o.status.success())
         .unwrap_or(false)
@@ -16,7 +21,13 @@ pub fn is_git_repo(path: &Path) -> bool {
 /// Return the current branch name for the repo at the given path.
 pub fn current_branch(path: &Path) -> Result<String> {
     let output = Command::new("git")
-        .args(["-C", &path.to_string_lossy(), "rev-parse", "--abbrev-ref", "HEAD"])
+        .args([
+            "-C",
+            &path.to_string_lossy(),
+            "rev-parse",
+            "--abbrev-ref",
+            "HEAD",
+        ])
         .output()
         .context("Failed to run git rev-parse")?;
     if !output.status.success() {

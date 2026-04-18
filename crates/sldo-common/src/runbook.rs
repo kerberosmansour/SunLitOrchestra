@@ -65,7 +65,8 @@ pub fn parse_tracker(runbook_content: &str) -> Vec<MilestoneRow> {
             // Must contain a backtick-wrapped status
             if let Some(status_caps) = status_re.captures(line) {
                 let number: u32 = caps[1].parse().unwrap_or(0);
-                let status = MilestoneStatus::from_str(&status_caps[1]).unwrap_or(MilestoneStatus::NotStarted);
+                let status = MilestoneStatus::from_str(&status_caps[1])
+                    .unwrap_or(MilestoneStatus::NotStarted);
 
                 // Parse columns by splitting on |
                 let cols: Vec<&str> = line.split('|').collect();
@@ -76,7 +77,10 @@ pub fn parse_tracker(runbook_content: &str) -> Vec<MilestoneRow> {
                 // cols[4] = started
                 // cols[5] = completed
                 // cols[6] = lessons file
-                let title = cols.get(2).map(|s| s.trim().to_string()).unwrap_or_default();
+                let title = cols
+                    .get(2)
+                    .map(|s| s.trim().to_string())
+                    .unwrap_or_default();
                 let started = cols
                     .get(4)
                     .map(|s| s.trim().to_string())
