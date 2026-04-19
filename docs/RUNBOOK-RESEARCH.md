@@ -35,7 +35,7 @@ Update this table as each milestone is completed. This is the single source of t
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | Crate scaffolding & CLI skeleton | `not_started` | | | | |
+| 1 | Crate scaffolding & CLI skeleton | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m1.md | docs/completion/research-m1.md |
 | 2 | Research prompt builder | `not_started` | | | | |
 | 3 | Claude Code-driven research loop | `not_started` | | | | |
 | 4 | Dossier validation & output | `not_started` | | | | |
@@ -692,17 +692,17 @@ Path: `docs/completion/research-m<N>.md`
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test --workspace` | all green | | | |
-| BDD tests created | `crates/sldo-research/src/main.rs` (test mod) | fail for expected reason | | | |
-| E2E stubs created | `tests/e2e_research_m1.rs` | fail for expected reason | | | |
-| Implementation | CLI skeleton + preflight | contract satisfied | | | |
-| Full tests | `cargo test --workspace` | green | | | |
-| E2E runtime | `cargo test --test e2e_research_m1` | green | | | |
-| Build/boot | `cargo build --workspace` | builds cleanly | | | |
-| Smoke tests | see list above | all checked | | | |
-| Test artifact cleanup | `git status` | no untracked test artifacts | | | |
-| .gitignore review | review `.gitignore` | patterns current | | | |
-| Compatibility checks | `sldo-plan --help`, `sldo-run --help` | no regressions | | | |
+| Baseline tests | `cargo test --workspace` | all green | 51 sldo-common + 24 sldo-plan + 13 sldo-run + 65 sldo-tauri pass; 1 pre-existing esbuild failure in tauri frontend | pass (pre-existing failure unrelated) | |
+| BDD tests created | `crates/sldo-research/src/main.rs` (test mod) | fail for expected reason | 13 unit tests written first | pass | |
+| E2E stubs created | `tests/e2e_research_m1.rs` | fail for expected reason | 6 E2E tests written; failed with binary-not-found before build | pass | |
+| Implementation | CLI skeleton + preflight | contract satisfied | All CLI args, preflight, and "not yet implemented" message implemented | pass | |
+| Full tests | `cargo test --workspace` | green | All new tests pass; pre-existing tauri esbuild failure unchanged | pass | |
+| E2E runtime | `cargo test --test e2e_research_m1` | green | 6 passed | pass | |
+| Build/boot | `cargo build --workspace` | builds cleanly | Builds with 2 pre-existing tauri dead_code warnings only | pass | |
+| Smoke tests | see list above | all checked | Binary boots, --help works, backward compat verified | pass | |
+| Test artifact cleanup | `git status` | no untracked test artifacts | No test artifacts left on disk | pass | |
+| .gitignore review | review `.gitignore` | patterns current | Added `.sldo-logs/` and `output/`; kept `.copilot-logs/` for existing tools | pass | |
+| Compatibility checks | `sldo-plan --help`, `sldo-run --help` | no regressions | All 24 sldo-plan and 13 sldo-run tests pass | pass | |
 
 #### Definition of Done
 
