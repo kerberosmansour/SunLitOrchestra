@@ -61,55 +61,32 @@ fn shim_dir_with_claude(label: &str, marker: &str) -> PathBuf {
 /// Build a shim that emits a fully-formed synthesised dossier body — every
 /// required section header is present in the printed output. This is the
 /// "synthesis succeeds and is well-formed" case.
+///
+/// Uses `printf` (a /bin/sh builtin) rather than `cat <<EOF` because the
+/// test sets `PATH` to *only* the shim directory, so external utilities
+/// like `cat` are not available. `printf` is built into POSIX `/bin/sh`
+/// and works without PATH.
 fn shim_dir_with_well_formed_synth_claude(label: &str, marker: &str) -> PathBuf {
     let dir = unique_tmp(label);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     let shim = dir.join("claude");
-    // The shim emits all 9 required dossier headers with the marker under
-    // each — `synth_output_well_formed` requires every header to be present
-    // before the synthesised body replaces the M4 layout.
-    let body = format!(
-        "#!/bin/sh\n\
-cat <<EOF\n\
-## Executive Summary\n\
-\n\
-{marker}\n\
-\n\
-## Topic Decomposition\n\
-\n\
-{marker}\n\
-\n\
-## Key Findings\n\
-\n\
-{marker}\n\
-\n\
-## Library & Tool Evaluations\n\
-\n\
-{marker}\n\
-\n\
-## Architecture Options\n\
-\n\
-{marker}\n\
-\n\
-## API & SDK Documentation\n\
-\n\
-{marker}\n\
-\n\
-## Design Recommendations\n\
-\n\
-{marker}\n\
-\n\
-## Risks & Open Questions\n\
-\n\
-{marker}\n\
-\n\
-## References\n\
-\n\
-{marker}\n\
-EOF\n",
-        marker = marker
+    // Emit all 9 required dossier headers as one printf format string —
+    // `synth_output_well_formed` requires every header to be present before
+    // the synthesised body replaces the M4 layout.
+    let payload = format!(
+        "## Executive Summary\\n\\n{m}\\n\\n\
+## Topic Decomposition\\n\\n{m}\\n\\n\
+## Key Findings\\n\\n{m}\\n\\n\
+## Library & Tool Evaluations\\n\\n{m}\\n\\n\
+## Architecture Options\\n\\n{m}\\n\\n\
+## API & SDK Documentation\\n\\n{m}\\n\\n\
+## Design Recommendations\\n\\n{m}\\n\\n\
+## Risks & Open Questions\\n\\n{m}\\n\\n\
+## References\\n\\n{m}\\n",
+        m = marker
     );
+    let body = format!("#!/bin/sh\nprintf '{}'\n", payload);
     std::fs::write(&shim, body).unwrap();
     #[cfg(unix)]
     {
@@ -121,29 +98,38 @@ EOF\n",
     dir
 }
 
-/// Build a counter-based shim that succeeds for the first N invocations and
-/// then exits non-zero. Used to simulate "exploration succeeds, synthesis
-/// fails" — the synthesis phase is the LAST claude invocation in the loop,
-/// so failing on invocation `fail_after + 1` exercises the fallback path.
+/// Build a shim that succeeds for the first `succeed_count` invocations
+/// and then exits non-zero. Used to simulate "exploration succeeds,
+/// synthesis fails" — the synthesis phase is the LAST claude invocation in
+/// the loop, so passing `succeed_count = 1` with `--max-iterations 1
+/// --max-searches 0` makes synthesis the failing call.
+///
+/// Implementation note: counts via filesystem marker files
+/// (`call-1`, `call-2`, …) created with shell-builtin `:>` rather than
+/// `cat`/`echo`-to-file. The test's PATH is set to only the shim
+/// directory, so external utilities are not available.
 fn shim_dir_with_failing_synth_claude(label: &str, marker: &str, succeed_count: u32) -> PathBuf {
     let dir = unique_tmp(label);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
-    let counter = dir.join("count");
-    std::fs::write(&counter, "0").unwrap();
     let shim = dir.join("claude");
+    // For each invocation, find the next free `call-N` marker file (using
+    // shell `[ -f ]` test — a `/bin/sh` builtin), create it with `:>`
+    // (POSIX builtin redirection of the `:` no-op), and decide whether to
+    // succeed or fail based on N. Because `[` and `:>` are builtins, this
+    // works with PATH set to only the shim dir.
     let body = format!(
         "#!/bin/sh\n\
-counter='{counter}'\n\
-n=$(cat \"$counter\" 2>/dev/null || echo 0)\n\
-n=$((n + 1))\n\
-echo \"$n\" > \"$counter\"\n\
+n=1\n\
+while [ -f '{dir}/call-'\"$n\" ]; do\n\
+  n=$((n + 1))\n\
+done\n\
+: > '{dir}/call-'\"$n\"\n\
 if [ \"$n\" -gt {succeed_count} ]; then\n\
-  echo 'shim simulating synthesis failure on invocation '\"$n\" 1>&2\n\
   exit 1\n\
 fi\n\
 printf '%s\\n' '{marker}'\n",
-        counter = counter.display(),
+        dir = dir.display(),
         succeed_count = succeed_count,
         marker = marker
     );

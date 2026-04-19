@@ -120,7 +120,7 @@ pub fn write_dossier(
     match synthesised {
         Some(synth) if !synth.trim().is_empty() => {
             body.push_str(synth.trim());
-            body.push_str("\n");
+            body.push('\n');
         }
         _ => {
             for section in REQUIRED_SECTIONS {
@@ -578,7 +578,10 @@ mod tests {
         write_dossier(&path, "prompt", "raw findings", None, Some(&synth)).unwrap();
         // Then: marker is present and the M4 stub sentinel is absent
         let content = std::fs::read_to_string(&path).unwrap();
-        assert!(content.contains(marker), "synth marker missing from dossier");
+        assert!(
+            content.contains(marker),
+            "synth marker missing from dossier"
+        );
         assert!(
             !content.contains(M4_STUB_SENTINEL),
             "synthesised dossier should NOT contain the M4 stub sentinel"
