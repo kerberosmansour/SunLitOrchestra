@@ -3,10 +3,11 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::Parser;
 
-use sldo_common::color::{divider, header, info, success};
+use sldo_common::color::{divider, header, info, success, warn};
 use sldo_common::logging::ensure_log_dir;
 use sldo_common::preflight;
 
+mod dossier;
 mod prompt;
 mod research;
 
@@ -133,7 +134,7 @@ fn run() -> Result<()> {
     let log_dir = ensure_log_dir(&working_dir)?;
 
     let cfg = research::ResearchConfig {
-        prompt_content,
+        prompt_content: prompt_content.clone(),
         repo_dir: canonical_repo_dir,
         output_path: cli.output.clone(),
         model: cli.model.clone(),
@@ -147,8 +148,37 @@ fn run() -> Result<()> {
     let findings = research::research_loop(&cfg)?;
     info(&format!(
         "Research accumulated {} bytes of findings",
-        findings.len()
+        findings.raw.len()
     ));
+
+    // ── Dossier write & validation (M4) ──────────────────────────────────
+    divider();
+    header("Dossier");
+    dossier::write_dossier(
+        &cli.output,
+        &prompt_content,
+        &findings.raw,
+        findings.repo_context.as_deref(),
+    )?;
+    let dossier_bytes = std::fs::metadata(&cli.output).map(|m| m.len()).unwrap_or(0);
+    success(&format!(
+        "Dossier written: {} ({} bytes)",
+        cli.output.display(),
+        dossier_bytes
+    ));
+
+    let issues = dossier::validate_dossier(&cli.output);
+    if issues.is_empty() {
+        success("Dossier validation passed.");
+    } else {
+        warn(&format!(
+            "Dossier validation reported {} issue(s):",
+            issues.len()
+        ));
+        for issue in &issues {
+            warn(&format!("  - {}", issue));
+        }
+    }
 
     Ok(())
 }
