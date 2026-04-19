@@ -87,25 +87,62 @@ sldo-run docs/RUNBOOK.md /path/to/my-project \
 cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
 ```
 
-### `sldo-research` — Generate a Research Dossier (preview)
+### `sldo-research` — Generate a Research Dossier
 
-Drives Claude Code CLI through a multi-phase research pipeline (exploration →
-deepening) and writes a structured markdown **dossier** that can later be fed
-to `sldo-plan` as its `prompt_file`. The dossier lives by default at
-`output/research-dossier.md` relative to the working directory.
+Drives Claude Code CLI through a five-phase research pipeline (optional
+repo-context → exploration → web-search → deepening → synthesis) and writes
+a structured markdown **dossier** suitable as the `prompt_file` input to
+`sldo-plan`. The dossier lives by default at `output/research-dossier.md`
+relative to the working directory.
 
 ```bash
-sldo-research --prompt "add OAuth2 login" --max-iterations 2
-# Or pass a prompt file:
+# Inline prompt + default settings (3 deepening iterations, 5 web searches)
+sldo-research --prompt "add OAuth2 login"
+
+# From a prompt file with a target repo for context-aware research
 sldo-research requirements.txt --repo-dir /path/to/repo
+
+# Tighter quota — one iteration, no web search
+sldo-research --prompt "compare async runtimes" --max-iterations 1 --max-searches 0
+
+# Full pipeline: research → plan → execute
+sldo-research --prompt "add feature flags" --repo-dir /path/to/repo
+sldo-plan output/research-dossier.md /path/to/repo -o docs/RUNBOOK.md
+sldo-run docs/RUNBOOK.md /path/to/repo
 ```
 
-**Key options:** `--prompt <text>` or positional `<prompt-file>`, `--repo-dir <path>`,
-`--output <path>` (default `output/research-dossier.md`), `--max-iterations <N>`,
-`--max-searches <N>`, `--model <model>`.
+**Flags:**
 
-> The full CLI (web search, synthesis, plan-readiness, pipeline wiring) lands
-> in later milestones. At M4 the dossier is the primary artifact.
+| Flag | Default | Description |
+|---|---|---|
+| `<prompt-file>` (positional) | — | Path to a text/markdown file with the research prompt. |
+| `--prompt <text>` | — | Inline research prompt (alternative to the positional file). Provide exactly one of the two. |
+| `--repo-dir <path>` | — | Optional target repository to ground the research. Triggers a repo-context phase and adds a `## Repository Context` section to the dossier. |
+| `-o, --output <path>` | `output/research-dossier.md` | Output dossier path. Parent directories are created if missing. |
+| `-m, --model <model>` | `claude-opus-4-7` | Claude model to use for every phase. |
+| `--max-iterations <N>` | `3` | Maximum research deepening iterations (in addition to the initial exploration). |
+| `--max-searches <N>` | `5` | Maximum web-search invocations between exploration and deepening. `0` skips the web phase entirely. |
+
+**Output artefacts:** the dossier itself, plus per-phase logs under
+`.sldo-logs/research-*.log` and per-phase scratch files under the dossier's
+parent directory (`.research-scratch-iter-N.md`). All of these are
+gitignored by default.
+
+**End-of-run readiness gate:** when the dossier passes
+`check_plan_readiness` (synth replaced the M4 stubs, > 1 KiB, populated
+Design Recommendations + at least one of Library Evaluations / Architecture
+Options), `sldo-research` prints a "Next step — generate a runbook"
+suggestion with the exact `sldo-plan` invocation. Otherwise it lists the
+issues and skips the suggestion (exit code is still 0; the dossier is
+always written).
+
+> ⚠ **Security notes**: Do not pass untrusted prompt files — Claude Code
+> with `WebFetch`/`WebSearch` can ingest hostile content. Logs under
+> `.sldo-logs/` and scratch files under the dossier directory may contain
+> proprietary source excerpts; treat them as you would any internal
+> artefact. Each invocation consumes Claude API credits — the
+> `--max-iterations` and `--max-searches` defaults bound a typical run but
+> a misconfigured high-quota run can be expensive.
 
 ### Project Structure
 
@@ -114,7 +151,7 @@ crates/
 ├── sldo-common/   # Shared library (CLI parsing, colour output, git checks, runbook parsing)
 ├── sldo-plan/     # Binary: runbook generation (replaces plan-milestones.sh)
 ├── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
-├── sldo-research/ # Binary: research-dossier generation (preview)
+├── sldo-research/ # Binary: research-dossier generation (sldo-research → sldo-plan → sldo-run)
 └── sldo-tauri/    # Desktop app: Tauri v2 + React GUI for planning and execution
 ```
 
