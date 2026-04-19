@@ -82,8 +82,7 @@ fn cleanup(paths: &[&Path]) {
 #[test]
 fn test_log_directory_created() {
     // Given: a working `claude` shim and a clean CWD
-    let (mut cmd, cwd, shim) =
-        shimmed_cmd("log_dir_created", "exploration shim findings");
+    let (mut cmd, cwd, shim) = shimmed_cmd("log_dir_created", "exploration shim findings");
     // When: the binary runs with --max-iterations 1
     let output = cmd
         .arg("--prompt")
@@ -284,7 +283,14 @@ fn test_help_flag_unchanged() {
     // Then: exit 0; stdout still mentions all M1 flags
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
-    for flag in ["--prompt", "--repo-dir", "--output", "--model", "--max-iterations", "--max-searches"] {
+    for flag in [
+        "--prompt",
+        "--repo-dir",
+        "--output",
+        "--model",
+        "--max-iterations",
+        "--max-searches",
+    ] {
         assert!(stdout.contains(flag), "--help missing flag: {}", flag);
     }
 }

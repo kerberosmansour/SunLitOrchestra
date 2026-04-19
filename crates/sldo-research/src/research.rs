@@ -20,9 +20,7 @@ use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::LogFile;
 use sldo_common::toolflags;
 
-use crate::prompt::{
-    build_deepening_prompt, build_exploration_prompt, build_repo_context_prompt,
-};
+use crate::prompt::{build_deepening_prompt, build_exploration_prompt, build_repo_context_prompt};
 
 /// Configuration for one research-loop run.
 pub struct ResearchConfig {
@@ -69,8 +67,7 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<String> {
         }
     }
 
-    let exploration_prompt =
-        build_exploration_prompt(&cfg.prompt_content, cfg.repo_dir.as_deref());
+    let exploration_prompt = build_exploration_prompt(&cfg.prompt_content, cfg.repo_dir.as_deref());
     match run_phase(
         cfg,
         &working_dir,
