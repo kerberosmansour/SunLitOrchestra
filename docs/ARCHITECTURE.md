@@ -515,6 +515,35 @@ every `REQUIRED_SECTIONS` header, and any placeholder pattern. M3's
 in M4 so the writer can emit the repo-context section separately from the
 raw findings.
 
+### Web search phase (M5)
+
+`build_websearch_prompt(topic, questions, search_index)` in
+`crates/sldo-research/src/prompt.rs` produces a Claude Code prompt that
+asks the model to use its built-in `WebFetch` and `WebSearch` tools to
+find current documentation, library versions, and community articles for
+the supplied topic. The prompt requires output under three fixed headers
+— `## Web Search Results`, `## Documentation Found`, and
+`## Library Versions` — and explicitly asks for URL + title pairs so
+M6 can extract them into the dossier's `## References` section.
+
+`research_loop` runs `cfg.max_searches` web-search invocations between
+exploration (iteration 1) and deepening (iterations 2..=max). Per-search
+log files are named `.sldo-logs/research-websearch-<N>.log`. The phase
+partitions the exploration's `## Key Questions` body across invocations
+via `extract_key_questions`; when the section is absent the prompt falls
+back to broad topic research. `--max-searches 0` skips the phase entirely
+(no log files, no invocations). Per-search Claude failures (spawn errors,
+non-zero exits) log a warning and the loop continues — they never halt
+the pipeline. No `cooldown_secs` sleep is inserted between web-search
+invocations: web phases are lighter than deepening passes and don't need
+the inter-call pause.
+
+The phase is **prompt-driven**: no new Rust HTTP client or `reqwest`
+dependency was added. Tool access is gated by
+`toolflags::research_allow_flags()` (which already shipped `WebFetch` and
+`WebSearch` at M1). `plan_allow_flags()` does **not** include `WebSearch`
+— planning runs offline by design — and a regression test pins this.
+
 ## Test Architecture
 
 ### Backend Tests
@@ -545,6 +574,7 @@ raw findings.
 | E2E research M2 | `tests/e2e_research_m2.rs` | 3 | Prompt builder E2E |
 | E2E research M3 | `tests/e2e_research_m3.rs` | 9 | Research loop E2E |
 | E2E research M4 | `tests/e2e_research_m4.rs` | 6 | Dossier writer & validator E2E |
+| E2E research M5 | `tests/e2e_research_m5.rs` | 4 | Web-search phase integration E2E |
 
 **Total backend tests: 241**
 
