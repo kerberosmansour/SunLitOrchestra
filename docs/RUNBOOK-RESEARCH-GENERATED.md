@@ -15,7 +15,7 @@ Update this table as each milestone is completed. This is the **single source of
 | 1 | Crate scaffolding & CLI skeleton | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m1.md |
 | 2 | Research prompt builder | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m2.md |
 | 3 | Claude Code–driven research loop | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m3.md |
-| 4 | Dossier format, writer & validator | `in_progress` | 2026-04-19 | | |
+| 4 | Dossier format, writer & validator | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m4.md |
 | 5 | Web search phase integration | `not_started` | | | |
 | 6 | Multi-source synthesis pass | `not_started` | | | |
 | 7 | Plan-ready output & sldo-plan integration | `not_started` | | | |
