@@ -18,7 +18,7 @@ Update this table as each milestone is completed. This is the **single source of
 | 4 | Dossier format, writer & validator | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m4.md |
 | 5 | Web search phase integration | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m5.md |
 | 6 | Multi-source synthesis pass | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m6.md |
-| 7 | Plan-ready output & sldo-plan integration | `not_started` | | | |
+| 7 | Plan-ready output & sldo-plan integration | `in_progress` | 2026-04-19 | | |
 
 <!-- Status values: not_started | in_progress | done -->
 <!-- Lessons files go in docs/lessons/research-m<N>.md -->
