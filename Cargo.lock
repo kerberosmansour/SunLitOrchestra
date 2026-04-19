@@ -3890,6 +3890,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sldo-research"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "sldo-common",
+]
+
+[[package]]
 name = "sldo-run"
 version = "0.1.0"
 dependencies = [
