@@ -155,11 +155,20 @@ fn run() -> Result<()> {
     // ── Dossier write & validation (M4) ──────────────────────────────────
     divider();
     header("Dossier");
+    if findings.synthesised.is_some() {
+        info(&format!(
+            "Synthesis pass produced {} bytes of synthesised content",
+            findings.synthesised.as_deref().map(str::len).unwrap_or(0)
+        ));
+    } else {
+        info("Synthesis pass did not produce content; dossier will use raw findings.");
+    }
     dossier::write_dossier(
         &cli.output,
         &prompt_content,
         &findings.raw,
         findings.repo_context.as_deref(),
+        findings.synthesised.as_deref(),
     )?;
     let dossier_bytes = std::fs::metadata(&cli.output).map(|m| m.len()).unwrap_or(0);
     success(&format!(

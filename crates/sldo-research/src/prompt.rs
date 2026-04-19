@@ -8,6 +8,8 @@
 
 use std::path::Path;
 
+use crate::dossier::REQUIRED_SECTIONS;
+
 // ── Exploration-phase section headers ──────────────────────────────────────
 pub const SECTION_TOPIC_DECOMPOSITION: &str = "## Topic Decomposition";
 pub const SECTION_KEY_QUESTIONS: &str = "## Key Questions";
@@ -312,6 +314,143 @@ requirements, etc.]
         build_and_test = SECTION_BUILD_AND_TEST,
         existing_patterns = SECTION_EXISTING_PATTERNS,
         constraints = SECTION_CONSTRAINTS,
+    )
+}
+
+/// Maximum size of `all_findings` embedded in the synthesis prompt. M6's
+/// synthesis pass operates on the full accumulated raw text — keep total
+/// prompt size bounded so we don't blow Claude's context window.
+const SYNTHESIS_FINDINGS_MAX_BYTES: usize = 100 * 1024;
+const SYNTHESIS_TRUNCATION_MARKER: &str =
+    "[truncated — earlier raw findings omitted to fit synthesis prompt size limits]";
+
+/// Build the synthesis-phase prompt.
+///
+/// One Claude Code invocation that consumes the concatenated raw findings
+/// from the exploration + web-search + deepening phases and emits a
+/// coherent dossier body conforming exactly to [`REQUIRED_SECTIONS`].
+/// `repo_context` is folded into the prompt as additional grounding when
+/// `--repo-dir` was supplied; it is otherwise omitted.
+///
+/// The prompt embeds [`REQUIRED_SECTIONS`] verbatim so Claude cannot invent
+/// new section names. Raw findings are truncated at
+/// [`SYNTHESIS_FINDINGS_MAX_BYTES`] (the tail is preserved — most recent
+/// additions are usually the most relevant).
+pub fn build_synthesis_prompt(
+    prompt: &str,
+    all_findings: &str,
+    repo_context: Option<&str>,
+) -> String {
+    let (truncated_findings, was_truncated) = if all_findings.len() > SYNTHESIS_FINDINGS_MAX_BYTES {
+        let start = all_findings.len() - SYNTHESIS_FINDINGS_MAX_BYTES;
+        let safe_start = (start..all_findings.len())
+            .find(|i| all_findings.is_char_boundary(*i))
+            .unwrap_or(all_findings.len());
+        (&all_findings[safe_start..], true)
+    } else {
+        (all_findings, false)
+    };
+
+    let truncation_note = if was_truncated {
+        SYNTHESIS_TRUNCATION_MARKER
+    } else {
+        ""
+    };
+
+    let repo_block = match repo_context {
+        Some(ctx) if !ctx.trim().is_empty() => format!(
+            "\n\n### Repository Context\n\n<repo_context>\n{}\n</repo_context>\n",
+            ctx.trim()
+        ),
+        _ => String::new(),
+    };
+
+    let mut sections_list = String::new();
+    for s in REQUIRED_SECTIONS {
+        sections_list.push_str("- ");
+        sections_list.push_str(s);
+        sections_list.push('\n');
+    }
+
+    format!(
+        r###"You are an expert research synthesiser running the **synthesis phase**
+(final pass) of a multi-phase research pipeline. Earlier phases have
+produced concatenated raw findings — your job is to read them end-to-end
+and emit one coherent, deduplicated, well-organised dossier body that
+conforms exactly to the section structure below.
+
+## INPUT
+
+<user_prompt>
+{prompt}
+</user_prompt>
+
+### Accumulated Raw Findings
+{truncation_note}
+<all_findings>
+{findings}
+</all_findings>{repo_block}
+
+## YOUR TASK
+
+1. **Deduplicate** repeated claims. When the same fact appears more than
+   once, merge duplicates into a single statement and cite all supporting
+   sources.
+
+2. **Resolve contradictions** by preferring more recent or more
+   authoritative sources (official docs > vendor blogs > community
+   articles). When you cannot resolve a contradiction, surface it under
+   "## Risks & Open Questions" with both positions.
+
+3. **Rank recommendations by confidence.** Every entry under
+   "## Design Recommendations" must be tagged `(confidence: high)`,
+   `(confidence: medium)`, or `(confidence: low)` based on how strongly
+   the underlying findings support it.
+
+4. **List every open question** under "## Risks & Open Questions",
+   including anything the raw findings flagged as "needs verification" or
+   left unanswered. Order by impact.
+
+5. **Extract every URL** mentioned anywhere in the raw findings into
+   "## References" as `- [Title](URL)` bullets. One bullet per unique
+   URL. If the title is unknown, use the URL itself.
+
+6. **Stay within scope.** Do NOT produce milestones, implementation
+   plans, code snippets, or opinionated architecture beyond what the raw
+   findings support.
+
+## OUTPUT FORMAT
+
+Emit a markdown document containing **exactly** the following section
+headers, in this order, each with substantive content. Do NOT invent
+additional top-level (`##`) headers. Do NOT rename, reorder, or omit any
+header.
+
+{sections_list}
+Each section must be filled with synthesised content drawn from the raw
+findings above. Sections that have no supporting raw content should
+contain a single short sentence stating that explicitly (for example,
+"No findings were produced for this section in the current research
+run.") rather than placeholder markers.
+
+## HARD RULES
+
+- Do NOT emit the literal string "To be synthesised in M6" — your job is
+  to replace those stubs with real synthesised content.
+- Do NOT invent facts. If the raw findings do not support a claim, omit
+  it or surface the gap under "## Risks & Open Questions".
+- Do NOT invent URLs. Every link in "## References" must come from the
+  raw findings.
+- Do NOT produce milestones or implementation plans.
+- Do NOT add a top-level `# Title` heading; start directly with the first
+  `## ` section header.
+- Stay within the section list above.
+"###,
+        prompt = prompt,
+        truncation_note = truncation_note,
+        findings = truncated_findings,
+        repo_block = repo_block,
+        sections_list = sections_list,
     )
 }
 
@@ -663,6 +802,129 @@ mod tests {
         assert!(!out.is_empty());
     }
 
+    // ── Synthesis prompt scenarios ──────────────────────────────────────
+
+    #[test]
+    fn synthesis_includes_every_required_section_header() {
+        // Given: any inputs
+        // When:  build_synthesis_prompt is called
+        // Then:  every entry of dossier::REQUIRED_SECTIONS appears verbatim
+        //        so Claude cannot invent or rename top-level headers.
+        let out = build_synthesis_prompt("topic", "findings", None);
+        for s in REQUIRED_SECTIONS {
+            assert!(
+                out.contains(s),
+                "synthesis prompt missing required section header: {}; got: {}",
+                s,
+                out
+            );
+        }
+    }
+
+    #[test]
+    fn synthesis_requests_confidence_levels() {
+        // Given: any inputs
+        // When:  build_synthesis_prompt is called
+        // Then:  the prompt asks for confidence tags so M7 can rank recs
+        let out = build_synthesis_prompt("topic", "findings", None).to_lowercase();
+        assert!(
+            out.contains("confidence")
+                && (out.contains("high") && out.contains("medium") && out.contains("low")),
+            "synthesis prompt should request high/medium/low confidence; got: {}",
+            out
+        );
+    }
+
+    #[test]
+    fn synthesis_requests_deduplication() {
+        // Given: any inputs
+        // When:  build_synthesis_prompt is called
+        // Then:  the prompt instructs deduplicating repeated claims
+        let out = build_synthesis_prompt("topic", "findings", None).to_lowercase();
+        assert!(
+            out.contains("deduplicate") || out.contains("merge duplicates"),
+            "synthesis prompt should request deduplication; got: {}",
+            out
+        );
+    }
+
+    #[test]
+    fn synthesis_embeds_raw_findings_verbatim() {
+        // Given: a unique marker in the raw findings
+        // When:  build_synthesis_prompt is called
+        // Then:  the marker appears in the prompt body
+        let marker = "X-UNIQUE-FINDING-Y";
+        let out = build_synthesis_prompt("topic", marker, None);
+        assert!(
+            out.contains(marker),
+            "synthesis prompt should embed raw findings verbatim; got: {}",
+            out
+        );
+    }
+
+    #[test]
+    fn synthesis_truncates_oversized_findings() {
+        // Given: 1 MiB of raw findings
+        // When:  build_synthesis_prompt is called
+        // Then:  the prompt is < 150 KiB and contains a truncation marker
+        let big = "Y".repeat(1024 * 1024);
+        let out = build_synthesis_prompt("topic", &big, None);
+        assert!(
+            out.len() < 150 * 1024,
+            "synthesis prompt should fit under 150 KiB; got {}",
+            out.len()
+        );
+        assert!(
+            out.contains("[truncated"),
+            "expected truncation marker in synthesis prompt"
+        );
+    }
+
+    #[test]
+    fn synthesis_includes_repo_context_when_some() {
+        // Given: a repo_context string with a unique marker
+        // When:  build_synthesis_prompt is called with Some(repo)
+        // Then:  the marker appears in the prompt
+        let marker = "REPO-CTX-MARKER-Z";
+        let out = build_synthesis_prompt("topic", "findings", Some(marker));
+        assert!(
+            out.contains(marker),
+            "synthesis prompt should embed repo_context when Some; got: {}",
+            out
+        );
+    }
+
+    #[test]
+    fn synthesis_omits_repo_context_block_when_none() {
+        // Given: no repo_context
+        // When:  build_synthesis_prompt is called with None
+        // Then:  the "Repository Context" sub-heading is absent
+        let out = build_synthesis_prompt("topic", "findings", None);
+        assert!(
+            !out.contains("### Repository Context"),
+            "synthesis prompt should omit Repository Context block when None; got: {}",
+            out
+        );
+    }
+
+    #[test]
+    fn synthesis_forbids_emitting_stub_sentinel() {
+        // Given: any inputs
+        // When:  build_synthesis_prompt is called
+        // Then:  the prompt explicitly forbids emitting the M4 stub sentinel
+        let out = build_synthesis_prompt("topic", "findings", None);
+        assert!(
+            out.contains("To be synthesised in M6"),
+            "synthesis prompt should reference the stub sentinel string in its forbid-list"
+        );
+        let lower = out.to_lowercase();
+        assert!(
+            lower.contains("do not emit") || lower.contains("don't emit"),
+            "synthesis prompt should explicitly forbid emitting the sentinel; got: {}",
+            out
+        );
+    }
+
     // ── Purity guards ───────────────────────────────────────────────────
 
     #[test]
@@ -674,6 +936,13 @@ mod tests {
         let b = build_deepening_prompt("", "", 1, None);
         let c = build_repo_context_prompt(Path::new(""));
         let d = build_websearch_prompt("", "", 1);
-        assert!(!a.is_empty() && !b.is_empty() && !c.is_empty() && !d.is_empty());
+        let e = build_synthesis_prompt("", "", None);
+        assert!(
+            !a.is_empty()
+                && !b.is_empty()
+                && !c.is_empty()
+                && !d.is_empty()
+                && !e.is_empty()
+        );
     }
 }
