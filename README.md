@@ -87,6 +87,26 @@ sldo-run docs/RUNBOOK.md /path/to/my-project \
 cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
 ```
 
+### `sldo-research` — Generate a Research Dossier (preview)
+
+Drives Claude Code CLI through a multi-phase research pipeline (exploration →
+deepening) and writes a structured markdown **dossier** that can later be fed
+to `sldo-plan` as its `prompt_file`. The dossier lives by default at
+`output/research-dossier.md` relative to the working directory.
+
+```bash
+sldo-research --prompt "add OAuth2 login" --max-iterations 2
+# Or pass a prompt file:
+sldo-research requirements.txt --repo-dir /path/to/repo
+```
+
+**Key options:** `--prompt <text>` or positional `<prompt-file>`, `--repo-dir <path>`,
+`--output <path>` (default `output/research-dossier.md`), `--max-iterations <N>`,
+`--max-searches <N>`, `--model <model>`.
+
+> The full CLI (web search, synthesis, plan-readiness, pipeline wiring) lands
+> in later milestones. At M4 the dossier is the primary artifact.
+
 ### Project Structure
 
 ```
@@ -94,6 +114,7 @@ crates/
 ├── sldo-common/   # Shared library (CLI parsing, colour output, git checks, runbook parsing)
 ├── sldo-plan/     # Binary: runbook generation (replaces plan-milestones.sh)
 ├── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
+├── sldo-research/ # Binary: research-dossier generation (preview)
 └── sldo-tauri/    # Desktop app: Tauri v2 + React GUI for planning and execution
 ```
 
