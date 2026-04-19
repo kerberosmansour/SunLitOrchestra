@@ -246,6 +246,114 @@ pub fn check_synthesis_complete(path: &Path) -> Vec<String> {
     issues
 }
 
+/// Minimum dossier size (in bytes) required for plan-readiness. Stricter
+/// than the M4 [`MIN_DOSSIER_SIZE`] threshold — at this size the dossier
+/// can be reliably consumed as `sldo-plan`'s `prompt_file` input.
+const MIN_PLAN_READY_SIZE: usize = 1000;
+
+/// Minimum byte length of a section's body (after the header, before the
+/// next `## ` header) for plan-readiness. Below this the section is
+/// considered too thin to produce a useful runbook.
+const MIN_SECTION_BODY_BYTES: usize = 100;
+
+/// Stricter end-of-pipeline check that confirms the dossier is suitable
+/// as input to `sldo-plan`. Composes [`validate_dossier`] with additional
+/// constraints:
+///
+/// 1. File is valid UTF-8 (`read_to_string` succeeds).
+/// 2. Total size > [`MIN_PLAN_READY_SIZE`] bytes.
+/// 3. The M4 stub sentinel ([`M4_STUB_SENTINEL`]) is absent — synthesis
+///    must have replaced every stub.
+/// 4. The `## Design Recommendations` section has more than
+///    [`MIN_SECTION_BODY_BYTES`] bytes of content after its header.
+/// 5. At least one of `## Library & Tool Evaluations` or
+///    `## Architecture Options` has more than [`MIN_SECTION_BODY_BYTES`]
+///    bytes of content.
+///
+/// `sldo-plan` is **not** modified — this gate lives entirely inside
+/// `sldo-research`, layered on top of `validate_dossier`. Returns an
+/// empty vector when the dossier is plan-ready, or a list of issues
+/// (formatted for end-user display) otherwise.
+pub fn check_plan_readiness(path: &Path) -> Vec<String> {
+    let mut issues = Vec::new();
+
+    if !path.exists() {
+        issues.push(format!(
+            "Dossier file was not created at: {}",
+            path.display()
+        ));
+        return issues;
+    }
+
+    let content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => {
+            issues.push(format!(
+                "Dossier is not valid UTF-8 or could not be read as text: {}",
+                e
+            ));
+            return issues;
+        }
+    };
+
+    issues.extend(validate_dossier(path));
+
+    if content.len() < MIN_PLAN_READY_SIZE {
+        issues.push(format!(
+            "Dossier is too small for plan-ready use ({} bytes < {} required).",
+            content.len(),
+            MIN_PLAN_READY_SIZE
+        ));
+    }
+
+    if content.contains(M4_STUB_SENTINEL) {
+        issues.push(format!(
+            "Dossier still contains the M4 stub sentinel '{}' — synthesis did not replace the stubs.",
+            M4_STUB_SENTINEL
+        ));
+    }
+
+    let design_recs_body = section_body(&content, "## Design Recommendations");
+    match design_recs_body {
+        Some(body) if body.len() > MIN_SECTION_BODY_BYTES => {}
+        _ => issues.push(format!(
+            "## Design Recommendations is missing or has < {} bytes of content.",
+            MIN_SECTION_BODY_BYTES
+        )),
+    }
+
+    let lib_eval_ok = section_body(&content, "## Library & Tool Evaluations")
+        .map(|b| b.len() > MIN_SECTION_BODY_BYTES)
+        .unwrap_or(false);
+    let arch_opts_ok = section_body(&content, "## Architecture Options")
+        .map(|b| b.len() > MIN_SECTION_BODY_BYTES)
+        .unwrap_or(false);
+    if !lib_eval_ok && !arch_opts_ok {
+        issues.push(format!(
+            "Neither ## Library & Tool Evaluations nor ## Architecture Options has > {} bytes of content.",
+            MIN_SECTION_BODY_BYTES
+        ));
+    }
+
+    issues
+}
+
+/// Return the body of `header` (everything between the header line and the
+/// next top-level `## ` header), trimmed. Returns `None` when the header is
+/// absent.
+fn section_body<'a>(content: &'a str, header: &str) -> Option<&'a str> {
+    let start = content.find(header)?;
+    let after_header = &content[start + header.len()..];
+    // Skip the rest of the header line.
+    let from_next_line = after_header.find('\n').map(|n| &after_header[n + 1..])?;
+    // Stop at the next top-level `\n## ` header.
+    let body = match from_next_line.find("\n## ") {
+        Some(end) => &from_next_line[..end],
+        None => from_next_line,
+    };
+    Some(body.trim())
+}
+
 /// First `TOPIC_EXCERPT_MAX_CHARS` characters of `prompt`, single-lined so it
 /// fits cleanly on one YAML frontmatter line.
 fn topic_excerpt(prompt: &str) -> String {
