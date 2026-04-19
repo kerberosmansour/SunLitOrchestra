@@ -257,7 +257,7 @@ pub trait Provider: Send + Sync {
 | Field | Type | Default | Purpose |
 |---|---|---|---|
 | `provider` | `String` | `"copilot"` | Active agent provider |
-| `model` | `String` | `"claude-opus-4.6"` | Model for planning/execution |
+| `model` | `String` | `"claude-opus-4-7"` | Model for planning/execution |
 | `allow_flags` | `Vec<String>` | `toolflags::plan_allow_flags()` | Tool permission allow flags |
 | `deny_flags` | `Vec<String>` | `toolflags::plan_deny_flags()` | Tool permission deny flags |
 | `max_attempts` | `u32` | `150` | Max execution attempts |

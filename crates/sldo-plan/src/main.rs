@@ -74,7 +74,7 @@ struct Cli {
     output: Option<PathBuf>,
 
     /// Copilot model to use.
-    #[arg(short, long, default_value = "claude-opus-4.6")]
+    #[arg(short, long, default_value = "claude-opus-4-7")]
     model: String,
 }
 
@@ -612,7 +612,7 @@ mod tests {
     #[test]
     fn default_model() {
         let cli = Cli::try_parse_from(["sldo-plan", "prompt.txt", "/tmp/repo"]).unwrap();
-        assert_eq!(cli.model, "claude-opus-4.6");
+        assert_eq!(cli.model, "claude-opus-4-7");
     }
 
     // ── Template reading ─────────────────────────────────────────────────

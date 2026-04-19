@@ -30,7 +30,7 @@ struct Cli {
     repo_dir: PathBuf,
 
     /// Copilot model to use
-    #[arg(short, long, default_value = "claude-opus-4.6")]
+    #[arg(short, long, default_value = "claude-opus-4-7")]
     model: String,
 
     /// Max Copilot invocations before giving up
@@ -407,8 +407,8 @@ mod tests {
         // Given: sldo-run runbook.md /tmp/repo
         // When: Args are parsed
         let cli = Cli::try_parse_from(["sldo-run", "runbook.md", "/tmp/repo"]).unwrap();
-        // Then: model is "claude-opus-4.6"
-        assert_eq!(cli.model, "claude-opus-4.6");
+        // Then: model is "claude-opus-4-7"
+        assert_eq!(cli.model, "claude-opus-4-7");
     }
 
     #[test]
