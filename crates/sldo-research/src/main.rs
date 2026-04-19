@@ -139,6 +139,7 @@ fn run() -> Result<()> {
         output_path: cli.output.clone(),
         model: cli.model.clone(),
         max_iterations: cli.max_iterations,
+        max_searches: cli.max_searches,
         cooldown_secs: COOLDOWN_SECS,
         log_dir,
     };
