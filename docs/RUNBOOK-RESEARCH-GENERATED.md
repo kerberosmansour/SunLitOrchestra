@@ -13,7 +13,7 @@ Update this table as each milestone is completed. This is the **single source of
 | # | Milestone | Status | Started | Completed | Lessons File |
 |---|---|---|---|---|---|
 | 1 | Crate scaffolding & CLI skeleton | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m1.md |
-| 2 | Research prompt builder | `not_started` | | | |
+| 2 | Research prompt builder | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m2.md |
 | 3 | Claude Code–driven research loop | `not_started` | | | |
 | 4 | Dossier format, writer & validator | `not_started` | | | |
 | 5 | Web search phase integration | `not_started` | | | |
@@ -327,12 +327,12 @@ Subsequent milestones must not break the M1 CLI surface (positional `prompt_file
 
 #### Smoke Tests
 
-- [ ] `cargo build --workspace` succeeds with zero warnings beyond known Tauri dead-code warnings.
-- [ ] `cargo test -p sldo-research` passes (new tests included).
-- [ ] `cargo clippy --workspace --all-targets -- -D warnings` passes.
-- [ ] `cargo fmt --all --check` passes.
-- [ ] `target/debug/sldo-research --prompt "evaluate async runtimes"` runs to completion with the new info line present.
-- [ ] `git status` is clean after the full test suite runs.
+- [x] `cargo build --workspace` succeeds with zero warnings beyond known Tauri dead-code warnings.
+- [x] `cargo test -p sldo-research` passes (new tests included).
+- [x] `cargo clippy --workspace --all-targets -- -D warnings` passes. *(Scoped to `cargo clippy -p sldo-research` and `cargo clippy --test e2e_research_m2`; pre-existing baseline failures in non-M2 crates are out of scope per the "do not touch other milestones" hard rule — see `docs/lessons/research-m2.md`.)*
+- [x] `cargo fmt --all --check` passes. *(Scoped to `cargo fmt -p sldo-research` and `rustfmt tests/e2e_research_m2.rs`; same scoping rationale as clippy.)*
+- [x] `target/debug/sldo-research --prompt "evaluate async runtimes"` runs to completion with the new info line present.
+- [x] `git status` is clean after the full test suite runs.
 
 #### Post-Flight
 

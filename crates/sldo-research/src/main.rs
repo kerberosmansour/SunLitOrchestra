@@ -7,12 +7,17 @@ use sldo_common::color::{divider, header, info, success};
 use sldo_common::preflight;
 use sldo_common::toolflags;
 
+mod prompt;
+
 /// Generate a research dossier using Claude Code CLI.
 ///
 /// Takes a research prompt (via file or inline arg), explores the topic using
 /// Claude Code, and produces a structured dossier ready for use with sldo-plan.
 #[derive(Parser, Debug)]
-#[command(name = "sldo-research", about = "Generate a research dossier using Claude Code CLI.")]
+#[command(
+    name = "sldo-research",
+    about = "Generate a research dossier using Claude Code CLI."
+)]
 struct Cli {
     /// Path to a file containing the research prompt.
     prompt_file: Option<PathBuf>,
@@ -69,11 +74,11 @@ fn run() -> Result<()> {
     success(&format!("claude CLI found: {}", claude_path.display()));
 
     // Validate prompt source and read content
-    let _prompt_content = match (&cli.prompt_file, &cli.prompt) {
+    let prompt_content = match (&cli.prompt_file, &cli.prompt) {
         (Some(file), None) => {
-            let path = file.canonicalize().with_context(|| {
-                format!("Prompt file not found: {}", file.display())
-            })?;
+            let path = file
+                .canonicalize()
+                .with_context(|| format!("Prompt file not found: {}", file.display()))?;
             preflight::check_file_exists(&path, "Prompt file")?;
             success(&format!("Prompt file: {}", path.display()));
             std::fs::read_to_string(&path)
@@ -87,23 +92,36 @@ fn run() -> Result<()> {
     };
 
     // Validate repo dir if provided
-    if let Some(repo) = &cli.repo_dir {
-        let repo = repo.canonicalize().with_context(|| {
-            format!("Repository directory not found: {}", repo.display())
-        })?;
+    let canonical_repo_dir = if let Some(repo) = &cli.repo_dir {
+        let repo = repo
+            .canonicalize()
+            .with_context(|| format!("Repository directory not found: {}", repo.display()))?;
         if !repo.is_dir() {
             anyhow::bail!("Repository directory not found: {}", repo.display());
         }
         success(&format!("Repository: {}", repo.display()));
         let branch = preflight::check_git_safety(&repo)?;
         success(&format!("Branch '{}' — safe to proceed.", branch));
-    }
+        Some(repo)
+    } else {
+        None
+    };
 
     let _ = toolflags::research_allow_flags();
 
     divider();
-    info("Research not yet implemented.");
-    info("Milestone 3 will add Claude Code-driven research. Dossier output: Milestone 4.");
+
+    // ── Prompt construction (M2) ─────────────────────────────────────────
+    let exploration_prompt =
+        prompt::build_exploration_prompt(&prompt_content, canonical_repo_dir.as_deref());
+    let first_line = exploration_prompt.lines().next().unwrap_or("");
+    info(&format!(
+        "Exploration prompt: {} bytes",
+        exploration_prompt.len()
+    ));
+    info(&format!("Exploration prompt first line: {}", first_line));
+
+    info("Research loop pending (milestone 3).");
 
     Ok(())
 }
@@ -128,7 +146,10 @@ mod tests {
         // Then: clap returns DisplayHelp error (which maps to exit 0)
         let result = Cli::try_parse_from(["sldo-research", "--help"]);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().kind(), clap::error::ErrorKind::DisplayHelp);
+        assert_eq!(
+            result.unwrap_err().kind(),
+            clap::error::ErrorKind::DisplayHelp
+        );
     }
 
     #[test]
@@ -166,8 +187,7 @@ mod tests {
         // Given: both prompt_file and --prompt provided
         // When: CLI is parsed (clap allows it; run() rejects it)
         // Then: both fields are set — run() will detect the conflict
-        let cli =
-            Cli::try_parse_from(["sldo-research", "file.txt", "--prompt", "text"]).unwrap();
+        let cli = Cli::try_parse_from(["sldo-research", "file.txt", "--prompt", "text"]).unwrap();
         assert!(cli.prompt_file.is_some());
         assert!(cli.prompt.is_some());
     }
@@ -206,9 +226,14 @@ mod tests {
         // Given: -m flag
         // When: CLI is parsed
         // Then: model is set to the given value
-        let cli =
-            Cli::try_parse_from(["sldo-research", "--prompt", "test", "-m", "claude-haiku-4-5"])
-                .unwrap();
+        let cli = Cli::try_parse_from([
+            "sldo-research",
+            "--prompt",
+            "test",
+            "-m",
+            "claude-haiku-4-5",
+        ])
+        .unwrap();
         assert_eq!(cli.model, "claude-haiku-4-5");
     }
 
@@ -235,9 +260,8 @@ mod tests {
         // Given: --repo-dir /tmp
         // When: CLI is parsed
         // Then: repo_dir is Some(/tmp)
-        let cli =
-            Cli::try_parse_from(["sldo-research", "--prompt", "test", "--repo-dir", "/tmp"])
-                .unwrap();
+        let cli = Cli::try_parse_from(["sldo-research", "--prompt", "test", "--repo-dir", "/tmp"])
+            .unwrap();
         assert_eq!(cli.repo_dir, Some(PathBuf::from("/tmp")));
     }
 
