@@ -618,7 +618,10 @@ mod tests {
         let questions = "- what are the top runtimes?\n- how do they differ in perf?\n- what is ecosystem support?\n- which has best tooling?";
         let a = build_websearch_prompt("topic", questions, 1);
         let b = build_websearch_prompt("topic", questions, 2);
-        assert_ne!(a, b, "different search_index values should produce different prompts");
+        assert_ne!(
+            a, b,
+            "different search_index values should produce different prompts"
+        );
     }
 
     #[test]
@@ -644,9 +647,11 @@ mod tests {
         // When:  build_websearch_prompt is called
         // Then:  the prompt instructs listing URL + title so M6 can extract references
         let out = build_websearch_prompt("topic", "questions", 1).to_lowercase();
-        assert!(out.contains("url") && out.contains("title"),
+        assert!(
+            out.contains("url") && out.contains("title"),
             "web-search prompt should ask for URL + title pairs; got: {}",
-            out);
+            out
+        );
     }
 
     #[test]

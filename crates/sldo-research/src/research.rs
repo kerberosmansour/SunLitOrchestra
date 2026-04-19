@@ -301,8 +301,16 @@ mod tests {
         // When:  inspected
         // Then:  both WebFetch and WebSearch are present (M5 depends on them)
         let flags = sldo_common::toolflags::research_allow_flags().join(" ");
-        assert!(flags.contains("WebFetch"), "research flags missing WebFetch: {}", flags);
-        assert!(flags.contains("WebSearch"), "research flags missing WebSearch: {}", flags);
+        assert!(
+            flags.contains("WebFetch"),
+            "research flags missing WebFetch: {}",
+            flags
+        );
+        assert!(
+            flags.contains("WebSearch"),
+            "research flags missing WebSearch: {}",
+            flags
+        );
     }
 
     #[test]
