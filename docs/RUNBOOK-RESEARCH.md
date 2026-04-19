@@ -98,7 +98,7 @@ Update this table as each milestone is completed. This is the single source of t
 | Dossier validator | Check dossier completeness and structure | M4 | `validate_dossier()` |
 | Synthesis pass | Merge multi-source findings into coherent dossier | M6 | `build_synthesis_prompt()` |
 | Plan integration | Output format compatible with `sldo-plan` input | M7 | Dossier file format |
-| `sldo-common` | Shared copilot invocation, logging, color, preflight | Existing (minor additions in M1, M5) | `toolflags::research_allow_flags()` |
+| `sldo-common` | Shared Claude Code invocation, logging, color, preflight | Existing (minor additions in M1, M5) | `toolflags::research_allow_flags()` |
 
 ### Data Flow Summary
 
@@ -552,7 +552,7 @@ Path: `docs/completion/research-m<N>.md`
 
 **Goal**: Create the `sldo-research` crate with a working CLI that parses arguments, performs preflight checks, and exits cleanly — no research logic yet.
 
-**Context**: The workspace already has `sldo-plan` and `sldo-run` as reference implementations. This milestone establishes the crate structure, adds it to the workspace, defines the CLI interface, and wires up shared infrastructure (`sldo-common`). The CLI should accept a prompt (via file path or inline `--prompt` arg), an optional repo dir, an output path for the dossier, model selection, and iteration count. It should perform the same preflight checks as `sldo-plan` (copilot installed, git safety, file existence) and exit with a success message.
+**Context**: The workspace already has `sldo-plan` and `sldo-run` as reference implementations. This milestone establishes the crate structure, adds it to the workspace, defines the CLI interface, and wires up shared infrastructure (`sldo-common`). The CLI should accept a prompt (via file path or inline `--prompt` arg), an optional repo dir, an output path for the dossier, model selection, and iteration count. It should perform the same preflight checks as `sldo-plan` (`claude` installed, git safety, file existence) and exit with a success message.
 
 **Important design rule**: Follow `sldo-plan`'s CLI and main() structure exactly. Use clap derive, same error handling pattern, same preflight sequence.
 
@@ -602,7 +602,7 @@ Path: `docs/completion/research-m<N>.md`
 #### Step-by-Step
 
 1. Write BDD test stubs first — unit tests in `main.rs` (`#[cfg(test)] mod tests`) for CLI parsing and arg validation.
-2. Write E2E test stubs at `tests/e2e_research_m1.rs` — test binary invocation with `--help`, missing args, valid args with no copilot installed fallback.
+2. Write E2E test stubs at `tests/e2e_research_m1.rs` — test binary invocation with `--help`, missing args, valid args with no claude installed fallback.
 3. Create `crates/sldo-research/Cargo.toml` following `sldo-plan/Cargo.toml` pattern.
 4. Add `"crates/sldo-research"` to workspace members in root `Cargo.toml`.
 5. Create `crates/sldo-research/src/main.rs` with:
@@ -618,12 +618,12 @@ Path: `docs/completion/research-m<N>.md`
      - Parse CLI
      - Resolve prompt (from file or `--prompt`, require exactly one)
      - Resolve output path
-     - Preflight: check copilot installed, check prompt source, check repo dir if given, check git safety if repo dir given
+     - Preflight: check `claude` installed, check prompt source, check repo dir if given, check git safety if repo dir given
      - Print summary header
      - Print "Research not yet implemented" info message
      - Exit 0
    - `main()` calling `run()` with `process::exit(1)` on error
-6. Add `research_allow_flags()` to `toolflags.rs` — same as `plan_allow_flags()` plus web browsing tools (`--allow-tool=shell(curl:*)`, `--allow-tool=shell(wget:*)`).
+6. Add `research_allow_flags()` to `toolflags.rs` — `--allowedTools=Read,Write,Edit,Bash,Glob,Grep,WebFetch,WebSearch`.
 7. Add `research_deny_flags()` to `toolflags.rs` — same as `plan_deny_flags()`.
 8. Make all BDD tests pass.
 9. Run the full test suite: `cargo test --workspace`.
@@ -710,7 +710,7 @@ The milestone is done only when all of the following are true:
 
 - `sldo-research` crate exists in workspace and compiles
 - CLI accepts prompt file, `--prompt`, `--repo-dir`, `--output`, `--model`, `--max-iterations`, `--max-searches`
-- Preflight checks run (copilot installed, file existence, git safety)
+- Preflight checks run (`claude` installed, file existence, git safety)
 - All BDD scenarios pass
 - All E2E tests pass
 - Full existing test suite remains green
@@ -899,7 +899,7 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 **Goal**: Implement the core research loop that invokes Claude Code CLI iteratively — first for exploration, then for deepening — collecting findings into an in-memory buffer that accumulates across iterations.
 
-**Context**: `sldo-run` has a main loop that invokes Copilot and checks milestone status. `sldo-plan` has an iteration loop for refinement. `sldo-research` needs a similar loop but for research: invoke Claude Code with the exploration prompt, capture output, invoke again with deepening prompt referencing prior output, repeat for `max_iterations`. The key challenge is capturing Copilot's output (which goes to a file via the tool-write permission) and feeding it back into subsequent prompts. Use `ClaudeInvocation::run_with_callback()` for streaming output capture.
+**Context**: `sldo-run` has a main loop that invokes Claude Code and checks milestone status. `sldo-plan` has an iteration loop for refinement. `sldo-research` needs a similar loop but for research: invoke Claude Code with the exploration prompt, capture output, invoke again with deepening prompt referencing prior output, repeat for `max_iterations`. The key challenge is capturing Claude Code's output (which goes to a file via the Write tool permission) and feeding it back into subsequent prompts. Use `ClaudeInvocation::run_with_callback()` for streaming output capture.
 
 **Important design rule**: The research loop must instruct Claude Code to append findings to a scratch file (in the output dir), then read that file back after each iteration. This mirrors how `sldo-plan` writes to the output file and validates it.
 
@@ -1004,16 +1004,16 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 | E2E Test | What It Proves | Pass Criteria |
 |---|---|---|
-| `test_research_binary_runs_without_copilot` | Binary exits with clear error when copilot not found | exit non-zero, error mentions copilot |
+| `test_research_binary_runs_without_claude` | Binary exits with clear error when claude not found | exit non-zero, error mentions claude |
 | `test_research_config_struct` | ResearchConfig can be constructed | compiles and fields accessible |
-| `test_log_directory_created` | Research creates log directory | `.copilot-logs/` exists after run attempt |
+| `test_log_directory_created` | Research creates log directory | `.claude-logs/` exists after run attempt |
 
-Note: Full integration tests requiring Claude Code CLI are gated by availability — tests should skip gracefully if `copilot` is not on PATH.
+Note: Full integration tests requiring Claude Code CLI are gated by availability — tests should skip gracefully if `claude` is not on PATH.
 
 #### Smoke Tests
 
 - [ ] `cargo build --workspace` succeeds
-- [ ] `target/debug/sldo-research --prompt "test topic"` attempts research (may fail if copilot not installed, but should fail with clear error)
+- [ ] `target/debug/sldo-research --prompt "test topic"` attempts research (may fail if claude not installed, but should fail with clear error)
 - [ ] `target/debug/sldo-research --prompt "test topic" --max-iterations 1` runs single pass
 - [ ] `git status` shows no untracked test artifacts
 - [ ] `.gitignore` covers log dir
@@ -1221,9 +1221,9 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 
 ### Milestone 5 — Web Search Integration
 
-**Goal**: Add web search capability to the research loop by constructing prompts that explicitly instruct Claude Code to use its web browsing / search tools to find current documentation, library comparisons, and best practices.
+**Goal**: Add web search capability to the research loop by constructing prompts that explicitly instruct Claude Code to use its `WebFetch` and `WebSearch` tools to find current documentation, library comparisons, and best practices.
 
-**Context**: Claude Code CLI can be granted web browsing capabilities through tool permission flags. Rather than implementing a custom web search API, we instruct Claude Code to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Claude Code to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
+**Context**: Claude Code CLI supports `WebFetch` and `WebSearch` tools via `--allowedTools`. Rather than implementing a custom web search API, we instruct Claude Code to search the web as part of its research. This requires (a) appropriate tool flags in `sldo-common/toolflags.rs`, (b) web-search-specific prompts that guide Claude Code to find and summarize relevant URLs, and (c) integration into the research loop as a dedicated web research phase.
 
 **Important design rule**: Web search is a *phase* in the research loop, not a separate tool. After the initial exploration pass, the research loop should perform dedicated web search iterations before deepening passes.
 
@@ -1624,7 +1624,7 @@ Note: Full integration tests requiring Claude Code CLI are gated by availability
 |---|---|---|---|---|
 | 1 | Add `sldo-research` to CLI tools | Add `sldo-research` basic entry | Review for new build artifacts | None |
 | 2 | Document prompt builder module | No change | Review | None |
-| 3 | Document research loop | No change | Ensure `.copilot-logs/` covered | None |
+| 3 | Document research loop | No change | Ensure `.claude-logs/` covered | None |
 | 4 | Document dossier format | No change | Ensure `output/` covered | None |
 | 5 | Document web search phase | No change | Review | None |
 | 6 | Document synthesis phase | No change | Review | None |

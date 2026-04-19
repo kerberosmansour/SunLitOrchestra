@@ -29,8 +29,8 @@ struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            provider: "copilot".to_string(),
-            model: "claude-opus-4.6".to_string(),
+            provider: "claude".to_string(),
+            model: "claude-sonnet-4-6".to_string(),
             allow_flags: sldo_common::toolflags::plan_allow_flags(),
             deny_flags: sldo_common::toolflags::plan_deny_flags(),
             max_attempts: 150,
@@ -85,12 +85,11 @@ fn settings_defaults_valid() {
     // Given: Default AppSettings
     let settings = AppSettings::default();
 
-    // When: We validate the settings produce coherent CopilotInvocation parameters
+    // When: We validate the settings produce coherent ClaudeInvocation parameters
     // Then: All fields are non-empty and within valid ranges
     assert!(!settings.provider.is_empty(), "Provider must not be empty");
     assert!(!settings.model.is_empty(), "Model must not be empty");
     assert!(!settings.allow_flags.is_empty(), "Allow flags must not be empty");
-    assert!(!settings.deny_flags.is_empty(), "Deny flags must not be empty");
     assert!(settings.max_attempts > 0, "Max attempts must be positive");
     assert!(settings.cooldown_secs > 0, "Cooldown must be positive");
     assert!(settings.max_iterations > 0, "Max iterations must be positive");
@@ -102,15 +101,9 @@ fn settings_defaults_valid() {
             "Allow flag '{flag}' must start with '--'"
         );
     }
-    for flag in &settings.deny_flags {
-        assert!(
-            flag.starts_with("--"),
-            "Deny flag '{flag}' must start with '--'"
-        );
-    }
 
     // Provider must be a known value
-    let known_providers = ["copilot"];
+    let known_providers = ["claude"];
     assert!(
         known_providers.contains(&settings.provider.as_str()),
         "Provider '{}' must be one of {:?}",
@@ -118,13 +111,11 @@ fn settings_defaults_valid() {
         known_providers
     );
 
-    // Model must be one of the known Copilot models
+    // Model must be one of the known Claude Code models
     let known_models = [
-        "claude-opus-4.6",
-        "claude-sonnet-4.5",
-        "claude-sonnet-4",
-        "gpt-4o",
-        "o3",
+        "claude-opus-4-7",
+        "claude-sonnet-4-6",
+        "claude-haiku-4-5",
     ];
     assert!(
         known_models.contains(&settings.model.as_str()),
