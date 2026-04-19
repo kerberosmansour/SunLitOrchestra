@@ -829,7 +829,7 @@ context to produce a meaningful runbook.";
             body.push_str(s);
             body.push_str("\n\n");
             body.push_str(lorem);
-            body.push_str("\n");
+            body.push('\n');
             body.push_str(lorem);
             body.push_str("\n\n");
         }
@@ -874,8 +874,7 @@ context to produce a meaningful runbook.";
         // Then
         let joined = issues.join("\n");
         assert!(
-            joined.to_lowercase().contains("too small")
-                || joined.to_lowercase().contains("size"),
+            joined.to_lowercase().contains("too small") || joined.to_lowercase().contains("size"),
             "expected size issue; got: {}",
             joined
         );
