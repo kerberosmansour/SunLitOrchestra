@@ -110,3 +110,7 @@ path = "tests/e2e_research_m5.rs"
 [[test]]
 name = "e2e_research_m6"
 path = "tests/e2e_research_m6.rs"
+
+[[test]]
+name = "e2e_research_m7"
+path = "tests/e2e_research_m7.rs"

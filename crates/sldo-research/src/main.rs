@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use std::time::Instant;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -55,6 +56,7 @@ struct Cli {
 }
 
 fn run() -> Result<()> {
+    let started_at = Instant::now();
     let cli = Cli::parse();
 
     // Validate exactly one prompt source
@@ -188,6 +190,48 @@ fn run() -> Result<()> {
         for issue in &issues {
             warn(&format!("  - {}", issue));
         }
+    }
+
+    // ── Plan-readiness gate (M7) ─────────────────────────────────────────
+    let plan_issues = dossier::check_plan_readiness(&cli.output);
+    let dossier_bytes = std::fs::metadata(&cli.output).map(|m| m.len()).unwrap_or(0);
+    let elapsed = started_at.elapsed();
+
+    divider();
+    header("Summary");
+    info(&format!("Dossier:        {}", cli.output.display()));
+    info(&format!("Dossier bytes:  {}", dossier_bytes));
+    info(&format!(
+        "Iterations:     {} (max {})",
+        cli.max_iterations, cli.max_iterations
+    ));
+    info(&format!(
+        "Searches:       {} (max {})",
+        cli.max_searches, cli.max_searches
+    ));
+    info(&format!(
+        "Total wall time: {:.2}s",
+        elapsed.as_secs_f64()
+    ));
+
+    if plan_issues.is_empty() {
+        divider();
+        success("Research dossier is ready for planning.");
+        info("Next step — generate a runbook:");
+        info(&format!(
+            "  sldo-plan {} <repo-dir> [-o docs/RUNBOOK.md]",
+            cli.output.display()
+        ));
+    } else {
+        divider();
+        warn(&format!(
+            "Dossier is not yet plan-ready. {} issue(s):",
+            plan_issues.len()
+        ));
+        for issue in &plan_issues {
+            warn(&format!("  - {}", issue));
+        }
+        warn("Skipping next-step suggestion. Re-run with more iterations or refine your prompt.");
     }
 
     Ok(())
