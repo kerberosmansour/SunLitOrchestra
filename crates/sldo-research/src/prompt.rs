@@ -937,12 +937,6 @@ mod tests {
         let c = build_repo_context_prompt(Path::new(""));
         let d = build_websearch_prompt("", "", 1);
         let e = build_synthesis_prompt("", "", None);
-        assert!(
-            !a.is_empty()
-                && !b.is_empty()
-                && !c.is_empty()
-                && !d.is_empty()
-                && !e.is_empty()
-        );
+        assert!(!a.is_empty() && !b.is_empty() && !c.is_empty() && !d.is_empty() && !e.is_empty());
     }
 }

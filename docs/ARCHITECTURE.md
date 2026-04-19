@@ -515,6 +515,48 @@ every `REQUIRED_SECTIONS` header, and any placeholder pattern. M3's
 in M4 so the writer can emit the repo-context section separately from the
 raw findings.
 
+### Synthesis pass (M6)
+
+`build_synthesis_prompt(prompt, all_findings, repo_context)` in
+`crates/sldo-research/src/prompt.rs` produces a single Claude Code prompt
+that consumes the concatenated raw findings (exploration + web-search +
+deepening) and asks for a coherent dossier body conforming exactly to
+`dossier::REQUIRED_SECTIONS`. The prompt embeds the section list verbatim
+(so Claude cannot rename or omit headers), requires `(confidence: high|
+medium|low)` tags on every entry under `## Design Recommendations`, asks
+for explicit `## Risks & Open Questions` flagging, and instructs URL
+extraction into `## References` as `- [Title](URL)` bullets. Raw findings
+are truncated at 100 KiB (tail-preserving) to keep the prompt under
+Claude's context window.
+
+`research_loop` runs synthesis as one final invocation after the
+deepening loop. The captured stdout becomes
+`ResearchFindings.synthesised: Option<String>`. Synthesis output is gated
+by `synth_output_well_formed` — every entry in `REQUIRED_SECTIONS` must
+appear in the response, otherwise the result is treated as malformed and
+`synthesised` stays `None`. This shields the M4 fallback path from
+truncated, off-spec, or test-shim responses. Spawn errors, non-zero exit
+codes, and empty output also resolve to `None`. The phase log file is
+`.sldo-logs/research-synthesis.log`.
+
+`dossier::write_dossier` accepts an additional `synthesised: Option<&str>`
+parameter. When `Some(text)` and `text` is non-empty, the synthesised
+body is embedded verbatim in place of the M4 stub skeleton. When `None`,
+the writer falls back to the M4 layout (raw findings under
+`## Key Findings`, `M4_STUB_SENTINEL` everywhere else). The dossier is
+always written.
+
+`dossier::check_synthesis_complete(path)` is a stricter post-M6 readiness
+helper that returns issues if the dossier still contains the
+`M4_STUB_SENTINEL`. Designed to be called by M7's plan-readiness gate;
+intentionally separate from `validate_dossier`, which still tolerates the
+sentinel for M4 compatibility.
+
+The phase is **prompt-driven** — no new Rust crates were added, no parsing
+of section headers happens on the Rust side. Claude Code does the
+synthesis; the Rust pipeline structurally validates the result and falls
+back when necessary.
+
 ### Web search phase (M5)
 
 `build_websearch_prompt(topic, questions, search_index)` in
@@ -575,6 +617,7 @@ dependency was added. Tool access is gated by
 | E2E research M3 | `tests/e2e_research_m3.rs` | 9 | Research loop E2E |
 | E2E research M4 | `tests/e2e_research_m4.rs` | 6 | Dossier writer & validator E2E |
 | E2E research M5 | `tests/e2e_research_m5.rs` | 4 | Web-search phase integration E2E |
+| E2E research M6 | `tests/e2e_research_m6.rs` | 4 | Multi-source synthesis pass E2E |
 
 **Total backend tests: 241**
 
