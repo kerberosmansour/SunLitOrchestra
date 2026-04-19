@@ -16,8 +16,8 @@ Update this table as each milestone is completed. This is the **single source of
 | 2 | Research prompt builder | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m2.md |
 | 3 | Claude Code–driven research loop | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m3.md |
 | 4 | Dossier format, writer & validator | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m4.md |
-| 5 | Web search phase integration | `in_progress` | 2026-04-19 | | |
-| 6 | Multi-source synthesis pass | `not_started` | | | |
+| 5 | Web search phase integration | `done` | 2026-04-19 | 2026-04-19 | docs/lessons/research-m5.md |
+| 6 | Multi-source synthesis pass | `in_progress` | 2026-04-19 | | |
 | 7 | Plan-ready output & sldo-plan integration | `not_started` | | | |
 
 <!-- Status values: not_started | in_progress | done -->
