@@ -102,12 +102,11 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<ResearchFindings> {
     // ── Web-search phase (M5) ───────────────────────────────────────────────
     // Inserted between exploration and deepening. `max_searches == 0` skips
     // the phase entirely — no log files, no invocations. Per-search failures
-    // log a warning and continue; they never halt the loop.
+    // log a warning and continue; they never halt the loop. No cooldown here:
+    // web-search invocations are lighter than deepening passes and don't need
+    // the inter-call pause that deepening uses to smooth rate limits.
     let questions = extract_key_questions(&raw);
     for n in 1..=cfg.max_searches {
-        if cfg.cooldown_secs > 0 {
-            std::thread::sleep(Duration::from_secs(cfg.cooldown_secs));
-        }
         let websearch_prompt = build_websearch_prompt(&cfg.prompt_content, &questions, n);
         let log_name = format!("research-websearch-{}.log", n);
         match run_phase(cfg, &working_dir, &log_name, websearch_prompt) {
