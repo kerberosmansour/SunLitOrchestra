@@ -36,7 +36,7 @@ sldo-plan <prompt-file> <repo-dir> [options]
 
 **Options:**
 - `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
+- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
 - `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
 - `-h, --help` — Show help
 
@@ -62,7 +62,7 @@ sldo-run <runbook> <repo-dir> [options]
 - `<repo-dir>` — Path to the target repository
 
 **Options:**
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
+- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
 - `-a, --max-attempts <N>` — Max Copilot invocations (default: 150)
 - `-c, --cooldown <secs>` — Pause between retries (default: 5)
 - `--build-cmd <cmd>` — Custom build verification command (repeatable)
@@ -149,7 +149,7 @@ Open Settings (`Cmd/Ctrl+,`) to configure:
 | Setting | Default | Description |
 |---|---|---|
 | Provider | `copilot` | Coding agent backend |
-| Model | `claude-opus-4.6` | AI model for planning/execution |
+| Model | `claude-opus-4-7` | AI model for planning/execution |
 | Max Attempts | `150` | Maximum execution attempts per run |
 | Cooldown | `5` seconds | Delay between execution attempts |
 | Max Iterations | `3` | Planning refinement iterations |
@@ -247,7 +247,7 @@ See [docs/MIGRATION.md](docs/MIGRATION.md) for a complete migration guide with f
 
 **Options:**
 - `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
+- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
 - `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
 - `-h, --help` — Show this help message
 
@@ -258,7 +258,7 @@ See [docs/MIGRATION.md](docs/MIGRATION.md) for a complete migration guide with f
 ```
 
 **Options:**
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4.6`)
+- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
 - `-a, --max-attempts <N>` — Max Copilot invocations (default: 150)
 - `-c, --cooldown <secs>` — Pause between retries (default: 5)
 - `--build-cmd <cmd>` — Custom build verification command (repeatable)
