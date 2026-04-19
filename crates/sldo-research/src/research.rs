@@ -3,7 +3,13 @@
 //! Drives the multi-phase Claude Code pipeline:
 //!   1. Optional repo-context invocation when `--repo-dir` is supplied.
 //!   2. Exploration invocation (iteration 1).
-//!   3. Deepening invocations for iterations 2..=`max_iterations`.
+//!   3. Web-search invocations (1..=`max_searches`) between exploration and
+//!      deepening (M5).
+//!   4. Deepening invocations for iterations 2..=`max_iterations`.
+//!   5. One synthesis invocation that consumes the accumulated raw text and
+//!      emits a coherent dossier body conforming to `dossier::REQUIRED_SECTIONS`
+//!      (M6). On synthesis failure or empty output, the dossier writer falls
+//!      back to the raw concatenation — the dossier is always written.
 //!
 //! Each invocation gets its own log file under `cfg.log_dir` and persists its
 //! captured stdout to a scratch file under the dossier's parent directory.
@@ -20,9 +26,10 @@ use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::LogFile;
 use sldo_common::toolflags;
 
+use crate::dossier::REQUIRED_SECTIONS;
 use crate::prompt::{
     build_deepening_prompt, build_exploration_prompt, build_repo_context_prompt,
-    build_websearch_prompt, SECTION_KEY_QUESTIONS,
+    build_synthesis_prompt, build_websearch_prompt, SECTION_KEY_QUESTIONS,
 };
 
 /// Configuration for one research-loop run.
@@ -41,13 +48,18 @@ pub struct ResearchConfig {
 
 /// Result of one research-loop run.
 ///
-/// `raw` holds every phase's captured findings (exploration + deepening)
-/// concatenated in run order. `repo_context` is split out so [`crate::dossier::write_dossier`]
-/// can emit it as its own "## Repository Context" section when a `--repo-dir`
-/// was supplied.
+/// `raw` holds every phase's captured findings (exploration + web-search +
+/// deepening) concatenated in run order. `repo_context` is split out so
+/// [`crate::dossier::write_dossier`] can emit it as its own
+/// "## Repository Context" section when a `--repo-dir` was supplied.
+/// `synthesised` holds the M6 synthesis pass's output: when `Some`, the
+/// dossier writer embeds it verbatim in place of the M4 stub skeleton; when
+/// `None` (synthesis failed, returned empty, or `raw` was empty), the writer
+/// falls back to the M4 raw-findings layout.
 pub struct ResearchFindings {
     pub raw: String,
     pub repo_context: Option<String>,
+    pub synthesised: Option<String>,
 }
 
 /// Drive the multi-phase research loop. Returns a [`ResearchFindings`] bundle.
@@ -139,7 +151,50 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<ResearchFindings> {
         }
     }
 
-    Ok(ResearchFindings { raw, repo_context })
+    // ── Synthesis phase (M6) ────────────────────────────────────────────────
+    // One final invocation that consumes the accumulated raw text and emits a
+    // coherent dossier body. Empty raw findings short-circuit the phase — the
+    // writer's existing empty-findings branch handles that case. On synthesis
+    // failure (spawn error, non-zero exit, empty stdout, or output that
+    // doesn't contain the required dossier section headers), `synthesised`
+    // stays `None` and the writer falls back to the M4 raw layout. The
+    // dossier is always written.
+    let synthesised = if raw.trim().is_empty() {
+        None
+    } else {
+        let synth_prompt =
+            build_synthesis_prompt(&cfg.prompt_content, &raw, repo_context.as_deref());
+        match run_phase(cfg, &working_dir, "research-synthesis.log", synth_prompt) {
+            Ok(out) => {
+                let trimmed = out.trim();
+                if trimmed.is_empty() {
+                    warn("synthesis phase produced empty output; falling back to raw findings");
+                    None
+                } else if !synth_output_well_formed(trimmed) {
+                    warn(
+                        "synthesis output is missing required dossier sections; \
+                         falling back to raw findings",
+                    );
+                    None
+                } else {
+                    Some(trimmed.to_string())
+                }
+            }
+            Err(e) => {
+                warn(&format!(
+                    "synthesis phase failed ({:#}); falling back to raw findings",
+                    e
+                ));
+                None
+            }
+        }
+    };
+
+    Ok(ResearchFindings {
+        raw,
+        repo_context,
+        synthesised,
+    })
 }
 
 /// Invoke Claude Code for one phase, capturing stdout and tee-ing it to the
@@ -201,6 +256,17 @@ fn extract_key_questions(exploration_output: &str) -> String {
     body.trim().to_string()
 }
 
+/// Lightweight structural check: synthesis output is considered well-formed
+/// only when it contains every required dossier section header. This prevents
+/// a malformed (or truncated, or test-shim) synth response from overwriting
+/// the M4 fallback layout with an unstructured blob. The synthesis prompt
+/// pins the exact section list, so a real Claude response should satisfy
+/// this check trivially; failure here means the output was truncated, was
+/// from a stub shim, or the model went off-spec.
+fn synth_output_well_formed(out: &str) -> bool {
+    REQUIRED_SECTIONS.iter().all(|s| out.contains(*s))
+}
+
 fn persist_scratch(parent: &Path, iter: u32, contents: &str) -> Result<()> {
     let scratch = parent.join(format!(".research-scratch-iter-{}.md", iter));
     std::fs::write(&scratch, contents)
@@ -222,6 +288,34 @@ mod tests {
                 .map(|d| d.subsec_nanos())
                 .unwrap_or(0)
         ))
+    }
+
+    // ── ResearchFindings construction (M6 added `synthesised`) ──────────
+
+    #[test]
+    fn findings_struct_exposes_synthesised_field() {
+        // Given/When: construct a ResearchFindings with all fields set
+        let f = ResearchFindings {
+            raw: "raw".to_string(),
+            repo_context: Some("ctx".to_string()),
+            synthesised: Some("synth".to_string()),
+        };
+        // Then: every field is publicly accessible (compile-time check)
+        assert_eq!(f.raw, "raw");
+        assert_eq!(f.repo_context.as_deref(), Some("ctx"));
+        assert_eq!(f.synthesised.as_deref(), Some("synth"));
+    }
+
+    #[test]
+    fn findings_struct_accepts_synthesised_none() {
+        // Given/When: construct ResearchFindings with synthesised = None
+        let f = ResearchFindings {
+            raw: String::new(),
+            repo_context: None,
+            synthesised: None,
+        };
+        // Then: synthesised is None — the writer's fallback path applies
+        assert!(f.synthesised.is_none());
     }
 
     // ── ResearchConfig construction ────────────────────────────────────────
@@ -291,6 +385,44 @@ mod tests {
         let out = extract_key_questions(dump);
         // Then: returns empty string (caller falls back to broad research)
         assert!(out.is_empty());
+    }
+
+    // ── Synthesis well-formedness check (M6) ─────────────────────────────
+
+    #[test]
+    fn synth_output_well_formed_accepts_full_section_list() {
+        // Given: an output containing every required section header
+        let mut body = String::new();
+        for s in REQUIRED_SECTIONS {
+            body.push_str(s);
+            body.push_str("\n\ncontent\n\n");
+        }
+        // When/Then: well-formed
+        assert!(synth_output_well_formed(&body));
+    }
+
+    #[test]
+    fn synth_output_well_formed_rejects_missing_section() {
+        // Given: an output missing one section header
+        let mut body = String::new();
+        for s in REQUIRED_SECTIONS {
+            if *s == "## Key Findings" {
+                continue;
+            }
+            body.push_str(s);
+            body.push_str("\n\ncontent\n\n");
+        }
+        // When/Then: not well-formed (one section missing)
+        assert!(!synth_output_well_formed(&body));
+    }
+
+    #[test]
+    fn synth_output_well_formed_rejects_unstructured_blob() {
+        // Given: a single line that does not match the dossier shape (a
+        //        common test-shim case where the shim just prints a marker).
+        let body = "DOSSIER-MARKER-M4";
+        // When/Then: not well-formed
+        assert!(!synth_output_well_formed(body));
     }
 
     // ── Tool-flag preservation (M5 regression guard) ─────────────────────
