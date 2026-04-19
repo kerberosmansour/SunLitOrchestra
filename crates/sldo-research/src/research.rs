@@ -183,6 +183,25 @@ fn run_phase(
     Ok(captured)
 }
 
+/// Pull the body of the `## Key Questions` section out of an exploration-phase
+/// dump so the web-search phase can partition it across invocations. Returns
+/// an empty string when the section is absent or empty — the web-search prompt
+/// then falls back to broad topic research.
+fn extract_key_questions(exploration_output: &str) -> String {
+    let header = SECTION_KEY_QUESTIONS;
+    let Some(start) = exploration_output.find(header) else {
+        return String::new();
+    };
+    let after_header = &exploration_output[start + header.len()..];
+    // Stop at the next top-level `## ` header (but skip the `##` line we just
+    // consumed — find requires at least one newline before the next header).
+    let body = match after_header.find("\n## ") {
+        Some(end) => &after_header[..end],
+        None => after_header,
+    };
+    body.trim().to_string()
+}
+
 fn persist_scratch(parent: &Path, iter: u32, contents: &str) -> Result<()> {
     let scratch = parent.join(format!(".research-scratch-iter-{}.md", iter));
     std::fs::write(&scratch, contents)
@@ -217,6 +236,7 @@ mod tests {
             output_path: PathBuf::from("o.md"),
             model: "m".to_string(),
             max_iterations: 2,
+            max_searches: 3,
             cooldown_secs: 1,
             log_dir: PathBuf::from(".sldo-logs"),
         };
@@ -226,6 +246,7 @@ mod tests {
         assert_eq!(cfg.output_path, PathBuf::from("o.md"));
         assert_eq!(cfg.model, "m");
         assert_eq!(cfg.max_iterations, 2);
+        assert_eq!(cfg.max_searches, 3);
         assert_eq!(cfg.cooldown_secs, 1);
         assert_eq!(cfg.log_dir, PathBuf::from(".sldo-logs"));
     }
@@ -239,11 +260,75 @@ mod tests {
             output_path: PathBuf::from("x.md"),
             model: String::new(),
             max_iterations: 0,
+            max_searches: 0,
             cooldown_secs: 0,
             log_dir: PathBuf::from("."),
         };
-        // Then: repo_dir is None
+        // Then: repo_dir is None, max_searches is 0 (skip phase)
         assert!(cfg.repo_dir.is_none());
+        assert_eq!(cfg.max_searches, 0);
+    }
+
+    // ── Key-questions extraction helper ───────────────────────────────────
+
+    #[test]
+    fn extract_key_questions_returns_body_between_headers() {
+        // Given: an exploration dump with `## Key Questions` followed by `## Initial Findings`
+        let dump = "## Topic Decomposition\n\n- A\n- B\n\n## Key Questions\n\n- q1\n- q2\n- q3\n\n## Initial Findings\n\nStuff.\n";
+        // When: extract_key_questions is called
+        let out = extract_key_questions(dump);
+        // Then: only the body of Key Questions is returned (trimmed)
+        assert!(out.contains("- q1"));
+        assert!(out.contains("- q3"));
+        assert!(!out.contains("Topic Decomposition"));
+        assert!(!out.contains("Initial Findings"));
+    }
+
+    #[test]
+    fn extract_key_questions_missing_header_returns_empty() {
+        // Given: an exploration dump with no Key Questions header
+        let dump = "## Topic Decomposition\n- A\n## Initial Findings\nStuff\n";
+        // When: extract_key_questions is called
+        let out = extract_key_questions(dump);
+        // Then: returns empty string (caller falls back to broad research)
+        assert!(out.is_empty());
+    }
+
+    // ── Tool-flag preservation (M5 regression guard) ─────────────────────
+
+    #[test]
+    fn research_allow_flags_include_web_tools() {
+        // Given: research-phase tool flags
+        // When:  inspected
+        // Then:  both WebFetch and WebSearch are present (M5 depends on them)
+        let flags = sldo_common::toolflags::research_allow_flags().join(" ");
+        assert!(flags.contains("WebFetch"), "research flags missing WebFetch: {}", flags);
+        assert!(flags.contains("WebSearch"), "research flags missing WebSearch: {}", flags);
+    }
+
+    #[test]
+    fn plan_flags_do_not_include_web_search() {
+        // Given: plan-phase tool flags
+        // When:  inspected
+        // Then:  WebSearch is absent — planning is not a web phase and we do
+        //        not want Claude to use the internet while generating runbooks
+        let flags = sldo_common::toolflags::plan_allow_flags().join(" ");
+        assert!(
+            !flags.contains("WebSearch"),
+            "plan flags should not include WebSearch: {}",
+            flags
+        );
+    }
+
+    #[test]
+    fn extract_key_questions_last_section_returns_tail() {
+        // Given: an exploration dump where Key Questions is the final section
+        let dump = "## Initial Findings\nStuff\n\n## Key Questions\n\n- q1\n- q2\n";
+        // When: extract_key_questions is called
+        let out = extract_key_questions(dump);
+        // Then: returns the tail after the header
+        assert!(out.contains("- q1"));
+        assert!(out.contains("- q2"));
     }
 
     // ── Scratch persistence helper ─────────────────────────────────────────
