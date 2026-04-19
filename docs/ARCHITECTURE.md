@@ -586,6 +586,108 @@ dependency was added. Tool access is gated by
 `WebSearch` at M1). `plan_allow_flags()` does **not** include `WebSearch`
 — planning runs offline by design — and a regression test pins this.
 
+### Plan-readiness gate (M7)
+
+`dossier::check_plan_readiness(path) -> Vec<String>` is the strict
+end-of-pipeline gate that confirms the dossier is suitable as input to
+`sldo-plan`. It composes `validate_dossier` + `check_synthesis_complete`
+with three additional constraints:
+
+1. The file is valid UTF-8 (`std::fs::read_to_string` succeeds) — the
+   contract `sldo-plan` requires of its `prompt_file`.
+2. Total size > `MIN_PLAN_READY_SIZE` (1 KiB) — stricter than the M4
+   500-byte threshold.
+3. `## Design Recommendations` has > `MIN_SECTION_BODY_BYTES` (100 bytes)
+   of content after its header, AND at least one of `## Library & Tool
+   Evaluations` / `## Architecture Options` has > 100 bytes of content.
+
+Section-body extraction uses a private `section_body(content, header)`
+helper that returns the text between a header and the next top-level
+`## ` marker. The helper is line-aware (skips the header's own newline
+before slicing) so a header followed immediately by another header
+returns an empty body.
+
+`sldo-plan` is **not modified**. The gate lives entirely inside
+`sldo-research` and is layered on top of the existing M4/M6 validators —
+none of those are weakened.
+
+`sldo-research::main` calls the gate after `validate_dossier` and prints
+either:
+- a "Research dossier is ready for planning" success block followed by a
+  suggested `sldo-plan <dossier> <repo-dir>` command, when the gate
+  returns no issues, or
+- a warning block listing the issues, with the next-step suggestion
+  suppressed.
+
+Either way the binary exits 0 and the dossier is always written —
+plan-readiness is observability, not a hard gate. A "Summary" block
+(dossier path, byte count, iteration/search counts, total wall time) is
+printed unconditionally before the readiness verdict, mirroring
+`sldo-plan`'s end-of-run summary style.
+
+### sldo-research pipeline overview
+
+End-to-end, a single `sldo-research` invocation runs:
+
+```
+prompt + (optional repo-dir)
+   │
+   ▼
+preflight ──── claude-on-PATH check, optional repo + git safety check
+   │
+   ▼
+[optional] repo-context phase ─── one Claude call per --repo-dir
+   │
+   ▼
+exploration phase ─── one Claude call (always)
+   │                   ↓ raw findings appended
+   ▼
+web-search phase ─── 0..=N Claude calls (N = --max-searches)
+   │                   ↓ each appended to raw
+   ▼
+deepening phase ─── 0..=M Claude calls (M = --max-iterations - 1)
+   │                   ↓ each appended to raw, cooldown_secs between calls
+   ▼
+synthesis phase ─── one Claude call (skipped only when raw is empty)
+   │                   ↓ Option<String>; well-formedness gate rejects
+   │                     responses missing required dossier headers
+   ▼
+write_dossier ─── synth body if Some; M4 fallback layout otherwise
+   │
+   ▼
+validate_dossier (M4 ruleset) ─── informational
+   │
+   ▼
+check_plan_readiness (M7 strict ruleset) ─── prints Next-step or warnings
+```
+
+Per-phase log files: `.sldo-logs/research-repo-context.log`,
+`research-exploration.log`, `research-websearch-<N>.log`,
+`research-deepen-<N>.log`, `research-synthesis.log`. Per-phase scratch
+files (raw stdout captures): `.research-scratch-iter-<N>.md` next to the
+dossier output. The full pipeline is **prompt-driven** — every Claude
+invocation goes through `sldo_common::copilot::ClaudeInvocation` with the
+`research_allow_flags()` / `research_deny_flags()` toolset.
+
+### Pipeline composition
+
+The three CLIs compose into a single user workflow:
+
+```
+$ sldo-research --prompt "add feature flags" --repo-dir ./my-repo
+  → output/research-dossier.md  (plan-ready)
+
+$ sldo-plan output/research-dossier.md ./my-repo -o docs/RUNBOOK.md
+  → docs/RUNBOOK.md             (milestone tracker)
+
+$ sldo-run docs/RUNBOOK.md ./my-repo
+  → drives Claude Code through each milestone
+```
+
+`sldo-research` is the only CLI that runs web search; `sldo-plan` and
+`sldo-run` operate offline (their `*_allow_flags()` deliberately exclude
+`WebFetch`/`WebSearch`).
+
 ## Test Architecture
 
 ### Backend Tests
@@ -618,6 +720,7 @@ dependency was added. Tool access is gated by
 | E2E research M4 | `tests/e2e_research_m4.rs` | 6 | Dossier writer & validator E2E |
 | E2E research M5 | `tests/e2e_research_m5.rs` | 4 | Web-search phase integration E2E |
 | E2E research M6 | `tests/e2e_research_m6.rs` | 4 | Multi-source synthesis pass E2E |
+| E2E research M7 | `tests/e2e_research_m7.rs` | 7 | Plan-readiness gate + sldo-plan integration E2E |
 
 **Total backend tests: 241**
 

@@ -209,10 +209,7 @@ fn run() -> Result<()> {
         "Searches:       {} (max {})",
         cli.max_searches, cli.max_searches
     ));
-    info(&format!(
-        "Total wall time: {:.2}s",
-        elapsed.as_secs_f64()
-    ));
+    info(&format!("Total wall time: {:.2}s", elapsed.as_secs_f64()));
 
     if plan_issues.is_empty() {
         divider();
