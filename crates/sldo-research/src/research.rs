@@ -33,10 +33,21 @@ pub struct ResearchConfig {
     pub log_dir: PathBuf,
 }
 
-/// Drive the multi-phase research loop. Returns the accumulated findings as a
-/// single string. Per-phase failures are logged and skipped — the loop only
-/// returns `Err` when log-file or output-dir setup fails.
-pub fn research_loop(cfg: &ResearchConfig) -> Result<String> {
+/// Result of one research-loop run.
+///
+/// `raw` holds every phase's captured findings (exploration + deepening)
+/// concatenated in run order. `repo_context` is split out so [`crate::dossier::write_dossier`]
+/// can emit it as its own "## Repository Context" section when a `--repo-dir`
+/// was supplied.
+pub struct ResearchFindings {
+    pub raw: String,
+    pub repo_context: Option<String>,
+}
+
+/// Drive the multi-phase research loop. Returns a [`ResearchFindings`] bundle.
+/// Per-phase failures are logged and skipped — the loop only returns `Err`
+/// when log-file or output-dir setup fails.
+pub fn research_loop(cfg: &ResearchConfig) -> Result<ResearchFindings> {
     let output_parent = cfg
         .output_path
         .parent()
@@ -52,15 +63,16 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<String> {
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| PathBuf::from("."));
 
-    let mut accumulated = String::new();
+    let mut raw = String::new();
+    let mut repo_context: Option<String> = None;
 
     if let Some(repo) = &cfg.repo_dir {
         let prompt = build_repo_context_prompt(repo);
         match run_phase(cfg, &working_dir, "research-repo-context.log", prompt) {
             Ok(out) => {
-                if !out.trim().is_empty() {
-                    accumulated.push_str(&out);
-                    accumulated.push_str("\n\n");
+                let trimmed = out.trim();
+                if !trimmed.is_empty() {
+                    repo_context = Some(trimmed.to_string());
                 }
             }
             Err(e) => warn(&format!("repo-context phase failed: {:#}", e)),
@@ -76,7 +88,7 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<String> {
     ) {
         Ok(out) => {
             persist_scratch(&output_parent, 1, &out)?;
-            accumulated.push_str(&out);
+            raw.push_str(&out);
         }
         Err(e) => warn(&format!("exploration phase failed: {:#}", e)),
     }
@@ -85,26 +97,22 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<String> {
         if cfg.cooldown_secs > 0 {
             std::thread::sleep(Duration::from_secs(cfg.cooldown_secs));
         }
-        let deepen_prompt = build_deepening_prompt(
-            &cfg.prompt_content,
-            &accumulated,
-            iter,
-            cfg.repo_dir.as_deref(),
-        );
+        let deepen_prompt =
+            build_deepening_prompt(&cfg.prompt_content, &raw, iter, cfg.repo_dir.as_deref());
         let log_name = format!("research-deepen-{}.log", iter);
         match run_phase(cfg, &working_dir, &log_name, deepen_prompt) {
             Ok(out) => {
                 persist_scratch(&output_parent, iter, &out)?;
-                if !accumulated.is_empty() {
-                    accumulated.push_str("\n\n");
+                if !raw.is_empty() {
+                    raw.push_str("\n\n");
                 }
-                accumulated.push_str(&out);
+                raw.push_str(&out);
             }
             Err(e) => warn(&format!("deepening iteration {} failed: {:#}", iter, e)),
         }
     }
 
-    Ok(accumulated)
+    Ok(ResearchFindings { raw, repo_context })
 }
 
 /// Invoke Claude Code for one phase, capturing stdout and tee-ing it to the
