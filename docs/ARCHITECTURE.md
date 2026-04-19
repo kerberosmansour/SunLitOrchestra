@@ -399,6 +399,35 @@ Global keyboard shortcuts are registered via a `useEffect` in `App.tsx`:
 - `PlanningSession.in_progress` prevents concurrent planning sessions
 - Both use `compare_exchange` with `SeqCst` ordering for thread-safe checks
 
+## sldo-research CLI
+
+A third CLI, `sldo-research`, generates a structured research dossier that can be
+fed as the `prompt_file` argument to `sldo-plan`. The full pipeline lands across
+milestones; the sections below grow as each milestone ships.
+
+### sldo-research — Research Prompt Builder (M2)
+
+`crates/sldo-research/src/prompt.rs` holds three pure prompt constructors that
+return `String` values. They take plain inputs (slices and optional paths) and
+perform no I/O, no network, and no environment access — the caller is
+responsible for canonicalising paths and reading prompt files.
+
+| Function | Purpose |
+|---|---|
+| `build_exploration_prompt(prompt_content, repo_dir)` | Asks Claude Code to decompose the topic, identify key concepts, gather initial findings, and optionally observe a repo. |
+| `build_deepening_prompt(prompt_content, previous_findings, iteration, repo_dir)` | Re-feeds prior findings (truncated at ~32 KiB) and asks for deepened findings, library evaluations, architecture options, and unanswered questions. Iteration ≥ 3 invites consolidation for the M6 synthesis pass. |
+| `build_repo_context_prompt(repo_dir)` | Asks Claude Code to summarise tech stack, project structure, build/test commands, existing patterns, and constraints from a given repository. |
+
+Each prompt embeds fixed `## …` section headers as a contract that later
+milestones rely on:
+
+- **Exploration phase:** `## Topic Decomposition`, `## Key Questions`, `## Initial Findings`, and (when a repo is supplied) `## Repo Context`.
+- **Deepening phase:** `## Deepened Findings`, `## Library Evaluations`, `## Architecture Options`, `## Unanswered Questions`.
+- **Repo-context phase:** `## Tech Stack`, `## Project Structure`, `## Build & Test`, `## Existing Patterns`, `## Constraints`.
+
+At M2 the binary constructs the exploration prompt after pre-flight and prints
+its byte length + first line. The Claude Code invocation itself lands in M3.
+
 ## Test Architecture
 
 ### Backend Tests
