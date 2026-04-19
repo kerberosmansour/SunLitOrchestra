@@ -60,18 +60,30 @@ const TOPIC_EXCERPT_MAX_CHARS: usize = 200;
 
 /// Write a research dossier to `path`.
 ///
-/// Creates any missing parent directories, embeds a short YAML-ish
-/// frontmatter block (topic excerpt, generated-on date, prompt byte count),
-/// then writes every entry of [`REQUIRED_SECTIONS`] in order. The
-/// `## Key Findings` section carries `findings` verbatim; all other required
-/// sections are stubbed with [`M4_STUB_SENTINEL`] (M6 replaces these). When
-/// `repo_context` is `Some`, a `## Repository Context` section is inserted
-/// between the frontmatter and the required sections.
+/// Creates any missing parent directories and embeds a short YAML-ish
+/// frontmatter block (topic excerpt, generated-on date, prompt byte count).
+///
+/// **Synthesis-aware body assembly:**
+/// - When `synthesised` is `Some(text)`, the synthesis pass produced a
+///   coherent dossier body — write it verbatim after the frontmatter (and
+///   the optional repo-context section). The synthesis prompt embeds
+///   [`REQUIRED_SECTIONS`] verbatim, so the section structure is the
+///   model's responsibility; if the model omitted a header,
+///   [`validate_dossier`] will catch it and the operator can re-run.
+/// - When `synthesised` is `None` (synthesis failed, returned empty, or the
+///   raw findings were empty), fall back to the M4 layout: write every entry
+///   of [`REQUIRED_SECTIONS`] in order, populate `## Key Findings` with
+///   `findings`, and stub all other required sections with
+///   [`M4_STUB_SENTINEL`].
+///
+/// When `repo_context` is `Some`, a `## Repository Context` section is
+/// inserted between the frontmatter and the body in both branches.
 pub fn write_dossier(
     path: &Path,
     prompt: &str,
     findings: &str,
     repo_context: Option<&str>,
+    synthesised: Option<&str>,
 ) -> Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -105,21 +117,29 @@ pub fn write_dossier(
         body.push_str("\n\n");
     }
 
-    for section in REQUIRED_SECTIONS {
-        body.push_str(section);
-        body.push_str("\n\n");
-        if *section == "## Key Findings" {
-            let content = findings.trim();
-            if content.is_empty() {
-                body.push_str(M4_STUB_SENTINEL);
-                body.push_str(" — raw findings were empty; the synthesis pass will attempt to recover content from scratch files.\n\n");
-            } else {
-                body.push_str(content);
+    match synthesised {
+        Some(synth) if !synth.trim().is_empty() => {
+            body.push_str(synth.trim());
+            body.push_str("\n");
+        }
+        _ => {
+            for section in REQUIRED_SECTIONS {
+                body.push_str(section);
                 body.push_str("\n\n");
+                if *section == "## Key Findings" {
+                    let content = findings.trim();
+                    if content.is_empty() {
+                        body.push_str(M4_STUB_SENTINEL);
+                        body.push_str(" — raw findings were empty; the synthesis pass will attempt to recover content from scratch files.\n\n");
+                    } else {
+                        body.push_str(content);
+                        body.push_str("\n\n");
+                    }
+                } else {
+                    body.push_str(M4_STUB_SENTINEL);
+                    body.push_str(". The M6 synthesis pass will replace this stub with consolidated content derived from the raw findings above.\n\n");
+                }
             }
-        } else {
-            body.push_str(M4_STUB_SENTINEL);
-            body.push_str(". The M6 synthesis pass will replace this stub with consolidated content derived from the raw findings above.\n\n");
         }
     }
 
@@ -184,6 +204,48 @@ pub fn validate_dossier(path: &Path) -> Vec<String> {
     issues
 }
 
+/// Stricter post-M6 readiness check: returns issues if the dossier still
+/// contains the M4 stub sentinel ([`M4_STUB_SENTINEL`]). M6's synthesis
+/// pass is supposed to replace every stub with synthesised content; the
+/// presence of even one sentinel string indicates the synthesis fell back
+/// to the raw layout. This is intentionally separate from
+/// [`validate_dossier`] (which tolerates the sentinel for M4 compatibility)
+/// and is designed to be called by M7's plan-readiness gate.
+///
+/// Returns an empty vector when the dossier passes the stricter check
+/// (sentinel absent), or a non-empty vector with a human-readable issue
+/// when the sentinel is present. Returns a "file not found" issue when
+/// `path` does not exist.
+pub fn check_synthesis_complete(path: &Path) -> Vec<String> {
+    let mut issues = Vec::new();
+
+    if !path.exists() {
+        issues.push(format!(
+            "Dossier file was not created at: {}",
+            path.display()
+        ));
+        return issues;
+    }
+
+    let content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => {
+            issues.push(format!("Failed to read dossier: {}", e));
+            return issues;
+        }
+    };
+
+    let count = content.matches(M4_STUB_SENTINEL).count();
+    if count > 0 {
+        issues.push(format!(
+            "Found {} occurrence(s) of the M4 stub sentinel '{}' — synthesis did not replace the stubs.",
+            count, M4_STUB_SENTINEL
+        ));
+    }
+
+    issues
+}
+
 /// First `TOPIC_EXCERPT_MAX_CHARS` characters of `prompt`, single-lined so it
 /// fits cleanly on one YAML frontmatter line.
 fn topic_excerpt(prompt: &str) -> String {
@@ -230,7 +292,7 @@ mod tests {
             "Finding A\nFinding B\nFinding C with enough text to push the body over 500 bytes. "
                 .repeat(10);
         // When
-        write_dossier(&path, "sample prompt", &findings, None).unwrap();
+        write_dossier(&path, "sample prompt", &findings, None, None).unwrap();
         // Then
         assert!(path.exists());
         let content = std::fs::read_to_string(&path).unwrap();
@@ -252,7 +314,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&tmp);
         let nested = tmp.join("a").join("b").join("c").join("dossier.md");
         // When
-        write_dossier(&nested, "p", "findings text", None).unwrap();
+        write_dossier(&nested, "p", "findings text", None, None).unwrap();
         // Then
         assert!(nested.exists());
         let _ = std::fs::remove_dir_all(&tmp);
@@ -266,7 +328,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         // When
-        write_dossier(&path, "prompt", "findings", Some("Tech: Rust")).unwrap();
+        write_dossier(&path, "prompt", "findings", Some("Tech: Rust"), None).unwrap();
         // Then
         let content = std::fs::read_to_string(&path).unwrap();
         assert!(content.contains(SECTION_REPOSITORY_CONTEXT));
@@ -282,7 +344,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         // When
-        write_dossier(&path, "prompt", "findings", None).unwrap();
+        write_dossier(&path, "prompt", "findings", None, None).unwrap();
         // Then
         let content = std::fs::read_to_string(&path).unwrap();
         assert!(
@@ -300,7 +362,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         // When
-        write_dossier(&path, "prompt", "findings", None).unwrap();
+        write_dossier(&path, "prompt", "findings", None, None).unwrap();
         // Then: file contains a 4-digit current year
         let content = std::fs::read_to_string(&path).unwrap();
         let year = Local::now().format("%Y").to_string();
@@ -317,7 +379,7 @@ mod tests {
         let path = tmp.join("d.md");
         let marker = "UNIQUE-MARKER-XYZ";
         // When
-        write_dossier(&path, "prompt", marker, None).unwrap();
+        write_dossier(&path, "prompt", marker, None, None).unwrap();
         // Then: marker is present and appears after the Key Findings header
         let content = std::fs::read_to_string(&path).unwrap();
         let idx_key = content
@@ -342,7 +404,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         // When
-        write_dossier(&path, "prompt", "", None).unwrap();
+        write_dossier(&path, "prompt", "", None, None).unwrap();
         // Then
         assert!(path.exists());
         let content = std::fs::read_to_string(&path).unwrap();
@@ -360,7 +422,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         let findings = "Finding line. ".repeat(200);
-        write_dossier(&path, "prompt", &findings, None).unwrap();
+        write_dossier(&path, "prompt", &findings, None, None).unwrap();
         // When
         let issues = validate_dossier(&path);
         // Then
@@ -475,7 +537,7 @@ mod tests {
         std::fs::create_dir_all(&tmp).unwrap();
         let path = tmp.join("d.md");
         let findings = "Finding.\n".repeat(80);
-        write_dossier(&path, "prompt", &findings, None).unwrap();
+        write_dossier(&path, "prompt", &findings, None, None).unwrap();
         // Sanity: the stub sentinel is present in the writer output.
         let content = std::fs::read_to_string(&path).unwrap();
         assert!(content.contains(M4_STUB_SENTINEL));
@@ -488,6 +550,156 @@ mod tests {
             issues
         );
         let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    // ── Synthesis branch (M6) ──────────────────────────────────────────────
+
+    fn synth_body_with_all_sections(marker: &str) -> String {
+        let mut body = String::new();
+        for s in REQUIRED_SECTIONS {
+            body.push_str(s);
+            body.push_str("\n\n");
+            body.push_str(marker);
+            body.push_str(" — synthesised content for this section.\n\n");
+        }
+        body
+    }
+
+    #[test]
+    fn write_dossier_with_some_synth_embeds_synth_verbatim() {
+        // Given: a synthesised body containing a unique marker
+        let tmp = unique_tmp("synth_some");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let marker = "SYNTH-MARKER-XYZ";
+        let synth = synth_body_with_all_sections(marker);
+        // When
+        write_dossier(&path, "prompt", "raw findings", None, Some(&synth)).unwrap();
+        // Then: marker is present and the M4 stub sentinel is absent
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(content.contains(marker), "synth marker missing from dossier");
+        assert!(
+            !content.contains(M4_STUB_SENTINEL),
+            "synthesised dossier should NOT contain the M4 stub sentinel"
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn write_dossier_with_empty_synth_falls_back_to_m4_layout() {
+        // Given: an empty synthesised string (counts as None for layout purposes)
+        let tmp = unique_tmp("synth_empty");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        // When
+        write_dossier(&path, "prompt", "raw findings", None, Some("   ")).unwrap();
+        // Then: dossier still has the stub sentinels (fallback layout)
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains(M4_STUB_SENTINEL),
+            "empty synth should trigger M4 fallback layout containing the sentinel"
+        );
+        // and raw findings appear under Key Findings
+        assert!(content.contains("raw findings"));
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn write_dossier_with_synth_keeps_repo_context() {
+        // Given: synthesised body + a repo_context
+        let tmp = unique_tmp("synth_with_repo_ctx");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let synth = synth_body_with_all_sections("SYNTH-OK");
+        // When
+        write_dossier(
+            &path,
+            "prompt",
+            "raw",
+            Some("Tech: Rust\nMSRV: 1.85"),
+            Some(&synth),
+        )
+        .unwrap();
+        // Then: repo-context section is present, and synthesised body follows it
+        let content = std::fs::read_to_string(&path).unwrap();
+        let idx_ctx = content
+            .find(SECTION_REPOSITORY_CONTEXT)
+            .expect("dossier should contain Repository Context header");
+        let idx_synth = content
+            .find("SYNTH-OK")
+            .expect("dossier should contain synth marker");
+        assert!(
+            idx_synth > idx_ctx,
+            "synthesised body should appear after Repository Context"
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    // ── check_synthesis_complete ───────────────────────────────────────────
+
+    #[test]
+    fn check_synthesis_complete_flags_stub_sentinel() {
+        // Given: an M4-style dossier (writer output with synthesised = None)
+        let tmp = unique_tmp("check_synth_stub");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        write_dossier(&path, "prompt", "raw", None, None).unwrap();
+        // When
+        let issues = check_synthesis_complete(&path);
+        // Then: the sentinel is reported
+        assert!(!issues.is_empty(), "expected stub-sentinel issue");
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("stub")
+                || joined.to_lowercase().contains("sentinel")
+                || joined.contains("To be synthesised"),
+            "expected sentinel-related issue text; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_synthesis_complete_returns_empty_for_clean_synth_dossier() {
+        // Given: a synthesised dossier (writer with Some(synth))
+        let tmp = unique_tmp("check_synth_clean");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let synth = synth_body_with_all_sections("CLEAN");
+        write_dossier(&path, "prompt", "raw", None, Some(&synth)).unwrap();
+        // When
+        let issues = check_synthesis_complete(&path);
+        // Then: no issues reported
+        assert!(
+            issues.is_empty(),
+            "clean synth dossier should pass check_synthesis_complete; got: {:?}",
+            issues
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_synthesis_complete_flags_missing_file() {
+        // Given: a non-existent path
+        let tmp = unique_tmp("check_synth_missing");
+        let _ = std::fs::remove_dir_all(&tmp);
+        let path = tmp.join("does_not_exist.md");
+        // When
+        let issues = check_synthesis_complete(&path);
+        // Then: returns a not-found issue
+        assert!(!issues.is_empty());
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("not created")
+                || joined.to_lowercase().contains("not found"),
+            "expected not-found issue; got: {}",
+            joined
+        );
     }
 
     // ── Topic excerpt helper ───────────────────────────────────────────────
