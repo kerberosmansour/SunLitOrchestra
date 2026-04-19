@@ -20,7 +20,10 @@ use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::LogFile;
 use sldo_common::toolflags;
 
-use crate::prompt::{build_deepening_prompt, build_exploration_prompt, build_repo_context_prompt};
+use crate::prompt::{
+    build_deepening_prompt, build_exploration_prompt, build_repo_context_prompt,
+    build_websearch_prompt, SECTION_KEY_QUESTIONS,
+};
 
 /// Configuration for one research-loop run.
 pub struct ResearchConfig {
@@ -29,6 +32,9 @@ pub struct ResearchConfig {
     pub output_path: PathBuf,
     pub model: String,
     pub max_iterations: u32,
+    /// Maximum number of web-search invocations inserted between exploration
+    /// and deepening. Zero skips the phase entirely.
+    pub max_searches: u32,
     pub cooldown_secs: u64,
     pub log_dir: PathBuf,
 }
@@ -91,6 +97,28 @@ pub fn research_loop(cfg: &ResearchConfig) -> Result<ResearchFindings> {
             raw.push_str(&out);
         }
         Err(e) => warn(&format!("exploration phase failed: {:#}", e)),
+    }
+
+    // ── Web-search phase (M5) ───────────────────────────────────────────────
+    // Inserted between exploration and deepening. `max_searches == 0` skips
+    // the phase entirely — no log files, no invocations. Per-search failures
+    // log a warning and continue; they never halt the loop.
+    let questions = extract_key_questions(&raw);
+    for n in 1..=cfg.max_searches {
+        if cfg.cooldown_secs > 0 {
+            std::thread::sleep(Duration::from_secs(cfg.cooldown_secs));
+        }
+        let websearch_prompt = build_websearch_prompt(&cfg.prompt_content, &questions, n);
+        let log_name = format!("research-websearch-{}.log", n);
+        match run_phase(cfg, &working_dir, &log_name, websearch_prompt) {
+            Ok(out) => {
+                if !raw.is_empty() {
+                    raw.push_str("\n\n");
+                }
+                raw.push_str(&out);
+            }
+            Err(e) => warn(&format!("web-search invocation {} failed: {:#}", n, e)),
+        }
     }
 
     for iter in 2..=cfg.max_iterations {
