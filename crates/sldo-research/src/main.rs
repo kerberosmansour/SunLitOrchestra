@@ -4,10 +4,16 @@ use anyhow::{Context, Result};
 use clap::Parser;
 
 use sldo_common::color::{divider, header, info, success};
+use sldo_common::logging::ensure_log_dir;
 use sldo_common::preflight;
-use sldo_common::toolflags;
 
 mod prompt;
+mod research;
+
+/// Cooldown (seconds) inserted between deepening invocations. Mirrors
+/// `sldo-plan`'s COOLDOWN_SECS constant — gives Claude rate limits a chance to
+/// recover between calls.
+const COOLDOWN_SECS: u64 = 5;
 
 /// Generate a research dossier using Claude Code CLI.
 ///
@@ -107,8 +113,6 @@ fn run() -> Result<()> {
         None
     };
 
-    let _ = toolflags::research_allow_flags();
-
     divider();
 
     // ── Prompt construction (M2) ─────────────────────────────────────────
@@ -121,7 +125,30 @@ fn run() -> Result<()> {
     ));
     info(&format!("Exploration prompt first line: {}", first_line));
 
-    info("Research loop pending (milestone 3).");
+    // ── Research loop (M3) ───────────────────────────────────────────────
+    let working_dir = canonical_repo_dir
+        .clone()
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| PathBuf::from("."));
+    let log_dir = ensure_log_dir(&working_dir)?;
+
+    let cfg = research::ResearchConfig {
+        prompt_content,
+        repo_dir: canonical_repo_dir,
+        output_path: cli.output.clone(),
+        model: cli.model.clone(),
+        max_iterations: cli.max_iterations,
+        cooldown_secs: COOLDOWN_SECS,
+        log_dir,
+    };
+
+    divider();
+    header("Research loop");
+    let findings = research::research_loop(&cfg)?;
+    info(&format!(
+        "Research accumulated {} bytes of findings",
+        findings.len()
+    ));
 
     Ok(())
 }
