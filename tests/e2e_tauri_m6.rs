@@ -1,7 +1,7 @@
 //! E2E tests for Milestone 6 — Settings Panel & Provider Architecture.
 //!
 //! These tests validate:
-//! - Provider trait abstraction (CopilotProvider)
+//! - Provider trait abstraction (ClaudeProvider)
 //! - Settings persistence (JSON roundtrip, defaults)
 //! - Settings struct fields and defaults
 
@@ -28,8 +28,8 @@ struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            provider: "copilot".to_string(),
-            model: "claude-opus-4.6".to_string(),
+            provider: "claude".to_string(),
+            model: "claude-sonnet-4-6".to_string(),
             allow_flags: sldo_common::toolflags::plan_allow_flags(),
             deny_flags: sldo_common::toolflags::plan_deny_flags(),
             max_attempts: 150,
@@ -43,12 +43,12 @@ impl Default for AppSettings {
 // ── Feature: Provider trait abstraction ─────────────────────────────────
 
 #[test]
-fn copilot_provider_has_correct_name() {
-    // Given: A CopilotProvider (mirror check — the real struct lives in sldo-tauri)
-    // We verify the expected name is "copilot"
-    let expected_name = "copilot";
+fn claude_provider_has_correct_name() {
+    // Given: A ClaudeProvider (mirror check — the real struct lives in sldo-tauri)
+    // We verify the expected name is "claude"
+    let expected_name = "claude";
     // Then: The expected provider name matches the convention
-    assert_eq!(expected_name, "copilot");
+    assert_eq!(expected_name, "claude");
 }
 
 // ── Feature: Settings persistence ──────────────────────────────────────
@@ -57,11 +57,11 @@ fn copilot_provider_has_correct_name() {
 fn default_settings_created() {
     // Given: Default AppSettings
     let settings = AppSettings::default();
-    // Then: Has model "claude-opus-4.6" and non-empty flags
-    assert_eq!(settings.model, "claude-opus-4.6");
-    assert_eq!(settings.provider, "copilot");
+    // Then: Has expected model, provider, and flags
+    assert_eq!(settings.model, "claude-sonnet-4-6");
+    assert_eq!(settings.provider, "claude");
     assert!(!settings.allow_flags.is_empty(), "Default allow flags should not be empty");
-    assert!(!settings.deny_flags.is_empty(), "Default deny flags should not be empty");
+    assert!(settings.deny_flags.is_empty(), "Default deny flags should be empty for Claude Code CLI");
     assert_eq!(settings.max_attempts, 150);
     assert_eq!(settings.cooldown_secs, 5);
     assert_eq!(settings.max_iterations, 3);
@@ -72,10 +72,10 @@ fn default_settings_created() {
 fn settings_roundtrip_json() {
     // Given: AppSettings with custom values
     let settings = AppSettings {
-        provider: "copilot".to_string(),
-        model: "gpt-4o".to_string(),
-        allow_flags: vec!["--allow-tool=write".to_string()],
-        deny_flags: vec!["--deny-tool=shell(rm -rf /)".to_string()],
+        provider: "claude".to_string(),
+        model: "claude-opus-4-7".to_string(),
+        allow_flags: vec!["--allowedTools=Read,Write,Bash".to_string()],
+        deny_flags: vec![],
         max_attempts: 100,
         cooldown_secs: 10,
         max_iterations: 5,
@@ -95,7 +95,7 @@ fn settings_roundtrip_json() {
 
     // Then: Deserialized settings match original
     assert_eq!(loaded, settings);
-    assert_eq!(loaded.model, "gpt-4o");
+    assert_eq!(loaded.model, "claude-opus-4-7");
     assert_eq!(loaded.max_attempts, 100);
     assert_eq!(loaded.repo_dir, Some("/tmp/test-repo".to_string()));
 
@@ -118,7 +118,7 @@ fn invalid_settings_json_falls_back_to_defaults() {
     // Then: Deserialization fails, so we fall back to defaults
     assert!(result.is_err(), "Corrupted JSON should fail to parse");
     let defaults = AppSettings::default();
-    assert_eq!(defaults.model, "claude-opus-4.6");
+    assert_eq!(defaults.model, "claude-sonnet-4-6");
 
     // Cleanup
     let _ = fs::remove_dir_all(&tmp_dir);
