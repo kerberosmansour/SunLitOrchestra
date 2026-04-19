@@ -297,19 +297,13 @@ pub fn check_plan_readiness(path: &Path) -> Vec<String> {
     };
 
     issues.extend(validate_dossier(path));
+    issues.extend(check_synthesis_complete(path));
 
     if content.len() < MIN_PLAN_READY_SIZE {
         issues.push(format!(
             "Dossier is too small for plan-ready use ({} bytes < {} required).",
             content.len(),
             MIN_PLAN_READY_SIZE
-        ));
-    }
-
-    if content.contains(M4_STUB_SENTINEL) {
-        issues.push(format!(
-            "Dossier still contains the M4 stub sentinel '{}' — synthesis did not replace the stubs.",
-            M4_STUB_SENTINEL
         ));
     }
 
@@ -811,6 +805,219 @@ mod tests {
             "expected not-found issue; got: {}",
             joined
         );
+    }
+
+    // ── check_plan_readiness (M7) ──────────────────────────────────────────
+
+    /// Build a hand-written, plan-ready dossier body where every required
+    /// section has well over MIN_SECTION_BODY_BYTES of substantive content.
+    fn plan_ready_body() -> String {
+        let lorem = "This section discusses the relevant findings in detail. \
+Each bullet identifies a concrete decision or evaluated trade-off, with \
+citations and confidence tags so that the planning agent has enough \
+context to produce a meaningful runbook.";
+        let mut body = String::new();
+        body.push_str("---\n");
+        body.push_str("topic: a complete plan-ready research dossier\n");
+        body.push_str("generated_on: 2026-04-19 12:00:00 +0000\n");
+        body.push_str("source_prompt_bytes: 100\n");
+        body.push_str("generator: sldo-research\n");
+        body.push_str("---\n\n");
+        body.push_str("# Research Dossier\n\n");
+        body.push_str("This is a structured research artifact for sldo-plan.\n\n");
+        for s in REQUIRED_SECTIONS {
+            body.push_str(s);
+            body.push_str("\n\n");
+            body.push_str(lorem);
+            body.push_str("\n");
+            body.push_str(lorem);
+            body.push_str("\n\n");
+        }
+        body
+    }
+
+    #[test]
+    fn check_plan_readiness_passes_for_complete_dossier() {
+        // Given: a hand-written, well-padded, synth-replaced dossier
+        let tmp = unique_tmp("plan_ready_complete");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        std::fs::write(&path, plan_ready_body()).unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then: no issues
+        assert!(
+            issues.is_empty(),
+            "expected plan-ready dossier; got: {:?}",
+            issues
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_too_small() {
+        // Given: a hand-written, undersized dossier (< 1000 bytes)
+        let tmp = unique_tmp("plan_ready_small");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let mut body = String::new();
+        for s in REQUIRED_SECTIONS {
+            body.push_str(s);
+            body.push_str("\n\nshort\n\n");
+        }
+        // ~ 200 bytes total — well under 1000.
+        std::fs::write(&path, body).unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("too small")
+                || joined.to_lowercase().contains("size"),
+            "expected size issue; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_missing_design_recommendations() {
+        // Given: a dossier missing the Design Recommendations section
+        let tmp = unique_tmp("plan_ready_no_recs");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let body = plan_ready_body().replace("## Design Recommendations", "## Other Header");
+        std::fs::write(&path, body).unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        let joined = issues.join("\n");
+        assert!(
+            joined.contains("## Design Recommendations"),
+            "expected design-recs issue; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_stub_sentinel() {
+        // Given: a complete dossier that still contains the M4 stub sentinel
+        //        (synthesis fell back to the M4 layout)
+        let tmp = unique_tmp("plan_ready_stub");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        write_dossier(
+            &path,
+            "prompt",
+            "raw findings — keep the stubs around",
+            None,
+            None,
+        )
+        .unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        let joined = issues.join("\n");
+        assert!(
+            joined.contains("To be synthesised") || joined.to_lowercase().contains("stub"),
+            "expected stub-sentinel issue; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_no_lib_or_arch() {
+        // Given: a dossier with neither Library Evaluations nor Architecture Options
+        let tmp = unique_tmp("plan_ready_no_lib_arch");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        let body = plan_ready_body()
+            .replace("## Library & Tool Evaluations", "## Other A")
+            .replace("## Architecture Options", "## Other B");
+        std::fs::write(&path, body).unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("library")
+                || joined.to_lowercase().contains("architecture"),
+            "expected lib-or-arch issue; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_non_utf8_file() {
+        // Given: a file containing raw bytes that are not valid UTF-8
+        let tmp = unique_tmp("plan_ready_non_utf8");
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("d.md");
+        std::fs::write(&path, [0xFFu8, 0xFEu8, 0x00u8, 0x80u8]).unwrap();
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("utf-8") || joined.to_lowercase().contains("text"),
+            "expected UTF-8 issue; got: {}",
+            joined
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn check_plan_readiness_flags_missing_file() {
+        // Given: non-existent path
+        let tmp = unique_tmp("plan_ready_missing");
+        let _ = std::fs::remove_dir_all(&tmp);
+        let path = tmp.join("does_not_exist.md");
+        // When
+        let issues = check_plan_readiness(&path);
+        // Then
+        assert!(!issues.is_empty());
+        let joined = issues.join("\n");
+        assert!(
+            joined.to_lowercase().contains("not created")
+                || joined.to_lowercase().contains("not found"),
+            "expected not-found issue; got: {}",
+            joined
+        );
+    }
+
+    // ── section_body helper ───────────────────────────────────────────────
+
+    #[test]
+    fn section_body_extracts_between_headers() {
+        let content =
+            "## Foo\n\nfoo content\n\n## Design Recommendations\n\nrec body\nmore\n\n## Bar\n\nbar\n";
+        let body = section_body(content, "## Design Recommendations").unwrap();
+        assert!(body.contains("rec body"));
+        assert!(body.contains("more"));
+        assert!(!body.contains("foo content"));
+        assert!(!body.contains("bar"));
+    }
+
+    #[test]
+    fn section_body_returns_none_for_missing_header() {
+        let content = "## Foo\n\nfoo\n";
+        assert!(section_body(content, "## Missing").is_none());
+    }
+
+    #[test]
+    fn section_body_extracts_last_section() {
+        let content = "## Foo\n\nfoo\n\n## Design Recommendations\n\ntail content\n";
+        let body = section_body(content, "## Design Recommendations").unwrap();
+        assert_eq!(body, "tail content");
     }
 
     // ── Topic excerpt helper ───────────────────────────────────────────────
