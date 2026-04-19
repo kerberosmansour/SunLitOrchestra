@@ -131,7 +131,6 @@ confidence (high/medium/low) where applicable.]{repo_header_block}
 ///
 /// When `iteration >= 3`, the prompt also asks for consolidation/synthesis
 /// preparation (groundwork for M6's dedicated synthesis pass).
-#[allow(dead_code)] // wired in by Milestone 3 (research loop).
 pub fn build_deepening_prompt(
     prompt_content: &str,
     previous_findings: &str,
@@ -252,7 +251,6 @@ Emit a markdown document with the following section headers, in order:
 ///
 /// Instructs Claude Code to read README, manifest files, top-level structure,
 /// and emit a summary under the five repo-context section headers.
-#[allow(dead_code)] // wired in by Milestone 3 (research loop).
 pub fn build_repo_context_prompt(repo_dir: &Path) -> String {
     format!(
         r#"You are an expert research agent. Your job is to gather **repository
