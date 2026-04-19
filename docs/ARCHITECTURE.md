@@ -466,6 +466,55 @@ line after the loop — the M3 E2E test asserts on this string to prove the
 loop ran end-to-end without invoking the real Claude API (the test suite
 prepends a temp-dir containing a stub `claude` shell script to `PATH`).
 
+### Dossier format (M4)
+
+`crates/sldo-research/src/dossier.rs` holds the dossier markdown schema and
+the writer/validator pair that sit between the research loop and the rest of
+the pipeline. The writer is pure `std + chrono` — no I/O beyond the target
+file — and the validator follows `sldo-plan::validate_runbook`'s shape
+(returns `Vec<String>` issues, never panics).
+
+**Required sections (order-preserving):**
+
+| Section | Purpose |
+|---|---|
+| `## Executive Summary` | One-paragraph synthesis (stubbed at M4, filled at M6). |
+| `## Topic Decomposition` | The sub-questions from the exploration phase. |
+| `## Key Findings` | Raw findings captured from the research loop. |
+| `## Library & Tool Evaluations` | Libraries considered and pros/cons. |
+| `## Architecture Options` | Candidate architectures with trade-offs. |
+| `## API & SDK Documentation` | Notes from web search / vendor docs. |
+| `## Design Recommendations` | Ranked recommendations (confidence at M6). |
+| `## Risks & Open Questions` | Anything left unanswered. |
+| `## References` | URLs and citations. |
+
+The optional `## Repository Context` section is inserted between the
+frontmatter and the required sections when `--repo-dir` was supplied and the
+repo-context phase produced output.
+
+**Frontmatter fields:** `topic` (single-line excerpt of the user prompt,
+≤200 chars), `generated_on` (local timestamp), `source_prompt_bytes`,
+`generator: sldo-research`.
+
+**Key constants:**
+
+- `REQUIRED_SECTIONS` — the nine always-present section headers above.
+- `PLACEHOLDER_PATTERNS` — `[TBD]`, `[description]`, `[findings]`,
+  `[to be filled]`, `TODO:`. These cause `validate_dossier` to report an
+  issue.
+- `M4_STUB_SENTINEL` — the literal string `"To be synthesised in M6"` that
+  the writer emits inside every non-`Key Findings` required section. M4's
+  validator tolerates the sentinel; M6's synthesis pass replaces it; M7's
+  `check_plan_readiness` asserts its absence.
+
+**`write_dossier`** creates any missing parent directories, writes the
+frontmatter + section skeleton, and fails only if the target path cannot
+be written. **`validate_dossier`** checks file existence, size ≥ 500 bytes,
+every `REQUIRED_SECTIONS` header, and any placeholder pattern. M3's
+`research_loop` return type became `ResearchFindings { raw, repo_context }`
+in M4 so the writer can emit the repo-context section separately from the
+raw findings.
+
 ## Test Architecture
 
 ### Backend Tests
@@ -495,6 +544,7 @@ prepends a temp-dir containing a stub `claude` shell script to `PATH`).
 | E2E research M1 | `tests/e2e_research_m1.rs` | 6 | Research scaffold E2E |
 | E2E research M2 | `tests/e2e_research_m2.rs` | 3 | Prompt builder E2E |
 | E2E research M3 | `tests/e2e_research_m3.rs` | 9 | Research loop E2E |
+| E2E research M4 | `tests/e2e_research_m4.rs` | 6 | Dossier writer & validator E2E |
 
 **Total backend tests: 241**
 
