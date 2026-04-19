@@ -428,6 +428,44 @@ milestones rely on:
 At M2 the binary constructs the exploration prompt after pre-flight and prints
 its byte length + first line. The Claude Code invocation itself lands in M3.
 
+### sldo-research — Research Loop (M3)
+
+`crates/sldo-research/src/research.rs` drives Claude Code through the
+exploration → deepening pipeline. The module is two layers:
+
+- **`ResearchConfig`** — owned input bundle (prompt, optional canonicalised
+  repo dir, output path, model, max iterations, cooldown seconds, log
+  directory). Constructed once in `main.rs::run()` and passed by reference
+  into `research_loop`.
+- **`research_loop(&ResearchConfig) -> Result<String>`** — drives three
+  phases and returns the accumulated findings string. Per-phase failures are
+  logged via `warn(...)` but never abort the loop; the function only fails
+  fast on filesystem errors (e.g., the output parent cannot be created).
+
+**Phases:**
+
+| Phase | Log file | Triggered when |
+|---|---|---|
+| Repo context | `.sldo-logs/research-repo-context.log` | `repo_dir` is `Some` |
+| Exploration | `.sldo-logs/research-exploration.log` | always (iteration 1) |
+| Deepening   | `.sldo-logs/research-deepen-N.log` (N=2..max) | `max_iterations >= 2` |
+
+A `cooldown_secs` sleep is inserted **before** each deepening iteration
+(matching `sldo-plan`'s pacing). A scratch file named
+`.research-scratch-iter-N.md` is written next to the dossier output path
+after each phase that produced findings — these are the raw per-phase
+captures used by M5 (web-search) and M6 (synthesis).
+
+Claude Code is invoked through `sldo_common::copilot::ClaudeInvocation`
+with `toolflags::research_allow_flags()` / `research_deny_flags()`. The
+working directory passed to Claude is the canonical `repo_dir` if provided,
+otherwise the process CWD.
+
+The binary surfaces an `info("Research accumulated N bytes of findings")`
+line after the loop — the M3 E2E test asserts on this string to prove the
+loop ran end-to-end without invoking the real Claude API (the test suite
+prepends a temp-dir containing a stub `claude` shell script to `PATH`).
+
 ## Test Architecture
 
 ### Backend Tests
@@ -454,8 +492,11 @@ its byte length + first line. The Claude Code invocation itself lands in M3.
 | E2E voice-tx M2 | `tests/e2e_voice_tx_m2.rs` | 5 | Standalone transcription backend E2E |
 | E2E voice-tx M4 | `tests/e2e_voice_tx_m4.rs` | 4 | Edge cases & macOS permission E2E |
 | E2E voice-tx M5 | `tests/e2e_voice_tx_m5.rs` | 3 | Polish & documentation E2E |
+| E2E research M1 | `tests/e2e_research_m1.rs` | 6 | Research scaffold E2E |
+| E2E research M2 | `tests/e2e_research_m2.rs` | 3 | Prompt builder E2E |
+| E2E research M3 | `tests/e2e_research_m3.rs` | 9 | Research loop E2E |
 
-**Total backend tests: 223**
+**Total backend tests: 241**
 
 ### Frontend Tests
 
