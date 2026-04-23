@@ -1,0 +1,20 @@
+[package]
+name = "sldo-install"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "sldo-install"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+anyhow = { workspace = true }
+colored = { workspace = true }
+chrono = { workspace = true }
+sldo-common = { path = "../sldo-common" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

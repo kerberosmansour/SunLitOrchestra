@@ -24,3 +24,9 @@ target/
 
 # Research dossier output directory
 output/
+
+# User-local Claude Code state in this repo (scheduled_tasks.lock, settings.local.json)
+.claude/
+
+# TLA+ tool cache location if a user accidentally symlinks it into the repo
+.sldo/
