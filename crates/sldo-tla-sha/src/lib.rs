@@ -153,6 +153,37 @@ pub fn fetch_and_hash(url: &str, max_bytes: u64) -> Result<String> {
     hash_reader(resp, max_bytes)
 }
 
+/// Outcome of re-fetching one section's URL and comparing the computed
+/// SHA-256 against the stored one.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VerifyOutcome {
+    pub section: String,
+    pub expected: String,
+    pub actual: String,
+    pub passed: bool,
+}
+
+/// Re-fetch every populated section and compare. The `fetcher` closure is
+/// injected so tests can drive verification without real network I/O.
+pub fn verify_all<F>(tools: &ToolsToml, fetcher: F, max_bytes: u64) -> Result<Vec<VerifyOutcome>>
+where
+    F: Fn(&str, u64) -> Result<String>,
+{
+    let mut out = Vec::new();
+    for (section, entry) in tools.populated_sections() {
+        let actual = fetcher(&entry.url, max_bytes)
+            .with_context(|| format!("failed to fetch/hash [{section}]"))?;
+        let passed = actual == entry.sha256;
+        out.push(VerifyOutcome {
+            section: section.to_string(),
+            expected: entry.sha256.clone(),
+            actual,
+            passed,
+        });
+    }
+    Ok(out)
+}
+
 /// Format the TOML patch stdout for a set of (section_name, new_sha) pairs.
 pub fn format_patch(updates: &[(String, String)]) -> String {
     let mut out = String::new();
@@ -271,5 +302,83 @@ sha256 = "abcd"
     #[test]
     fn host_of_rejects_malformed() {
         assert!(host_of("not-a-url").is_err());
+    }
+
+    fn two_populated_tools() -> ToolsToml {
+        let src = r#"
+[tlc]
+version = "1.8.0"
+url = "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+[apalache]
+version = "0.44.11"
+url = "https://github.com/apalache-mc/apalache/releases/download/v0.44.11/apalache.tgz"
+sha256 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+"#;
+        toml::from_str(src).unwrap()
+    }
+
+    #[test]
+    fn verify_all_all_match_returns_pass_for_every_section() {
+        let tools = two_populated_tools();
+        // Fetcher returns the expected hash per section.
+        let fetcher = |url: &str, _max: u64| {
+            Ok(if url.contains("tlaplus") {
+                "a".repeat(64)
+            } else {
+                "b".repeat(64)
+            })
+        };
+        let out = verify_all(&tools, fetcher, 1024).unwrap();
+        assert_eq!(out.len(), 2);
+        assert!(out.iter().all(|o| o.passed), "all should pass; got {out:?}");
+    }
+
+    #[test]
+    fn verify_all_one_mismatch_flags_only_the_bad_one() {
+        let tools = two_populated_tools();
+        // tlc returns the stored hash; apalache returns a tampered one.
+        let fetcher = |url: &str, _max: u64| {
+            Ok(if url.contains("tlaplus") {
+                "a".repeat(64)
+            } else {
+                "c".repeat(64) // expected "b"*64, actual "c"*64
+            })
+        };
+        let out = verify_all(&tools, fetcher, 1024).unwrap();
+        assert_eq!(out.len(), 2);
+        let tlc = out.iter().find(|o| o.section == "tlc").unwrap();
+        let apa = out.iter().find(|o| o.section == "apalache").unwrap();
+        assert!(tlc.passed, "tlc should pass");
+        assert!(!apa.passed, "apalache should fail");
+        assert_eq!(apa.expected, "b".repeat(64));
+        assert_eq!(apa.actual, "c".repeat(64));
+    }
+
+    #[test]
+    fn verify_all_propagates_fetch_errors() {
+        let tools = two_populated_tools();
+        let fetcher = |_url: &str, _max: u64| -> Result<String> {
+            Err(anyhow::anyhow!("simulated network failure"))
+        };
+        let err = verify_all(&tools, fetcher, 1024).unwrap_err();
+        // Must surface the failing section name for triage.
+        let msg = format!("{err:#}");
+        assert!(msg.contains("failed to fetch/hash"));
+    }
+
+    #[test]
+    fn verify_all_empty_when_no_populated_sections() {
+        let src = r#"
+[tlc]
+version = "1.8.0"
+url = "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar"
+sha256 = "UNSET"
+"#;
+        let tools: ToolsToml = toml::from_str(src).unwrap();
+        let fetcher = |_url: &str, _max: u64| Ok(String::new());
+        let out = verify_all(&tools, fetcher, 1024).unwrap();
+        assert!(out.is_empty());
     }
 }

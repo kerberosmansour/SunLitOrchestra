@@ -22,7 +22,7 @@
 | # | Milestone | Status | Started | Completed | Lessons | Completion |
 |---|---|---|---|---|---|---|
 | 1 | `sldo-tla-sha` binary: read tools.toml, fetch URLs, compute + print patch | `done` | 2026-04-24 | 2026-04-24 | [tla-sha-m1.md](lessons/tla-sha-m1.md) | [tla-sha-m1.md](completion/tla-sha-m1.md) |
-| 2 | Add `--verify` subcommand that checks current SHAs against live URLs | `not_started` | | | | |
+| 2 | Add `--verify` subcommand that checks current SHAs against live URLs | `done` | 2026-04-24 | 2026-04-24 | [tla-sha-m2.md](lessons/tla-sha-m2.md) | [tla-sha-m2.md](completion/tla-sha-m2.md) |
 
 ---
 
