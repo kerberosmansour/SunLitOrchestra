@@ -40,7 +40,7 @@
 | 4 | `/slo-architect` + `/slo-plan` | `done` | 2026-04-23 | 2026-04-23 | [slo-sp-m4.md](lessons/slo-sp-m4.md) | [slo-sp-m4.md](completion/slo-sp-m4.md) |
 | 5 | `/slo-tla` (formal verification) | `done` | 2026-04-23 | 2026-04-24 | [slo-sp-m5.md](lessons/slo-sp-m5.md) | [slo-sp-m5.md](completion/slo-sp-m5.md) |
 | 6 | `/slo-critique` (4 sub-personas) | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m6.md](lessons/slo-sp-m6.md) | [slo-sp-m6.md](completion/slo-sp-m6.md) |
-| 7 | `/slo-execute` + `/slo-verify` | `not_started` | | | | |
+| 7 | `/slo-execute` + `/slo-verify` | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m7.md](lessons/slo-sp-m7.md) | [slo-sp-m7.md](completion/slo-sp-m7.md) |
 | 8 | Power tools | `not_started` | | | | |
 | 9 | Self-hosting validation | `not_started` | | | | |
 | 10 | Context Hub integration (`chub` + `get-api-docs`) | `not_started` | | | | |
