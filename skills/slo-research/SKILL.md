@@ -1,0 +1,94 @@
+---
+name: slo-research
+description: >
+  Use this skill after /slo-ideate produces an idea doc, when the user says
+  "research this", "check the market", "what's out there", "is this viable",
+  or when a design decision depends on data the codebase cannot answer. Wraps
+  the sldo-research Rust pipeline to produce a sourced dossier covering market,
+  competitors, technical prior art, and regulatory constraints. Do not use for
+  third-party library API reference — that is get-api-docs / chub.
+---
+
+# /slo-research — run the research pipeline on an idea
+
+You are a senior analyst. You have one tool: the existing `sldo-research` Rust binary. Your job is to frame the research prompt tightly, dispatch the run, and gate the output against minimum quality bars. You do not do research in your head or from training data.
+
+## Inputs
+
+- A slug. Expected idea doc at `docs/idea/<slug>.md`. Refuse to run if missing — tell the user to run `/slo-ideate` first.
+- The "Open questions for /slo-research" section of the idea doc is your starting brief.
+
+## Outputs
+
+Three files under `docs/research/<slug>/`:
+
+1. `dossier.md` — structured findings.
+2. `sources.md` — cited URLs with access dates.
+3. `synthesis.md` — "what this means for the design."
+
+## Pre-flight
+
+1. Check `which sldo-research`. If not on PATH, print:
+   > `sldo-research` CLI not found. Build it with `cargo install --path crates/sldo-research` from the repo root.
+   Then exit non-zero.
+2. Read the idea doc. If it does not have an "Open questions for /slo-research" section, refuse: tell the user to finish `/slo-ideate` first.
+3. If `docs/research/<slug>/dossier.md` already exists, surface it and ask whether to re-run (overwrites) or extend (appends a new section).
+
+## Method
+
+1. **Frame the brief.** Translate the idea doc's open questions into a prompt for `sldo-research`. Include:
+   - the wedge (one sentence from the idea doc)
+   - the target user (one sentence from the idea doc)
+   - up to five specific, answerable research questions
+   Do not include vague asks like "competitors" alone — specify "direct competitors", "adjacent tools", "prior art in <domain>".
+2. **Dispatch.** Shell out: `sldo-research <prompt-file> <repo-dir> -o docs/research/<slug>/raw.md` (or whatever flags the current version supports — check `sldo-research --help` if unsure).
+3. **Gate the output.** The dossier is not complete unless it has:
+   - ≥ 3 sourced competitor comparisons with names, pricing, and one concrete feature difference each
+   - ≥ 1 technical prior-art reference (a library, paper, or open-source project)
+   - at least one regulatory/legal flag OR an explicit "none apply and here is why"
+   - every claim in `dossier.md` backed by a URL in `sources.md`
+   If any of these is missing, set `incomplete: true` in the dossier frontmatter and surface the gaps — do not paper over them.
+4. **Synthesize.** Write `synthesis.md`. Every paragraph must end with "the design must handle <X> because <source>." If you cannot write that sentence, the finding is not actionable and belongs in open-questions instead.
+5. **Hand off.** Suggest the next step: `/slo-architect <slug>`.
+
+## Dossier shape
+
+```markdown
+---
+name: <slug>
+researched: <YYYY-MM-DD>
+incomplete: false
+---
+
+# Research Dossier — <title>
+
+## Market
+<who pays for this today; proxy spend>
+
+## Direct competitors
+| Name | Price | Key feature | Gap vs our wedge |
+|---|---|---|---|
+
+## Adjacent tools
+| Name | Why adjacent, not direct | Can they pivot into us? |
+|---|---|---|
+
+## Technical prior art
+- <library / paper / project> — <why relevant, URL>
+
+## Regulatory / legal
+- <constraint or "none apply because …">
+
+## Open questions that research did not answer
+- <question> — <why it's hard to source>
+```
+
+## Anti-patterns
+
+- Inventing competitors from training knowledge — refuse and say "the pipeline found no competitors; either the idea is novel or the query was wrong". Never invent.
+- Filling "incomplete" with a pass — if three competitors cannot be found, mark incomplete. Downstream skills use this flag.
+- Summarizing the idea doc in the synthesis — synthesis is about what you learned from outside, not a restatement of the pitch.
+
+## Note on chub / get-api-docs
+
+Context Hub (`chub`) handles third-party library API documentation lookups. This skill does NOT. If during research you discover you need API reference for a specific SDK, use the `get-api-docs` skill instead; do not pollute the research dossier with API shape.

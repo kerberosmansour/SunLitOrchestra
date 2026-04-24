@@ -1,0 +1,16 @@
+[package]
+name = "sldo-common"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "sldo_common"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+regex = { workspace = true }
+colored = { workspace = true }
+chrono = { workspace = true }
+which = { workspace = true }

@@ -1,0 +1,47 @@
+------------------------------ MODULE {{NAME}} ------------------------------
+(***************************************************************************)
+(* {{TITLE}}                                                                *)
+(*                                                                         *)
+(* Replace the placeholders below with your design. Keep the model as      *)
+(* small as possible — enough to express the safety property and one or    *)
+(* two actions, no more. Grow incrementally.                               *)
+(***************************************************************************)
+
+EXTENDS Naturals, Sequences
+
+CONSTANTS N                      \* number of actors, fix in .cfg
+
+ASSUME N \in Nat /\ N >= 1
+
+VARIABLES
+  pc                              \* per-actor program counter
+
+vars == << pc >>
+
+TypeOK ==
+  pc \in [1..N -> {"start", "done"}]
+
+Init ==
+  pc = [i \in 1..N |-> "start"]
+
+Step(i) ==
+  /\ pc[i] = "start"
+  /\ pc' = [pc EXCEPT ![i] = "done"]
+
+Next ==
+  \E i \in 1..N : Step(i)
+
+Spec ==
+  Init /\ [][Next]_vars /\ WF_vars(Next)
+
+\* ---- Safety ----
+
+NoDoubleDone ==                   \* example invariant; REPLACE with your real property
+  \A i \in 1..N : pc[i] \in {"start", "done"}
+
+\* ---- Liveness ----
+
+EventuallyDone ==                 \* example liveness; REPLACE with your real property
+  \A i \in 1..N : <>(pc[i] = "done")
+
+=============================================================================

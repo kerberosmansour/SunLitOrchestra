@@ -1,0 +1,118 @@
+[workspace]
+members = [
+    "crates/sldo-common",
+    "crates/sldo-plan",
+    "crates/sldo-run",
+    "crates/sldo-research",
+    "crates/sldo-tauri",
+    "crates/sldo-install",
+    "crates/sldo-tla-sha",
+]
+resolver = "2"
+
+[workspace.dependencies]
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+thiserror = "2"
+colored = "2"
+regex = "1"
+chrono = "0.4"
+which = "7"
+
+# Root package hosts workspace-level E2E / integration tests.
+[package]
+name = "sunlit-orchestrate-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+sldo-common = { path = "crates/sldo-common" }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+dotenvy = "0.15"
+base64 = "0.22"
+
+[[test]]
+name = "e2e_scaffold_m1"
+path = "tests/e2e_scaffold_m1.rs"
+
+[[test]]
+name = "e2e_common_m2"
+path = "tests/e2e_common_m2.rs"
+
+[[test]]
+name = "e2e_plan_m3"
+path = "tests/e2e_plan_m3.rs"
+
+[[test]]
+name = "e2e_run_m4"
+path = "tests/e2e_run_m4.rs"
+
+[[test]]
+name = "e2e_integration_m5"
+path = "tests/e2e_integration_m5.rs"
+
+[[test]]
+name = "e2e_tauri_m1"
+path = "tests/e2e_tauri_m1.rs"
+
+[[test]]
+name = "e2e_tauri_m3"
+path = "tests/e2e_tauri_m3.rs"
+
+[[test]]
+name = "e2e_tauri_m4"
+path = "tests/e2e_tauri_m4.rs"
+
+[[test]]
+name = "e2e_tauri_m5"
+path = "tests/e2e_tauri_m5.rs"
+
+[[test]]
+name = "e2e_tauri_m6"
+path = "tests/e2e_tauri_m6.rs"
+
+[[test]]
+name = "e2e_tauri_m7"
+path = "tests/e2e_tauri_m7.rs"
+
+[[test]]
+name = "e2e_tauri_m8"
+path = "tests/e2e_tauri_m8.rs"
+
+[[test]]
+name = "e2e_voice_tx_m1"
+path = "tests/e2e_voice_tx_m1.rs"
+
+[[test]]
+name = "e2e_voice_tx_m2"
+path = "tests/e2e_voice_tx_m2.rs"
+
+[[test]]
+name = "e2e_research_m1"
+path = "tests/e2e_research_m1.rs"
+
+[[test]]
+name = "e2e_research_m2"
+path = "tests/e2e_research_m2.rs"
+
+[[test]]
+name = "e2e_research_m3"
+path = "tests/e2e_research_m3.rs"
+
+[[test]]
+name = "e2e_research_m4"
+path = "tests/e2e_research_m4.rs"
+
+[[test]]
+name = "e2e_research_m5"
+path = "tests/e2e_research_m5.rs"
+
+[[test]]
+name = "e2e_research_m6"
+path = "tests/e2e_research_m6.rs"
+
+[[test]]
+name = "e2e_research_m7"
+path = "tests/e2e_research_m7.rs"
