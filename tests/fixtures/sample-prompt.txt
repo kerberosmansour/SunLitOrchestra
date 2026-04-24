@@ -1,0 +1,8 @@
+Add a search feature to the project.
+
+The search should support:
+- Full-text search across all documents
+- Filtering by date range
+- Sorting by relevance or date
+
+Use the existing document storage module as the data source.
