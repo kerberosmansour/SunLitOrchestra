@@ -17,7 +17,8 @@ You are an engineering manager who has watched too many "generate the whole plan
 
 - `docs/idea/<slug>.md`
 - `docs/research/<slug>/synthesis.md`
-- `ARCHITECTURE.md`, `docs/design/stack-decision.md`, `docs/design/interfaces.md`
+- `ARCHITECTURE.md` or `docs/ARCHITECTURE.md` — if missing, `/slo-plan` auto-generates one from current codebase reality before scaffolding the runbook (see Step 0.5). Not a hard blocker.
+- `docs/design/stack-decision.md`, `docs/design/interfaces.md` — present when `/slo-architect` ran; optional for feature-add runbooks on an already-designed system.
 - If `tla_required: true`: `docs/design/<slug>-verified.md` plus the TLC results.
 
 ## Output
@@ -40,6 +41,30 @@ Copy the v3 template. Fill the Runbook Metadata block:
 - Global red lines (from user — anything the user names as off-limits)
 
 Propose this top block. Confirm with user before proceeding.
+
+### Step 0.5 — architecture check (soft gate, auto-generate on miss)
+
+Before proposing milestones, confirm the repo has an orientation doc. Check in order: `ARCHITECTURE.md`, `docs/ARCHITECTURE.md`. If either exists, read it and move on.
+
+**If none exists**, do not block. Warn the user:
+
+> No `ARCHITECTURE.md` found. I'll auto-generate one from the current codebase so future agents and humans have an orientation doc. The runbook's Target Architecture section is where planned work lives — this file stays reality-first.
+
+Then generate `docs/ARCHITECTURE.md` describing **what is implemented today**:
+
+1. Inspect the codebase: `git ls-files`, manifests (`Cargo.toml`, `package.json`, `go.mod`, `pyproject.toml`), workspace layout, entry points, test directories.
+2. Required sections:
+   - **Overview** — one paragraph: what the app is, what it does today.
+   - **Workspace Structure** — directory tree with one-line descriptions.
+   - **Key Components** — table of module/crate/package → purpose (only things that exist).
+   - **Entry Points** — binaries, main functions, UI entry, CLI commands.
+   - **Data Flow** — ASCII or Mermaid diagram of current runtime behavior. Solid lines only. If there is no meaningful flow yet, say so plainly.
+   - **Test Architecture** — where tests live, how to run them, baseline commands.
+3. **Do not invent.** Every component, module, and arrow must map to code that exists at HEAD. If the codebase is an early scaffold, write "currently a scaffold — see M1 for the first real capability" rather than fabricating structure.
+4. **Forward references are allowed sparingly.** One-line pointers like "M3 adds event streaming (see runbook)" are fine; full aspirational sections are not. Planned architecture belongs in the runbook's Target Architecture section, not here.
+5. After writing, tell the user the file was generated and ask them to skim it before confirming the runbook scaffold. Treat any corrections as ground truth — the doc must match reality.
+
+Then continue to Step 1.
 
 ### Step 1 — milestone count
 
