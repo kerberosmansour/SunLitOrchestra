@@ -6,6 +6,7 @@ members = [
     "crates/sldo-research",
     "crates/sldo-tauri",
     "crates/sldo-install",
+    "crates/sldo-tla-sha",
 ]
 resolver = "2"
 

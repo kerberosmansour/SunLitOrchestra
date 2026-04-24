@@ -21,7 +21,7 @@
 
 | # | Milestone | Status | Started | Completed | Lessons | Completion |
 |---|---|---|---|---|---|---|
-| 1 | `sldo-tla-sha` binary: read tools.toml, fetch URLs, compute + print patch | `not_started` | | | | |
+| 1 | `sldo-tla-sha` binary: read tools.toml, fetch URLs, compute + print patch | `done` | 2026-04-24 | 2026-04-24 | [tla-sha-m1.md](lessons/tla-sha-m1.md) | [tla-sha-m1.md](completion/tla-sha-m1.md) |
 | 2 | Add `--verify` subcommand that checks current SHAs against live URLs | `not_started` | | | | |
 
 ---
@@ -61,6 +61,8 @@ Follow [runbook-template_v_3_template.md](runbook-template_v_3_template.md) verb
 
 ### BDD Scenarios
 
+Critique findings f1 and f2 accepted: `redirect_to_foreign_host_aborts` and `oversize_response_aborts` added.
+
 | Scenario | Category | Given | When | Then |
 |---|---|---|---|---|
 | prints_patch_for_unset | happy path | `tools.toml` has two entries with `sha256 = "UNSET"` | `sldo-tla-sha` runs | stdout is a diff-style patch with two replaced lines |
@@ -68,6 +70,8 @@ Follow [runbook-template_v_3_template.md](runbook-template_v_3_template.md) verb
 | dry_run_no_network | happy path | `--dry-run` passed | Run | Prints "would fetch: `<url>`" lines, no HTTP requests issued |
 | missing_tools_toml | invalid input | Path does not exist | Run | Exits non-zero with clear error |
 | network_failure | dependency failure | URL returns 404 | Run | Aborts with error naming the failing URL; does not print partial patch |
+| redirect_to_foreign_host_aborts | dependency failure (critique f1) | URL redirects to host not on allow-list | Run | Aborts; final host is rejected; no SHA computed |
+| oversize_response_aborts | dependency failure (critique f2) | Response exceeds the max-bytes cap | Run | Streaming aborts at cap; error names the limit |
 
 ### E2E Runtime Validation
 
