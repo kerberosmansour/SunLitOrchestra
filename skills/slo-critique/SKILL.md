@@ -30,7 +30,7 @@ Run the personas in this order, one at a time. Do not interleave:
 
 1. **CEO** (`personas/ceo.md`) — scope challenge. Is there a 10-star product hiding inside? Should we expand, hold, or reduce?
 2. **Eng lead** (`personas/eng.md`) — architecture pokes. Hidden assumptions, missing failure modes, test gaps, orthogonal edits.
-3. **Security** (`personas/security.md`) — OWASP Top 10 + STRIDE. Concrete exploit scenarios only.
+3. **Security** (`personas/security.md`) — class elimination + variant analysis + threat-model citation. Every finding names a bug class from [`references/bug-class-catalog.md`](references/bug-class-catalog.md), cites a row from `docs/design/<slug>-threat-model.md`, answers whether the class is eliminated / mitigated / residual, and includes a variant-analysis pointer from [`references/variant-analysis-playbook.md`](references/variant-analysis-playbook.md). Concrete exploit scenarios only.
 4. **Design** (`personas/design.md`) — only if the runbook has a UI surface. AI-slop detection, interaction gaps, empty-state handling. Skip with a note if N/A.
 
 ## Finding format
