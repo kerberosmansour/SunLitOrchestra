@@ -41,9 +41,9 @@
 | 5 | `/slo-tla` (formal verification) | `done` | 2026-04-23 | 2026-04-24 | [slo-sp-m5.md](lessons/slo-sp-m5.md) | [slo-sp-m5.md](completion/slo-sp-m5.md) |
 | 6 | `/slo-critique` (4 sub-personas) | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m6.md](lessons/slo-sp-m6.md) | [slo-sp-m6.md](completion/slo-sp-m6.md) |
 | 7 | `/slo-execute` + `/slo-verify` | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m7.md](lessons/slo-sp-m7.md) | [slo-sp-m7.md](completion/slo-sp-m7.md) |
-| 8 | Power tools | `not_started` | | | | |
-| 9 | Self-hosting validation | `not_started` | | | | |
-| 10 | Context Hub integration (`chub` + `get-api-docs`) | `not_started` | | | | |
+| 8 | Power tools | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m8.md](lessons/slo-sp-m8.md) | [slo-sp-m8.md](completion/slo-sp-m8.md) |
+| 9 | Self-hosting validation | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m9.md](lessons/slo-sp-m9.md) | [slo-sp-m9.md](completion/slo-sp-m9.md) |
+| 10 | Context Hub integration (`chub` + `get-api-docs`) | `done` | 2026-04-24 | 2026-04-24 | [slo-sp-m10.md](lessons/slo-sp-m10.md) | [slo-sp-m10.md](completion/slo-sp-m10.md) |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/lessons/slo-sp-m<N>.md -->
