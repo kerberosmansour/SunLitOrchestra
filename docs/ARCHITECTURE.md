@@ -13,6 +13,33 @@ SunLitOrchestrate is an AI-driven software development toolkit with two interfac
 
 Both interfaces share `sldo-common`, a library of reusable modules.
 
+A third, first-class surface ships alongside the CLIs and desktop app: the `/slo-*` **skill pack** (see [Skill Pack](#skill-pack) below). Skills are Markdown `SKILL.md` files consumed by Claude Code; they are not compiled Rust. The CLI tools (`sldo-plan`, `sldo-run`) were the original interface; the skill pack is the active direction (the `sldo-tauri` desktop app is parked).
+
+## Skill Pack
+
+The skill pack lives at `skills/slo-*/` and is installed to `~/.claude/skills/` by `sldo-install`. Each skill is a directory with a single `SKILL.md` plus optional support files (`personas/`, `examples/`, `references/`). Skills are invoked by the user as `/<skill-name>` in Claude Code; the loader reads `SKILL.md` frontmatter (`name:`, `description:`) and exposes the skill.
+
+| Stage | Skill | Purpose |
+|---|---|---|
+| Ideate | `slo-ideate` | YC-style interrogation before code |
+| Research | `slo-research` | Wraps the `sldo-research` Rust binary for sourced dossiers |
+| Architect | `slo-architect` | Emits `ARCHITECTURE.md` / `docs/design/*.md`, decides `tla_required` |
+| Verify design | `slo-tla` | TLC model-check when the architect flags concurrency risk |
+| Plan | `slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
+| Critique | `slo-critique` | Four-persona adversarial review (CEO, eng, security, design) |
+| Execute | `slo-execute` | Per-milestone driver with allow-list enforcement |
+| Verify | `slo-verify` | Runtime QA in four passes (happy / degraded / partial failure / **security — supply-chain + variant-analysis + conditional DAST**); Playwright for UI surfaces |
+| Close | `slo-retro` | Lessons + completion + tracker update |
+| Ship | `slo-ship` | Open PR with runbook-aware description |
+| Power tools | `slo-freeze`, `slo-resume`, `slo-second-opinion`, `get-api-docs` | Auxiliary disciplines |
+
+### Skill pack invariants (reality at HEAD)
+
+- **Markdown-only skill contract.** No compiled code in `skills/slo-*/`. Shell-outs are the extension mechanism — skills invoke `sldo-research`, `gh`, `cargo test`, or any CLI the host has available.
+- **Canonical planning artifact.** Every feature runbook is `docs/RUNBOOK-<feature>.md` and follows `docs/runbook-template_v_3_template.md`. The template is the output contract of `/slo-plan`.
+- **Reality-first ARCHITECTURE.md.** This file describes implemented code at HEAD. Planned work for a feature lives in `docs/design/<slug>-overview.md` and in that feature's runbook Target Architecture section.
+- **Baseline test command.** `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install` (not `--workspace`; the parked `sldo-tauri` crate breaks that on macOS arm64).
+
 ## Workspace Structure
 
 ```

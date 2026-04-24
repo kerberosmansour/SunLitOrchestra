@@ -99,6 +99,75 @@ Do not check or install Apalache at skill start. Only check when TLC reports sta
 > Install: https://github.com/apalache-mc/apalache/releases/latest
 > Re-run this skill with `--use-apalache` once installed.
 
+### 5. Gitignore TLC generated artifacts
+
+TLC writes several kinds of noise that must not be committed. Ensure the repo's `.gitignore` covers them before your first TLC run (so untracked diffs don't surprise the user). If the repo has a `.gitignore`, check whether these patterns are present; if not, append a `# TLA+ / TLC generated artifacts` block:
+
+```
+# TLA+ / TLC generated artifacts (keep specs and .cfg, ignore caches and traces)
+**/*_TTrace_*.tla
+**/*_TTrace_*.bin
+**/states/
+**/*-run.log
+**/MC.out
+**/MC.cfg
+**/*.dot
+**/*.toolbox/
+```
+
+Scope the paths tightly under the TLA+ directory (e.g. `docs/TLAdocs/**/states/` or `specs/**/states/`) if the repo uses `states/` for anything else. Do not overwrite existing `.gitignore` content — append only. Keep `.tla` and `.cfg` files tracked; they are the source of truth. Only the per-run scratch artifacts are ignored.
+
+## Suitability gate — is TLA+ the right tool?
+
+Before elicitation, decide whether TLA+ is actually the right verification tool for the problem in front of you. TLA+ is expensive (engineering time + learning curve for future readers) and not every `tla_required: true` verdict from `/slo-architect` holds up to scrutiny. Apply this gate:
+
+**TLA+ is a good fit when all of these are true:**
+- At least two actors (or a single actor interacting with an environment that is itself stateful) can observably race.
+- The race produces a wrong observable outcome — not just a slower one.
+- The correctness of the fix depends on reasoning about interleavings, not on a single-threaded algorithm.
+- You can name a concrete adversarial scenario in one sentence ("if X and Y happen in this order, the system produces Z which is wrong").
+
+**TLA+ is a poor fit — signal this explicitly to the user and recommend alternatives — when:**
+- The property reduces to "function X computes Y correctly given Z inputs." Recommend property-based tests (QuickCheck, fast-check, Hypothesis).
+- The concurrency risk is a local lock / mutex inside a single process. Recommend runtime tooling (ThreadSanitizer, loom, Jepsen for distributed systems).
+- The system is CRUD + request/response with no cross-request state. There is no race; the property is data-validation.
+- The correctness question is really an API-design question ("should this field be required?"). Recommend typed contracts + schema review, not a model checker.
+- The problem is UI / visual correctness. TLA+ has no notion of rendering.
+- The problem is probabilistic correctness (ML accuracy, statistical guarantees). Use empirical methods.
+
+If TLA+ is a poor fit, output a short note explaining which alternative you recommend and why, and set `tla_required: false` in the design overview, suggesting `/slo-plan` next. Do not produce an empty spec for ceremony. **"TLA+ is not the right tool here" is a legitimate skill output** — it is more useful than a verification that proves nothing.
+
+## Abstraction balance — the central tradeoff
+
+TLA+ specs fail in two opposite directions, and the first draft usually lands on one of them:
+
+**Too concrete (state explosion):** the spec carries implementation detail that does not affect the race — timestamps, unique sequence numbers, multiple resources when the race is resource-local, authoring paths when the race is triage-time, snapshot/commit splits when the race is visible at either point. TLC takes minutes or runs out of heap. Symptom: you find yourself reducing `MaxSeq` or `MaxResources` to keep TLC tractable. That is the spec telling you to **abstract, not shrink**.
+
+**Too abstract (trivially proved):** the spec collapses the variables that cause the race into a single boolean, and the fix is correct by construction without exploring any interleavings. TLC finishes in 5 states and reports no violation. Symptom: the safety property holds even when you comment out the fix. The spec is measuring nothing.
+
+The sweet spot is **the smallest model that still exhibits the bug on the pre-fix design**. Procedure:
+
+1. Write the minimal spec — single resource, booleans where possible, no history variables, no implementation-orthogonal paths.
+2. Run TLC with the **naive / pre-fix** verdict logic. If TLC passes, the spec is too abstract — add a variable or an action until TLC finds the race.
+3. Apply the design fix. If TLC still fails, the fix is wrong — iterate on the design, not the spec.
+4. If TLC passes in milliseconds, you are done. If TLC passes in seconds to a minute, acceptable. If TLC takes over ~2 minutes at the minimum-bug-exhibiting bound, the model is still too concrete — go back to step 1.
+
+**State-space budget rule of thumb:** the Naive/broken spec should fall over in **under 1000 reachable states and under 10 seconds**. If it takes longer than that to find the bug, future readers will struggle to iterate on the spec; the abstraction is not paying rent.
+
+## State-explosion triage
+
+When TLC runs for more than ~2 minutes at your minimum bound, do not simply add `-workers auto` and wait. Diagnose and cut:
+
+1. **Drop liveness first.** Temporal properties amortise a tableau over the entire state graph — each pass scales roughly linearly with states generated. Run safety-only first to confirm the core race, then add liveness at the smallest bound that expresses it.
+2. **Eliminate history variables.** If a variable exists only to express the safety predicate (e.g. `trueConsoleMut` recording ground truth), try replacing it with a boolean ghost flag (`sawMutation`) or a direct reference to an existing state variable.
+3. **Collapse snapshot/commit into one action** if the fix does not depend on the read-to-commit gap. You can always re-split later if a second counterexample emerges.
+4. **Cut from N resources to 1** if the race is resource-local. Argue symmetry in the verified-design doc rather than exhaustively verifying N > 1.
+5. **Remove orthogonal paths.** If your spec models both an authoring path and a triage path but the safety property is triage-only, drop the authoring path.
+6. **Replace `Seq(X)` with a single `head ∈ X ∪ {None}`** if the queue's length never actually matters. Sequence permutations explode state space.
+7. **Power-set subsets become presence booleans.** `deliveredEvents ⊆ Event` with up to 6 events has 64 subsets; if the classifier only cares "any delivered console event exists," replace with `anyConsoleDelivered ∈ BOOLEAN`.
+
+After every cut, re-run the Naive/broken spec and confirm it still fails. If a cut silently passes the Naive spec, you cut something the race needed — restore it.
+
 ## Elicitation — the first real work
 
 The design doc is almost never directly translatable to TLA+ — it over-specifies (timestamps, UUIDs, payloads) and under-specifies (actions as prose, not transitions). You reduce it.
@@ -232,14 +301,23 @@ tool: "TLC 1.8.0"
 - Fairness is not declared for any liveness property.
 - Any invariant was weakened silently (e.g., "no two in CS" → "no two in CS in the same step" — that's a different, weaker property).
 - A counterexample was suppressed rather than addressed.
+- The Naive / pre-fix variant passes silently — the spec is measuring nothing; either the race is not there or the model is too abstract.
+- TLC at the minimum-bug-exhibiting bound takes over ~2 minutes — the model is too concrete; future readers will not iterate on it.
+- "Simplifications from the real design" section is absent or hand-wavy. Each abstraction must name what was dropped and why it is sound to drop.
 
 ## Anti-patterns
 
-- Running TLC once, finding no violations, declaring victory — always iterate: add an action, re-run, grow the model.
+- Running TLC once, finding no violations, declaring victory — always iterate: add an action, re-run, grow the model. **Always run the Naive / pre-fix variant first** and confirm it fails; only then verify the Hardened variant passes.
 - Translating counterexamples mechanically instead of narratively — "state 5: pc[A]=inCS, pc[B]=inCS" is not a finding; "A and B both got in because the lock check and acquire are not atomic" is.
 - Using Apalache when TLC would work — Apalache is for state explosion, not default.
 - Dropping the design simplifications paragraph — that's where future readers learn what the spec does NOT cover.
+- **Adding variables to a spec without asking "does the race still exhibit without this?"** Every variable that is not load-bearing multiplies the state space.
+- **Skipping the suitability gate.** Running TLA+ on a single-threaded CRUD function to "look rigorous" consumes a milestone and produces no information. Signal "not a good fit" instead.
+- **Adding `-workers auto` before cutting the model down.** Parallelism hides a too-concrete spec behind hardware; the spec is still too concrete. Cut first, parallelise second.
+- **Throwing a counterexample back at `/slo-architect` without a fix proposal.** The trace is the raw material; the design fix is the product. Spec the fix in the Proposed-fix section before re-running TLC.
 
 ## Handoff
 
 After `-verified.md` is written and TLC is green at the declared bound, suggest `/slo-plan` (if a runbook does not yet exist) or `/slo-critique` (if it does) so the plan reviewers can read the verification.
+
+If the suitability gate short-circuited ("TLA+ is not the right tool here"), the handoff still works: suggest `/slo-plan` directly and recommend the alternative verification approach (property-based tests, schema review, etc.) be included as a milestone in the runbook.
