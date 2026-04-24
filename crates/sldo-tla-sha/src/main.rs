@@ -14,7 +14,8 @@ use colored::Colorize;
 use std::path::PathBuf;
 
 use sldo_tla_sha::{
-    fetch_and_hash, format_patch, host_of, is_host_allowed, ToolsToml, DEFAULT_MAX_BYTES,
+    fetch_and_hash, format_patch, host_of, is_host_allowed, verify_all, ToolsToml,
+    DEFAULT_MAX_BYTES,
 };
 
 #[derive(Parser, Debug)]
@@ -114,32 +115,33 @@ fn run_verify(tools: &ToolsToml, max_bytes: u64) -> Result<()> {
         return Ok(());
     }
 
-    let mut mismatches: Vec<(String, String, String)> = Vec::new();
-    for (section, entry) in &populated {
-        eprintln!(
-            "{} [{}] re-fetching {} ...",
-            "→".dimmed(),
-            section.bold(),
-            entry.url
-        );
-        let actual = fetch_and_hash(&entry.url, max_bytes)
-            .with_context(|| format!("failed to fetch/hash [{}]", section))?;
-        if actual == entry.sha256 {
-            println!("{} [{}]  sha256 matches", "PASS".green(), section);
+    // Use the library-level `verify_all` with the production fetcher. The
+    // closure prints progress so users see which section is being fetched
+    // even though the real work happens inside verify_all.
+    let fetcher = |url: &str, max: u64| -> Result<String> {
+        eprintln!("{} re-fetching {} ...", "→".dimmed(), url);
+        fetch_and_hash(url, max)
+    };
+    let results = verify_all(tools, fetcher, max_bytes)?;
+
+    let mut failed = 0usize;
+    for r in &results {
+        if r.passed {
+            println!("{} [{}]  sha256 matches", "PASS".green(), r.section);
         } else {
+            failed += 1;
             println!(
                 "{} [{}]  expected {}  got {}",
                 "FAIL".red().bold(),
-                section,
-                entry.sha256,
-                actual
+                r.section,
+                r.expected,
+                r.actual
             );
-            mismatches.push((section.to_string(), entry.sha256.clone(), actual));
         }
     }
 
-    if !mismatches.is_empty() {
-        bail!("{} section(s) failed verification", mismatches.len());
+    if failed > 0 {
+        bail!("{failed} section(s) failed verification");
     }
     Ok(())
 }
