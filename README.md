@@ -1,389 +1,248 @@
 # SunLitOrchestrate
 
-A toolkit for orchestrating AI-driven software development through structured, milestone-based runbooks.
+> An AI-driven software-development workflow that adds the missing guardrails: idea → research → architecture → plan → critique → execute → verify → ship → reflect. Each step is a slash-command skill for Claude Code, backed by file-based contracts (runbooks, threat models, lessons) so the work survives across sessions and reviewers.
 
-Licensed under [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
+**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
+**Status:** active development. The skill pack and Rust CLIs are stable; the Tauri desktop UI is parked.
 
-## SAST rule pack
+## What problem this solves
 
-`/slo-rulegen` and `/slo-ruleverify` are Claude Code skills that produce a Semgrep rule pack covering the top-10 CWE classes idiomatic safe-Rust + popular ecosystem crates are most susceptible to in 2026 (panic-DoS, integer overflow in security context, improper certificate validation, use-after-free, OOB read/write, incorrect comparison, expired-resource, input validation, XSS in webapp rendering).
+Sit a senior engineer next to an LLM and the LLM will happily write 5,000 lines of beautiful code that solves the wrong problem, skips the important risks, and leaves no record of *why* anything happened. SunLitOrchestrate fixes that with three things:
 
-The pack is gated by `cargo xtask sast-verify gate`, which composes:
+1. **A v3 milestone-runbook contract.** Every feature lives in a `docs/RUNBOOK-<feature>.md` with explicit Contract Blocks (allowed files, forbidden shortcuts, BDD scenarios, abuse cases, regression tests). The LLM can't "silently widen scope" because the scope is checked against this file at every step.
+2. **A sequence of focused skills**, each doing one thing: `/slo-ideate` interrogates the idea, `/slo-research` produces a sourced dossier, `/slo-architect` commits to a stack + emits a threat model, `/slo-plan` writes the runbook one milestone at a time, `/slo-critique` rotates four adversarial reviewers (CEO, eng-lead, security, designer), `/slo-execute M<N>` drives one milestone with allow-list enforcement, `/slo-verify M<N>` runs the runtime QA, `/slo-retro M<N>` writes lessons + completion summaries.
+3. **A SAST rule pack** (`/slo-rulegen`) generating Semgrep rules for the top-10 CWE classes idiomatic Rust + popular crates are most susceptible to. Variation-template-driven, gated by `cargo xtask sast-verify`, never copies AGPL upstream YAML.
 
-- `validate` — strict YAML parse + `semgrep --validate --json`
-- `test` — paired `<rule-id>.rs` fixture fire-on-bad / silent-on-good (runs `--validate` first per Semgrep #10319)
-- `check-coverage` — `pattern-either` arm count ≥ minimum from `references/sast/variations/cwe-<NNN>.md`
-- `check-clean` — zero false positives on a known-clean fixture subset
+The skills run inside [Claude Code](https://claude.com/claude-code). The Rust CLIs (`sldo-plan`, `sldo-run`, `sldo-research`) implement the same orchestration without Claude Code (they shell out to GitHub Copilot CLI or Claude Code CLI directly).
 
-Both skills DENY `WebFetch` and `WebSearch` in their toolflag config (per the threat model's prompt-injection-resistance posture).
+## Highlights
 
-### Quickstart
+- **Sprint-flow skill pack** — 11 first-party `/slo-*` skills covering ideate → research → architect → tla → plan → critique → execute → verify → retro → ship, plus power tools (`/slo-second-opinion`, `/slo-freeze`, `/slo-resume`).
+- **UK biz-pack** — 4 advisor skills (`/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`) and 11 generator skills (`/slo-talk-to-users`, `/slo-gtm`, `/slo-product`, `/slo-marketing`, `/slo-launch`, `/slo-sales-funnel`, `/slo-pricing`, `/slo-metrics`, `/slo-cofounder`, `/slo-hire`, `/slo-founder-check`) for the company-around-the-product side. Hard-block gates for regulated domains, deals over £5,000, counterparty-with-lawyer, and GDPR documents. JPP Law / SeedLegals public pricing as the cost baseline.
+- **SAST rule generator** — `/slo-rulegen` produces a 10/10 CWE-class Semgrep rule pack from variation templates; `/slo-ruleverify` re-gates the pack on demand. Trail-of-Bits-AGPL-clean-room policy is enforced by code review.
+- **Threat-model-by-default** — `/slo-architect` emits a `docs/design/<slug>-threat-model.md` (STRIDE × component, abuse cases, compliance mapping) for every project. `/slo-plan` cites threat-model rows as BDD abuse-case scenarios.
+- **No agentic shortcuts** — every skill *refuses* to run when its inputs aren't present (no idea doc → refuse `/slo-research`; no research dossier → refuse `/slo-architect`; non-`done` tracker rows → refuse `/slo-ship`). Slow is smooth, smooth is fast.
 
-Install the skills (and the xtask alias):
+## Quick start
+
+### Prerequisites
+
+- **Rust toolchain** (stable). `rustup install stable` if you don't have one.
+- **Claude Code** ([install instructions](https://docs.claude.com/en/docs/claude-code/quickstart)). Required for the `/slo-*` skills.
+- **Semgrep** (`brew install semgrep` or `pip install semgrep`). Required for the SAST rule pack only.
+
+### Install the skill pack
 
 ```bash
-cargo build -p sast-verify --release
-cargo build -p sldo-install --release
-./target/release/sldo-install              # symlinks skills/* into ~/.claude/skills/
+git clone https://github.com/kerberosmansour/SunLitOrchestrate.git
+cd SunLitOrchestrate
+
+# Build the installer + the SAST verifier
+cargo build -p sldo-install -p sast-verify --release
+
+# Symlink skills/* into ~/.claude/skills/
+./target/release/sldo-install
 ```
 
-Bootstrap a rule pack in a Rust workspace (this repo or another):
+After install, every `/slo-*` skill is invocable from any Claude Code session.
+
+### Drive a feature end-to-end
+
+```text
+/slo-ideate          # YC-style product interrogation
+/slo-research        # Sourced dossier (wraps sldo-research)
+/slo-architect       # Stack + ARCHITECTURE.md + threat model
+/slo-plan            # v3 runbook, one milestone at a time
+/slo-critique        # 4-persona adversarial review
+/slo-execute M1      # Drive M1 with allow-list enforcement
+/slo-verify M1       # Runtime QA + Playwright if UI
+/slo-retro M1        # Lessons + completion + tracker update
+# ... repeat /slo-execute / /slo-verify / /slo-retro per milestone ...
+/slo-ship            # Open PR with runbook-aware description
+```
+
+### Generate a SAST rule pack
 
 ```bash
-/slo-rulegen                                # generates 10 rule pairs at .semgrep/rust/
-/slo-ruleverify                             # confirms every rule passes gate
+# In a Rust workspace where you want the rules:
+/slo-rulegen                                    # generates 10 rule pairs at .semgrep/rust/
+/slo-ruleverify                                 # confirms every rule passes gate
+
+# Run a specific rule's gate locally:
 cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
-```
 
-Extend the pack from a Claude-found bug (M2):
-
-```bash
+# Extend the pack from a real bug + fix:
 /slo-rulegen --extend \
   --bug-summary /tmp/bug.md \
   --fix-diff /tmp/fix.patch \
   --file-paths src/api/users.rs,src/api/auth.rs
 ```
 
-Wire CI + local hooks (M3):
+CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-WIRING.md).
 
-- `.github/workflows/semgrep.yml` — PR-blocking Semgrep CI (admission control + scan)
-- `.pre-commit-config.yaml` — works under both `pre-commit` (Python) and `prek` (Rust drop-in)
+### Run the workflow without Claude Code
 
-See [references/sast/CI-WIRING.md](references/sast/CI-WIRING.md) for the full wiring guide and the cargo-audit-driven extend-mode trigger pattern.
-
-### Rule pack design docs
-
-- [docs/idea/sast-rulegen-skill-pack.md](docs/idea/sast-rulegen-skill-pack.md) — pain, capabilities, top risks, three approaches, recommendation
-- [docs/research/sast-rulegen-skill-pack/synthesis.md](docs/research/sast-rulegen-skill-pack/synthesis.md) — load-bearing design rules
-- [docs/design/sast-rulegen-skill-pack-overview.md](docs/design/sast-rulegen-skill-pack-overview.md)
-- [docs/design/sast-rulegen-skill-pack-stack-decision.md](docs/design/sast-rulegen-skill-pack-stack-decision.md)
-- [docs/design/sast-rulegen-skill-pack-interfaces.md](docs/design/sast-rulegen-skill-pack-interfaces.md) — public API stability contract
-- [docs/design/sast-rulegen-skill-pack-threat-model.md](docs/design/sast-rulegen-skill-pack-threat-model.md) — STRIDE × 7 components, 12 abuse cases
-- [docs/RUNBOOK-SAST-RULEGEN-A.md](docs/RUNBOOK-SAST-RULEGEN-A.md) — three-milestone runbook
-- [references/sast/cwe-map-rust.md](references/sast/cwe-map-rust.md) — top-10 CWE ranking with provenance
-- [references/sast/AUTHORING.md](references/sast/AUTHORING.md) — Trail of Bits AGPL clean-room policy + style guide
-
-## Installation (Rust CLI — recommended)
-
-Install the Rust binaries with Cargo:
+If you don't use Claude Code, the same flow runs through the Rust CLIs (which shell out to GitHub Copilot CLI):
 
 ```bash
+cargo install --path crates/sldo-research
 cargo install --path crates/sldo-plan
 cargo install --path crates/sldo-run
-```
 
-Or build from source:
-
-```bash
-cargo build --workspace --release
-# Binaries at target/release/sldo-plan and target/release/sldo-run
-```
-
-## Rust CLI
-
-The Rust implementation is the preferred way to use SunLitOrchestrate. It provides type-safe argument parsing, structured error handling, and cross-platform support.
-
-### `sldo-plan` — Generate a Runbook
-
-Generates a milestone-based runbook from a requirements prompt and a repository using GitHub Copilot CLI.
-
-```bash
-sldo-plan <prompt-file> <repo-dir> [options]
-```
-
-**Arguments:**
-- `<prompt-file>` — Path to a text/markdown file describing the desired changes
-- `<repo-dir>` — Path to the target repository
-
-**Options:**
-- `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
-- `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
-- `-h, --help` — Show help
-
-**Safety:** Refuses to run if the repo is on `main` or `master` branch.
-
-**Example:**
-```bash
-sldo-plan requirements.txt /path/to/my-project -o docs/RUNBOOK-FEATURE.md
-# Or via cargo:
-cargo run -p sldo-plan -- requirements.txt /path/to/repo -o docs/RUNBOOK-FEATURE.md
-```
-
-### `sldo-run` — Execute a Runbook
-
-Drives GitHub Copilot CLI through the milestones in an existing runbook, one at a time, verifying build and tests after each pass.
-
-```bash
-sldo-run <runbook> <repo-dir> [options]
-```
-
-**Arguments:**
-- `<runbook>` — Path to the runbook markdown file (relative to repo or absolute)
-- `<repo-dir>` — Path to the target repository
-
-**Options:**
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
-- `-a, --max-attempts <N>` — Max Copilot invocations (default: 150)
-- `-c, --cooldown <secs>` — Pause between retries (default: 5)
-- `--build-cmd <cmd>` — Custom build verification command (repeatable)
-- `--test-cmd <cmd>` — Custom test verification command (repeatable)
-- `-h, --help` — Show help
-
-**Auto-detection:** If no `--build-cmd` / `--test-cmd` are given, the tool auto-detects commands from the project's build files (Cargo.toml, package.json, go.mod, Makefile, etc.).
-
-**Safety:** Refuses to run if the repo is on `main` or `master` branch.
-
-**Examples:**
-```bash
-# Auto-detect build/test commands from the repo
-sldo-run docs/RUNBOOK.md /path/to/my-project
-
-# Specify explicit build and test commands
-sldo-run docs/RUNBOOK.md /path/to/my-project \
-  --build-cmd "cargo build --workspace" \
-  --test-cmd "cargo test --workspace"
-
-# Or via cargo:
-cargo run -p sldo-run -- docs/RUNBOOK.md /path/to/repo
-```
-
-### `sldo-research` — Generate a Research Dossier
-
-Drives Claude Code CLI through a five-phase research pipeline (optional
-repo-context → exploration → web-search → deepening → synthesis) and writes
-a structured markdown **dossier** suitable as the `prompt_file` input to
-`sldo-plan`. The dossier lives by default at `output/research-dossier.md`
-relative to the working directory.
-
-```bash
-# Inline prompt + default settings (3 deepening iterations, 5 web searches)
-sldo-research --prompt "add OAuth2 login"
-
-# From a prompt file with a target repo for context-aware research
-sldo-research requirements.txt --repo-dir /path/to/repo
-
-# Tighter quota — one iteration, no web search
-sldo-research --prompt "compare async runtimes" --max-iterations 1 --max-searches 0
-
-# Full pipeline: research → plan → execute
-sldo-research --prompt "add feature flags" --repo-dir /path/to/repo
+sldo-research --prompt "add OAuth2 login" --repo-dir /path/to/repo
 sldo-plan output/research-dossier.md /path/to/repo -o docs/RUNBOOK.md
 sldo-run docs/RUNBOOK.md /path/to/repo
 ```
 
-**Flags:**
+See each binary's `--help` for full flags.
 
-| Flag | Default | Description |
+## Skill reference
+
+### Sprint flow
+
+| Stage | Skill | Purpose |
 |---|---|---|
-| `<prompt-file>` (positional) | — | Path to a text/markdown file with the research prompt. |
-| `--prompt <text>` | — | Inline research prompt (alternative to the positional file). Provide exactly one of the two. |
-| `--repo-dir <path>` | — | Optional target repository to ground the research. Triggers a repo-context phase and adds a `## Repository Context` section to the dossier. |
-| `-o, --output <path>` | `output/research-dossier.md` | Output dossier path. Parent directories are created if missing. |
-| `-m, --model <model>` | `claude-opus-4-7` | Claude model to use for every phase. |
-| `--max-iterations <N>` | `3` | Maximum research deepening iterations (in addition to the initial exploration). |
-| `--max-searches <N>` | `5` | Maximum web-search invocations between exploration and deepening. `0` skips the web phase entirely. |
+| Ideate | `/slo-ideate` | YC-style product interrogation before any code |
+| Research | `/slo-research` | Wraps `sldo-research` Rust backend for sourced dossiers |
+| Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` flag + threat model |
+| Verify design | `/slo-tla` | TLC model-check the design (when `tla_required: true`) |
+| Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
+| Critique | `/slo-critique` | Four-persona adversarial review (CEO, eng-lead, security, designer) |
+| Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |
+| Verify | `/slo-verify M<N>` | Runtime QA with Playwright for UI surfaces |
+| Close | `/slo-retro M<N>` | Lessons + completion + tracker update |
+| Ship | `/slo-ship` | Open PR with runbook-aware description |
 
-**Output artefacts:** the dossier itself, plus per-phase logs under
-`.sldo-logs/research-*.log` and per-phase scratch files under the dossier's
-parent directory (`.research-scratch-iter-N.md`). All of these are
-gitignored by default.
+Power tools: `/slo-second-opinion` (cross-model disagreement surfacer), `/slo-freeze <path>` (lock edits to one directory for the session), `/slo-resume` (read tracker, suggest next step).
 
-**End-of-run readiness gate:** when the dossier passes
-`check_plan_readiness` (synth replaced the M4 stubs, > 1 KiB, populated
-Design Recommendations + at least one of Library Evaluations / Architecture
-Options), `sldo-research` prints a "Next step — generate a runbook"
-suggestion with the exact `sldo-plan` invocation. Otherwise it lists the
-issues and skips the suggestion (exit code is still 0; the dossier is
-always written).
+### Biz pack (UK only, v1)
 
-> ⚠ **Security notes**: Do not pass untrusted prompt files — Claude Code
-> with `WebFetch`/`WebSearch` can ingest hostile content. Logs under
-> `.sldo-logs/` and scratch files under the dossier directory may contain
-> proprietary source excerpts; treat them as you would any internal
-> artefact. Each invocation consumes Claude API credits — the
-> `--max-iterations` and `--max-searches` defaults bound a typical run but
-> a misconfigured high-quota run can be expensive.
+Four advisor skills with `draft | translate | triage | prepare` modes; eleven generator skills producing one artifact each. See [docs/design/biz-skill-pack-overview.md](docs/design/biz-skill-pack-overview.md) for the full design.
 
-### Project Structure
-
-```
-crates/
-├── sldo-common/   # Shared library (CLI parsing, colour output, git checks, runbook parsing)
-├── sldo-plan/     # Binary: runbook generation (replaces plan-milestones.sh)
-├── sldo-run/      # Binary: milestone execution (replaces run-milestones.sh)
-├── sldo-research/ # Binary: research-dossier generation (sldo-research → sldo-plan → sldo-run)
-└── sldo-tauri/    # Desktop app: Tauri v2 + React GUI for planning and execution
-```
-
-Build and test the workspace:
-
-```bash
-cargo build --workspace
-cargo test --workspace
-```
-
-## Desktop App
-
-SunLitOrchestrate includes a Tauri v2 desktop application that provides a graphical interface for AI-driven planning and execution.
-
-### UI Overview
-
-The desktop app features a chatbot-style interface:
-- **Home screen** — centered prompt input with sample prompt chips and hero branding
-- **Conversation view** — scrollable message thread with user/assistant messages and input pinned at bottom
-- **Sidebar** — navigation with logo, session management, and settings access
-- **Plan editor** — Markdown editor with edit/preview toggle, milestone tracker sidebar, and validation warnings
-- **Execution view** — live streaming agent output, build/test results, milestone progress, and cancel button
-- **Settings panel** — provider/model selection, tool flags editor, execution parameters, and repository directory
-- **Voice input** — microphone button in the chat input area for speech-to-text transcription
-- **Standalone voice transcriber** — dedicated page for recording and transcribing audio via OpenAI (accessible from sidebar)
-
-> **macOS microphone permission**: The bundled app includes `Info.plist` with `NSMicrophoneUsageDescription` so macOS will prompt for microphone access on first use. No additional setup is required.
-- **Error boundary** — graceful fallback UI when components crash, with "Try Again" recovery
-
-### Keyboard Shortcuts
-
-| Shortcut | Action |
+| Skill | Domain |
 |---|---|
-| `Cmd/Ctrl+Enter` | Submit prompt |
-| `Cmd/Ctrl+N` | New session |
-| `Cmd/Ctrl+,` | Open settings |
-| `Escape` | Close settings panel |
-| `Shift+Enter` | Insert newline in prompt |
-| `Cmd/Ctrl+S` | Save runbook (in editor) |
+| `/slo-legal` | NDA, contractor SOW, IP assignment, T&Cs |
+| `/slo-accounting` | Bookkeeping, VAT, R&D credit, MTD |
+| `/slo-equity` | Cofounder split, vesting, cap-table snapshot |
+| `/slo-fundraise` | SAFE math, pitch narrative, term-sheet redline brief |
+| `/slo-talk-to-users` | Mom-test interviews + post-call extraction |
+| `/slo-gtm` | ICP / motion choice / channel strategy / KPI alignment |
+| `/slo-product` | Roadmap / metrics / OKRs |
+| `/slo-marketing` | B2B / B2C tactics with PECR routing |
+| `/slo-launch` | 4-stage launch sequence + readiness gates |
+| `/slo-sales-funnel` | Outbound funnel math + cold email templates |
+| `/slo-pricing` | Value-equation pricing + 3-tier-max model |
+| `/slo-metrics` | Financial KPI dashboard (consumer / B2B) |
+| `/slo-cofounder` | Cofounder evaluation + 4-week paid trial framing |
+| `/slo-hire` | IR35-aware hiring with mandatory CEST triage gate |
+| `/slo-founder-check` | 12-question self-assessment + worst-case-runway worksheet |
 
-### Workflow
+### SAST pack
 
-1. **Prompt** — Type or speak your requirements on the home screen
-2. **Plan** — The app invokes the coding agent to generate a milestone-based runbook
-3. **Review** — Edit the runbook in the Markdown editor; review milestones in the tracker
-4. **Execute** — Click "Execute Plan" to run milestones; monitor live output and build/test results
-5. **Cancel** — Click "Cancel Execution" at any time to stop
+| Skill | Purpose |
+|---|---|
+| `/slo-rulegen` | Generate or extend a Semgrep rule pack from variation templates |
+| `/slo-ruleverify` | Re-gate the rule pack |
 
-### Configuration
+The xtask `cargo xtask sast-verify` exposes `validate`, `test`, `check-coverage`, `check-clean`, `gate`, `detect-tier`, and `validate-file-paths` subcommands. `gate` is the single deterministic entry point that `/slo-rulegen` shells out to before authorising any rule write.
 
-Open Settings (`Cmd/Ctrl+,`) to configure:
+### Vendored
 
-| Setting | Default | Description |
+| Skill | Purpose | Prereq |
 |---|---|---|
-| Provider | `copilot` | Coding agent backend |
-| Model | `claude-opus-4-7` | AI model for planning/execution |
-| Max Attempts | `150` | Maximum execution attempts per run |
-| Cooldown | `5` seconds | Delay between execution attempts |
-| Max Iterations | `3` | Planning refinement iterations |
-| Repository Directory | _(none)_ | Target repo for planning/execution |
-| Allow Flags | Tool permissions | Copilot CLI `--allow-tool` flags |
-| Deny Flags | Tool restrictions | Copilot CLI `--deny-tool` flags |
+| `/get-api-docs` | Fetch current third-party API docs via `chub` | `npm install -g @aisuite/chub` |
 
-### Prerequisites
+See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attribution.
 
-- [Node.js](https://nodejs.org/) v18+ (for the React frontend)
-- Rust toolchain with Tauri CLI: `cargo install tauri-cli --version '^2'`
+## Project structure
 
-### Voice Input Setup
-
-To enable speech-to-text, set your OpenAI API key in a `.env` file at the project root:
-
-```bash
-echo 'OPENAI_API_KEY=sk-your-key-here' >> .env
+```
+.
+├── skills/                       # Claude Code skill pack (slo-*  + get-api-docs)
+├── crates/
+│   ├── sldo-common/              # Shared library (CLI parsing, runbook parsing, ...)
+│   ├── sldo-plan/                # Binary: runbook generation
+│   ├── sldo-run/                 # Binary: milestone execution
+│   ├── sldo-research/            # Binary: research-dossier generation
+│   ├── sldo-install/             # Binary: skill installer (symlinks skills/* to ~/.claude/skills/)
+│   └── sldo-tauri/               # Desktop app (PARKED — see CLAUDE.md)
+├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate)
+├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
+├── references/                   # Shared scaffolding read by skills (biz/, sast/)
+├── docs/                         # Runbooks, design docs, lessons, completions
+├── CLAUDE.md                     # Project guidance for Claude Code
+└── SECURITY.md                   # Project-wide security defaults
 ```
 
-The API key is read by the Tauri backend only — it is never sent to the frontend.
-
-### Voice Transcriber (Standalone Page)
-
-The desktop app includes a dedicated **Voice Transcriber** page — a focused recording-and-transcription interface separate from the chat input. Access it via the **Transcriber** button in the sidebar.
-
-**How to use:**
-1. Open the app and click **Transcriber** in the sidebar.
-2. Click **🎙 Start recording** to begin capturing audio from your microphone.
-3. Click **⏹ Stop recording** when done. The audio is sent to OpenAI for transcription.
-4. The transcript appears in the editable textarea below.
-
-**Requirements:**
-- An `OPENAI_API_KEY` in your `.env` file (see Voice Input Setup above).
-- On **macOS**, the app will prompt for microphone permission on first use (via `Info.plist`).
-
-**Production Security — API Keys:**
-
-> ⚠️ **Do not ship a shared OpenAI API key in a distributed application binary.** The key is loaded server-side by the Tauri Rust backend and is never exposed to the frontend. For local development, a `.env` file is sufficient. In a production distribution, each user should supply their own API key via environment variable, `.env` file, or a future settings UI backed by the OS keychain.
-
-### Development
+### Baseline test command
 
 ```bash
-# Install frontend dependencies (first time only)
-cd crates/sldo-tauri/ui && npm install
-
-# Launch the desktop app in development mode
-cargo tauri dev
+cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install -p sast-verify
 ```
 
-### Build
+The `--workspace` baseline is intentionally NOT used — see CLAUDE.md "Baseline test command (this repo)".
 
-```bash
-# Build the frontend
-cd crates/sldo-tauri/ui && npm run build
+## Documentation
 
-# Build the full app
-cargo tauri build
-```
+Start here:
 
-### Testing
+- [CLAUDE.md](CLAUDE.md) — project guidance read by Claude Code on every session
+- [SECURITY.md](SECURITY.md) — project-wide security defaults
+- [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
 
-```bash
-# Run frontend unit and component tests (90 tests)
-cd crates/sldo-tauri/ui && npm test
+Skill-pack design:
 
-# Run all backend tests including Tauri E2E (200 tests)
-cargo test --workspace
-```
+- [docs/idea/biz-skill-pack.md](docs/idea/biz-skill-pack.md) — biz-pack idea doc + locked decisions
+- [docs/design/biz-skill-pack-overview.md](docs/design/biz-skill-pack-overview.md) — biz-pack design overview
+- [docs/design/biz-skill-pack-threat-model.md](docs/design/biz-skill-pack-threat-model.md) — STRIDE × abuse cases × compliance
+- [docs/design/sast-rulegen-skill-pack-overview.md](docs/design/sast-rulegen-skill-pack-overview.md) — SAST rule pack design
 
-### Troubleshooting
+Per-runbook detail:
 
-| Issue | Solution |
-|---|---|
-| `cargo tauri dev` fails | Ensure Node.js v18+ is installed and `cd crates/sldo-tauri/ui && npm install` has been run |
-| Voice input doesn't work | Set `OPENAI_API_KEY` in `.env` file at project root |
-| Transcriber shows "No audio was captured" | Microphone may not be connected or permission was denied — check System Preferences > Privacy > Microphone |
-| macOS microphone prompt not appearing | Ensure `Info.plist` is present in `crates/sldo-tauri/` with `NSMicrophoneUsageDescription` |
-| Settings not persisting | Check Tauri app data directory permissions |
-| Build warnings about unused fields | These are intentional — fields used at runtime via serialization |
+- [docs/RUNBOOK-BIZ-SKILL-PACK-A.md](docs/RUNBOOK-BIZ-SKILL-PACK-A.md) — biz-pack 4 advisor skills
+- [docs/RUNBOOK-BIZ-SKILL-PACK-B1.md](docs/RUNBOOK-BIZ-SKILL-PACK-B1.md), [B2](docs/RUNBOOK-BIZ-SKILL-PACK-B2.md), [C](docs/RUNBOOK-BIZ-SKILL-PACK-C.md) — biz-pack 11 generator skills
+- [docs/RUNBOOK-SAST-RULEGEN-A.md](docs/RUNBOOK-SAST-RULEGEN-A.md) — SAST rule pack 10/10
+- [docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md](docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md) — judgment-runtime test harness
 
-### Migrating from Bash
+## Contributing
 
-See [docs/MIGRATION.md](docs/MIGRATION.md) for a complete migration guide with flag mapping and behavioral differences.
+Contributions are welcome. The recommended workflow:
 
-## Legacy Bash Scripts
+1. **Fork + clone.** `git clone <your-fork>` and `cd SunLitOrchestrate`.
+2. **Open an issue first** for non-trivial work — the v3 runbook discipline only pays off when the work is scoped before code is written.
+3. **Use the skills on yourself.** `/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` produces a runbook the maintainers can review without any code yet. This is the lowest-friction path to merging.
+4. **Pass the baseline.** `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install -p sast-verify` must be green.
+5. **Open a PR.** The PR description should link to the runbook + the closed milestone's completion summary.
 
-> **Note:** The Bash scripts below are the original implementation. They remain functional but the Rust CLI above is the preferred implementation.
+What's currently most welcome:
 
-### `src/plan-milestones.sh` — Generate a Runbook (legacy)
+- **Real-world FP shakedown of the SAST rule pack** against your own Rust codebases, with PRs tightening any over-broad rules (`pattern-not-inside` carve-outs).
+- **Fixture additions** to `references/biz/judgment-fixtures/` covering new marginal cases for the advisor skills.
+- **New variation templates** at `references/sast/variations/cwe-<NNN>.md` extending the rule pack to additional CWE classes.
+- **Documentation polish** — typos, broken links, clearer examples.
 
-```bash
-./src/plan-milestones.sh <prompt-file> <repo-dir> [options]
-```
+Out-of-scope:
 
-**Options:**
-- `-o, --output <path>` — Output runbook path (default: `<repo>/docs/RUNBOOK.md`)
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
-- `-n, --max-iterations <N>` — Max planning refinement passes (default: 3)
-- `-h, --help` — Show this help message
+- The parked Tauri desktop UI (`crates/sldo-tauri/`) — will resume only when there's a concrete user pulling for it.
+- Non-UK jurisdiction support in the biz pack — v1 is UK-only by design; non-UK is a fresh `/slo-architect` pass.
 
-### `src/run-milestones.sh` — Execute a Runbook (legacy)
+### Code of conduct
 
-```bash
-./src/run-milestones.sh <runbook> <repo-dir> [options]
-```
+Be excellent to each other. We follow the spirit of the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/); no separate file is shipped because the project is small enough that the spirit suffices.
 
-**Options:**
-- `-m, --model <model>` — Copilot model (default: `claude-opus-4-7`)
-- `-a, --max-attempts <N>` — Max Copilot invocations (default: 150)
-- `-c, --cooldown <secs>` — Pause between retries (default: 5)
-- `--build-cmd <cmd>` — Custom build verification command (repeatable)
-- `--test-cmd <cmd>` — Custom test verification command (repeatable)
-- `-h, --help` — Show this help message
+## License
 
-## Runbook Template
+Dual-licensed under either of:
 
-See [docs/runbook-template.md](docs/runbook-template.md) for the milestone template structure used by both implementations.
+- [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- [MIT license](https://opensource.org/licenses/MIT)
+
+at your option (see [LICENSE](LICENSE) for both texts). Pick whichever fits your project; you do not need to comply with both.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions.
+
+## Acknowledgements
+
+- Trail of Bits' [`semgrep-rules`](https://github.com/trailofbits/semgrep-rules) (AGPL) for the structural shape inspiration on the panic-DoS / CWE-755 rule. The SunLitOrchestrate rule pack is independently re-authored from variation templates per the AGPL clean-room policy in [references/sast/AUTHORING.md](references/sast/AUTHORING.md).
+- The [oneNDA](https://www.onenda.org/) consortium (CC BY-ND 4.0) for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow defers to.
+- The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.
