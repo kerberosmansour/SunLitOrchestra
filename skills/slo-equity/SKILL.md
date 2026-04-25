@@ -74,6 +74,10 @@ Two-tier per [references/biz/artifact-schema.md](../../references/biz/artifact-s
 
 Every `draft` artifact carries "**LAWYER + ACCOUNTANT REVIEW RECOMMENDED**" header (this skill is the first to require BOTH professionals — the dual review reflects equity work's cross-discipline nature).
 
+### Frontmatter discipline for triage outputs
+
+When a hard-block gate fires and the skill emits a triage memo (rather than a draft), the artifact's frontmatter MUST set `triage_gate_passed: false` AND populate `gates_fired:` with the list of fired predicate IDs (e.g. `[gate-1-regulated]`). Empty `gates_fired:` paired with `triage_gate_passed: false` is a frontmatter bug — downstream tooling (`/slo-verify`, the judgment-runtime harness) reads `gates_fired:` as the structured route-cause record. The memo body must also cite each fired gate by ID; the frontmatter is the structured complement, not a substitute.
+
 ## ROI block
 
 Per JPP Law fixed-fee public pricing — Shareholders Agreement (cofounders), Articles of Association lines from [references/biz/cost-baseline-jpp-law-2026.md](../../references/biz/cost-baseline-jpp-law-2026.md).

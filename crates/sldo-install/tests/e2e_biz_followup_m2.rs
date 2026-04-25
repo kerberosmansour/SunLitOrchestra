@@ -165,27 +165,52 @@ fn financial_kpis_primary_only_in_slo_metrics() {
 }
 
 // ---------------------------------------------------------------------------
-// Hardening #4 — interim oneNDA placeholder fail-closed (until follow-up #3 pins SHA-256).
+// Hardening #4 — post-pinning canonical-state assertion.
+//
+// Was: interim fail-closed-on-PLACEHOLDER until follow-up #3 pinned SHA-256.
+// Now (post-pinning, follow-up `biz-pack-onenda-canonical-pin`): assert the
+// canonical state — CANONICAL-PINNED marker present, frontmatter records a
+// 64-char hex SHA-256 (not `pending-user-fetch`), and the license obligation
+// remains documented. Reverting to PLACEHOLDER would silently regress the
+// supply-chain integrity guarantee (critique f4 / f5 — V10.3 Code Integrity).
 // ---------------------------------------------------------------------------
 
-const ONENDA_PLACEHOLDER_MARKER: &str = "ONENDA-UK-PLACEHOLDER";
+const ONENDA_CANONICAL_PINNED_MARKER: &str = "ONENDA-UK-CANONICAL-PINNED";
 
 #[test]
-fn onenda_placeholder_marker_required_until_canonical_pinned() {
+fn onenda_canonical_pinned_state_locked() {
     let body = read(&repo_root().join("references/biz/templates/onenda-uk.md"));
 
-    // Until follow-up `biz-pack-onenda-canonical` lands, the marker is REQUIRED.
-    // The original Runbook A test (e2e_biz_a_m1) accepts marker OR pinned-hash;
-    // this followup tightens to marker-only as the interim fail-closed gate.
+    // The CANONICAL-PINNED marker is REQUIRED. Reverting to PLACEHOLDER would
+    // signal the canonical bytes were no longer verified — supply-chain
+    // regression.
     assert!(
-        body.contains(ONENDA_PLACEHOLDER_MARKER),
-        "Interim hardening: oneNDA template must contain the `{ONENDA_PLACEHOLDER_MARKER}` marker until follow-up `biz-pack-onenda-canonical` pins the canonical SHA-256. Removing the marker before the hash is pinned would create the placeholder-window vulnerability documented in critique f4 / f5 (V10.3 Code Integrity)."
+        body.contains(ONENDA_CANONICAL_PINNED_MARKER),
+        "post-pinning regression: oneNDA template must contain the `{ONENDA_CANONICAL_PINNED_MARKER}` marker. The canonical SHA-256 was pinned on 2026-04-25 by follow-up `biz-pack-onenda-canonical-pin`; reverting to PLACEHOLDER would create the placeholder-window vulnerability documented in critique f4 / f5 (V10.3 Code Integrity)."
+    );
+
+    // Frontmatter pinned_canonical_sha256 must be a 64-char hex digest, not
+    // `pending-user-fetch`.
+    let line = body
+        .lines()
+        .find(|l| {
+            let t = l.trim_start();
+            t.starts_with("pinned_canonical_sha256:")
+                && !t.contains("pending-user-fetch")
+                && !t.contains("`pinned_canonical_sha256:")
+        })
+        .unwrap_or("");
+    let value = line.split("pinned_canonical_sha256:").nth(1).unwrap_or("").trim();
+    let is_hex = value.len() == 64 && value.chars().all(|c| c.is_ascii_hexdigit());
+    assert!(
+        is_hex,
+        "post-pinning: `pinned_canonical_sha256` must be a 64-char hex digest, got `{value}`. Reverting to `pending-user-fetch` is a supply-chain regression."
     );
 
     // The license obligation must remain documented.
     assert!(
         body.contains("CC BY-ND 4.0"),
-        "oneNDA placeholder must continue to document the CC BY-ND 4.0 verbatim render obligation"
+        "oneNDA template must continue to document the CC BY-ND 4.0 verbatim render obligation"
     );
 }
 
