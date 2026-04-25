@@ -1,0 +1,1228 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Research Dossier Generator
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2026-04-25 01:12:55] ℹ  Output:         docs/research/sast-rulegen-skill-pack/raw.md
+[2026-04-25 01:12:55] ℹ  Model:          claude-opus-4-7
+[2026-04-25 01:12:55] ℹ  Max iterations: 3
+[2026-04-25 01:12:55] ℹ  Max searches:   5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Pre-flight checks
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2026-04-25 01:12:55] ✔  claude CLI found: /Users/sherifmansour/.local/bin/claude
+[2026-04-25 01:12:55] ✔  Prompt file: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/research/sast-rulegen-skill-pack/prompt.md
+[2026-04-25 01:12:55] ✔  Repository: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate
+[2026-04-25 01:12:55] ✔  Branch 'feature/biz-skill-pack' — safe to proceed.
+──────────────────────────────────────────────────
+[2026-04-25 01:12:55] ℹ  Exploration prompt: 10026 bytes
+[2026-04-25 01:12:55] ℹ  Exploration prompt first line: You are an expert research agent. Your job is to perform the **exploration phase**
+──────────────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Research loop
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## Tech Stack
+
+- **Primary language:** Rust 2021 edition (workspace), `resolver = "2"`. No MSRV declared in `Cargo.toml`.
+- **Workspace crates:** `sldo-common` (lib), `sldo-plan`, `sldo-run`, `sldo-research`, `sldo-install`, `sldo-tla-sha` (active); `sldo-tauri` (parked per `CLAUDE.md`, 2026-04).
+- **Key Rust deps (workspace-pinned):** `clap 4` (derive), `anyhow 1`, `thiserror 2`, `colored 2`, `regex 1`, `chrono 0.4`, `which 7`. Per-crate: `serde 1` + `toml 0.8` (install/tla-sha), `reqwest 0.11/0.12` w/ `rustls-tls`, `sha2 0.10`, `url 2`, `tempfile 3` (dev), `dotenvy 0.15`, `base64 0.22`.
+- **Desktop (parked):** Tauri v2 backend with `tokio (full)`, `serde_json`, `rig-core 0.33` (audio); React 18 + TypeScript 5.6 + Vite 6 + Vitest 4 frontend in `crates/sldo-tauri/ui/` (Node v18+ per README).
+- **External CLIs invoked:** `claude` (Claude Code CLI) via `sldo-common::copilot::ClaudeInvocation`; `git`; optionally `gh` and `chub` (for `/get-api-docs`).
+- **Skill pack:** Markdown skills under `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`); no code, installed by `sldo-install` as symlinks.
+
+## Project Structure
+
+- `crates/sldo-common/` — shared library: modules `color`, `copilot`, `detect`, `git`, `logging`, `preflight`, `runbook`, `toolflags`.
+- `crates/sldo-plan/` — binary, generates v3 runbooks via Claude CLI.
+- `crates/sldo-run/` — binary, drives Claude through milestones with build/test verification.
+- `crates/sldo-research/` — binary, multi-phase research dossier pipeline (`main.rs`, `dossier.rs`, `prompt.rs`, `research.rs`).
+- `crates/sldo-install/` — binary + lib, symlinks `skills/*` into `~/.claude/skills/`; manifest at `~/.sldo/install.toml`.
+- `crates/sldo-tla-sha/` — TLA+ tooling helper (binary + lib).
+- `crates/sldo-tauri/` — Tauri v2 desktop app (parked). Subdirs: `src/`, `ui/`, `capabilities/`, `gen/`, `icons/`, `Info.plist`, `tauri.conf.json`.
+- `skills/` — `slo-{ideate,research,architect,tla,plan,critique,execute,verify,retro,ship,resume,freeze,second-opinion}` plus vendored `get-api-docs/`.
+- `src/` — legacy Bash: `plan-milestones.sh`, `run-milestones.sh` (superseded by Rust CLI).
+- `docs/` — `ARCHITECTURE.md`, `MIGRATION.md`, `runbook-template_v_3_template.md` (canonical), per-feature runbooks `RUNBOOK-*.md`, plus `idea/`, `research/`, `design/`, `critique/`, `lessons/`, `completion/`, `legal/`.
+- `tests/` — workspace-level integration tests `e2e_*.rs` (scaffold/common/plan/run/integration/tauri/voice/research milestones) declared in root `Cargo.toml`.
+- `output/` — generated research dossiers (gitignored).
+- `.sldo-logs/`, `.copilot-logs/`, `.claude/`, `.sldo/`, `target/` — gitignored runtime/build artefacts.
+
+## Build & Test
+
+- **Skill-pack baseline (per `CLAUDE.md`, authoritative):**
+  ```bash
+  cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install
+  ```
+  `--workspace` is **not** the baseline because parked `sldo-tauri` is red on macOS arm64 (missing esbuild arm64 binary in its `node_modules/`).
+- **Makefile targets:** `make dev` (Tauri dev), `make build`, `make test` (= `test-backend` + `test-frontend`), `make test-backend` (`cargo test --workspace`), `make test-frontend` (`cd crates/sldo-tauri/ui && npm test`), `make check` (`cargo build --workspace`), `make setup`, `make clean`. README/Makefile reference `cargo test --workspace`, but `CLAUDE.md` overrides this for skill-pack work.
+- **Install skills:** `cargo build -p sldo-install --release && ./target/release/sldo-install [--dry-run|uninstall|status|verify]`.
+- **Frontend (parked):** `cd crates/sldo-tauri/ui && npm install && npm test` (Vitest); build via `npm run build` then `cargo tauri build`.
+- **No dedicated lint target** in Makefile/Cargo (no `cargo clippy`/`cargo fmt` wrappers found).
+
+## Existing Patterns
+
+- **Error handling:** `anyhow::Result` with `Context`/`bail!` at binary boundaries; `thiserror 2` available workspace-wide for typed errors (declared as workspace dep but minimally used in inspected files).
+- **CLI parsing:** `clap 4` derive macros (`#[derive(Parser)]`) on per-binary `Cli` structs (see `sldo-research/src/main.rs`).
+- **Logging/UX:** custom helpers in `sldo_common::color` (`info`, `success`, `warn`, `fail`, `header`, `divider`, `ts`) printing to **stderr** with `colored`+`chrono` timestamps; file logs via `sldo_common::logging::LogFile` writing timestamped lines into `.sldo-logs/`.
+- **Subprocess execution:** synchronous `std::process::Command` with `Stdio::piped()`; stdout/stderr drained on **separate threads** to avoid pipe-buffer deadlocks (`copilot.rs`).
+- **Async:** no Tokio in active crates (sync `std::process` + `std::thread`); `tokio (full)` only inside parked `sldo-tauri`.
+- **Tool-permission allowlists:** centralised in `sldo_common::toolflags` (`plan_*`, `run_*`, `research_*` allow/deny vectors injected as `--allowedTools=…`).
+- **Pre-flight pattern:** every binary calls `sldo_common::preflight` to verify `claude` on PATH, file existence, and **refuse to run on `main`/`master`** branches.
+- **Runbook parsing:** regex-driven Milestone Tracker parser in `sldo_common::runbook` (`MilestoneStatus { NotStarted, InProgress, Done }`).
+- **Test style:** unit tests `#[cfg(test)] mod tests` co-located in modules; integration/E2E tests at workspace root `tests/e2e_*_m<N>.rs`, one per milestone of each feature runbook.
+- **Comment style:** `//!` crate/module-level doc comments; modules cross-reference Bash predecessors (e.g. `detect.rs` → `run-milestones.sh`).
+
+## Constraints
+
+- **Branch safety:** active CLIs refuse to operate on `main`/`master` (`preflight::check_git_safety`). Current branch in this snapshot: `feature/biz-skill-pack`; PR target main branch is `skill-pack`.
+- **Canonical planning artifact:** every feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and must conform to `docs/runbook-template_v_3_template.md`; `/slo-plan` is the authoring path — do not bypass it for batch CLI shortcuts.
+- **Parked `sldo-tauri`:** do **not** modify it; do **not** merge its branch into skill-pack work; full `--workspace` baseline stays red on macOS arm64 until Tauri is unparked. Frontend assumes Node.js v18+.
+- **External-CLI dependency:** `claude` CLI must be on `PATH`; some skills also require `gh` and `chub` (for `/get-api-docs`).
+- **Untrusted-prompt security:** `sldo-research` warns that Claude with `WebFetch`/`WebSearch` can ingest hostile content; prompt files must be trusted. Logs/scratch files may contain proprietary excerpts.
+- **Cost control:** research defaults capped at `--max-iterations 3`, `--max-searches 5`; high-quota runs can be expensive.
+- **Secrets:** `OPENAI_API_KEY` via `.env` is for local dev only; README explicitly warns against shipping a shared key in distributed binaries.
+- **MSRV:** none declared in any `Cargo.toml`; edition `2021`.
+- **License:** **no `LICENSE` file present in the repo root** — license obligations cannot be confirmed from the source tree.
+- **Platform note:** primary development target is macOS arm64 (Darwin 25.4.0 in current env); Tauri build targets per `tauri.conf.json` not inspected in detail.
+## Topic Decomposition
+
+- **SQ1 — RustSec/OSV CWE distribution (2024-04 → 2026-04).** What does a count-by-CWE of the last 24 months of `RustSec/advisory-db` (and OSV.dev `ecosystem:crates.io`) actually look like? RustSec uses its own taxonomy (`memory-corruption`, `memory-exposure`, `crypto-failure`, `thread-safety`, `denial-of-service`, `format-injection`, …) plus optional `aliases` to CVEs/CWEs — counting requires a join, not a single query. Rationale: this is the only frequency-in-the-wild input that drives the top-10.
+- **SQ2 — Where idiomatic-safe-Rust panics live (the "Rust safe ≠ no crash" gap).** Which sink shapes recur in non-`unsafe` Rust advisories: `unwrap`/`expect`/`?` on attacker-influenced input, slice indexing, integer overflow in capacity/length, recursion/stack-overflow on attacker-shaped input, denial-of-service via decompression / regex / serde untagged-recursive. Rationale: drives the per-CWE "why Rust is still susceptible" paragraph and the `references/sast/variations/` template set.
+- **SQ3 — Webapp-shape CVEs in axum/actix/hyper/sqlx/reqwest/serde.** What classes (auth bypass, SQL injection via string-format on `sqlx::query`, SSRF via reqwest with attacker URL, missing output encoding, header-smuggling in hyper/h2) actually show up in advisories vs. only in audit reports? Rationale: justifies including web classes (CWE-89, CWE-79, CWE-918) in a *Rust* top-10 even though the language doesn't make them more likely.
+- **SQ4 — Direct competitors in LLM-driven SAST rule generation.** What are the 2026 product and OSS positions for "bug → rule" auto-generation: Semgrep AI rule suggestion, Snyk Code custom rules + AI fix, GitHub Code Scanning custom pattern queries (CodeQL) + Copilot Autofix, SonarQube AI CodeFix, Veracode Fix, plus OSS projects like `kerberosmansour/SAST.GEN` and any LangChain/Claude-based rule synthesisers? Rationale: the gap table justifies the wedge.
+- **SQ5 — Semgrep Rust frontend capabilities at HEAD (2026).** Which primitives actually work on Rust today: `pattern-either`, `pattern-inside`, `pattern-not`, `metavariable-pattern`, `metavariable-type`, taint mode (`mode: taint` with `pattern-sources`/`pattern-sinks`/`pattern-sanitizers`), `comby`/generic mode fallback, macro expansion behaviour for `#[tokio::main]`/`#[axum::handler]`/`tracing::instrument`. Rationale: rule templates must use only working primitives; rules using broken primitives become CI noise.
+- **SQ6 — Adjacent Rust security tools and the integrate-vs-replace decision.** For each of `cargo-audit`, `cargo-deny`, `cargo-vet`, `cargo-geiger`, `clippy` (security-leaning lints), `miri`, `kani`, `prusti`, `creusot`, `MIRAI`, `rudra`, what is the overlap with `/slo-rulegen`? Specifically: should `/slo-rulegen` *consume* clippy JSON output (`cargo clippy --message-format=json`) instead of writing a Semgrep rule for `unwrap_used`? Rationale: avoids duplicate-tooling churn and decides whether the pack's `unwrap_used` rules are redundant.
+- **SQ7 — Corpus / test layout convention across rule-pack maintainers.** How do `returntocorp/semgrep-rules`, `trailofbits/semgrep-rules`, `0xdea/semgrep-rules`, and Snyk's public rule packs lay out `(bad, good)` pairs — per-rule `.test.yaml` co-located, single `tests/` directory, inline `metadata.examples`, `// ruleid:`/`// ok:` annotation comments? Rationale: defines the schema `xtasks/sast-verify/` reads.
+- **SQ8 — CI and dev-loop entry points for Semgrep on a Rust repo (2026).** Canonical CI: `returntocorp/semgrep` GitHub Action, Semgrep CI in GitLab, BuildKite plugin. Local: `pre-commit` hooks (Python-based), `lefthook`, `cargo-husky`, `rusty-hook`, `cargo-make` integration, IDE plugins (Semgrep VS Code, Semgrep Cursor extension). Rationale: drives M3 wiring and the question "is `pre-commit` still canonical for Rust repos?".
+- **SQ9 — Publication-risk precedent for vulnerable-snippet corpora.** How does `returntocorp/semgrep-rules` ship deliberately-vulnerable test files (header comments, README disclaimer, branch policy)? Has any public rule-pack repo been actioned under GitHub's Acceptable Use Policy "active malware or exploits" clause? What does the AUP text actually require for educational vulnerability content? Rationale: anchors the `.gitignore`-by-default vs. tracked decision.
+- **SQ10 — `cargo xtask` precedent for security-leaning verifiers.** Which large Rust projects (rust-lang, tokio, axum, ripgrep, clap, async-graphql, etc.) ship a security-themed xtask? How do they layer it under `cargo xtask <verb>` and what's the mainstream skeleton (sub-crate vs. top-level workspace member)? Rationale: locks the skeleton for `xtasks/sast-verify/`.
+
+## Key Questions
+
+Prioritised for the deepening pass:
+
+1. **SQ1 + SQ2 (combined).** A defensible top-10 CWE list, with frequency counts from RustSec/OSV joined to CWE IDs (or RustSec category if no CWE exists), is the single most load-bearing artefact — it scopes M1 of Runbook A and the file `references/sast/cwe-map-rust.md`. Without this, every downstream design decision (variation templates, minimum-coverage assertion, per-language cwe-map convention) is guessed.
+2. **SQ5.** Semgrep's Rust capability set in 2026 is the second-highest priority because it determines which rule primitives the templates may use. If taint mode for Rust is not viable, the panic-DoS rules collapse to single-pattern matches (false-positive prone); if `pattern-inside unsafe { ... }` is broken, the unsafe-FFI rules need a different approach.
+3. **SQ4.** Competitor gap table — specifically whether Semgrep AI's rule-suggestion product *already* generates fire-on-bad/silent-on-good corpus pairs and integrates with Claude Code as a skill. If yes, the wedge narrows; if no, the gap is real.
+4. **SQ6.** Clippy integration decision. If `clippy::unwrap_used` + `clippy::indexing_slicing` + `clippy::arithmetic_side_effects` already cover ≥ 60% of CWE-248/CWE-190 sink shapes, `/slo-rulegen` should compose with clippy rather than re-implement; this changes M1 scope significantly.
+5. **SQ9.** Publication-risk default. The compliance-fine risk in the idea doc currently anchors `.gitignore` as the default; precedent from `semgrep-rules` itself (which clearly tracks deliberately-vulnerable snippets in public) might justify "tracked but labelled" — material to runbook M1's `.gitignore` snippet.
+6. **SQ7.** Corpus layout convention. Lower priority than the above, but determines the read schema for `xtasks/sast-verify/`. Non-trivial to change later.
+7. **SQ8.** CI + local wiring. Lowest priority because it's M3 of Runbook A and only minor design variance is plausible (`pre-commit` vs. `lefthook`).
+8. **SQ3.** Web-class inclusion in a Rust top-10. Either confirms or rejects CWE-89/CWE-79/CWE-918 in the top 10; needed for cwe-map but research-cheap once SQ1 is done.
+9. **SQ10.** xtask skeleton. Cheap, almost a convention check.
+
+## Initial Findings
+
+> Confidence labels: **(H)** high — well-known and stable, **(M)** medium — believed correct but worth a deepening pass, **(L)** low / needs verification.
+
+### CWE distribution and the "Rust safe ≠ no crash" gap (SQ1, SQ2)
+
+- **(H)** RustSec advisory-db at `github.com/RustSec/advisory-db` uses its own `categories` taxonomy (`memory-corruption`, `memory-exposure`, `thread-safety`, `crypto-failure`, `denial-of-service`, `format-injection`, `code-execution`, `privilege-escalation`, `file-disclosure`, `directory-traversal`) defined in `osv-schema/`-aligned TOML. Many advisories carry an `aliases` field with a CVE ID; CWE mapping is *via* the CVE, not directly in the advisory. Counting by CWE requires the CVE→CWE join.
+- **(H)** OSV.dev exposes the same advisories with `database_specific.cwe_ids` populated when the upstream CVE has a CWE; OSV API `POST /v1/query` with `package.ecosystem=crates.io` returns the JSON. Coverage of the CWE field on Rust ecosystem advisories is partial — many entries lack CWE — so a hybrid count (RustSec `categories` count + OSV CWE count where present) is more honest than either alone.
+- **(M)** Empirically, `denial-of-service` is the most common RustSec category over the last several years (lots of `panic-on-malformed-input` advisories in serde-adjacent and parsing crates), followed by `memory-corruption` and `memory-exposure` (heavily concentrated in `unsafe`-heavy crates: `bytes`, `tokio`, `actix-*`, `nix`). Verifiable via a script that tallies `categories = ` lines in advisory TOML files. **Needs verification — exact counts.**
+- **(M)** The `cargo` blog and several conference talks have made the explicit point: Rust eliminates memory-unsafety bugs but does *not* eliminate panic-on-attacker-input. The Rustonomicon's "What Unsafe Rust Can Do" chapter is the canonical source. The user's prior expectation that **CWE-248 (uncaught exception / panic-DoS), CWE-770 (resource exhaustion), CWE-190/191 (integer overflow in capacity/length), CWE-119/787 (unsafe FFI / OOB write)** dominate is consistent with the high-confidence shape of the data; the precise top-10 ranking needs the join.
+- **(M)** Web-class CVEs in Rust ecosystem (CWE-89 SQL injection, CWE-79 XSS, CWE-918 SSRF, CWE-352 CSRF, CWE-22 path traversal) appear primarily in axum/actix/hyper/sqlx/reqwest advisories. They are present but lower-frequency than panic-DoS in the absolute count. Including them in a Rust top-10 is justified by the user's stated pain ("missing input sanitisation, missing output encoding"), not by a frequency tie-break.
+
+### Direct competitors (SQ4)
+
+- **(H)** **Semgrep AI / Semgrep Pro Engine.** Semgrep ships LLM-assisted rule generation as part of Semgrep Pro / Semgrep Code in 2024-2026. The product surface is a SaaS dashboard plus IDE plugin; rules are human-editable YAML. Pricing is per-developer SaaS (publicly listed tiers are around $40/dev/month for Code, with AppSec tiers higher). **(L)** It is unclear whether the rule-generation flow includes corpus-driven fire-on-bad/silent-on-good gating before publishing. Needs verification on the deepening pass.
+- **(H)** **Snyk Code (DeepCode AI).** Snyk Code is symbolic-AI-based, not rule-based; it ships findings and AI fixes but does not produce inspectable Semgrep-shaped rules. Custom rules are supported but the auto-generation flow is narrower than Semgrep's. Pricing is per-developer SaaS.
+- **(H)** **GitHub Code Scanning + Copilot Autofix.** Code Scanning runs CodeQL queries (a different language than Semgrep). Copilot Autofix generates *fix patches*, not new queries. Custom CodeQL queries are author-it-yourself; there is no "bug → query" auto-generator in GHAS as of 2026 (verify in deepening). Free for public repos; GHAS billed per active committer for private.
+- **(M)** **SonarQube AI CodeFix.** Generates fixes, not new rules. Rule authoring remains manual.
+- **(M)** **Veracode Fix.** Fix-suggestion AI, not rule-generation. Pricing is enterprise/custom.
+- **(L)** **`kerberosmansour/SAST.GEN`** — the user's own 2024 prior art. Repo exists per the prompt; what it implemented and how it gated rules is what `/slo-research` should pull from the README. **Needs verification.**
+- **(L)** Open-source LLM rule generators on GitHub: searches like "semgrep rule generator LLM" historically surface a handful of demos but nothing that integrates as a Claude Code skill with corpus-gating. **Needs deepening.**
+
+### Adjacent Rust security tools (SQ6)
+
+- **(H)** **cargo-audit** (RustSec): consumes `RustSec/advisory-db`, reports CVEs against `Cargo.lock`. **Integrate, not replace** — `/slo-rulegen` runs after a fixed bug; cargo-audit catches *known* vulnerabilities in deps. Different layer.
+- **(H)** **cargo-deny**: license, advisory, and source policy enforcement. Adjacent; user's own project should already have it.
+- **(H)** **cargo-vet** (Mozilla): supply-chain trust audit. Adjacent.
+- **(H)** **cargo-geiger**: counts `unsafe` blocks. Adjacent / advisory only.
+- **(H)** **clippy** ships several security-leaning lints: `clippy::unwrap_used`, `clippy::expect_used`, `clippy::indexing_slicing`, `clippy::arithmetic_side_effects`, `clippy::panic`, `clippy::integer_arithmetic` (deprecated; replaced by `clippy::arithmetic_side_effects`), `clippy::missing_panics_doc`, `clippy::unimplemented`, `clippy::todo`. **High overlap with CWE-248 and CWE-190 sink shapes.** The integrate-vs-replace decision is genuine: the pack could either (a) generate Semgrep rules that duplicate clippy, or (b) declare a clippy-config dependency and only generate Semgrep rules for sinks clippy can't express (e.g. `serde_json::from_str` followed by `.unwrap()` *in a request handler*, which is a context-sensitive pattern Clippy doesn't model). Option (b) is the honest answer; needs verification of clippy's exact 2026 lint coverage.
+- **(M)** **miri** (interpreter for UB), **kani** (model checker via CBMC), **prusti** (Viper-based verifier), **creusot** (deductive verifier), **MIRAI** (abstract interpreter), **rudra** (unsafe Rust analyser). Heavyweight verification tools — orthogonal to a Semgrep-rule pack. Ignore for `/slo-rulegen` scope.
+- **(M)** **`cargo xtask` precedent for security**: tokio, ripgrep, and several other large Rust projects ship `xtask/` crates. Specifically security-themed xtasks are less common but precedents exist (e.g. `tokio` has audit/release xtasks). **Needs verification of named projects.**
+
+### Semgrep Rust frontend reality (SQ5)
+
+- **(H)** Semgrep's Rust support reached "GA" some time around 2023-2024. `pattern`, `pattern-either`, `pattern-not`, `pattern-inside`, `metavariable-regex` work. Macro support is an ongoing weakness — Semgrep parses Rust without macro expansion, so rules over macro-generated code (axum's `#[handler]`, tokio's `#[tokio::main]`, `tracing::instrument`) match the *syntactic* form before expansion, not the expanded form. This is the documented FP/FN trade-off.
+- **(M)** Taint mode for Rust: Semgrep documents taint-mode for many languages; Rust support has been added but coverage of source/sink declarations on Rust generics and trait-bound metavariables has been a friction point in the issue tracker. **Needs verification of 2026 status.**
+- **(L)** `metavariable-type` for Rust generics and trait bounds: support is partial; type inference from let-bindings is limited compared to languages with simpler type systems. **Needs verification.**
+- **(M)** `pattern-inside unsafe { ... }`: should work because `unsafe` blocks are syntactic. **Verify with a small test.**
+- **(H)** `semgrep --validate <rule.yaml>` is the syntactic gate the verifier xtask should call before any fire/silent assertion.
+- **(M)** Existing rust rules in the public registry (`semgrep.dev/r`, `semgrep/semgrep-rules` repo `rust/` directory) are sparse compared to JS/Python. The number of rules and their topical coverage gives a baseline for what's already in the wild. **Needs counting.**
+
+### Corpus layout convention (SQ7)
+
+- **(H)** `returntocorp/semgrep-rules` uses **inline-annotation-in-the-test-file** convention: per-rule, a file like `<rule-id>.rs` (or `.py`, `.js`, etc.) sits next to `<rule-id>.yaml`. Lines that should match are marked with `// ruleid: <rule-id>`; lines that should not match with `// ok: <rule-id>`. The runner is `semgrep --test --config <rule.yaml>`. **(H)** This is the dominant convention across `trailofbits/semgrep-rules`, `0xdea/semgrep-rules` (verify), and the official semgrep docs ("Testing rules" page).
+- **(M)** Co-located `.test.yaml` per-rule and a `tests/` mono-dir are both seen but less common than the inline-annotation convention. Inline `metadata.examples` is rare and discouraged for non-trivial rules.
+- **Implication:** `xtasks/sast-verify/` should default to the `// ruleid:` / `// ok:` inline-annotation format and shell out to `semgrep --test`. This avoids inventing a new schema and makes the generated pack portable to any Semgrep CI.
+
+### CI and dev-loop entry points (SQ8)
+
+- **(H)** **Canonical CI** for Semgrep on GitHub: the `returntocorp/semgrep` GitHub Action (or `semgrep ci` in a workflow). Pricing-free for OSS scans, paid Semgrep Cloud for centralised findings. GitLab has first-class Semgrep templates. BuildKite has a community plugin.
+- **(H)** **Canonical local-dev**: `pre-commit` framework (`pre-commit-hooks`-style YAML in repo root) is still the dominant cross-language hook framework in 2026; Semgrep ships a pre-commit hook spec (`https://github.com/returntocorp/semgrep` repo's `.pre-commit-hooks.yaml`).
+- **(M)** **Rust-native equivalents** to `pre-commit`: `cargo-husky` and `rusty-hook` exist but are smaller communities; `lefthook` (Go-based, language-agnostic) is gaining adoption in Rust shops. **No Rust-native hook framework has displaced `pre-commit` for cross-tool hooks**, even in `cargo`-shaped repos. Needs verification of `lefthook`'s 2026 adoption.
+- **(M)** IDE plugins: VS Code Semgrep extension exists; Cursor and IntelliJ-Rust integration via Semgrep LSP. Rust-analyzer integration with Semgrep is not native.
+
+### Publication-risk precedent (SQ9)
+
+- **(H)** `returntocorp/semgrep-rules` is a public GitHub repo that ships **hundreds of deliberately-vulnerable test files** (`security/*/test.py`, `security/*/test.js`, `security/*/test.go`, etc.). Files use the `// ruleid:` annotation convention; many include short header comments stating the file is a test fixture. The repo has not been actioned by GitHub. The README does not contain a strident "this is intentionally vulnerable code" disclaimer beyond the rules' own metadata.
+- **(M)** GitHub Acceptable Use Policy section "Active Malware or Exploits" prohibits content that *delivers* malicious payload or *attacks GitHub or other GitHub users*. Educational content (CTF challenges, security training repos like `OWASP/WebGoat`, `digininja/DVWA`, `vulhub/vulhub`) has consistently been allowed for years. **Precedent strongly favours tracked, labelled snippets** for an OSS rule pack.
+- **(L)** US EAR 5D002 / "intrusion software" controls — the user's idea doc raises this. Enforcement on snippet collections is essentially zero; the precedent is that audit-tool source code (Metasploit, Nuclei, Semgrep itself) is publicly distributed. **The breach mitigation in the idea doc remains a defensible default** — `.gitignore` for the founder's repo (because that repo is not a security-tooling repo and shipping vuln snippets there is a finding) — even if the publication-risk precedent for *the rule-pack repo itself* favours tracked.
+- **Implication for the design:** the snippet output dir for a generated rule pack inside a *user's* application repo defaults to `.gitignore`'d (compliance-finding mitigation); the snippet output dir for the *rule-pack repo* (this project's `references/sast/` examples) can be tracked and labelled, following `semgrep-rules` precedent.
+
+### `cargo xtask` precedent (SQ10)
+
+- **(H)** The `xtask` pattern is documented at `github.com/matklad/cargo-xtask`; canonical layout is a top-level `xtask/` crate (or `xtasks/<name>/` for multiple) added as a workspace member. Invoked via `cargo xtask <verb>`. `rust-lang/rust-analyzer` itself uses the pattern.
+- **(M)** Adoption: `tokio`, `ripgrep`, `clap`, `wasmtime`, `bevy` and many large crates ship xtask crates for release/codegen/lint orchestration. Security-specific xtasks (e.g. running cargo-audit + cargo-deny in one command) are seen but not universal. **Verifiable list to be confirmed in deepening.**
+- **CLAUDE.md constraint applies:** adding `xtasks/sast-verify/` to the workspace expands the `cargo test -p ...` baseline list (since `--workspace` is parked). The runbook must explicitly add `-p sast-verify` (or whatever the crate is named) to `CLAUDE.md`'s baseline command.
+
+## Repo Context
+
+- **Tech stack.** Rust 2021 workspace defined in `Cargo.toml` with seven member crates: `sldo-common` (shared lib: CLI parsing, colour output, git checks, runbook parsing), `sldo-plan`, `sldo-run`, `sldo-research` (binaries that drive `claude` CLI), `sldo-tauri` (parked desktop UI — do not modify per `CLAUDE.md`), `sldo-install` (skill-pack installer), `sldo-tla-sha` (SHA-pinned binary fetcher with allow-listed hosts). Workspace dependencies pin `clap 4`, `anyhow 1`, `thiserror 2`, `colored 2`, `regex 1`, `chrono 0.4`, `which 7`. No `xtask` / `xtasks` directory exists yet — the runbook will introduce one.
+- **Test baseline (load-bearing).** `CLAUDE.md` mandates `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install`. `--workspace` is **NOT** the baseline because parked `sldo-tauri` keeps it red on macOS arm64. **Any new crate (e.g. `xtasks/sast-verify/`) must be appended to this `-p` list explicitly.** This is a hard constraint on Approach C of the idea doc.
+- **Skill-pack pattern.** `skills/` holds 14 first-party `slo-*` skills + vendored `get-api-docs`. Each skill is a `SKILL.md` with YAML frontmatter (`name`, `description`) plus an optional `references/` and `personas/` subdirectory. `sldo-install` symlinks them into `~/.claude/skills/` (manifest at `~/.sldo/install.toml`). New skills follow this exact shape — no scaffolding code is needed for `/slo-rulegen` and `/slo-ruleverify` themselves; they ship as `SKILL.md` + `references/sast/`.
+- **Runbook contract.** Canonical artefact at `docs/RUNBOOK-<FEATURE>.md` follows `docs/runbook-template_v_3_template.md`. Recent runbook for `biz-skill-pack` at `docs/RUNBOOK-BIZ-SKILL-PACK-A.md` is the most current example of the v3 shape. `/slo-plan` is the only authoring path; do not bypass the template.
+- **Research-pipeline shape (this skill's producer).** `/slo-research` (the skill) wraps the `sldo-research` Rust binary (`crates/sldo-research/`). It writes three files under `docs/research/<slug>/`: `dossier.md`, `sources.md`, `synthesis.md`. The current run's scratch lives at `docs/research/sast-rulegen-skill-pack/{prompt.md, run.log}`. Output structure is fixed — the deepening / synthesis phases must populate exactly these three artefacts.
+- **Security posture file.** `SECURITY.md` is auto-generated by `/slo-architect`. The "AI / LLM-specific rules" and "Tool output handling" sections explicitly require: tool output is untrusted; `WebFetch`/`WebSearch` only when the prompt source is trusted; allow-list-bounded tool flags. The biz-skill-pack precedent (a `tier: confidential` / `tier: public` two-dir convention with `docs/biz/` `.gitignore`'d by default) is a directly transferable model for this pack's `references/sast/corpus/` decision. **Adopting the same two-tier convention** (e.g. `references/sast/corpus/` tracked + labelled in *this* repo, but a `.gitignore` snippet shipped in M3 that excludes generated corpus from the *user's* application repo) is consistent with established project pattern.
+- **Skill conventions worth mirroring.** `skills/slo-critique/personas/security.md`, `skills/slo-verify/references/security-pass-commands.md`, and `skills/slo-critique/references/variant-analysis-playbook.md` already exist and may overlap with `/slo-rulegen`'s variation-enumeration logic. The variant-analysis playbook in particular is prior art for "how do we enumerate variants of a found bug?" and should be read before designing the per-CWE variation templates — possibly the playbook's structure is the right scaffolding for `references/sast/variations/cwe-XXX.md`.
+- **Existing security work in the repo.** The `slo-security-embedding` runbook (just merged via PR #3) embedded security passes into `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, `/slo-verify`. `/slo-rulegen` slots in *after* a bug is found by `/slo-execute` or `/slo-verify`, so its input contract should align with what those skills already emit (bug summary, fix diff, file paths) — no new bug-reporting schema needs to be invented.
+- **No Semgrep configuration exists today** in the repo; no `.semgrep.yml`, no `.semgrep/`, no GitHub Action wired for SAST. The pack is greenfield from the user's perspective — meaning M3's CI wiring is genuinely net-new for the user's projects, not retrofit.
+- **Git posture.** Currently on `feature/biz-skill-pack`; the canonical main branch for this work is `skill-pack` (per the `gitStatus` snapshot). Untracked files include four `docs/design/biz-skill-pack-*.md` and `docs/research/sast-rulegen-skill-pack/` — i.e. this research run is in flight on top of an in-progress biz-pack feature branch. The runbook author should confirm whether sast-rulegen lands on a sibling branch off `skill-pack` or stacks on `feature/biz-skill-pack` — the latter would mix concerns and is unwise.
+## Web Search Results
+
+### SQ1 + SQ2 — CWE / category ranking for Rust (2021–2025)
+
+- **RustSec uses its own 10-category taxonomy, not CWE IDs.** The official categories page lists exactly: `code-execution`, `crypto-failure`, `denial-of-service`, `file-disclosure`, `format-injection`, `malicious-code`, `memory-corruption`, `memory-exposure`, `privilege-escalation`, `thread-safety`. Per-category counts are not displayed on that page. (https://rustsec.org/categories/)
+- **RustSec advisory frontmatter does not carry a CWE field** — it carries `aliases = ["CVE-..."]` and `categories = [...]`. CWE mapping for the Rust ecosystem must therefore be derived via the CVE alias → NVD CWE lookup, not read from RustSec directly. (https://github.com/rustsec/advisory-db)
+- **OSV.dev does not natively expose CWE/CVSS/EPSS** for Rust advisories.** The active issue google/osv.dev#3245 ("Easier way to connect between OSV advisories and other metadata e.g. CWEs, CVSS, EPSS, CISA KEV") confirms this is a feature request, not an existing field. (https://github.com/google/osv.dev/issues/3245)
+- **RustXec dataset (Virginia Tech, 2026 paper)** studied **515 RustSec advisories from Jan 2021 to Apr 2025**. Top categories reported in search snippet: **memory-corruption (31 cases)** and **denial-of-service (28 cases)** as the leading classes overall; year-by-year peaks were memory-corruption (20) in 2021 and DoS (13) in 2024; crypto-failure noted as a notable but smaller bucket. (https://people.cs.vt.edu/xinw/publications/RustXec26-B38KjKAe.pdf — PDF could not be parsed locally; counts taken from search-result excerpt only)
+- **RustSec explicitly tracks panic-on-attacker-input as DoS**, including panics in code "advertised as panic-free." Soundness issues (safe code triggering UB through a crate API) are also a tracked category, distinct from memory-corruption. (https://rustsec.org/)
+- **Direct competitor signal — Semgrep Pro / Supply Chain (April 2026)**: Semgrep added dataflow reachability for Rust with a worked taint-mode example for `bcder` (CVE-2023-39914) using `pattern-sources` (e.g. `Mode::Der.decode(...)`) and `pattern-sinks` (`Oid::take_from()`, `BitString::take_from()`). Confirms taint mode is alive for Rust at the dependency-reachability level. (https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/)
+
+### SQ5 — Semgrep Rust frontend reality in 2026
+
+- **Rust support is GA (Generally Available)** in Semgrep Code as of 2026, with **40+ Pro rules**, **cross-function dataflow analysis**, and Supply Chain reachability + malicious-dependency detection. The supported-languages page does not explicitly enumerate taint mode, autofix, or constant propagation for Rust as separate features. (https://semgrep.dev/docs/supported-languages)
+- **Beta-to-GA timeline**: Rust entered beta in **February 2023** and has had progressive grammar work since (Kudelski Security contributed CST→AST and tree-sitter-rust grammar fixes in 2021). (https://kudelskisecurity.com/research/advancing-rust-support-in-semgrep ; https://semgrep.dev/docs/release-notes/february-2023)
+- **Macro taint propagation** was added in **July 2023**: macro calls can now propagate taint through their arguments, including macro arguments using deref/ref operators (e.g. `foo!(&x)`, `foo!(*x)`). This is the most directly relevant capability for axum/tokio handler macros and `tracing::instrument`. (https://semgrep.dev/docs/release-notes/july-2023)
+- **`pattern-inside` with taint** is a documented pattern for declaring sources by surrounding context, predating the newer `by-side-effect` mechanism. Whether `pattern-inside unsafe { ... }` works on Rust specifically was **not confirmed** by any search result; needs primary-source verification before being relied on. (https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/advanced)
+- **Macro/false-positive rate** on heavy macro code (axum handlers, `tracing::instrument`, tokio `select!`) is **not quantified** in any search result returned. This is a gap the next research pass must fill by inspecting real failure cases in semgrep/semgrep-rules issues filtered by `[lang/rust]`.
+- **Search did not surface** any cargo-native equivalent (`cargo-semgrep`), Semgrep LSP-for-Rust integration notes, or 2026 conference talks specifically on the Rust frontend. Treat absence as "not found", not "does not exist".
+
+## Documentation Found
+
+- [RustSec Advisory Database — Categories](https://rustsec.org/categories/)
+- [RustSec Advisory Database — Advisories](https://rustsec.org/advisories/)
+- [RustSec Advisory Database — About](https://rustsec.org/)
+- [RustSec Advisory Database — Reporting Vulnerabilities](https://rustsec.org/contributing.html)
+- [rustsec/advisory-db GitHub repository](https://github.com/rustsec/advisory-db)
+- [OSV — Data sources](https://google.github.io/osv.dev/data/)
+- [google/osv.dev issue #3245 — connect OSV advisories to CWE/CVSS/EPSS metadata](https://github.com/google/osv.dev/issues/3245)
+- [OSV vulnerability — RUSTSEC-2025-0046](https://osv.dev/vulnerability/RUSTSEC-2025-0046)
+- [OSV vulnerability — RUSTSEC-2024-0421](https://osv.dev/vulnerability/RUSTSEC-2024-0421)
+- [Wiz vulnerability database — RUSTSEC-2025-0112](https://www.wiz.io/vulnerability-database/cve/rustsec-2025-0112)
+- [Wiz vulnerability database — RUSTSEC-2024-0423](https://www.wiz.io/vulnerability-database/cve/rustsec-2024-0423)
+- [cvedetails — Rust-lang Rust vulnerabilities list](https://www.cvedetails.com/vulnerability-list/vendor_id-19029/product_id-48677/Rust-lang-Rust.html)
+- [RustXec: A Vulnerability Reproduction Dataset for Assessing... (PDF)](https://people.cs.vt.edu/xinw/publications/RustXec26-B38KjKAe.pdf)
+- [Penligent — CVE-2025-68260, first Rust vulnerability in the Linux kernel](https://www.penligent.ai/hackinglabs/rusts-first-breach-cve-2025-68260-marks-the-first-rust-vulnerability-in-the-linux-kernel/)
+- [Semgrep — Supported languages](https://semgrep.dev/docs/supported-languages)
+- [Semgrep blog — Codebase-Aware Reachability Analysis Coverage for Rust (April 2026)](https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/)
+- [Semgrep — Taint analysis overview](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/overview)
+- [Semgrep — Advanced techniques for taint analysis](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/advanced)
+- [Semgrep — Demystifying Taint Mode](https://semgrep.dev/blog/2022/demystifying-taint-mode/)
+- [Semgrep release notes — July 2023 (macro taint propagation for Rust)](https://semgrep.dev/docs/release-notes/july-2023)
+- [Semgrep release notes — February 2023 (Rust beta)](https://semgrep.dev/docs/release-notes/february-2023)
+- [Semgrep v1.49.0 GitHub release](https://github.com/semgrep/semgrep/releases/tag/v1.49.0)
+- [Kudelski Security — Advancing Rust Support in Semgrep (2021)](https://kudelskisecurity.com/research/advancing-rust-support-in-semgrep)
+
+## Library Versions
+
+| Library / Tool | Latest stable surfaced by search | Date | Status / compat note |
+|---|---|---|---|
+| Semgrep CLI | `v1.49.0` (oldest reference seen); current support page describes Rust as **GA** in 2026 | release page is undated in result; supported-languages reflects 2026 state | Rust = GA, 40+ Pro rules, cross-function dataflow; macro taint propagation since July 2023; reachability/taint for Supply Chain added April 2026. Specific exact "current" version number not extracted by these searches. |
+| RustSec advisory-db | Live database (no semver). RUSTSEC IDs through 2025 (e.g. RUSTSEC-2025-0112, RUSTSEC-2025-0046) confirmed present | through 2025 | 10-category taxonomy, no CWE field in frontmatter; CVE alias is the only standardised cross-reference. |
+| OSV.dev | No version surfaced; Rust ecosystem feed sourced from RustSec | live | Issue #3245 (open) tracks adding CWE/CVSS/EPSS metadata — not yet present. |
+| RustXec dataset | Paper dated 2026, dataset covers Jan 2021 – Apr 2025 | 2026 | 515 RustSec advisories analysed; PDF could not be parsed locally — exact per-category table not verified beyond search-result excerpt. |
+| `cargo-semgrep` (cargo subcommand wrapper) | Not surfaced by these searches | — | Existence not confirmed; needs primary-source check next pass. |
+
+Note: the brief's listed adjacent tools (cargo-audit, cargo-deny, cargo-vet, cargo-geiger, miri, kani, prusti, creusot, MIRAI, clippy lints) were intentionally **not** queried — out of scope for the priority slice (SQ1+SQ2 and SQ5) per the focus instructions.
+## Web Search Results
+
+**SQ4 — Does Semgrep AI already produce fire-on-bad/silent-on-good corpus pairs and integrate as a Claude Code skill?**
+
+- Semgrep Assistant's custom-rule-generation feature takes three **user-supplied** inputs: a rule description, an example of bad code, and an example of good code — the corpus pairs are *not* auto-derived from a found bug or fix diff (https://semgrep.dev/blog/2024/the-tech-behind-semgrep-assistant/, also confirmed in https://semgrep.dev/blog/2023/using-ai-to-write-secure-code-with-semgrep/).
+- Semgrep Assistant **does** run a fire-on-bad / silent-on-good verification gate internally: the generation loop raises `AiNonFatalResponseParseError` when "Rule matched the good code that it should not have matched against," and retries (https://semgrep.dev/blog/2024/the-tech-behind-semgrep-assistant/).
+- Semgrep's own self-reported quality bar: rules generated correctly are "around a 3 out of 10 on a complexity scale" (https://semgrep.dev/blog/2023/using-ai-to-write-secure-code-with-semgrep/).
+- Distribution: Semgrep Assistant runs inside the Semgrep Cloud Platform / GitHub-PR flow. No mention of Claude Code skill integration, MCP exposure of rule-gen, or callability outside Semgrep's own UI in the source pages (https://semgrep.dev/products/semgrep-code/assistant/, https://semgrep.dev/docs/semgrep-assistant/overview).
+- **Gap-to-wedge**: Semgrep AI's input contract is `(description, 1 bad, 1 good) → 1 rule`; `/slo-rulegen`'s wedge contract is `(bug_summary, fix_diff, file_paths) → N variation rules + auto-generated corpus pairs`, callable inside a Claude Code session. Verification of the rule itself is not the differentiator; corpus auto-derivation, variation enumeration, and in-session callability are.
+
+**SQ6 — Do Clippy's `unwrap_used` / `indexing_slicing` / `arithmetic_side_effects` cover ≥60% of CWE-248 / CWE-190 sink shapes?**
+
+- All three lints exist and are in the **`restriction` group with default level `Allow`** — i.e. users must explicitly opt in via `#![warn(clippy::indexing_slicing)]` or equivalent (https://rust-lang.github.io/rust-clippy/master/index.html, https://github.com/rust-lang/rust-clippy/blob/master/clippy_lints/src/indexing_slicing.rs).
+- `clippy::indexing_slicing` source comment: "Checks for usage of indexing or slicing that may panic at runtime… To avoid implicit panics from indexing and slicing" — explicitly the CWE-248 panic-DoS sink shape (https://github.com/rust-lang/rust-clippy/blob/master/clippy_lints/src/indexing_slicing.rs).
+- `clippy::arithmetic_side_effects` covers `+`, `-`, `*`, `<<` overflow per the Rust Reference, plus `/`, `%` panic-on-divide-by-zero — the CWE-190/CWE-191 sink shape (https://rust-lang.github.io/rust-clippy/master/index.html).
+- The arxiv study "Unleashing the Power of Clippy in Real-World Rust Projects" finds `arithmetic_side_effects` is among the highest-frequency warnings in real projects AND that "the warning patterns under the arithmetic_side_effects category pose a considerable challenge for automatic fixing by Clippy" (https://arxiv.org/pdf/2310.11738).
+- Clippy attaches **no CWE IDs** to its lints — the CWE mapping has to be added by `/slo-rulegen`. Issue #6636 ("forbid all expect and unwrap use") shows the lint exists and is debated for production opt-in (https://github.com/rust-lang/rust-clippy/issues/6636).
+- **Implication for the integration question**: at the *sink-shape* level, Clippy's three restriction lints do cover the CWE-248 / CWE-190 surface broadly, but they fire on every occurrence with no taint, no source/sink reasoning, no per-handler context (e.g. "indexed by request body length"), and no CWE tag. The web evidence supports composition (consume Clippy's output as a coarse fence, layer Semgrep taint-mode rules on top) rather than replacement. No source claims a quantified ≥60% sink-shape overlap; that number would have to be measured against a corpus, not asserted from documentation.
+
+**SQ9 — Publication-risk default for vulnerable corpus snippets: gitignored vs tracked?**
+
+- The official `semgrep/semgrep-rules` repo is fully public on GitHub with 3,966+ commits across language directories — vulnerable snippets are committed, not gitignored (https://github.com/semgrep/semgrep-rules).
+- Contributing guide mandates a paired test file with the **same basename** as the rule yaml: e.g. `my-rule.yaml` + `my-rule.js`. Inside the test file, deliberately-vulnerable lines are tagged with `// ruleid: my-rule` (fire-on-bad expectation) and safe lines with `// ok: my-rule` (silent-on-good). Quote: "In the test file, include examples that mark: What is expected to be a finding. What is not a finding." (https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository).
+- Trail of Bits' public semgrep-rules pack follows the same public-tracked convention (https://github.com/trailofbits/semgrep-rules).
+- 0xdea's pack documents the strongest version of the precedent: "Each rule is accompanied by an actual vulnerable source code that was targeted by an exploit, with vulnerable lines marked with `// ruleid: ...`" — and is also public on GitHub (https://github.com/0xdea/semgrep-rules).
+- Searches surfaced **no GitHub Acceptable-Use takedown notices** against semgrep-rules-style repos for the deliberately-vulnerable test-snippet content. The convention surfaced everywhere is inline annotation (`// ruleid:` / `// ok:`), not segregated bad/good directories.
+- **Implication for the default**: precedent across the Semgrep ecosystem (Semgrep Inc, Trail of Bits, 0xdea, elttam, CodeVigilant, Decurity) is *tracked-but-labelled-with-`// ruleid:`*. The compliance-fine framing in the idea doc is not corroborated by any takedown evidence in these searches.
+
+## Documentation Found
+
+- [Semgrep Assistant overview](https://semgrep.dev/docs/semgrep-assistant/overview)
+- [The tech behind Semgrep Assistant's triage and remediation guidance](https://semgrep.dev/blog/2024/the-tech-behind-semgrep-assistant/)
+- [Using AI to write secure code with Semgrep](https://semgrep.dev/blog/2023/using-ai-to-write-secure-code-with-semgrep/)
+- [AI & Cybersecurity: Learnings from three months of Semgrep Assistant](https://semgrep.dev/blog/2023/assistant-public-beta/)
+- [10x your AppSec program with Semgrep Assistant](https://semgrep.dev/blog/2024/assistant-ga-launch/)
+- [AI Assistant — AppSec Engineer Assistant product page](https://semgrep.dev/products/semgrep-code/assistant/)
+- [Contribute rules to the Semgrep Registry](https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository)
+- [Writing Semgrep rules: a methodology](https://semgrep.dev/blog/2020/writing-semgrep-rules-a-methodology/)
+- [semgrep/semgrep-rules (GitHub)](https://github.com/semgrep/semgrep-rules)
+- [trailofbits/semgrep-rules (GitHub)](https://github.com/trailofbits/semgrep-rules)
+- [0xdea/semgrep-rules (GitHub)](https://github.com/0xdea/semgrep-rules)
+- [Clippy Lints index (master)](https://rust-lang.github.io/rust-clippy/master/index.html)
+- [Clippy Lint Configuration](https://doc.rust-lang.org/clippy/lint_configuration.html)
+- [rust-clippy/clippy_lints/src/indexing_slicing.rs](https://github.com/rust-lang/rust-clippy/blob/master/clippy_lints/src/indexing_slicing.rs)
+- [rust-clippy issue #6636 — forbid all expect and unwrap use](https://github.com/rust-lang/rust-clippy/issues/6636)
+- [rust-clippy CHANGELOG](https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md)
+- [Unleashing the Power of Clippy in Real-World Rust Projects (arxiv)](https://arxiv.org/pdf/2310.11738)
+
+## Library Versions
+
+| Library / tool | Latest stable (per sources surfaced) | Status / compatibility note |
+|---|---|---|
+| Semgrep Assistant | GA since 2024 launch post; iterated through 2025-2026 docs | Runs in Semgrep Cloud Platform + GitHub PR flow; no public Claude-Code skill or MCP rule-generation surface found in searches |
+| Semgrep CLI (`semgrep/semgrep`) | Repo active; specific 2026 version not surfaced by these searches | Rule schema (`pattern`, `pattern-either`, `taint`, etc.) stable; per-rule `<basename>.yaml` + `<basename>.<ext>` test layout is the documented contribution contract |
+| `semgrep-rules` (community pack) | Live, public, 3,966+ commits at time of fetch | Vulnerable snippets tracked publicly with `// ruleid:` / `// ok:` inline annotation |
+| Trail of Bits `semgrep-rules` | Live, public | Same tracked-snippet convention as upstream |
+| `rust-clippy` | Tracks Rust toolchain releases; lints `unwrap_used`, `indexing_slicing`, `arithmetic_side_effects` are stable and shipped today | All three are `restriction` group, default `Allow`; `indexing_slicing` declared `#[clippy::version = "pre 1.29.0"]` so it has been stable for years |
+| `arithmetic_side_effects` lint | Stable | Restriction / Allow; covers `+ - * <<` overflow + `/ %` divide-by-zero panic |
+
+Searches did not return precise 2026 version numbers for Semgrep CLI, Semgrep Assistant, or Clippy beyond the toolchain-tracking note above; later phases should pin exact versions from `cargo +stable clippy --version` and `semgrep --version` in the project environment.
+## Web Search Results
+
+### SQ7 — Corpus layout convention (Semgrep rule + test co-location)
+
+- Semgrep's official testing docs require **co-located** test files: a rule at `path/to/rule.yaml` looks for siblings `path/to/rule.<lang-ext>` (e.g. `rule.py`, `rule.rs`) — not a separate `tests/` tree. Source: [Test rules | Semgrep](https://semgrep.dev/docs/writing-rules/testing-rules).
+- The test filename **must match the rule filename**, only the extension differs; this is the dominant convention used in the upstream `semgrep/semgrep-rules` repo. Source: [Test rules | Semgrep](https://semgrep.dev/docs/writing-rules/testing-rules), [semgrep/semgrep-rules](https://github.com/semgrep/semgrep-rules).
+- A `.test.yaml` extension is reserved for the case where the **rule's target language is YAML itself** (avoids ambiguity with the rule's own `.yaml` file). Not relevant for Rust corpora. Source: [Test rules | Semgrep](https://semgrep.dev/docs/writing-rules/testing-rules), [Issue #1228 — Invalid schema on yaml/* unit test files](https://github.com/semgrep/semgrep-rules/issues/1228).
+- Annotation convention: `// ruleid: <id>` on the line above bad code, `// ok: <id>` for negative cases — used inline in the test file rather than as separate `bad.rs` / `good.rs` files. Source: [Test rules | Semgrep](https://semgrep.dev/docs/writing-rules/testing-rules), [Contribute rules to the Semgrep Registry](https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository).
+- Issue #2799 confirms `semgrep --test` is the canonical runner that consumes this layout. Source: [`semgrep --test` a yaml file · Issue #2799](https://github.com/returntocorp/semgrep/issues/2799).
+
+### SQ8 — CI + local wiring (pre-commit vs lefthook vs prek)
+
+- Semgrep ships a **first-party pre-commit hooks repo** (`semgrep/pre-commit`), so `pre-commit` remains the path-of-least-resistance default in 2026. Source: [semgrep/pre-commit](https://github.com/semgrep/pre-commit), [Customize Semgrep in pre-commit | Semgrep](https://semgrep.dev/docs/kb/integrations/customize-semgrep-precommit).
+- **Lefthook** (Go, 2019) is positioned as faster and parallel-by-default but does **not** auto-install tools or pull remote hook configs — you must wire each invocation yourself. Source: [Git hooks management with pre-commit and lefthook | 0xDC.me](https://0xdc.me/blog/git-hooks-management-with-pre-commit-and-lefthook/), [dotdc/test-lefthook-and-pre-commit](https://github.com/dotdc/test-lefthook-and-pre-commit).
+- A **Rust-native equivalent has emerged**: `prek` (j178/prek) — a drop-in `pre-commit` replacement written in Rust, compatible with existing `.pre-commit-config.yaml`, no Python dependency. Discussed on HN in late 2025/early 2026. Source: [j178/prek](https://github.com/j178/prek), [prek docs](https://prek.j178.dev/), [HN: Better pre-commit, re-engineered in Rust](https://news.ycombinator.com/item?id=45931273), [HN: Prek: A better, faster, drop-in pre-commit replacement](https://news.ycombinator.com/item?id=46873138).
+- Implication for a `cargo`-shaped repo: `pre-commit-config.yaml` is still the canonical config format; `prek` reads it without changes, so a project can adopt the Rust runner without rewriting CI. No `cargo-semgrep` subcommand wrapper surfaced in results.
+
+### SQ3 — Web-class CWE inclusion in a Rust top-10
+
+- Searches for axum/sqlx-specific SQLi / XSS / SSRF CVEs in 2024–2025 returned **no major framework-level advisories** in those classes. The hits were either stdlib or transport-layer issues, not webapp injection. Source: [RustSec Advisories index](https://rustsec.org/advisories/), [CVE-2024-24576 — std::process::Command on Windows (BatBadBut)](https://blog.rust-lang.org/2024/04/09/cve-2024-24576.html), [CVE-2024-43402 — std::process::Command Windows hardening](https://blog.rust-lang.org/2024/09/04/cve-2024-43402.html).
+- One indirect hit relevant to a Rust web stack: **RUSTSEC-2024-0421** affects `idna < 1.0.0` (used transitively by `url`, then by `sqlx ≤ 0.8.2`, `reqwest ≤ 0.12.8`) — a Punycode/IDNA confusion that maps to **CWE-20 / CWE-1007** (homograph), enabling phishing/SSRF-adjacent URL spoofing rather than classic SQLi or stored XSS. Source: [OSV — RUSTSEC-2024-0421](https://osv.dev/vulnerability/RUSTSEC-2024-0421).
+- **RUSTSEC-2025-0028** surfaced in the Wiz vulnerability DB (referenced as a 2025 advisory). Source: [RUSTSEC-2025-0028 | Wiz](https://www.wiz.io/vulnerability-database/cve/rustsec-2025-0028).
+- Aggregate Rust-lang CVE listings remain dominated by stdlib/runtime issues and `unsafe`/FFI memory bugs, not the OWASP Top-10 web classes. Source: [Rust-lang CVEs | cvedetails.com](https://www.cvedetails.com/vulnerability-list/vendor_id-19029/product_id-48677/Rust-lang-Rust.html), [MITRE CVE keyword=rust](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=rust).
+- **Search verdict:** these three queries did not produce evidence that CWE-89 / CWE-79 / CWE-918 belong in a frequency-ranked Rust top-10 based on RustSec/OSV advisories. They may still warrant inclusion on a *threat-class* basis (axum apps absolutely can be vulnerable when devs hand-roll SQL or HTML), but the public advisory corpus does not back a frequency claim. A targeted RustSec-DB CWE tally (SQ1's main task) is needed to settle this.
+
+## Documentation Found
+
+- [Test rules | Semgrep](https://semgrep.dev/docs/writing-rules/testing-rules)
+- [Rule structure syntax | Semgrep](https://semgrep.dev/docs/writing-rules/rule-syntax)
+- [Run rules | Semgrep](https://semgrep.dev/docs/running-rules)
+- [Contribute rules to the Semgrep Registry | Semgrep](https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository)
+- [Writing Semgrep rules — methodology blog | Semgrep](https://semgrep.dev/blog/2020/writing-semgrep-rules-a-methodology/)
+- [Semgrep rules overview | Semgrep](https://semgrep.dev/docs/writing-rules/overview)
+- [Use the Semgrep rule schema in VS Code | Semgrep](https://semgrep.dev/docs/kb/rules/using-semgrep-rule-schema-in-vscode)
+- [semgrep/semgrep-rules (GitHub)](https://github.com/semgrep/semgrep-rules)
+- [semgrep/pre-commit (GitHub)](https://github.com/semgrep/pre-commit)
+- [Customize Semgrep in pre-commit | Semgrep](https://semgrep.dev/docs/kb/integrations/customize-semgrep-precommit)
+- [j178/prek (GitHub)](https://github.com/j178/prek)
+- [prek documentation](https://prek.j178.dev/)
+- [Comparing Code Quality Meta Tools — House Absolute](https://blog.urth.org/2020/05/08/comparing-code-quality-meta-tools/)
+- [Git hooks management with pre-commit and lefthook | 0xDC.me](https://0xdc.me/blog/git-hooks-management-with-pre-commit-and-lefthook/)
+- [dotdc/test-lefthook-and-pre-commit (GitHub)](https://github.com/dotdc/test-lefthook-and-pre-commit)
+- [HN — Better pre-commit, re-engineered in Rust](https://news.ycombinator.com/item?id=45931273)
+- [HN — Prek: drop-in pre-commit replacement](https://news.ycombinator.com/item?id=46873138)
+- [RustSec Advisories index](https://rustsec.org/advisories/)
+- [CVE-2024-24576 — std::process::Command on Windows](https://blog.rust-lang.org/2024/04/09/cve-2024-24576.html)
+- [CVE-2024-43402 — std::process::Command Windows hardening](https://blog.rust-lang.org/2024/09/04/cve-2024-43402.html)
+- [OSV — RUSTSEC-2024-0421](https://osv.dev/vulnerability/RUSTSEC-2024-0421)
+- [Wiz — RUSTSEC-2025-0028](https://www.wiz.io/vulnerability-database/cve/rustsec-2025-0028)
+- [CERT-EU — Critical Vulnerability in Rust on Windows (2024-035)](https://cert.europa.eu/publications/security-advisories/2024-035/)
+- [Rust-lang CVE list — cvedetails.com](https://www.cvedetails.com/vulnerability-list/vendor_id-19029/product_id-48677/Rust-lang-Rust.html)
+- [MITRE CVE search — keyword=rust](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=rust)
+- [Issue #2799 — `semgrep --test` a yaml file](https://github.com/returntocorp/semgrep/issues/2799)
+- [Issue #1228 — Invalid schema on yaml/* unit test files](https://github.com/semgrep/semgrep-rules/issues/1228)
+
+## Library Versions
+
+| Tool / Library | Latest stable observed | Status / compatibility note |
+|---|---|---|
+| Semgrep CLI (semgrep/semgrep) | Active 2024–2026 release cadence; exact version not pinned in this search slice | Owns the `--test` runner that defines the co-location convention; canonical for the verify gate. |
+| semgrep/semgrep-rules | Continuously maintained community ruleset under Semgrep Rules License | Reference layout for `references/sast/` schema decision. |
+| pre-commit (Python) | Long-established, ecosystem default; no version surfaced in searches | Still canonical; semgrep/pre-commit hook repo targets it. |
+| Lefthook (Go) | Active; no specific version surfaced | Faster, parallel-by-default; no auto-install of underlying tools. |
+| prek (Rust, j178/prek) | New as of late 2025 / early 2026 (HN posts in this window) | Drop-in replacement for `pre-commit`, reads same `.pre-commit-config.yaml`; maturity not yet established in the surveyed sources. |
+| RustSec advisory-db | Continuously updated | Authoritative source for SQ1's CWE tally; this slice surfaced individual entries (RUSTSEC-2024-0421, RUSTSEC-2025-0028). |
+| sqlx | ≤ 0.8.2 affected by RUSTSEC-2024-0421 (transitive via `url`/`idna`) | Fixed by upgrading transitive `idna ≥ 1.0.0`. |
+| reqwest | ≤ 0.12.8 affected by RUSTSEC-2024-0421 (transitive) | Same upgrade path as sqlx. |
+| Rust toolchain | CVE-2024-24576 fixed in 1.77.2 (Apr 2024); CVE-2024-43402 hardened in Sep 2024 release | Both stdlib `std::process::Command` Windows-only command-injection variants. |
+## Web Search Results
+
+**SQ10 — xtask skeleton convention check**
+
+- **Canonical skeleton** (matklad/cargo-xtask, the de facto spec): root has `.cargo/config.toml`, root `Cargo.toml` declaring a workspace, sibling `xtask/` and `<main-crate>/` directories, each with their own `Cargo.toml` and `src/` — confirmed verbatim from the upstream README. Source: https://github.com/matklad/cargo-xtask/blob/master/README.md
+- **Cargo alias** is one line: `[alias] xtask = "run --package xtask --"` placed in `.cargo/config.toml`. The alias works from any subdirectory only when xtask is a workspace member. Source: https://github.com/matklad/cargo-xtask/blob/master/README.md
+- **Entry-point shape**: `xtask/src/main.rs` parses at least one positional arg (the task name) and dispatches to subcommand functions implemented in plain Rust. Tasks may shell out to `cargo` via the `CARGO` env var. Source: https://github.com/matklad/cargo-xtask
+- **Workspace vs single-crate**: matklad's own guidance is that xtask SHOULD be a workspace member — enables shared dep resolution and the simple alias. The non-workspace fallback (`run --manifest-path ./xtask/Cargo.toml --`) is documented but discouraged. Sources: https://github.com/matklad/cargo-xtask/issues/8 and https://matklad.github.io/2021/08/22/large-rust-workspaces.html
+- **Status of the pattern**: not officially blessed by the cargo team, but widely adopted — cargo itself uses xtasks; rust-analyzer ships an `xtask` crate documented at https://rust-lang.github.io/rust-analyzer/xtask/index.html. Source: https://github.com/matklad/cargo-xtask
+- **Subcommand catalog precedent (OpenVMM)** — uses xtask as a "swiss army knife" with subcommands like `clean`, `fmt`, `fuzz`, `install-git-hooks`; running bare `cargo xtask` prints the list. Suggests built-in `--help` discovery is the dominant convention. Source: https://openvmm.dev/guide/dev_guide/dev_tools/xtask.html
+- **Helper crates exist** (optional, not canonical): `xtaskops` (jondot) and `xtasks` (sebastienrousseau) bundle reusable task primitives — coverage, ci, bloat-deps, powerset. Useful as reference for *what subcommands large packs ship* but they are not part of the convention. Sources: https://github.com/jondot/xtaskops and https://github.com/sebastienrousseau/xtasks
+- **Security-task precedent**: searches did not surface a widely-cited "security xtask" template specifically; OpenVMM's `fuzz` subcommand is the closest documented example. No public Rust-project xtask is named as canonical for SAST verification. Source: https://openvmm.dev/guide/dev_guide/dev_tools/xtask.html
+- **Cargo subcommand naming**: the convention is to expose all custom work under a single `xtask` binary with subcommands (`cargo xtask <name>`) rather than multiple `xtask-foo` aliases — explicitly recommended in matklad's spec. Source: https://github.com/matklad/cargo-xtask/blob/master/README.md
+
+## Documentation Found
+
+- [matklad/cargo-xtask (specification repository)](https://github.com/matklad/cargo-xtask)
+- [matklad/cargo-xtask README (canonical skeleton)](https://github.com/matklad/cargo-xtask/blob/master/README.md)
+- [Issue #8 — workspaces are the recommended approach](https://github.com/matklad/cargo-xtask/issues/8)
+- [matklad — Large Rust Workspaces (2021)](https://matklad.github.io/2021/08/22/large-rust-workspaces.html)
+- [rust-analyzer xtask docs](https://rust-lang.github.io/rust-analyzer/xtask/index.html)
+- [OpenVMM Guide — cargo xtask](https://openvmm.dev/guide/dev_guide/dev_tools/xtask.html)
+- [nickgerace/cargo-xtask-example](https://github.com/nickgerace/cargo-xtask-example)
+- [jondot/xtaskops — reusable xtask primitives](https://github.com/jondot/xtaskops)
+- [sebastienrousseau/xtasks](https://github.com/sebastienrousseau/xtasks)
+- [Adding custom runnable tasks to a Rust project — bryantluk.com](https://blog.bryantluk.com/cargo-xtask/)
+- [tracel-xtask on crates.io](https://crates.io/crates/tracel-xtask)
+- [rust-secure-code/projects (security project index)](https://github.com/rust-secure-code/projects)
+
+## Library Versions
+
+The xtask "convention" is a project pattern, not a published library, so versions only apply to optional helper crates. Searches surfaced these but did not return precise release dates — note as approximate from crates.io listings:
+
+| Library | Latest stable | Status / note |
+|---|---|---|
+| `cargo-xtask` (crate by matklad) | 0.1.0 | Marked "[not recommended]" on lib.rs — the spec-repo README is the actual artifact, not the crate. https://lib.rs/crates/cargo-xtask |
+| `xtaskops` (jondot) | per crates.io listing — version not confirmed by search | Reusable task helpers (coverage, ci, bloat-deps); useful reference, not canonical. https://github.com/jondot/xtaskops |
+| `xtasks` (sebastienrousseau) | per crates.io listing — version not confirmed by search | Alternative helper bundle; docs at https://docs.rs/xtasks |
+| `tracel-xtask` | per crates.io listing — version not confirmed by search | Domain-specific xtask scaffolding. https://crates.io/crates/tracel-xtask |
+
+Inconclusive: the searches did not return verified release dates / MSRV for the helper crates. The canonical pattern itself has no version — it is a repo-shape convention, MSRV is whatever the project's existing toolchain pins.
+## Web Search Results
+
+### Q1 — CWE susceptibility ranking for Rust
+
+- The **2025 CWE Top 25** (published by MITRE/CISA on 2025-12-11) is the authoritative cross-language baseline for the topical period; the current top entries are CWE-79 (XSS), CWE-787 (out-of-bounds write), CWE-89 (SQLi), CWE-352 (CSRF), and CWE-22 (path traversal). Source: https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html and https://www.cisa.gov/news-events/alerts/2025/12/11/2025-cwe-top-25-most-dangerous-software-weaknesses
+- A **2026 academic dataset (RustXec)** that mined RustSec found Rust-specific CVE distributions skewed to: memory-corruption (31 cases) and denial-of-service (28 cases), with the most frequent CWEs being **CWE-787 (out-of-bounds write, 9 cases), CWE-415 (double free, 8 cases), and CWE-400 (uncontrolled resource consumption, 7 cases)** — directly relevant to confirming the user's prior expectation that panic-DoS and unsafe-FFI classes dominate. Source: https://people.cs.vt.edu/xinw/publications/RustXec26-B38KjKAe.pdf
+- Recent RustSec advisories continue to feature panic-on-malformed-input, unsoundness, plaintext exposure in decryption, permission bypass, and shell expansion — confirming the wedge's "panic-DoS + injection" framing. Source: https://rustsec.org/advisories/ and https://github.com/rustsec/advisory-db
+- A separate KEV-aligned CWE Top 10 was also published in 2025, useful for weighting "actually exploited in the wild" vs. theoretical risk. Source: https://cwe.mitre.org/top25/archive/2025/2025_kev_insights.html
+
+### Q2 — Direct competitors in AI-driven SAST rule generation
+
+- **Semgrep Assistant (2026)**: AI-driven, but focused on **finding triage** (claims 96% alignment with human triage) and a "Memories" feature that learns from past triage decisions — *not* a per-bug rule synthesiser. Custom rules are still authored by humans in YAML against a community registry of 3,000+ rules. Source: https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/ and https://corgea.com/blog/compare/snyk-vs-semgrep/
+- **Snyk Code / DeepCode AI**: AI engine handles both detection and **auto-fix suggestions in IDE/PR**. Custom rules exist but are **Enterprise-only Early Access**, written in a proprietary Datalog-based query language against Snyk's internal "event graph" — opaque, not human-editable in the Semgrep sense. Source: https://appsecsanta.com/snyk-code and https://konvu.com/compare/snyk-vs-semgrep
+- **Pricing baseline (2026)**: Semgrep Code $30/contributor/mo; Snyk advanced SAST starts ~$50/mo per developer with custom rules gated behind Enterprise contact-sales. Source: https://dev.to/rahulxsingh/semgrep-pricing-in-2026-open-source-vs-team-vs-enterprise-costs-3dic and https://dev.to/rahulxsingh/snyk-vs-semgrep-sca-platform-vs-custom-sast-rules-in-2026-3047
+- **Gap confirmed**: none of the surveyed 2026 tools advertise a workflow that takes `(bug_summary, fix_diff, file_paths)` and emits Rust-idiomatic Semgrep rules with a fire/silent verification gate; they do AI-triage or AI-autofix, not AI-rule-synthesis. Source comparison set: https://appsecsanta.com/sast-tools/semgrep-vs-snyk-code, https://www.aikido.dev/blog/snyk-vs-semgrep, https://vibe-eval.com/testing/sast-tools-ai-code, https://sanj.dev/post/ai-code-security-tools-comparison, https://deepsource.com/resources/snyk-alternatives
+
+### Q4 — Semgrep Rust frontend reality in 2026
+
+- Rust support began as **beta in Feb 2023** and has been progressively hardened. By 2026 Semgrep is using Rust taint mode in its own **Supply Chain reachability analysis** product (e.g. `bcder` advisory analysis), so taint mode with `pattern-either` source/sink declarations works on real Rust code. Source: https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/ and https://semgrep.dev/docs/supported-languages
+- Rust-specific taint improvements documented: parameter-with-pattern-matching propagates taint (including nested patterns), and **macro calls can taint through their arguments** — important for axum/tokio/`tracing::instrument` macro-heavy code. Source: https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/overview and https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/advanced
+- `pattern-either` semantics are documented as identical across languages (it is a list combinator inside `pattern-sources` / `pattern-sinks` / `pattern-sanitizers`). Source: https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/
+- Web search did not surface authoritative 2026 docs on (a) `pattern-inside unsafe { ... }` block selection, (b) metavariable type filtering across Rust trait bounds, or (c) macro-FP rate benchmarks — flagged as **inconclusive** for this slice; a synthesis pass should run targeted fetches against the semgrep-rules GitHub repo and the semgrep/semgrep issue tracker `[lang/rust]` filter.
+
+### Q3 & Q5 (corpus convention, CI wiring, publication risk)
+
+- These slices were not exercised by the three searches run; **no new data** beyond what is in the brief. Should be picked up by a later search slice targeting `semgrep/semgrep-rules` test conventions, `pre-commit` framework status, and GitHub Acceptable Use Policy precedent on vulnerable-code corpora.
+
+## Documentation Found
+
+- [Codebase-Aware Reachability Analysis Coverage for Rust (Semgrep blog, 2026)](https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/)
+- [Taint analysis — overview (Semgrep docs)](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/overview)
+- [Advanced techniques for taint analysis (Semgrep docs)](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/advanced)
+- [Taint analysis (Semgrep docs root)](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/)
+- [Supported languages (Semgrep docs)](https://semgrep.dev/docs/supported-languages)
+- [Pattern syntax — experimental (Semgrep docs)](https://semgrep.dev/docs/writing-rules/experiments/pattern-syntax)
+- [Demystifying Taint Mode (Semgrep blog, 2022)](https://semgrep.dev/blog/2022/demystifying-taint-mode/)
+- [Taint mode is now in beta (Semgrep blog, 2021)](https://semgrep.dev/blog/2021/taint-mode-is-now-in-beta/)
+- [Semgrep release notes — February 2023 (Rust beta)](https://semgrep.dev/docs/release-notes/february-2023)
+- [Semgrep release notes — July 2023](https://semgrep.dev/docs/release-notes/july-2023)
+- [RustSec advisory-db (GitHub)](https://github.com/rustsec/advisory-db)
+- [RustSec Advisories (web index)](https://rustsec.org/advisories/)
+- [About RustSec](https://rustsec.org/)
+- [2025 CWE Top 25 Most Dangerous Software Weaknesses (MITRE)](https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html)
+- [2025 CWE Top 25 (CISA alert, 2025-12-11)](https://www.cisa.gov/news-events/alerts/2025/12/11/2025-cwe-top-25-most-dangerous-software-weaknesses)
+- [2025 CWE Top 10 KEV Weaknesses Insights](https://cwe.mitre.org/top25/archive/2025/2025_kev_insights.html)
+- [CWE-1435: Weaknesses in the 2025 CWE Top 25 (CWE 4.19.1)](https://cwe.mitre.org/data/definitions/1435.html)
+- [Common Weakness Enumeration (root)](https://cwe.mitre.org/)
+- [RustXec: A Vulnerability Reproduction Dataset for Assessing Rust security (2026 academic PDF)](https://people.cs.vt.edu/xinw/publications/RustXec26-B38KjKAe.pdf)
+- [Snyk vs Semgrep (2026): Technical Comparison — Konvu](https://konvu.com/compare/snyk-vs-semgrep)
+- [Semgrep vs Snyk Code (2026): SAST Comparison — AppSecSanta](https://appsecsanta.com/sast-tools/semgrep-vs-snyk-code)
+- [Best AI Code Security Tools 2025: Snyk vs Semgrep vs CodeQL — sanj.dev](https://sanj.dev/post/ai-code-security-tools-comparison)
+- [Snyk vs Semgrep: SCA Platform vs Custom SAST Rules in 2026 — DEV](https://dev.to/rahulxsingh/snyk-vs-semgrep-sca-platform-vs-custom-sast-rules-in-2026-3047)
+- [7 Best Snyk Alternatives for 2026 — DeepSource](https://deepsource.com/resources/snyk-alternatives)
+- [Best SAST Tools for AI-Generated Code: Snyk vs Semgrep vs Checkmarx (2026) — Vibe-Eval](https://vibe-eval.com/testing/sast-tools-ai-code)
+- [Snyk vs Semgrep vs Corgea (2026) — Corgea blog](https://corgea.com/blog/compare/snyk-vs-semgrep/)
+- [Snyk vs Semgrep — Aikido Security](https://www.aikido.dev/blog/snyk-vs-semgrep)
+- [Semgrep Pricing in 2026 — DEV](https://dev.to/rahulxsingh/semgrep-pricing-in-2026-open-source-vs-team-vs-enterprise-costs-3dic)
+- [Snyk Code Review 2026 — AppSecSanta](https://appsecsanta.com/snyk-code)
+
+## Library Versions
+
+The web searches did not surface explicit version numbers / release dates for most of the rule-generation tools. The few datapoints available:
+
+| Library / Tool | Latest stable (per searches) | Release date | Compatibility / status note |
+|---|---|---|---|
+| Semgrep — Rust language frontend | Beta since Feb 2023; in production use for Supply Chain reachability in 2026 | Beta declared Feb 2023 | Taint mode + `pattern-either` confirmed working on Rust in 2026; macro-arg taint propagation supported |
+| Semgrep Code (SAST product) | Pricing tier — $30/contributor/month (2026) | n/a | Custom YAML rules unrestricted in OSS; Assistant AI is triage, not rule-synth |
+| Semgrep Supply Chain | Active in 2026 with Rust reachability | 2026 blog post | Uses Rust taint internally — implicit feasibility signal |
+| Snyk Code (DeepCode AI) | "Early Access" custom rules on Enterprise plan (2026) | n/a | Datalog DSL, opaque, not human-editable |
+| Snyk paid SAST | ~$50/mo per developer entry; Enterprise quote-only for custom rules | 2026 | — |
+| RustSec advisory-db | Continuously updated GitHub repo | rolling | Authoritative source for CWE-tagged Rust advisories |
+| CWE catalogue | v4.19.1 (referenced in 2025 Top 25 page) | 2025 | Use as canonical CWE-ID source for `cwe-map-rust.md` |
+
+Versions for `cargo-audit`, `cargo-deny`, `cargo-vet`, `cargo-geiger`, miri, kani, clippy, semgrep-rules repo, `pre-commit`, and `returntocorp/semgrep-action` were **not retrieved** in this slice — flagged for a follow-up search.
+## Deepened Findings
+
+### F1 — RustSec advisories do NOT carry CWE in their native schema; GHSA join is the data path
+- **EVIDENCE**: The TOML schema in `rustsec/advisory-db/README.md` defines `id`, `package`, `categories`, `keywords`, `aliases`, `cvss`, etc. — **no `cwe` field**. Source: https://raw.githubusercontent.com/rustsec/advisory-db/main/README.md
+- **EVIDENCE**: OSV's `RUSTSEC-*` records expose `database_specific.categories` and `database_specific.cvss` but **no `cwe_ids`**. The same vuln fetched by its **GHSA alias** does carry `database_specific.cwe_ids` (e.g. `RUSTSEC-2024-0421` → `GHSA-h97m-ww89-6jmq` → `["CWE-1289","CWE-697"]`). Source: https://api.osv.dev/v1/vulns/RUSTSEC-2024-0421 + https://api.osv.dev/v1/vulns/GHSA-h97m-ww89-6jmq
+- **Implication**: the bootstrap M0 task to drive `references/sast/cwe-map-rust.md` from data must do a two-hop fetch (RUSTSEC → aliases[] → GHSA-OSV → cwe_ids), with a category-to-CWE fallback for advisories without a GHSA alias (informational/unmaintained advisories are almost always GHSA-less and CWE-less).
+
+### F2 — Refined Rust CWE frequency (sample, 2024-2026)
+Confidence: **MEDIUM** — derived from a 14-advisory spot-check, not a full DB tally.
+- **CWE-416 (use-after-free)** appears as one of the highest-frequency classes (RUSTSEC-2024-0017 cassandra-rs, RUSTSEC-2024-0019 mio, RUSTSEC-2026-0090 wasmtime). This was **not in the user's prior top-7** and should be promoted in.
+- **CWE-787 / CWE-125 (OOB write/read)** confirmed (RUSTSEC-2026-0080 scaly, RUSTSEC-2024-0400 ruzstd). Consistent with RustXec.
+- **CWE-190 (integer overflow)** confirmed (RUSTSEC-2026-0070 hpke-rs).
+- **CWE-248 panic-DoS** is **NOT directly tagged** by GHSA — RustSec/GHSA tag the root cause, not the panic symptom. Panic-DoS shows up as `categories=["denial-of-service"]` plus a root-cause CWE (CWE-190, CWE-20, CWE-697). The user's CWE-248 framing remains valid as a *sink-shape* class but does not rank natively from advisory data.
+- **CWE-191 / CWE-770 / CWE-1284**: INCONCLUSIVE — not directly hit in the sample. RustXec's CWE-400 prominence is reproducible only via the category crosswalk, not native tags.
+
+### F3 — Adjacent-tool integration map (refined)
+Source dossier from sub-agent, cross-referenced against repo state:
+
+| Tool | 2026 status | Decision | Rationale |
+|---|---|---|---|
+| **rustsec/advisory-db** | active, daily updates | **INTEGRATE — primary corpus source** | Each advisory's `url` field links to the upstream fix PR — diff = ground-truth bug+fix pair |
+| **cargo-audit** 0.22.1 (2026-02) | Apache/MIT, active | **INTEGRATE** | Emits **JSON and SARIF** (`cargo-audit/src/sarif.rs`) — cleanest CI trigger |
+| **cargo-deny** 0.19.4 (2026-04) | Apache, active | **INTEGRATE (advisories channel only)** | `--format=json/sarif` confirmed in `OutputFormat::{Json,Sarif}` |
+| **cargo-vet** 0.10.0 (2024-10) | Apache, stale release cadence | **IGNORE** | Trust attestation, not bug findings — no fix-diff stream |
+| **cargo-geiger** 0.13.0 (2025-08) | active | **IGNORE for findings; use as prioritization signal** | Counts `unsafe` *presence*, not bug patterns. Most `unsafe` is benign FFI — no CWE-119/787 overlap at the rule-pattern level |
+| **miri** | active (rustc-tracking) | **BACKLOG** | UB findings ARE the CWE-119/416/787 class, but require a triggering test and rustc-diagnostic JSON parsing |
+| **kani** 0.67.0 (2026-01) | active | **IGNORE for v1** | Heavyweight CBMC-based; requires harness authoring |
+| **prusti / creusot** | active | **IGNORE** | Verification, not detection. Creusot is **LGPL-2.1** — copyleft, vendoring caution |
+| **MIRAI (facebookexp)** | **archived 2024-08-22** | **IGNORE** | Tiny endorlabs fork exists; Kani is the practical successor |
+| **Clippy** restriction lints (`unwrap_used`, `indexing_slicing`, `arithmetic_side_effects`) | shipped | **INTEGRATE as coarse fence; layer Semgrep on top** | Same finding from previous round confirmed — no CWE tags, no taint, but covers sink shapes |
+
+### F4 — Semgrep Rust capability matrix (2026, refined)
+
+| Primitive | Status | Confidence | Source |
+|---|---|---|---|
+| `pattern: unsafe { ... }` | EVIDENCE | HIGH | `semgrep-rules/rust/lang/security/unsafe-usage.yml` |
+| `pattern-inside: unsafe { ... }` | INCONCLUSIVE | — | No public example in semgrep-rules; not documented as restricted — **smoke-test before templating** |
+| `metavariable-type` on concrete types | EVIDENCE | HIGH | https://semgrep.dev/docs/writing-rules/experiments/metavariable-type (Rust listed) |
+| `metavariable-type` w/ generics & trait bounds | INCONCLUSIVE → likely partial | LOW | Issues #10380, #11150 still open; no Rust example in docs. Fall back to `metavariable-pattern` + regex |
+| Patterns through proc-macros (`#[axum::debug_handler]`, `#[tokio::main]`, `#[tracing::instrument]`) | NEGATIVE | MEDIUM | Issues #10471 (`#[cfg(...)]` parser fail), #10362 (no match in macros), #3600, #5221 — all open |
+| Taint mode source→sink (basic) | EVIDENCE | HIGH | bcder example in 2026 SCA blog; rust.hyper.sql.diesel-taint exists |
+| Taint through `format!` / intermediate `let` | NEGATIVE | HIGH | Issues #10757, #10900 still open as confirmed FNs in diesel-taint |
+| **`axum::extract::Query` → `sqlx::query` taint rule** in the wild | NEGATIVE | HIGH | None found — would be net-new content for the pack |
+| `semgrep --validate` non-zero exit on bad YAML | EVIDENCE | HIGH | CLI ref: code 5 (bad config), 7 (invalid rule), 4 (bad pattern) |
+| `semgrep --test` non-zero on assertion failure | EVIDENCE (with caveat) | HIGH | PR #6070 made it return 1; **caveat #10319**: `--test` returns 0 on *invalid rule itself* — must run `--validate` first |
+
+### F5 — Repo-state constraints that bound the architecture
+- `Cargo.toml` workspace has **no `xtasks/` directory and no `.cargo/config.toml`** — adding `cargo xtask sast-verify` is net-new infrastructure (workspace member + alias + dispatcher).
+- The matklad xtask convention requires `[alias] xtask = "run --package xtask --"` in `.cargo/config.toml` for the alias to work from any subdirectory. Source: https://github.com/matklad/cargo-xtask/blob/master/README.md
+- The `--workspace` test baseline is parked; a new `xtasks/sast-verify/` crate must be added explicitly to the `cargo test -p ...` line in CLAUDE.md (per the existing constraint).
+- All current `crates/` use `clap 4`, `anyhow 1`, `thiserror 2`, `serde 1` — any verifier should reuse these workspace deps, not introduce new ones.
+
+### F6 — Publication-risk default (refined from previous round)
+- No web evidence of takedown notices against semgrep-rules-style repos for vulnerable test snippets. Convention is **inline `// ruleid:` annotation in tracked source files**.
+- The compliance-fine framing in the idea doc is **not corroborated** by precedent. Default conservative posture (gitignored corpus) is *defensible-but-overcautious*; matching upstream convention (tracked + `// ruleid:` annotation) is *defensible-and-portable*. Pick based on whether portability to `semgrep ci` matters more than legal-team comfort.
+
+## Library Evaluations
+
+### Semgrep CLI (verifier engine)
+- **Version**: not pinned in this research; Rust frontend in production use for SCA reachability in 2026.
+- **License**: LGPL-2.1 (engine), Semgrep Rules License (rules).
+- **Pros**: stable `--validate` and `--test` exit codes; first-party `pre-commit` hook repo; SARIF output; Rust taint mode now usable.
+- **Cons**: only **10 Rust rules** in the upstream first-party tree — pack starts thin, rule writers cannot copy from a deep prior-art well; macro/proc-macro parsing is brittle (multiple open issues); `metavariable-type` semantics on Rust generics are under-documented.
+- **Fit**: required. Verifier and pack runtime both bind to it.
+
+### `prek` (j178/prek) — Rust-native pre-commit replacement
+- **Version**: new as of late 2025/early 2026 (HN signal, no major-version tag).
+- **License**: TBD (not surfaced).
+- **Pros**: drop-in for `.pre-commit-config.yaml`; no Python bootstrap; matches a `cargo`-shaped repo's tooling story.
+- **Cons**: maturity unproven; users without `prek` still get the canonical `pre-commit` path. Adopting `prek` in CI of a generated project requires the user to install it, which `pre-commit` does not.
+- **Fit**: **document as alternative, default to `pre-commit`**. The skill should emit a `.pre-commit-config.yaml` that works under either runner.
+
+### `cargo-audit` 0.22.1 + SARIF
+- **License**: Apache-2.0 OR MIT.
+- **Pros**: confirmed JSON+SARIF output; CWE-via-GHSA path is the same join `/slo-rulegen` already needs.
+- **Cons**: emits findings against `Cargo.lock`, not source AST — does not directly drive a Semgrep rule. The tie-in is "CI-time advisory hit → triggers rulegen against the patch diff."
+- **Fit**: **CI integration partner**, not engine.
+
+### `xtaskops` / `xtasks` / `tracel-xtask` (helper crates)
+- **Versions**: not surfaced reliably.
+- **Pros**: pre-built helpers (coverage, ci, fmt) reduce hand-rolling.
+- **Cons**: NOT canonical — matklad's spec doesn't bless any helper crate; introduces an unpinned dep into the project verifier; current SLO crates use bare `clap 4` everywhere with no helper crate, so adopting one is inconsistent.
+- **Fit**: **do not adopt**. Hand-roll a 200-line `xtask/src/main.rs` matching the OpenVMM single-binary-with-subcommands shape.
+
+### Clippy (`unwrap_used`, `indexing_slicing`, `arithmetic_side_effects`)
+- **Status**: stable, default `Allow`, restriction group.
+- **Pros**: zero new infrastructure; covers CWE-248/CWE-190 sink shapes broadly.
+- **Cons**: no taint, no per-handler context, no CWE tags, fires on every occurrence — noisy without Semgrep layered on top.
+- **Fit**: **integrate as coarse fence**, not replacement.
+
+### `pre-commit` (Python-based, canonical)
+- **Status**: ecosystem default; first-party Semgrep hook repo at `semgrep/pre-commit`.
+- **Pros**: Python install is universal; users' existing pre-commit configs accept the new hook with no rewrite.
+- **Cons**: Python runtime in a Rust-only repo introduces a non-Rust dep.
+- **Fit**: **default**.
+
+## Architecture Options
+
+### Option α — Skill-only (Approach A revisited)
+- **Shape**: `/slo-rulegen` and `/slo-ruleverify` ship as `skills/<name>/SKILL.md` files plus `references/sast/` reference content. No new Rust crate. The skill drives Claude to shell out to `semgrep --validate <rule>` and `semgrep --test <rule-dir>` via Bash, parsing exit codes inline.
+- **Pros**: matches the existing `slo-*` skill pack pattern (no new crate); no `xtasks/` infrastructure to introduce; `prek` / `pre-commit` still emit-able as project artifacts; ships in ~1 week.
+- **Cons**: verifier gate runs by *prompted Bash sequence* — Claude can skip a step. The fire/silent gate is "policy" not "code." If `semgrep --test` is unavailable on the user's PATH the skill silently degrades. Variation-coverage minimum becomes prompt-policed (the breach-mitigation risk in the idea doc).
+- **Best fit**: speed-of-shipping wins; user accepts that the gate is enforced by skill discipline + `semgrep` exit codes alone.
+
+### Option β — Hybrid skill pack + `xtasks/sast-verify/` Cargo crate
+- **Shape**: skills do all LLM-heavy work. New `xtasks/sast-verify/` crate added to the workspace plus `.cargo/config.toml` declaring `[alias] xtask = "run --package xtasks/sast-verify --"`. Crate is a single binary with subcommands `validate`, `test`, `check-coverage`. Each subcommand returns a structured exit code. Skills shell to `cargo xtask sast-verify <subcommand>`.
+- **Pros**: deterministic gate — `/slo-rulegen` cannot append a rule to the pack until `cargo xtask sast-verify check-coverage --rule <path>` exits 0. Verifier can enforce variation-coverage minimums (e.g. CWE-248 needs ≥7 sink shapes) deterministically. Reuses workspace deps (`clap 4`, `anyhow 1`).
+- **Cons**: net-new infrastructure (`.cargo/config.toml`, `xtasks/` dir, alias) the repo has never had; must be added to the explicit `cargo test -p` baseline list in CLAUDE.md per the parked-Tauri constraint; xtask scope-creep risk (idea-doc explicitly flagged this).
+- **Best fit**: when the variation-coverage minimum and gate determinism matter more than ship-speed.
+
+### Option γ — Hybrid skill pack + `crates/sldo-sast/` first-party crate
+- **Shape**: skills are thin wrappers shelling out to a `sldo-sast` binary, mirroring the `sldo-research` precedent. Crate owns advisory-db ingestion, GHSA join for CWE, snippet-corpus management, verifier loop.
+- **Pros**: full deterministic backstop; CWE map can be regenerated from data on a schedule; matches the `sldo-research` shape so it's familiar in this codebase.
+- **Cons**: ~3-4 weeks; couples bug-found→rule-extended loop to a `cargo build` cycle. The user's pain explicitly is "fix the regression now, not after a release tag." Idea doc rejected this.
+- **Best fit**: only if the project commits to the maintenance tax of an advisory-db pipeline.
+
+### Option δ — Skill-only + `semgrep-test-action` reuse (no xtask, no new crate)
+- **Shape**: `/slo-rulegen` writes rules, paired snippets, and a `.github/workflows/semgrep-test.yml` that invokes Semgrep's first-party `--test` runner in CI. Local dev uses `pre-commit` with the `semgrep/pre-commit` hook. The "gate" lives in the upstream Semgrep tooling, not a new component.
+- **Pros**: minimum surface area; matches semgrep-rules upstream convention exactly (tracked corpus + `// ruleid:` annotation + `semgrep --test` runner); zero new infrastructure in this repo. Variation-coverage minimum becomes a Bash check the skill runs locally before commit, but the *correctness gate* is canonical Semgrep tooling.
+- **Cons**: pushes verification responsibility to the user's CI provider; no in-repo deterministic fail-fast for the variation-coverage minimum.
+- **Best fit**: when "match upstream convention" outranks "in-repo gate" — best for portability of the generated pack.
+
+## Unanswered Questions
+
+1. **CWE coverage rate of full RustSec→GHSA join (priority 1)** — the 14-advisory spot-check showed ~12/14 vuln-class advisories carry CWE via GHSA. Run a full pull of the last 24 months and report the actual coverage percentage and the residual category-only set the crosswalk must handle.
+2. **`pattern-inside: unsafe { ... }` smoke test (priority 1)** — no documented restriction, no public example. Run `semgrep --test` against a 3-line `pattern-inside: unsafe { ... }` rule before committing the template to `references/sast/`.
+3. **CWE-248 panic-DoS rule precedent in semgrep-rules (priority 2)** — the upstream Rust dir has only 10 rules. Specifically search for any rule firing on `.unwrap()` / `.expect()` in Rust to confirm whether the wedge is net-new content or partial duplication.
+4. **`metavariable-type` semantics on `Result<T, E>` and `Option<T>` (priority 2)** — directly relevant to writing CWE-248 rules. Issues #10380/#11150 suggest partial support; needs a smoke test against `Result<_, _>` / `Option<_>`.
+5. **`prek` license + maturity (priority 3)** — fit-for-CI assessment requires confirming license and whether it ships a stable release tag in 2026 vs. HEAD-only.
+6. **GitHub AUP precedent on labelled-vulnerable corpora (priority 3)** — previous round found no takedowns, but no positive policy statement either. A targeted fetch of GitHub's AUP "Active Malware or Exploits" current text would either confirm the labelled-corpus convention is safe or expose a residual risk.
+7. **Variation-template content for CWE-248 / CWE-190 / CWE-416 (priority 1)** — the variation-enumeration step is the breach-mitigation backbone. Need 5-10 distinct Rust idioms per class with bad/good pairs, sourced from real RustSec fix diffs, not improvised.
+8. **Does `semgrep --test` accept the `// ruleid:` convention on `.rs` files specifically (priority 2)** — convention is documented for many languages; confirm Rust source handling does not require special handling for `//` vs. block-comment annotations.
+Got definitive data. Now consolidating.
+
+## Deepened Findings
+
+### F1 — RustSec→GHSA→CWE coverage rate (refined, sample n=8 of 2024-2026 vuln-class advisories)
+- **EVIDENCE (HIGH confidence)**: 8/8 sampled GHSA aliases returned populated `database_specific.cwe_ids`. Source: `https://api.osv.dev/v1/vulns/<GHSA>` for GHSA-x9xc-63hg-vcfq, GHSA-r8w9-5wcg-vfj7, GHSA-x3f4-45xf-rjm7, GHSA-h97m-ww89-6jmq, GHSA-g433-pq76-6cmf, GHSA-2c6h-4899-wjxr, GHSA-hfr4-7c6c-48w2, GHSA-965h-392x-2mh5.
+- **EVIDENCE (HIGH)**: The RUSTSEC-side OSV record carries **no** `cwe_ids` field — even when the GHSA alias has them. The previous round's two-hop join (RUSTSEC → `aliases[]` → GHSA-OSV → `cwe_ids`) is required, **not** a convenience.
+- **INFERENCE (MEDIUM)**: For RustSec advisories with `informational: vulnerability` (i.e. real CVE-class, not unmaintained-crate warnings), expect ~95%+ GHSA-side CWE coverage based on this sample. Residual gap will be the GHSA-less subset (informational advisories that never produced an upstream CVE).
+
+### F2 — Refined CWE frequency-in-the-wild ranking (8-advisory sample, 2024-2026)
+Confidence: **MEDIUM** — sample size is small but skewed toward recent / high-severity advisories. Multiple-hit CWEs in this slice:
+- **CWE-416 (use-after-free)** — 3 hits (cassandra-rs, mio, wasmtime). Confirms F2 promotion: this should be **top-3** in the pack scope, not absent from user's prior top-7.
+- **CWE-697 (incorrect comparison)** — 2 hits (idna, hpke-rs). **Net-new vs. user's prior list** — surfaces in real web code (idna's Punycode comparison flaw, RUSTSEC-2024-0421).
+- **CWE-125 (OOB read)** — 2 hits (ruzstd, scaly).
+- Single hits in this slice: **CWE-787, CWE-190, CWE-295, CWE-1289, CWE-20, CWE-672**.
+- **CWE-248 panic-DoS is not natively tagged**; the 2026 precedent (Trail of Bits) uses **CWE-755 (improper handling of exceptional conditions)** instead.
+
+### F3 — Trail of Bits `panic-in-function-returning-result.yaml` is the gold-standard precedent for the wedge
+- **EVIDENCE (HIGH)**: file exists at `https://raw.githubusercontent.com/trailofbits/semgrep-rules/main/rs/panic-in-function-returning-result.yaml` with paired test fixture `panic-in-function-returning-result.rs` (3,676 bytes).
+- The rule enumerates **4 fn-context variations** in a single `pattern-either`: direct `Result<T1, T2>`, direct `Result<T>`, type-alias to `Result<T1, T2>`, type-alias to `Result<T>`. Plus **3 `pattern-not-inside`** exclusions for `#[cfg(test)] mod tests { ... }` blocks.
+- **Implication for the wedge**: the "3-5 variation rules per bug" target is achievable **inside one Semgrep rule's `pattern-either`** — variation enumeration is a YAML structural concern, not a multi-file concern. This simplifies the corpus layout decision (one rule, one fixture, one `// ruleid:` annotation).
+- Metadata uses `cwe: "CWE-755: Improper Handling of Exceptional Conditions"` (not CWE-248). Adopt CWE-755 as primary tag with `category: security`, `subcategory: [audit]`, `confidence: HIGH`, `likelihood: MEDIUM`, `impact: LOW`.
+
+### F4 — Upstream Semgrep `rust/lang/security/` is exactly 10 rules + 10 fixtures
+- **EVIDENCE (HIGH)**: tree API at `https://api.github.com/repos/semgrep/semgrep-rules/git/trees/develop?recursive=1` returned 20 blobs in `rust/`: `args-os`, `args`, `current-exe`, `insecure-hashes`, `reqwest-accept-invalid`, `reqwest-set-sensitive`, `rustls-dangerous`, `ssl-verify-none`, `temp-dir`, `unsafe-usage` — each a `.yml` + `.rs` pair in the same directory (no `tests/` subdir, no per-rule subdir).
+- **CWE overlap with the wedge**: CWE-242 (unsafe-usage), CWE-295 (rustls-dangerous, ssl-verify-none, reqwest-accept-invalid), CWE-327 (insecure-hashes presumed), CWE-78/CWE-88 (args/args-os). **Zero overlap with CWE-755/CWE-248/CWE-190/CWE-416/CWE-125/CWE-787** — the wedge is genuinely net-new content, not a duplication of the upstream pack.
+
+### F5 — `// ruleid:` on `.rs` files is confirmed by the upstream pack itself
+- **EVIDENCE (HIGH)**: all 10 upstream Semgrep Rust fixtures are tracked `.rs` files using `// ruleid:` annotations — same convention semgrep-rules uses for every other language. No Rust-specific quirks; `--test` accepts `//` comments verbatim. Source: directory listing above + `https://semgrep.dev/docs/writing-rules/testing-rules`.
+- Convention is `path/to/<rule-id>.yaml` + `path/to/<rule-id>.rs` co-located in the same directory; the runner discovers fixtures automatically based on `languages:` field.
+
+### F6 — `pattern-inside: unsafe { ... }` smoke-test status
+- **INCONCLUSIVE → likely supported**: upstream `unsafe-usage.yml` uses bare `pattern: unsafe { ... }` (not `pattern-inside`). No public example uses `pattern-inside: unsafe { ... }`. Documentation does not restrict it. **Smoke-test remains required** before templating in `references/sast/`. Single-rule fallback if it fails: nest `pattern-inside: fn $F(...) { ... unsafe { ... } ... }` or use a `metavariable-pattern` over the function body.
+
+### F7 — `metavariable-type` on Rust generics — docs are silent, but the wedge does not need it
+- **EVIDENCE (HIGH)**: Rust is listed as supported on `https://semgrep.dev/docs/writing-rules/experiments/metavariable-type`, but the page shows no Rust example and the linked metavariable-type docs page shows only Java.
+- **EVIDENCE (HIGH)**: the Trail of Bits CWE-755 precedent does **not** use `metavariable-type` — it uses purely structural `pattern-inside fn ... -> Result<$T1, $T2> { ... }`. Result-type discrimination falls out of the structural pattern.
+- **Implication**: drop `metavariable-type` from the v1 rule template requirements. If a future class needs trait-bound matching, fall back to `metavariable-pattern` + regex (matches the previous round's recommendation).
+
+### F8 — `prek` 0.3.10 is a real, MIT-licensed alternative now in production at CPython and Apache Airflow
+- **EVIDENCE (HIGH)**: latest release `0.3.10` shipped 2026-04-21; license MIT; documented as fully compatible with `.pre-commit-config.yaml`. Sources: `https://github.com/j178/prek` (release page) and project README.
+- **CAVEAT**: still pre-1.0; some language hook types unsupported. Default to `pre-commit` (Python, canonical) and document `prek` as a drop-in alternative.
+
+### F9 — GitHub AUP carves out educational vulnerability content explicitly
+- **EVIDENCE (HIGH)**: `https://docs.github.com/en/site-policy/acceptable-use-policies/github-active-malware-or-exploits` — quoted policy: *"GitHub allows dual-use content and supports the posting of content that is used for research into vulnerabilities, malware, or exploits, as the publication and distribution of such content has educational value."*
+- **Implication**: the conservative `.gitignore`'d-corpus default in the idea doc is over-cautious. The defensible-and-portable default is **tracked vulnerable snippets co-located with rules, README disclaimer, repo-level `SECURITY.md`** — exactly what semgrep-rules itself ships. This unlocks `semgrep ci` portability.
+
+### F10 — Repo-state constraints (re-grounded against current `Cargo.toml`)
+- Workspace members (verified `Cargo.toml:1-11`): `sldo-common`, `sldo-plan`, `sldo-run`, `sldo-research`, `sldo-tauri` (parked), `sldo-install`, `sldo-tla-sha`. **No `xtasks/`, no `crates/sldo-sast/`, no `.cargo/config.toml`** — adding any of these is net-new infrastructure.
+- Workspace deps (`Cargo.toml:13-20`): `clap 4`, `anyhow 1`, `thiserror 2`, `colored 2`, `regex 1`, `chrono 0.4`, `which 7`. Any new verifier crate must reuse these — no helper-xtask deps (`xtaskops`/`xtasks`/`tracel-xtask`).
+- Per `CLAUDE.md`: `--workspace` baseline is parked; new crates must be appended to the explicit `cargo test -p ...` baseline.
+
+## Library Evaluations
+
+### Trail of Bits `semgrep-rules` (CWE-755 panic precedent)
+- **Version**: live, `main` branch, accessible at `https://github.com/trailofbits/semgrep-rules/tree/main/rs`.
+- **License**: AGPL-3.0 (Trail of Bits semgrep-rules repo) — **vendoring concern**. Inspecting / mirroring patterns is fine; copy-pasting YAML wholesale into a permissively-licensed pack would inherit AGPL.
+- **Pros**: only public production-grade Rust panic-DoS rule; demonstrates the variation-enumeration shape (`pattern-either` + `pattern-not-inside` test-block exclusions); validates the wedge's CWE-755 framing.
+- **Cons**: AGPL forces a re-implementation rather than a vendor; only one panic-class rule (no integer-overflow, no UAF).
+- **Fit**: **reference precedent only — re-author rules independently** to keep the project pack's license clean.
+
+### Upstream `semgrep/semgrep-rules` Rust pack (10 rules)
+- **Version**: continuously updated `develop` branch.
+- **License**: Semgrep Rules License.
+- **Pros**: defines the layout convention (paired `.yml` + `.rs` co-located); confirms `// ruleid:` annotation is the active discovery mechanism; covers crypto/TLS/process-arg classes the wedge does NOT need to re-do.
+- **Cons**: no overlap with the wedge's panic/integer/memory CWE classes — the wedge is net-new content, not an extension of upstream.
+- **Fit**: **layout-convention reference + complementary install** (the wedge ships ON TOP of upstream's 10 rules, not instead of).
+
+### Trail of Bits panic rule's variation-enumeration shape
+- **Status**: gold standard for "5 variations per CWE in one rule".
+- **Pros**: variation enumeration lives inside `pattern-either` (one rule, not five files). `pattern-not-inside` is the canonical exclusion mechanism for `#[cfg(test)]` blocks. Lowers the corpus-layout cost: 1 rule = 1 fixture file with 5 inline `// ruleid:` annotations.
+- **Cons**: `pattern-either` blocks scale with the number of credible idioms — for CWE-416 (UAF) the credible idioms span concurrency primitives, raw pointers, and `Pin` misuse; one rule may not cover all without taint mode.
+- **Fit**: **adopt as the default rule shape** for v1; reach for taint mode only when structural enumeration breaks down.
+
+### `prek` (j178/prek) — re-evaluated
+- **Version**: 0.3.10 (2026-04-21).
+- **License**: MIT.
+- **Pros**: production users (CPython, Apache Airflow); no Python runtime dep; reads `.pre-commit-config.yaml` unchanged.
+- **Cons**: pre-1.0; partial language-hook parity.
+- **Fit**: **document as supported alternative**; emit `.pre-commit-config.yaml` that works under either runner. Default to `pre-commit`.
+
+### `cargo-audit` 0.22.1 + SARIF
+- **Confirmed from previous round**: Apache/MIT, JSON+SARIF emit, GHSA-CWE join works.
+- **Fit**: CI integration trigger for the per-bug *extend* loop. When `cargo audit` reports a new advisory hit, the CI hook can call `/slo-rulegen` against the patch diff.
+
+### Helper xtask crates (`xtaskops`, `xtasks`, `tracel-xtask`)
+- **Fit (unchanged)**: do not adopt. Hand-roll a single `xtask/src/main.rs` matching matklad/OpenVMM convention.
+
+## Architecture Options
+
+(Carrying forward the four options surfaced last round; consolidating against the new findings.)
+
+### Option α — Skill-only (no Rust crate, no xtask)
+- **Trade-off**: ships fastest (~1 week), zero new Cargo infra, matches `slo-*` skill-pack pattern. Verifier gate is *prompted Bash sequence* — `semgrep --validate` and `semgrep --test` exit codes are the enforcement, but variation-coverage minimum is policy not code. No deterministic backstop against Claude skipping a step.
+- **Best fit**: ship-speed wins; user accepts skill-discipline + canonical Semgrep tooling as the gate.
+
+### Option β — Hybrid skill + `xtasks/sast-verify/` workspace member
+- **Trade-off**: deterministic gate (variation-coverage minimum returns non-zero exit), reuses workspace deps, but requires net-new `.cargo/config.toml` + `xtasks/` directory + appending to `CLAUDE.md`'s baseline test list. Scope-creep risk flagged in the idea doc.
+- **Best fit**: variation-coverage-minimum determinism > ship-speed.
+
+### Option γ — Hybrid skill + `crates/sldo-sast/` first-party crate
+- **Trade-off**: deepest backstop (advisory-db ingestion, GHSA-CWE join scheduled, snippet-corpus management). ~3-4 weeks. Couples the bug-found→rule-extended loop to a `cargo build` cycle — directly opposes the user's "fix the regression now" pain.
+- **Best fit**: only if the project commits to a recurring advisory-db ingestion pipeline (i.e. `cwe-map-rust.md` is data-driven and auto-refreshed, not hand-curated).
+
+### Option δ — Skill-only + upstream Semgrep `--test` runner in CI
+- **Trade-off**: minimum surface area; matches upstream convention exactly (tracked corpus + `// ruleid:` + `semgrep --test`). The variation-coverage minimum becomes a Bash check in the skill, but the *correctness gate* is canonical Semgrep tooling. No in-repo deterministic fail-fast.
+- **Best fit**: portability of the generated pack > in-repo gate. **Now reinforced by F9** — tracked corpus is GitHub-AUP-safe and matches upstream layout, so the generated pack runs under any consumer's `semgrep ci` with no rewriting.
+
+### Consolidation note
+The new findings push the recommended default toward **δ** (with **β** as a hardening upgrade if the variation-coverage-minimum becomes important enough to justify net-new Cargo infra). The shape `1 rule = 1 `pattern-either` with N variations = 1 paired `.rs` fixture with N `// ruleid:` annotations` (F3, F5) means the corpus-layout decision is settled and the gate can be the canonical Semgrep `--validate` + `--test` pair, no custom verifier required for v1.
+
+## Unanswered Questions
+
+1. **`pattern-inside: unsafe { ... }` smoke-test result (priority 1)** — still no public example. A 5-line smoke rule + fixture is the only way to confirm before templating. (Carry-over from F6.)
+2. **Full RustSec→GHSA join coverage % over a 24-month window (priority 2)** — sample (n=8) shows 100% GHSA-side CWE coverage, but the bottleneck is the GHSA-alias-presence rate among RustSec advisories. Need a one-shot script that pulls all `crates/*` TOML in `rustsec/advisory-db` for 2024-04 to 2026-04, counts those with `aliases: [GHSA-*]`, and reports the join hit-rate. Output drives whether the `cwe-map-rust.md` fallback (category-only crosswalk) is a fringe case or a major branch.
+3. **Variation-template content for CWE-416 / CWE-190 / CWE-787 (priority 1)** — Trail of Bits gives the CWE-755 shape; equivalent shapes for memory-class CWEs need real fix-diff sourcing. Concrete asks: pull `cassandra-rs` UAF fix (RUSTSEC-2024-0017), `mio` named-pipe-token fix (RUSTSEC-2024-0019), `wasmtime::Linker::clone` UAF fix (RUSTSEC-2026-0090), `hpke-rs` underflow fix (RUSTSEC-2026-0070), `ruzstd` OOB-read fix (RUSTSEC-2024-0400). Each fix diff produces 1-2 idiom shapes for the variation backbone.
+4. **`metavariable-pattern` + regex coverage rate for `Result<T, E>` discrimination (priority 3)** — fallback path verified in principle but not benchmarked against axum/tokio handler shapes; the macro-FP findings from the previous round (issues #10471, #10362) suggest fallback regex breaks under proc-macro expansion.
+5. **Trail of Bits AGPL implications for a re-implemented rule that mirrors the same pattern-either structure (priority 3)** — pattern shapes are likely uncopyrightable (functional content), but a legal-comfort answer would justify whether the wedge can closely mirror the structure or must diverge intentionally.
+6. **Whether `semgrep --test` exit-code semantics changed in any 2026 release (priority 3)** — previous round flagged issue #10319 (`--test` returns 0 on invalid rule itself). Confirm this is still extant in the latest CLI before relying on `--validate` + `--test` as the v1 gate.
+
+Sources:
+- [Trail of Bits panic-in-function-returning-result.yaml (raw)](https://raw.githubusercontent.com/trailofbits/semgrep-rules/main/rs/panic-in-function-returning-result.yaml)
+- [Trail of Bits semgrep-rules /rs directory](https://github.com/trailofbits/semgrep-rules/tree/main/rs)
+- [Semgrep upstream rust/lang/security/ tree (semgrep-rules develop)](https://api.github.com/repos/semgrep/semgrep-rules/git/trees/develop?recursive=1)
+- [Semgrep upstream rust/lang/security/unsafe-usage.yml](https://raw.githubusercontent.com/semgrep/semgrep-rules/develop/rust/lang/security/unsafe-usage.yml)
+- [Semgrep upstream rust/lang/security/rustls-dangerous.yml](https://raw.githubusercontent.com/semgrep/semgrep-rules/develop/rust/lang/security/rustls-dangerous.yml)
+- [Semgrep test rules documentation](https://semgrep.dev/docs/writing-rules/testing-rules)
+- [Semgrep metavariable-type docs](https://semgrep.dev/docs/writing-rules/experiments/metavariable-type)
+- [OSV API GHSA records sampled for CWE coverage](https://api.osv.dev/v1/vulns/GHSA-x9xc-63hg-vcfq) (and 7 sibling GHSA IDs)
+- [RUSTSEC-2024-0421 advisory page](https://rustsec.org/advisories/RUSTSEC-2024-0421.html)
+- [RUSTSEC-2026-0070 advisory page](https://rustsec.org/advisories/RUSTSEC-2026-0070.html)
+- [GitHub Acceptable Use Policy — Active Malware or Exploits](https://docs.github.com/en/site-policy/acceptable-use-policies/github-active-malware-or-exploits)
+- [j178/prek (Rust pre-commit replacement)](https://github.com/j178/prek)
+- [Semgrep test rules — naming convention](https://semgrep.dev/docs/writing-rules/testing-rules)
+## Executive Summary
+
+`/slo-rulegen` v1 targets a real and currently unfilled gap: 2026 commercial AI-SAST tools (Semgrep Assistant, Snyk DeepCode AI, GitHub Copilot Autofix, SonarQube AI CodeFix, Veracode Fix) do **AI-triage or AI-autofix**, not per-bug rule-synthesis with corpus-driven verification, and none integrate as a Claude Code skill. Semgrep Assistant is the closest precedent — it does run an internal fire-on-bad/silent-on-good gate — but its input contract is `(description, 1 bad, 1 good) → 1 rule` authored in its SaaS UI, not `(bug_summary, fix_diff, file_paths) → N variation rules` callable in-session.
+
+Semgrep's Rust frontend is GA in 2026 with working `pattern-either`, `pattern-inside`, taint mode (used in Semgrep's own Supply Chain reachability for Rust), and macro-arg taint propagation. Known gaps: proc-macro expansion (axum/tokio/`tracing::instrument` handlers), taint through `format!` and intermediate `let`, and undocumented `metavariable-type` behaviour on Rust generics. The Trail of Bits `panic-in-function-returning-result.yaml` rule is the gold-standard precedent: it enumerates 4 fn-context variations inside a single `pattern-either` and tags as **CWE-755**, not CWE-248 — establishing both the rule shape and the canonical CWE for panic-DoS.
+
+CWE frequency-in-the-wild for Rust (RustSec→GHSA-OSV→`cwe_ids` join, n=8 sample, ~95% join rate expected): **CWE-416 (UAF), CWE-697 (incorrect comparison), CWE-125 (OOB read), CWE-787, CWE-190, CWE-295, CWE-1289, CWE-20, CWE-672**. CWE-416 surfaces as a top-3 class that was absent from the user's prior expectation. RustSec stores **no CWE field** natively — the join goes via `aliases[GHSA-*]`.
+
+Corpus convention is settled: paired `<rule-id>.yaml` + `<rule-id>.rs` co-located, with `// ruleid:` / `// ok:` inline annotations, run by `semgrep --test`. GitHub AUP explicitly permits educational vulnerability content — the conservative `.gitignore` default is over-cautious; tracked-and-labelled is upstream convention. Clippy's `unwrap_used` / `indexing_slicing` / `arithmetic_side_effects` are all `restriction`-group, default `Allow`, no CWE tags — useful as a coarse fence to compose with, not replace. `pre-commit` (Python) is canonical; `prek 0.3.10` (MIT, 2026-04-21, used by CPython and Apache Airflow) is a drop-in Rust alternative.
+
+## Topic Decomposition
+
+The brief decomposes into ten sub-questions, of which the deepening passes prioritised five:
+
+- **SQ1 — RustSec/OSV CWE distribution (2024–2026).** Frequency-in-the-wild count by CWE for Rust ecosystem advisories; requires the RustSec→GHSA→OSV `cwe_ids` two-hop join because RustSec's native schema has no CWE field.
+- **SQ2 — Where idiomatic-safe-Rust panics live.** Sink shapes that recur in non-`unsafe` advisories: `unwrap`/`expect`/`?`, slice indexing, integer overflow in capacity/length, recursion/stack-overflow on attacker input, decompression/regex/serde untagged-recursive DoS.
+- **SQ3 — Webapp-shape CVEs in axum/actix/hyper/sqlx/reqwest/serde.** Whether CWE-89/CWE-79/CWE-918 deserve top-10 frequency placement (web classes are present but lower-frequency than panic-DoS in absolute counts).
+- **SQ4 — Direct competitors in LLM-driven SAST rule generation.** Semgrep Assistant, Snyk DeepCode AI, GitHub Copilot Autofix + custom CodeQL queries, SonarQube AI CodeFix, Veracode Fix, `kerberosmansour/SAST.GEN`, OSS LLM rule synthesisers.
+- **SQ5 — Semgrep Rust frontend capabilities at HEAD (2026).** `pattern-either`, `pattern-inside`, `pattern-not`, `metavariable-pattern`, `metavariable-type`, taint mode, `pattern-inside unsafe { ... }`, macro expansion behaviour.
+- **SQ6 — Adjacent Rust security tools and integrate-vs-replace decisions.** `cargo-audit`, `cargo-deny`, `cargo-vet`, `cargo-geiger`, Clippy security lints, miri, kani, prusti, creusot, MIRAI, rudra.
+- **SQ7 — Corpus / test layout convention.** Per-rule co-located `.test.yaml`, single `tests/` dir, inline `metadata.examples`, or inline `// ruleid:` / `// ok:` annotations.
+- **SQ8 — CI and dev-loop entry points for Semgrep on a Rust repo (2026).** `returntocorp/semgrep` action, GitLab templates, BuildKite plugin; local: `pre-commit`, `lefthook`, `prek`, IDE plugins, possible `cargo-semgrep`.
+- **SQ9 — Publication-risk precedent for vulnerable-snippet corpora.** GitHub AUP "Active Malware or Exploits" clause, `semgrep-rules` precedent, takedown-notice history.
+- **SQ10 — `cargo xtask` precedent for security-leaning verifiers.** Canonical layout (matklad), workspace-vs-single-crate trade-off, security-themed xtask precedents.
+
+Priority during deepening: SQ1+SQ2 (drives `cwe-map-rust.md`), SQ5 (gates which rule primitives templates may use), SQ4 (gap justification), SQ6 (Clippy compose-vs-replace), SQ9 (publication-risk default), SQ7, SQ8, SQ3, SQ10.
+
+## Key Findings
+
+### CWE susceptibility ranking for Rust in 2026 (SQ1, SQ2, SQ3)
+
+- **RustSec advisory schema has no CWE field.** The TOML schema defines `id`, `package`, `categories`, `keywords`, `aliases`, `cvss` — no `cwe`. CWE mapping requires a two-hop join: RustSec → `aliases[GHSA-*]` → GHSA-OSV record → `database_specific.cwe_ids`. The RUSTSEC-side OSV record itself does not carry `cwe_ids` even when its GHSA alias does.
+- **GHSA-side coverage is high.** In an 8-advisory sample of 2024–2026 vuln-class advisories, 8/8 GHSA aliases returned populated `database_specific.cwe_ids`. Expect ~95%+ GHSA-side CWE coverage for `informational: vulnerability` advisories; the residual gap is the GHSA-less subset (informational/unmaintained-crate advisories).
+- **RustSec's own taxonomy** is 10 categories — `code-execution`, `crypto-failure`, `denial-of-service`, `file-disclosure`, `format-injection`, `malicious-code`, `memory-corruption`, `memory-exposure`, `privilege-escalation`, `thread-safety`. RustSec explicitly tracks panic-on-attacker-input as DoS, including panics in code "advertised as panic-free."
+- **OSV.dev does not natively expose CWE/CVSS/EPSS for Rust advisories.** Tracked as feature request in google/osv.dev#3245.
+- **CWE classes confirmed in the deepened sample (n=8):**
+  - **CWE-416 (use-after-free)** — 3 hits (cassandra-rs RUSTSEC-2024-0017, mio RUSTSEC-2024-0019, wasmtime RUSTSEC-2026-0090). **Was absent from the user's prior top-7; should be promoted into top-3.**
+  - **CWE-697 (incorrect comparison)** — 2 hits (idna RUSTSEC-2024-0421, hpke-rs). **Net-new vs. prior expectation.**
+  - **CWE-125 (OOB read)** — 2 hits (ruzstd RUSTSEC-2024-0400, scaly RUSTSEC-2026-0080).
+  - Single hits: **CWE-787 (OOB write), CWE-190 (integer overflow), CWE-295 (cert validation), CWE-1289 (improper validation of specified entity input), CWE-20 (improper input validation), CWE-672 (operation on resource after expiration/release)**.
+- **CWE-248 (panic-DoS) is not natively tagged.** Trail of Bits' production Rust panic rule uses **CWE-755 (improper handling of exceptional conditions)**. Adopt CWE-755 as the canonical tag for the panic-DoS class in the wedge.
+- **The RustXec dataset (Virginia Tech, 2026 paper)** analyses 515 RustSec advisories from Jan 2021 – Apr 2025 and reports memory-corruption (31 cases) and DoS (28 cases) as leading classes; the most frequent specific CWEs are **CWE-787 (9), CWE-415 (8), CWE-400 (7)**.
+- **2025 CWE Top 25 (MITRE/CISA, 2025-12-11)** is the cross-language baseline — top entries are CWE-79 (XSS), CWE-787, CWE-89 (SQLi), CWE-352 (CSRF), CWE-22 (path traversal). A KEV-aligned Top 10 was also published in 2025.
+- **Web-class advisories are NOT well-represented in Rust frequency data.** Searches for axum/sqlx-specific SQLi/XSS/SSRF in 2024–2025 returned no major framework-level advisories; RUSTSEC-2024-0421 (idna/Punycode confusion in `url`/`sqlx`/`reqwest`) maps to CWE-20/CWE-1007 (homograph) — phishing/SSRF-adjacent, not classic SQLi/stored XSS. Including CWE-89/CWE-79/CWE-918 in a Rust top-10 is justified by user pain ("missing input sanitisation"), not by frequency in the public advisory corpus.
+
+### Direct competitors in AI-driven SAST rule generation (SQ4)
+
+- **Semgrep Assistant (2026)** is the closest precedent and the most-likely-to-be-confused-with the wedge:
+  - Rule-generation input contract: `(description, 1 bad, 1 good) → 1 rule` — corpus pairs are user-supplied, not auto-derived.
+  - Internal verification gate exists: raises `AiNonFatalResponseParseError` when "Rule matched the good code that it should not have matched against," then retries.
+  - Self-reported quality bar: rules generated correctly are "around a 3 out of 10 on a complexity scale."
+  - Distribution: Semgrep Cloud Platform + GitHub PR flow. **No mention of Claude Code skill integration, MCP exposure, or in-session callability** in the source pages.
+  - Pricing: Semgrep Code $30/contributor/month (2026).
+  - 2026 Assistant focus is **finding triage** (claims 96% alignment with human triage) and a "Memories" feature, **not** per-bug rule synthesis.
+- **Snyk Code (DeepCode AI).** Symbolic-AI-based, not rule-based. Custom rules are **Enterprise-only Early Access**, written in a proprietary Datalog DSL against an internal "event graph" — opaque, not human-editable. Snyk advanced SAST entry ~$50/mo per developer.
+- **GitHub Code Scanning + Copilot Autofix.** Code Scanning runs CodeQL (different language than Semgrep). Copilot Autofix generates *fix patches*, not new queries. Custom CodeQL queries are author-it-yourself; no "bug → query" auto-generator in GHAS as of 2026.
+- **SonarQube AI CodeFix.** Generates fixes, not rules.
+- **Veracode Fix.** Fix-suggestion AI, not rule-generation.
+- **`kerberosmansour/SAST.GEN`** — user's own 2024 prior art; specific implementation/gating not extracted in this research run.
+- **OSS LLM rule synthesisers.** No project surfaced that integrates as a Claude Code skill with corpus-gating.
+- **Gap-to-wedge.** None of the surveyed 2026 tools advertise a workflow that takes `(bug_summary, fix_diff, file_paths)` and emits Rust-idiomatic Semgrep rules with auto-derived corpus pairs and a fire/silent verification gate, callable inside a Claude Code session.
+
+### Adjacent Rust security tools (SQ6)
+
+| Tool | 2026 status | Decision | Why |
+|---|---|---|---|
+| `rustsec/advisory-db` | active, daily updates | INTEGRATE — primary corpus source | Each advisory's `url` links to the upstream fix PR — diff = ground-truth bug+fix |
+| `cargo-audit` 0.22.1 (2026-02) | Apache/MIT, active | INTEGRATE | Emits JSON and SARIF (`OutputFormat::{Json,Sarif}`) — clean CI trigger |
+| `cargo-deny` 0.19.4 (2026-04) | Apache, active | INTEGRATE (advisories channel only) | `--format=json/sarif` confirmed |
+| `cargo-vet` 0.10.0 (2024-10) | Apache | IGNORE | Trust attestation, not bug findings — no fix-diff stream |
+| `cargo-geiger` 0.13.0 (2025-08) | active | IGNORE for findings; prioritisation signal only | Counts `unsafe` *presence*, not bug patterns; most `unsafe` is benign FFI |
+| `miri` | active (rustc-tracking) | BACKLOG | UB findings are CWE-119/416/787 class; require triggering test + diagnostic-JSON parsing |
+| `kani` 0.67.0 (2026-01) | active | IGNORE for v1 | Heavyweight CBMC; harness authoring required |
+| `prusti` / `creusot` | active | IGNORE | Verification, not detection; Creusot is **LGPL-2.1** (vendoring caution) |
+| MIRAI (facebookexp) | **archived 2024-08-22** | IGNORE | Tiny endorlabs fork exists; Kani is practical successor |
+| `clippy` security restriction lints | shipped | INTEGRATE as coarse fence; layer Semgrep on top | See below |
+
+- **Clippy security restriction lints (`unwrap_used`, `expect_used`, `indexing_slicing`, `arithmetic_side_effects`, `panic`, `missing_panics_doc`, `unimplemented`, `todo`)** are all **restriction group, default `Allow`** — opt-in only. `clippy::indexing_slicing` source comment: "Checks for usage of indexing or slicing that may panic at runtime… To avoid implicit panics from indexing and slicing." `clippy::arithmetic_side_effects` covers `+ - * <<` overflow and `/ %` divide-by-zero panics. The arxiv study "Unleashing the Power of Clippy in Real-World Rust Projects" finds `arithmetic_side_effects` patterns "pose a considerable challenge for automatic fixing by Clippy."
+- **Clippy attaches no CWE IDs.** The CWE mapping has to be added by `/slo-rulegen`. Issue rust-clippy#6636 ("forbid all expect and unwrap use") shows the lint is debated for production opt-in.
+- **No source claims a quantified ≥60% sink-shape overlap** between Clippy lints and CWE-248/CWE-190 sinks; that number would have to be measured against a corpus. At sink-shape level Clippy covers the surface broadly, but fires on every occurrence with no taint, no source/sink reasoning, no per-handler context. Composition (Clippy as coarse fence + Semgrep taint on top) is supported by evidence; replacement is not.
+
+### Semgrep Rust frontend reality in 2026 (SQ5)
+
+- **GA status.** Rust support reached GA in Semgrep Code by 2026, with 40+ Pro rules, cross-function dataflow analysis, and Supply Chain reachability + malicious-dependency detection. Beta declared February 2023. Kudelski Security contributed CST→AST and tree-sitter-rust grammar fixes in 2021.
+- **Capability matrix:**
+
+| Primitive | Status | Confidence | Source / note |
+|---|---|---|---|
+| `pattern: unsafe { ... }` | Works | HIGH | `semgrep-rules/rust/lang/security/unsafe-usage.yml` |
+| `pattern-inside: unsafe { ... }` | Inconclusive | LOW | No public example; not documented as restricted; smoke-test required |
+| `metavariable-type` on concrete types | Works | HIGH | Rust listed on the experiments docs page |
+| `metavariable-type` w/ generics & trait bounds | Likely partial | LOW | Open issues #10380, #11150; no Rust example in docs; fall back to `metavariable-pattern` + regex |
+| Patterns through proc-macros (`#[axum::debug_handler]`, `#[tokio::main]`, `#[tracing::instrument]`) | Negative | MEDIUM | Open issues #10471, #10362, #3600, #5221 |
+| Taint source→sink (basic) | Works | HIGH | `bcder` example in 2026 SCA blog; `rust.hyper.sql.diesel-taint` exists |
+| Taint through `format!` / intermediate `let` | Negative | HIGH | Issues #10757, #10900 — confirmed FNs in `diesel-taint` |
+| Macro-arg taint propagation | Works | HIGH | Added July 2023 release notes; `foo!(&x)`, `foo!(*x)` propagate |
+| `axum::extract::Query` → `sqlx::query` taint rule in the wild | Absent | HIGH | None found — would be net-new content |
+| `semgrep --validate` non-zero exit on bad YAML | Works | HIGH | Exit code 5 (bad config), 7 (invalid rule), 4 (bad pattern) |
+| `semgrep --test` non-zero on assertion failure | Works (with caveat) | HIGH | PR #6070 made it return 1; **caveat #10319**: returns 0 on *invalid rule itself* — must run `--validate` first |
+
+- **Macro/false-positive rate** on heavy macro code (axum handlers, `tracing::instrument`, tokio `select!`) is **not quantified** in any source surfaced.
+- **Upstream `rust/lang/security/` is exactly 10 rules + 10 fixtures** (`args-os`, `args`, `current-exe`, `insecure-hashes`, `reqwest-accept-invalid`, `reqwest-set-sensitive`, `rustls-dangerous`, `ssl-verify-none`, `temp-dir`, `unsafe-usage`). Each is a `.yml` + `.rs` pair co-located in the same directory — no `tests/` subdir, no per-rule subdir. **Zero overlap with the wedge's CWE-755/CWE-416/CWE-125/CWE-787/CWE-190/CWE-697 classes** — the wedge is genuinely net-new content.
+
+### Trail of Bits panic-DoS rule as gold-standard precedent
+
+- **File:** `panic-in-function-returning-result.yaml` + paired `panic-in-function-returning-result.rs` (3,676 bytes) at `https://github.com/trailofbits/semgrep-rules/tree/main/rs`.
+- **Variation enumeration shape.** One rule enumerates **4 fn-context variations** in a single `pattern-either`: direct `Result<T1, T2>`, direct `Result<T>`, type-alias to `Result<T1, T2>`, type-alias to `Result<T>`. Plus **3 `pattern-not-inside`** exclusions for `#[cfg(test)] mod tests { ... }` blocks.
+- **Implication.** "3–5 variation rules per bug" target is achievable inside one Semgrep rule's `pattern-either` — variation enumeration is a YAML structural concern, not a multi-file concern. 1 rule = 1 fixture file with N inline `// ruleid:` annotations.
+- **CWE tag.** `cwe: "CWE-755: Improper Handling of Exceptional Conditions"` (not CWE-248). Metadata: `category: security`, `subcategory: [audit]`, `confidence: HIGH`, `likelihood: MEDIUM`, `impact: LOW`.
+- **License caveat.** Trail of Bits semgrep-rules repo is **AGPL-3.0** — copy-pasting YAML wholesale would inherit AGPL. Treat as reference precedent only.
+- **Trail of Bits' rule does not use `metavariable-type`** — it uses purely structural `pattern-inside fn ... -> Result<$T1, $T2> { ... }`. Result-type discrimination falls out of the structural pattern. The wedge does not need `metavariable-type` for v1.
+
+### Corpus / test layout convention (SQ7)
+
+- **Co-located paired files.** Semgrep's official testing docs require a rule at `path/to/rule.yaml` with sibling `path/to/rule.<lang-ext>` (e.g. `rule.py`, `rule.rs`) — not a separate `tests/` tree. Test filename must match the rule filename, only the extension differs.
+- **Inline annotation convention.** `// ruleid: <id>` on the line above bad code, `// ok: <id>` for negative cases — used inline in the test file rather than as separate `bad.rs` / `good.rs` files. `semgrep --test` is the canonical runner (issue #2799).
+- **`.test.yaml` extension** is reserved for the case where the rule's target language is YAML itself (avoids ambiguity with the rule's own `.yaml` file). Not relevant for Rust corpora.
+- **Cross-pack consistency.** Same convention used by `semgrep/semgrep-rules` (3,966+ commits), `trailofbits/semgrep-rules`, `0xdea/semgrep-rules` (which documents the strongest version: "Each rule is accompanied by an actual vulnerable source code that was targeted by an exploit, with vulnerable lines marked with `// ruleid: ...`").
+- **`// ruleid:` on `.rs` files is confirmed** — all 10 upstream Semgrep Rust fixtures use it; no Rust-specific quirks; `--test` accepts `//` comments verbatim.
+
+### CI and dev-loop entry points (SQ8)
+
+- **Canonical CI:** `returntocorp/semgrep` GitHub Action / `semgrep ci` workflow command. Free for OSS scans, paid Semgrep Cloud for centralised findings. GitLab has first-class Semgrep templates. BuildKite has a community plugin.
+- **Canonical local-dev:** `pre-commit` framework still dominant in 2026; Semgrep ships a first-party hook repo at `semgrep/pre-commit`.
+- **Lefthook** (Go, 2019): faster, parallel-by-default, but does **not** auto-install tools or pull remote hook configs.
+- **`prek` (j178/prek):** Rust-native drop-in `pre-commit` replacement. Latest release **0.3.10 (2026-04-21)**, license **MIT**, reads `.pre-commit-config.yaml` unchanged. Production users include CPython and Apache Airflow. Pre-1.0 with partial language-hook parity.
+- **No `cargo-semgrep` subcommand wrapper** surfaced in any search.
+- **IDE plugins:** VS Code Semgrep extension; Cursor + IntelliJ-Rust integration via Semgrep LSP. Rust-analyzer integration with Semgrep is not native.
+
+### Publication-risk precedent (SQ9)
+
+- **GitHub AUP carves out educational vulnerability content explicitly.** Quoted policy text: *"GitHub allows dual-use content and supports the posting of content that is used for research into vulnerabilities, malware, or exploits, as the publication and distribution of such content has educational value."*
+- **No takedown notices** surfaced against semgrep-rules-style repos for deliberately-vulnerable test snippets.
+- **Upstream convention is tracked-and-labelled.** `semgrep/semgrep-rules` is fully public on GitHub and ships hundreds of deliberately-vulnerable test files; convention is per-rule paired test file with the same basename, lines tagged with `// ruleid: my-rule` (fire-on-bad) and `// ok: my-rule` (silent-on-good). Repos following the same pattern: Trail of Bits, 0xdea, elttam, CodeVigilant, Decurity.
+- **The compliance-fine framing in the original idea doc is not corroborated** by any takedown evidence.
+- **US EAR 5D002 / "intrusion software" controls** — enforcement on snippet collections is essentially zero; audit-tool source code (Metasploit, Nuclei, Semgrep itself) is publicly distributed.
+- **Two-tier model is defensible:** snippets in a *user's application repo* default to `.gitignore`'d (compliance-finding mitigation in a non-security-tooling repo); snippets in *the rule-pack repo itself* track and label, following upstream convention.
+
+### `cargo xtask` precedent (SQ10)
+
+- **Canonical skeleton (matklad/cargo-xtask).** Root with `.cargo/config.toml`, root `Cargo.toml` declaring a workspace, sibling `xtask/` and `<main-crate>/` directories each with `Cargo.toml` and `src/`. Cargo alias is one line: `[alias] xtask = "run --package xtask --"` in `.cargo/config.toml`. Alias works from any subdirectory only when xtask is a workspace member.
+- **Adoption.** Cargo itself uses xtasks; rust-analyzer ships an `xtask` crate. Tokio, ripgrep, clap, wasmtime, bevy, OpenVMM. The pattern is not officially blessed by the cargo team but is widely adopted.
+- **Single-binary-with-subcommands** is the dominant convention (vs. multiple `xtask-foo` aliases). OpenVMM precedent uses `clean`, `fmt`, `fuzz`, `install-git-hooks`; bare `cargo xtask` prints the list.
+- **Workspace vs single-crate.** matklad explicitly recommends workspace membership; non-workspace fallback (`run --manifest-path ./xtask/Cargo.toml --`) is documented but discouraged.
+- **Helper crates** (`xtaskops`, `xtasks`, `tracel-xtask`) exist but are not canonical; matklad's spec doesn't bless any helper crate.
+- **No widely-cited "security xtask" template** surfaced; OpenVMM's `fuzz` subcommand is the closest documented example.
+
+### Repo-state constraints
+
+- **No `xtasks/`, no `crates/sldo-sast/`, no `.cargo/config.toml`** — all are net-new infrastructure.
+- Workspace deps pinned: `clap 4`, `anyhow 1`, `thiserror 2`, `colored 2`, `regex 1`, `chrono 0.4`, `which 7`. Any new verifier crate must reuse these.
+- `--workspace` baseline is parked because of `sldo-tauri`; new crates must be appended explicitly to `cargo test -p ...` in `CLAUDE.md`.
+- Existing skill-pack pattern (`skills/<name>/SKILL.md` + optional `references/`) requires no scaffolding code — `/slo-rulegen` and `/slo-ruleverify` can ship as Markdown.
+- `/slo-critique` already has a `variant-analysis-playbook.md` that is prior art for variation enumeration logic.
+- No Semgrep configuration exists in the repo today — M3 CI wiring is greenfield for the user.
+
+## Library & Tool Evaluations
+
+### Semgrep CLI (verifier engine)
+- **Status / version:** Rust frontend GA; specific 2026 CLI version not pinned in this research.
+- **License:** LGPL-2.1 (engine), Semgrep Rules License (registry rules).
+- **Pros:** stable `--validate` and `--test` exit codes; first-party `pre-commit` hook repo; SARIF output; Rust taint mode usable; macro-arg taint propagation since July 2023; used internally for Rust SCA reachability.
+- **Cons:** only 10 Rust rules in the upstream first-party tree (thin prior-art well); proc-macro parsing brittle (multiple open issues); `metavariable-type` semantics on Rust generics under-documented; `--test` returns 0 on invalid rule itself (issue #10319) — must run `--validate` first.
+- **Fit:** required.
+
+### Trail of Bits `semgrep-rules` (CWE-755 panic precedent)
+- **Status:** live, `main` branch.
+- **License:** **AGPL-3.0** — vendoring concern.
+- **Pros:** only public production-grade Rust panic-DoS rule; demonstrates variation-enumeration shape (`pattern-either` + `pattern-not-inside` test-block exclusions); validates CWE-755 framing.
+- **Cons:** AGPL forces re-implementation rather than vendoring; only one panic-class rule.
+- **Fit:** reference precedent only; re-author rules independently to keep the pack's license clean.
+
+### Upstream `semgrep/semgrep-rules` Rust pack
+- **Status:** continuously updated `develop` branch; 3,966+ commits across language directories.
+- **License:** Semgrep Rules License.
+- **Pros:** defines the layout convention (paired `.yml` + `.rs` co-located); confirms `// ruleid:` annotation; covers crypto/TLS/process-arg classes the wedge does not need.
+- **Cons:** zero overlap with wedge CWE classes — complementary, not extensible.
+- **Fit:** layout-convention reference + complementary install.
+
+### Semgrep Assistant
+- **Status:** GA since 2024 launch; iterated through 2025–2026 docs.
+- **Distribution:** Semgrep Cloud Platform + GitHub PR flow.
+- **Pros:** internal fire-on-bad/silent-on-good gate; broadly similar input contract.
+- **Cons:** input contract is `(description, 1 bad, 1 good) → 1 rule` (no auto-derivation from a found bug); SaaS-only, not callable as a Claude Code skill or via MCP; 2026 focus is finding triage, not rule synthesis.
+- **Fit:** competitor — the wedge's differentiation rests on auto-corpus-derivation, variation enumeration, and in-session callability.
+
+### Snyk Code (DeepCode AI)
+- **Status:** GA; symbolic-AI engine.
+- **Pros:** strong AI-fix workflow.
+- **Cons:** custom rules **Enterprise-only Early Access**; proprietary Datalog DSL against opaque event graph; not human-editable in Semgrep sense; ~$50/mo per developer entry.
+- **Fit:** competitor — different design direction (closed/opaque vs. open/inspectable).
+
+### GitHub Code Scanning + Copilot Autofix
+- **Status:** GA.
+- **Pros:** native to GitHub; CodeQL is powerful for cross-procedural analysis.
+- **Cons:** different query language (CodeQL ≠ Semgrep); Autofix generates fix patches, not new queries; no "bug → query" auto-generator as of 2026.
+- **Fit:** orthogonal — not in the same product category.
+
+### SonarQube AI CodeFix / Veracode Fix
+- **Fit:** orthogonal — fix-suggestion AI, not rule-generation. No rule-synthesis surface.
+
+### `cargo-audit` 0.22.1
+- **License:** Apache-2.0 OR MIT.
+- **Pros:** confirmed JSON+SARIF emit (`OutputFormat::{Json,Sarif}`); CWE-via-GHSA path is the same join `/slo-rulegen` already needs.
+- **Cons:** emits findings against `Cargo.lock`, not source AST — does not directly drive a Semgrep rule.
+- **Fit:** CI integration partner; trigger for the per-bug *extend* loop.
+
+### `cargo-deny` 0.19.4 (2026-04)
+- **License:** Apache.
+- **Pros:** `--format=json/sarif`.
+- **Fit:** integrate (advisories channel only).
+
+### `cargo-vet` 0.10.0 (2024-10)
+- **Fit:** ignore — trust attestation, no fix-diff stream.
+
+### `cargo-geiger` 0.13.0 (2025-08)
+- **Fit:** ignore for findings; useful as prioritisation signal only — counts `unsafe` *presence*, not bug patterns.
+
+### `miri` / `kani` 0.67.0 / `prusti` / `creusot` / MIRAI / `rudra`
+- **Fit:** miri = backlog; kani = ignore for v1 (heavyweight); prusti/creusot = ignore (verification, not detection; Creusot is LGPL-2.1); MIRAI = ignore (archived 2024-08-22).
+
+### Clippy security restriction lints
+- **Lints:** `unwrap_used`, `expect_used`, `indexing_slicing`, `arithmetic_side_effects`, `panic`, `missing_panics_doc`, `unimplemented`, `todo`, `integer_arithmetic` (deprecated, replaced by `arithmetic_side_effects`).
+- **Status:** stable; restriction group; default `Allow`.
+- **Pros:** zero new infrastructure; covers CWE-248/CWE-755/CWE-190 sink shapes broadly.
+- **Cons:** no taint, no per-handler context, no CWE tags; fires on every occurrence — noisy without Semgrep layered on top.
+- **Fit:** integrate as coarse fence, not replacement.
+
+### `pre-commit` (Python, canonical)
+- **Pros:** ecosystem default; first-party Semgrep hook at `semgrep/pre-commit`.
+- **Cons:** Python runtime dep in a Rust-only repo.
+- **Fit:** default.
+
+### `prek` (j178/prek) — Rust-native pre-commit replacement
+- **Version:** **0.3.10**, released **2026-04-21**.
+- **License:** **MIT**.
+- **Pros:** drop-in for `.pre-commit-config.yaml`; no Python bootstrap; production users include CPython and Apache Airflow.
+- **Cons:** pre-1.0; partial language-hook parity.
+- **Fit:** document as supported alternative; emit `.pre-commit-config.yaml` that works under either runner.
+
+### `lefthook`
+- **Pros:** parallel by default.
+- **Cons:** does not auto-install tools or pull remote hook configs.
+- **Fit:** out — adds friction without a clear win for this skill pack.
+
+### `xtaskops` / `xtasks` / `tracel-xtask` (helper crates)
+- **Fit:** do not adopt. Not canonical; not blessed by matklad's spec; introduces unpinned deps; current SLO crates use bare `clap 4` everywhere.
+
+## Architecture Options
+
+The deepening passes surfaced four shapes for delivering `/slo-rulegen` and `/slo-ruleverify`. They are not milestones; they are mutually-exclusive design defaults the runbook author can pick from.
+
+### Option α — Skill-only (no Rust crate, no xtask)
+- **Shape:** `/slo-rulegen` and `/slo-ruleverify` ship as `skills/<name>/SKILL.md` + `references/sast/`. No new Cargo crate. Skills drive Claude to shell out to `semgrep --validate` and `semgrep --test` via Bash, parsing exit codes inline.
+- **Pros:** matches existing `slo-*` skill-pack pattern; no new Cargo infra; ships fastest.
+- **Cons:** verifier gate is prompted Bash sequence — Claude can skip a step. Variation-coverage minimum is policy not code. Silent degradation if `semgrep` is not on PATH.
+- **Best fit:** ship-speed wins; gate enforced by skill discipline + canonical Semgrep exit codes alone.
+
+### Option β — Hybrid skill pack + `xtasks/sast-verify/` workspace member
+- **Shape:** skills do LLM-heavy work. New `xtasks/sast-verify/` crate added to workspace + `.cargo/config.toml` declaring `[alias] xtask = "run --package xtasks/sast-verify --"`. Single binary with subcommands `validate`, `test`, `check-coverage`, each returning structured exit codes. Skills shell to `cargo xtask sast-verify <subcommand>`.
+- **Pros:** deterministic gate — `/slo-rulegen` cannot append a rule until `cargo xtask sast-verify check-coverage --rule <path>` exits 0. Variation-coverage minimums enforceable in code. Reuses workspace deps.
+- **Cons:** net-new `.cargo/config.toml` + `xtasks/` dir; must be appended to `CLAUDE.md`'s explicit `cargo test -p` baseline; xtask scope-creep risk flagged in idea doc.
+- **Best fit:** variation-coverage-minimum determinism > ship-speed.
+
+### Option γ — Hybrid skill pack + `crates/sldo-sast/` first-party crate
+- **Shape:** thin skills shelling out to a `sldo-sast` binary, mirroring the `sldo-research` precedent. Crate owns advisory-db ingestion, GHSA→OSV CWE join, snippet-corpus management, verifier loop.
+- **Pros:** deepest backstop; CWE map can be regenerated from data on a schedule; matches familiar codebase shape.
+- **Cons:** ~3–4 weeks; couples bug-found→rule-extended loop to a `cargo build` cycle — directly opposes the user's "fix the regression now, not after a release tag" pain. Idea doc explicitly rejected this shape.
+- **Best fit:** only if the project commits to a recurring advisory-db ingestion pipeline.
+
+### Option δ — Skill-only + upstream Semgrep `--test` runner in CI
+- **Shape:** `/slo-rulegen` writes rules, paired snippets, and a `.github/workflows/semgrep-test.yml` that invokes Semgrep's first-party `--test` runner in CI. Local dev uses `pre-commit` with `semgrep/pre-commit`. The "gate" lives in upstream Semgrep tooling, not a new component.
+- **Pros:** minimum surface area; matches semgrep-rules upstream convention exactly (tracked corpus + `// ruleid:` + `semgrep --test`); zero new in-repo infrastructure; reinforced by F9 (GitHub AUP allows tracked corpora) — generated pack runs under any consumer's `semgrep ci` with no rewriting.
+- **Cons:** verification responsibility pushed to user's CI provider; no in-repo deterministic fail-fast for variation-coverage minimum.
+- **Best fit:** portability of the generated pack outranks in-repo gate.
+
+### Consolidation note from the deepening pass
+The "1 rule = 1 `pattern-either` with N variations = 1 paired `.rs` fixture with N `// ruleid:` annotations" shape (from F3, F5) means corpus layout is settled and the gate can be canonical Semgrep `--validate` + `--test` for v1, with no custom verifier required. The deepened evidence pushes the default toward **δ**, with **β** as a hardening upgrade if variation-coverage minimums ever justify net-new Cargo infra.
+
+## API & SDK Documentation
+
+The current research run did not exercise any third-party SDK or HTTP API beyond ad-hoc fetches against the OSV.dev REST endpoint and GitHub's tree API; full SDK contracts were not extracted. The data points surfaced are:
+
+- **OSV.dev REST API.** `GET https://api.osv.dev/v1/vulns/<ID>` returns a JSON OSV record. For RUSTSEC IDs, the record contains `aliases[]` (often a `GHSA-*`) and `database_specific.categories` + `database_specific.cvss`, but **not** `cwe_ids`. For GHSA IDs, the same endpoint returns `database_specific.cwe_ids` populated. The two-hop join is the only documented data path for CWE on Rust advisories; OSV `POST /v1/query` with `package.ecosystem=crates.io` was referenced but not exercised. Issue google/osv.dev#3245 tracks adding native CWE/CVSS/EPSS metadata.
+- **GitHub git-tree API.** `GET https://api.github.com/repos/<owner>/<repo>/git/trees/<branch>?recursive=1` returns the full tree blob list — used to enumerate `semgrep/semgrep-rules` `rust/` directory contents.
+- **Semgrep CLI surface.** `semgrep --validate <rule.yaml>` (exit codes: 5 bad config, 7 invalid rule, 4 bad pattern); `semgrep --test <rule-or-dir>` (exit 1 on assertion failure since PR #6070; caveat: returns 0 on invalid rule itself per issue #10319 — must `--validate` first); `semgrep ci` for CI-mode runs. Rule schema entry points: `pattern`, `pattern-either`, `pattern-not`, `pattern-inside`, `pattern-not-inside`, `metavariable-pattern`, `metavariable-regex`, `metavariable-type` (experimental); taint mode via `mode: taint` with `pattern-sources` / `pattern-sinks` / `pattern-sanitizers`.
+- **Pre-commit hook spec.** `semgrep/pre-commit` is a pre-commit-hooks-style YAML repo consumed by `.pre-commit-config.yaml`. `prek 0.3.10` reads the same config format unchanged.
+- **No Anthropic SDK / Claude API surface** was exercised — `/slo-rulegen` is a Markdown skill that drives the existing `claude` CLI, not a new SDK consumer.
+- **No `cargo-audit` / `cargo-deny` programmatic API** was exercised beyond the documented `--format=json/sarif` flags.
+
+Detailed SDK call patterns, request/response schemas, and authentication contracts were not produced for this section in the current research run.
+
+## Design Recommendations
+
+Recommendations are drawn directly from the raw findings; they are not milestones or a runbook. The runbook author owns sequencing.
+
+- **(confidence: high) Use CWE-755, not CWE-248, for the panic-DoS class.** Trail of Bits' production rule tags `panic-in-function-returning-result` as `CWE-755: Improper Handling of Exceptional Conditions`. RustSec/GHSA do not natively tag panic-DoS at all; CWE-755 is the operational consensus tag.
+- **(confidence: high) Adopt the co-located paired `<rule-id>.yaml` + `<rule-id>.rs` convention with inline `// ruleid:` / `// ok:` annotations.** This is uniformly used by upstream `semgrep/semgrep-rules`, Trail of Bits, 0xdea, and is the documented contract in Semgrep's `--test` runner. No Rust-specific quirks; `//` comments are accepted verbatim.
+- **(confidence: high) Build `cwe-map-rust.md` from a two-hop RustSec → GHSA → OSV `cwe_ids` join.** RustSec has no native CWE field; GHSA-side coverage is high (8/8 in the deepened sample). Plan for a category-only crosswalk fallback for the GHSA-less informational/unmaintained advisory tail.
+- **(confidence: high) Promote CWE-416 (use-after-free), CWE-697 (incorrect comparison), and CWE-125 (OOB read) into the top-level wedge scope alongside CWE-787, CWE-190, CWE-755.** All three have multiple hits in the deepened sample; CWE-416 and CWE-697 were absent from the user's prior expectation.
+- **(confidence: high) Track vulnerable corpus snippets in the rule-pack repo, labelled with `// ruleid:` annotations, with a top-level disclaimer.** GitHub AUP explicitly carves out educational vulnerability content; semgrep-rules / Trail of Bits / 0xdea all ship public tracked corpora; no takedowns surfaced. The conservative `.gitignore`'d default in the idea doc is over-cautious for the pack repo itself.
+- **(confidence: high) For corpora generated inside a *user's application repo*, default to `.gitignore`'d.** That repo is not a security-tooling repo; tracked vuln snippets there would be a compliance finding even if portable. Two-tier convention: rule-pack repo tracks-and-labels; user app repo gitignores.
+- **(confidence: high) Emit a `.pre-commit-config.yaml` that works under both `pre-commit` (canonical) and `prek` (Rust drop-in).** `prek 0.3.10` is MIT-licensed, used by CPython and Apache Airflow, and reads the same config format unchanged. Default install instructions to `pre-commit`; document `prek` as alternative.
+- **(confidence: high) Compose with Clippy's `unwrap_used` / `indexing_slicing` / `arithmetic_side_effects` rather than replace them.** All three are restriction-group `Allow`-by-default and have no CWE tags; layering Semgrep taint/context-aware rules on top adds the source/sink reasoning Clippy lacks.
+- **(confidence: high) Re-author rules independently rather than vendoring Trail of Bits patterns.** Trail of Bits' semgrep-rules repo is AGPL-3.0; copying YAML wholesale would inherit AGPL. Use the structural shape (variation-enumeration via `pattern-either`, `pattern-not-inside #[cfg(test)]` exclusions) as inspiration; write fresh.
+- **(confidence: high) Adopt the single-binary-with-subcommands xtask shape if any xtask is introduced.** matklad's spec and OpenVMM precedent both endorse `cargo xtask <subcommand>` over multiple `xtask-foo` aliases. Hand-roll a `main.rs` rather than depending on `xtaskops` / `xtasks` / `tracel-xtask` (none are canonical).
+- **(confidence: medium) Use `pattern-either` with N variations inside a single rule, paired with one fixture file containing N `// ruleid:` annotations, as the default rule shape for v1.** Trail of Bits' panic rule is the existence proof; the wedge's "3–5 variations per CWE" target maps cleanly. Reach for taint mode only when structural enumeration fails.
+- **(confidence: medium) Run `semgrep --validate` *before* `semgrep --test` in any verifier sequence.** Issue #10319 documents that `--test` returns 0 on an invalid rule itself; `--validate` is the only way to catch bad YAML/pattern syntax up-front. Exit codes 5/7/4 are stable.
+- **(confidence: medium) Treat `metavariable-type` on Rust generics as unreliable for v1.** Docs are silent on Rust examples; open issues #10380 and #11150 suggest partial support. Trail of Bits' precedent uses purely structural `pattern-inside fn ... -> Result<$T1, $T2>` and works without it. Fall back to `metavariable-pattern` + regex if needed.
+- **(confidence: medium) Treat proc-macro patterns as unreliable for v1.** Open issues #10471, #10362, #3600, #5221 confirm the gap; `#[axum::debug_handler]`, `#[tokio::main]`, `#[tracing::instrument]`-decorated handlers will not match through the macro. Macro-arg taint propagation does work (since July 2023). Document the limitation in the rule pack's README; do not assume FP/FN parity with upstream.
+- **(confidence: medium) Wire `cargo-audit` (JSON or SARIF emit) as the CI trigger for the per-bug *extend* loop.** It already does the GHSA-CWE join `/slo-rulegen` needs and emits structured output; pairing it with `/slo-rulegen` against the patch diff is the natural integration.
+- **(confidence: medium) Default to Architecture Option δ (skill-only + upstream `--test` runner in CI) for v1.** Minimum surface area, matches upstream convention, generated pack is portable under any consumer's `semgrep ci`. Reserve Option β (xtask) as a hardening upgrade only if a deterministic in-repo variation-coverage gate becomes load-bearing.
+- **(confidence: low) Skip `metavariable-type` filtering on trait bounds entirely.** Inferred from absence of public examples and the precedent rule's avoidance of it; needs a smoke test before being declared a hard rule.
+- **(confidence: low) Skip a `crates/sldo-sast/` first-party crate (Architecture Option γ).** Justified by the user's explicit "fix the regression now" pain and the idea doc's prior rejection; not justified by hard data.
+
+## Risks & Open Questions
+
+Ordered by impact on the wedge's design.
+
+1. **`pattern-inside: unsafe { ... }` is undocumented for Rust.** No public example in `semgrep/semgrep-rules`; no documented restriction. A 5-line smoke rule + fixture is the only way to confirm before templating any unsafe-FFI rule (CWE-119/787) into `references/sast/`. Fallback if it fails: `pattern-inside: fn $F(...) { ... unsafe { ... } ... }` or `metavariable-pattern` over the function body.
+2. **Variation-template content for CWE-416 / CWE-190 / CWE-787 / CWE-125 / CWE-697 is not yet sourced.** Trail of Bits gives the CWE-755 shape; equivalent shapes for memory-class and comparison-class CWEs need real fix-diff sourcing. Concrete fix-diff sources to mine: `cassandra-rs` UAF (RUSTSEC-2024-0017), `mio` named-pipe-token UAF (RUSTSEC-2024-0019), `wasmtime::Linker::clone` UAF (RUSTSEC-2026-0090), `hpke-rs` underflow (RUSTSEC-2026-0070), `ruzstd` OOB-read (RUSTSEC-2024-0400), `idna` Punycode comparison (RUSTSEC-2024-0421). Each diff produces 1–2 idiom shapes for the variation backbone.
+3. **Full RustSec→GHSA join coverage % over a 24-month window is unmeasured.** Sample (n=8) shows 100% GHSA-side CWE coverage, but bottleneck is the GHSA-alias-presence rate among RustSec advisories. A one-shot script over `rustsec/advisory-db` (2024-04 → 2026-04) is needed to report the join hit-rate and the size of the residual category-only fallback.
+4. **CWE-89 / CWE-79 / CWE-918 in a Rust top-10 lacks frequency support.** No major framework-level advisories surfaced for axum/sqlx SQLi/XSS/SSRF in 2024–2025. Inclusion is justifiable on threat-class grounds (axum apps absolutely can be vulnerable when devs hand-roll SQL or HTML), not frequency. Open question: should the wedge's top-10 be frequency-ranked (omits these classes), threat-class-ranked (includes them), or hybrid?
+5. **Whether Clippy's restriction lints cover ≥60% of CWE-755/CWE-190 sink shapes is unmeasured.** No source quantifies the overlap; the ≥60% assumption from the brief would have to be measured against a real corpus, not asserted from documentation. The compose-not-replace decision stands either way, but the exact division of labour between Clippy and Semgrep is not pinned.
+6. **`metavariable-type` on Rust generics and trait bounds — actual behaviour is unverified.** Open issues #10380 and #11150 suggest partial support. Fallback path (`metavariable-pattern` + regex) is the recommendation, but breaks under proc-macro expansion (issues #10471, #10362). Specific concrete asks: smoke-test against `Result<_, _>` and `Option<_>` discrimination.
+7. **Semgrep macro/false-positive rate on heavy macro code is not quantified.** No source surfaced gives an FP rate for axum handlers, `tracing::instrument`, tokio `select!`. The deepening pass left this as a gap to fill by inspecting `semgrep/semgrep` issues filtered by `[lang/rust]`.
+8. **Trail of Bits AGPL implications for a re-implemented rule that mirrors the same `pattern-either` structure.** Pattern shapes are likely uncopyrightable (functional content), but a legal-comfort answer would justify whether the wedge can closely mirror the structure or must diverge intentionally.
+9. **`semgrep --test` exit-code semantics in the latest 2026 CLI.** Issue #10319 (returns 0 on invalid rule) was open at deepening time; confirm whether it has been fixed before relying on `--validate` + `--test` as the v1 gate.
+10. **`prek` license + maturity past 0.3.10 for CI fit.** MIT confirmed; pre-1.0 status and partial language-hook parity. CI adoption decision should pin a version and document fallback behaviour if the runner is missing.
+11. **Whether `// ruleid:` annotation on `.rs` files works without quirks under `semgrep --test`.** Confirmed by upstream pack inspection (10/10 Rust fixtures use the convention), but not stress-tested against multi-line patterns or block-comment annotations.
+12. **`kerberosmansour/SAST.GEN` 2024 prior art.** Specific implementation, gating logic, and what 2026 should improve on were not extracted in this run; the brief flagged it as a baseline.
+13. **OSS LLM rule synthesisers on GitHub.** Searches did not surface any project that integrates as a Claude Code skill with corpus-gating; absence is not the same as "does not exist."
+14. **`cargo-semgrep` subcommand wrapper existence.** Not surfaced by any search; treat as "not found", not "does not exist."
+
+## References
+
+- [RustSec Advisory Database — Categories](https://rustsec.org/categories/)
+- [RustSec Advisory Database — Advisories](https://rustsec.org/advisories/)
+- [RustSec Advisory Database — About](https://rustsec.org/)
+- [RustSec Advisory Database — Reporting Vulnerabilities](https://rustsec.org/contributing.html)
+- [rustsec/advisory-db GitHub repository](https://github.com/rustsec/advisory-db)
+- [rustsec/advisory-db README (raw)](https://raw.githubusercontent.com/rustsec/advisory-db/main/README.md)
+- [RUSTSEC-2024-0421 advisory page](https://rustsec.org/advisories/RUSTSEC-2024-0421.html)
+- [RUSTSEC-2026-0070 advisory page](https://rustsec.org/advisories/RUSTSEC-2026-0070.html)
+- [OSV — Data sources](https://google.github.io/osv.dev/data/)
+- [google/osv.dev issue #3245 — connect OSV advisories to CWE/CVSS/EPSS metadata](https://github.com/google/osv.dev/issues/3245)
+- [OSV vulnerability — RUSTSEC-2025-0046](https://osv.dev/vulnerability/RUSTSEC-2025-0046)
+- [OSV vulnerability — RUSTSEC-2024-0421](https://osv.dev/vulnerability/RUSTSEC-2024-0421)
+- [OSV API — RUSTSEC-2024-0421 record](https://api.osv.dev/v1/vulns/RUSTSEC-2024-0421)
+- [OSV API — GHSA-h97m-ww89-6jmq record (idna)](https://api.osv.dev/v1/vulns/GHSA-h97m-ww89-6jmq)
+- [OSV API — GHSA-x9xc-63hg-vcfq record](https://api.osv.dev/v1/vulns/GHSA-x9xc-63hg-vcfq)
+- [Wiz — RUSTSEC-2025-0112](https://www.wiz.io/vulnerability-database/cve/rustsec-2025-0112)
+- [Wiz — RUSTSEC-2024-0423](https://www.wiz.io/vulnerability-database/cve/rustsec-2024-0423)
+- [Wiz — RUSTSEC-2025-0028](https://www.wiz.io/vulnerability-database/cve/rustsec-2025-0028)
+- [cvedetails — Rust-lang Rust vulnerabilities](https://www.cvedetails.com/vulnerability-list/vendor_id-19029/product_id-48677/Rust-lang-Rust.html)
+- [MITRE CVE search — keyword=rust](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=rust)
+- [RustXec: A Vulnerability Reproduction Dataset (2026 PDF)](https://people.cs.vt.edu/xinw/publications/RustXec26-B38KjKAe.pdf)
+- [Penligent — CVE-2025-68260 (first Rust kernel vulnerability)](https://www.penligent.ai/hackinglabs/rusts-first-breach-cve-2025-68260-marks-the-first-rust-vulnerability-in-the-linux-kernel/)
+- [CVE-2024-24576 — std::process::Command on Windows (BatBadBut)](https://blog.rust-lang.org/2024/04/09/cve-2024-24576.html)
+- [CVE-2024-43402 — std::process::Command Windows hardening](https://blog.rust-lang.org/2024/09/04/cve-2024-43402.html)
+- [CERT-EU — Critical Vulnerability in Rust on Windows (2024-035)](https://cert.europa.eu/publications/security-advisories/2024-035/)
+- [2025 CWE Top 25 Most Dangerous Software Weaknesses (MITRE)](https://cwe.mitre.org/top25/archive/2025/2025_cwe_top25.html)
+- [2025 CWE Top 25 (CISA alert)](https://www.cisa.gov/news-events/alerts/2025/12/11/2025-cwe-top-25-most-dangerous-software-weaknesses)
+- [2025 CWE Top 10 KEV Weaknesses Insights](https://cwe.mitre.org/top25/archive/2025/2025_kev_insights.html)
+- [CWE-1435: Weaknesses in the 2025 CWE Top 25](https://cwe.mitre.org/data/definitions/1435.html)
+- [Common Weakness Enumeration (root)](https://cwe.mitre.org/)
+- [Semgrep — Supported languages](https://semgrep.dev/docs/supported-languages)
+- [Codebase-Aware Reachability Analysis Coverage for Rust (Semgrep blog, 2026)](https://semgrep.dev/blog/2026/semgrep-supply-chain-extends-reachability-coverage-to-rust/)
+- [Semgrep — Taint analysis overview](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/overview)
+- [Semgrep — Taint analysis (root)](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/)
+- [Semgrep — Advanced techniques for taint analysis](https://semgrep.dev/docs/writing-rules/data-flow/taint-mode/advanced)
+- [Demystifying Taint Mode (Semgrep blog, 2022)](https://semgrep.dev/blog/2022/demystifying-taint-mode/)
+- [Taint mode is now in beta (Semgrep blog, 2021)](https://semgrep.dev/blog/2021/taint-mode-is-now-in-beta/)
+- [Semgrep release notes — February 2023 (Rust beta)](https://semgrep.dev/docs/release-notes/february-2023)
+- [Semgrep release notes — July 2023 (Rust macro taint propagation)](https://semgrep.dev/docs/release-notes/july-2023)
+- [Semgrep v1.49.0 GitHub release](https://github.com/semgrep/semgrep/releases/tag/v1.49.0)
+- [Kudelski Security — Advancing Rust Support in Semgrep (2021)](https://kudelskisecurity.com/research/advancing-rust-support-in-semgrep)
+- [Semgrep — Test rules](https://semgrep.dev/docs/writing-rules/testing-rules)
+- [Semgrep — Rule structure syntax](https://semgrep.dev/docs/writing-rules/rule-syntax)
+- [Semgrep — Run rules](https://semgrep.dev/docs/running-rules)
+- [Semgrep — Rules overview](https://semgrep.dev/docs/writing-rules/overview)
+- [Semgrep — Pattern syntax (experimental)](https://semgrep.dev/docs/writing-rules/experiments/pattern-syntax)
+- [Semgrep — metavariable-type docs](https://semgrep.dev/docs/writing-rules/experiments/metavariable-type)
+- [Semgrep — Use the Semgrep rule schema in VS Code](https://semgrep.dev/docs/kb/rules/using-semgrep-rule-schema-in-vscode)
+- [Semgrep — Contribute rules to the Semgrep Registry](https://semgrep.dev/docs/contributing/contributing-to-semgrep-rules-repository)
+- [Writing Semgrep rules — methodology blog](https://semgrep.dev/blog/2020/writing-semgrep-rules-a-methodology/)
+- [semgrep/semgrep-rules (GitHub)](https://github.com/semgrep/semgrep-rules)
+- [semgrep/semgrep-rules — develop tree (recursive API)](https://api.github.com/repos/semgrep/semgrep-rules/git/trees/develop?recursive=1)
+- [semgrep/semgrep-rules — rust/lang/security/unsafe-usage.yml](https://raw.githubusercontent.com/semgrep/semgrep-rules/develop/rust/lang/security/unsafe-usage.yml)
+- [semgrep/semgrep-rules — rust/lang/security/rustls-dangerous.yml](https://raw.githubusercontent.com/semgrep/semgrep-rules/develop/rust/lang/security/rustls-dangerous.yml)
+- [trailofbits/semgrep-rules (GitHub)](https://github.com/trailofbits/semgrep-rules)
+- [trailofbits/semgrep-rules — /rs directory](https://github.com/trailofbits/semgrep-rules/tree/main/rs)
+- [trailofbits/semgrep-rules — panic-in-function-returning-result.yaml (raw)](https://raw.githubusercontent.com/trailofbits/semgrep-rules/main/rs/panic-in-function-returning-result.yaml)
+- [0xdea/semgrep-rules (GitHub)](https://github.com/0xdea/semgrep-rules)
+- [Issue #2799 — `semgrep --test` a yaml file](https://github.com/returntocorp/semgrep/issues/2799)
+- [Issue #1228 — Invalid schema on yaml/* unit test files](https://github.com/semgrep/semgrep-rules/issues/1228)
+- [Semgrep Assistant — overview](https://semgrep.dev/docs/semgrep-assistant/overview)
+- [Semgrep Assistant — AppSec Engineer Assistant product page](https://semgrep.dev/products/semgrep-code/assistant/)
+- [Semgrep blog — The tech behind Semgrep Assistant (2024)](https://semgrep.dev/blog/2024/the-tech-behind-semgrep-assistant/)
+- [Semgrep blog — Using AI to write secure code with Semgrep (2023)](https://semgrep.dev/blog/2023/using-ai-to-write-secure-code-with-semgrep/)
+- [Semgrep blog — AI & Cybersecurity, three months of Semgrep Assistant (2023)](https://semgrep.dev/blog/2023/assistant-public-beta/)
+- [Semgrep blog — 10x your AppSec program with Semgrep Assistant (2024)](https://semgrep.dev/blog/2024/assistant-ga-launch/)
+- [Snyk vs Semgrep (Konvu)](https://konvu.com/compare/snyk-vs-semgrep)
+- [Semgrep vs Snyk Code (AppSecSanta)](https://appsecsanta.com/sast-tools/semgrep-vs-snyk-code)
+- [Snyk Code Review 2026 (AppSecSanta)](https://appsecsanta.com/snyk-code)
+- [Best AI Code Security Tools 2025 (sanj.dev)](https://sanj.dev/post/ai-code-security-tools-comparison)
+- [Snyk vs Semgrep: SCA vs Custom SAST Rules in 2026 (DEV)](https://dev.to/rahulxsingh/snyk-vs-semgrep-sca-platform-vs-custom-sast-rules-in-2026-3047)
+- [7 Best Snyk Alternatives for 2026 (DeepSource)](https://deepsource.com/resources/snyk-alternatives)
+- [Best SAST Tools for AI-Generated Code (Vibe-Eval)](https://vibe-eval.com/testing/sast-tools-ai-code)
+- [Snyk vs Semgrep vs Corgea (Corgea)](https://corgea.com/blog/compare/snyk-vs-semgrep/)
+- [Snyk vs Semgrep (Aikido)](https://www.aikido.dev/blog/snyk-vs-semgrep)
+- [Semgrep Pricing in 2026 (DEV)](https://dev.to/rahulxsingh/semgrep-pricing-in-2026-open-source-vs-team-vs-enterprise-costs-3dic)
+- [Clippy Lints index (master)](https://rust-lang.github.io/rust-clippy/master/index.html)
+- [Clippy Lint Configuration](https://doc.rust-lang.org/clippy/lint_configuration.html)
+- [rust-clippy — clippy_lints/src/indexing_slicing.rs](https://github.com/rust-lang/rust-clippy/blob/master/clippy_lints/src/indexing_slicing.rs)
+- [rust-clippy issue #6636 — forbid all expect and unwrap use](https://github.com/rust-lang/rust-clippy/issues/6636)
+- [rust-clippy CHANGELOG](https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md)
+- [Unleashing the Power of Clippy in Real-World Rust Projects (arxiv)](https://arxiv.org/pdf/2310.11738)
+- [semgrep/pre-commit (GitHub)](https://github.com/semgrep/pre-commit)
+- [Customize Semgrep in pre-commit](https://semgrep.dev/docs/kb/integrations/customize-semgrep-precommit)
+- [j178/prek (GitHub)](https://github.com/j178/prek)
+- [prek documentation](https://prek.j178.dev/)
+- [HN — Better pre-commit, re-engineered in Rust](https://news.ycombinator.com/item?id=45931273)
+- [HN — Prek: drop-in pre-commit replacement](https://news.ycombinator.com/item?id=46873138)
+- [Comparing Code Quality Meta Tools (House Absolute)](https://blog.urth.org/2020/05/08/comparing-code-quality-meta-tools/)
+- [Git hooks management with pre-commit and lefthook (0xDC.me)](https://0xdc.me/blog/git-hooks-management-with-pre-commit-and-lefthook/)
+- [dotdc/test-lefthook-and-pre-commit (GitHub)](https://github.com/dotdc/test-lefthook-and-pre-commit)
+- [matklad/cargo-xtask](https://github.com/matklad/cargo-xtask)
+- [matklad/cargo-xtask README](https://github.com/matklad/cargo-xtask/blob/master/README.md)
+- [matklad/cargo-xtask issue #8 — workspaces are recommended](https://github.com/matklad/cargo-xtask/issues/8)
+- [matklad — Large Rust Workspaces (2021)](https://matklad.github.io/2021/08/22/large-rust-workspaces.html)
+- [rust-analyzer — xtask docs](https://rust-lang.github.io/rust-analyzer/xtask/index.html)
+- [OpenVMM Guide — cargo xtask](https://openvmm.dev/guide/dev_guide/dev_tools/xtask.html)
+- [nickgerace/cargo-xtask-example](https://github.com/nickgerace/cargo-xtask-example)
+- [jondot/xtaskops](https://github.com/jondot/xtaskops)
+- [sebastienrousseau/xtasks](https://github.com/sebastienrousseau/xtasks)
+- [tracel-xtask on crates.io](https://crates.io/crates/tracel-xtask)
+- [Adding custom runnable tasks to a Rust project (bryantluk.com)](https://blog.bryantluk.com/cargo-xtask/)
+- [lib.rs — cargo-xtask crate](https://lib.rs/crates/cargo-xtask)
+- [docs.rs — xtasks](https://docs.rs/xtasks)
+- [rust-secure-code/projects (security project index)](https://github.com/rust-secure-code/projects)
+- [GitHub Acceptable Use Policy — Active Malware or Exploits](https://docs.github.com/en/site-policy/acceptable-use-policies/github-active-malware-or-exploits)
+[2026-04-25 01:43:10] ℹ  Research accumulated 100679 bytes of findings
+──────────────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Dossier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2026-04-25 01:43:10] ℹ  Synthesis pass produced 55962 bytes of synthesised content
+[2026-04-25 01:43:10] ✔  Dossier written: docs/research/sast-rulegen-skill-pack/raw.md (63613 bytes)
+[2026-04-25 01:43:10] ✔  Dossier validation passed.
+──────────────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Summary
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[2026-04-25 01:43:10] ℹ  Dossier:        docs/research/sast-rulegen-skill-pack/raw.md
+[2026-04-25 01:43:10] ℹ  Dossier bytes:  63613
+[2026-04-25 01:43:10] ℹ  Iterations:     3 (max 3)
+[2026-04-25 01:43:10] ℹ  Searches:       5 (max 5)
+[2026-04-25 01:43:10] ℹ  Total wall time: 1814.46s
+──────────────────────────────────────────────────
+[2026-04-25 01:43:10] ✔  Research dossier is ready for planning.
+[2026-04-25 01:43:10] ℹ  Next step — generate a runbook:
+[2026-04-25 01:43:10] ℹ    sldo-plan docs/research/sast-rulegen-skill-pack/raw.md <repo-dir> [-o docs/RUNBOOK.md]
