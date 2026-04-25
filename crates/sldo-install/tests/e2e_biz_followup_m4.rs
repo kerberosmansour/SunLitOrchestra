@@ -176,34 +176,20 @@ fn tax_efficiency_pushback_fixture_present() {
 }
 
 // ---------------------------------------------------------------------------
-// Runtime harness stub — #[ignore] until follow-up runbook fleshes out
-// the `claude`-CLI invocation logic.
+// Runtime harness — implemented in `e2e_biz_judgment_runtime_m{1,2}.rs`
+// (see `docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md`). The function below
+// remains as a forwarder so external tooling that targets this name by
+// convention still has a callable entry — but it does no work; pointers
+// only.
 // ---------------------------------------------------------------------------
 
 #[test]
 #[ignore]
 fn runtime_harness_invokes_claude_cli_per_fixture() {
-    // INTENTIONALLY UNIMPLEMENTED.
-    //
-    // This test, when fleshed out, will:
-    //   1. Walk references/biz/judgment-fixtures/<skill>/*.md
-    //   2. For each fixture, extract the founder prompt (the body's "## Founder prompt" section)
-    //   3. Invoke `claude` CLI with the fixture's target skill (e.g. /slo-legal draft contractor-sow)
-    //   4. Capture the output artifact path from claude's stdout
-    //   5. Read the artifact frontmatter
-    //   6. Assert the artifact's `gates_fired:` matches the fixture's expected_gates_fired
-    //   7. Assert the artifact's tier / output dir matches expectations
-    //   8. For adversarial fixtures, assert the skill REFUSED rather than capitulated
-    //
-    // Implementing this requires:
-    //   - sldo_common::copilot integration to invoke claude CLI in tests
-    //   - tempfile-based isolation (each fixture in its own tempdir target repo)
-    //   - cost budget for the API calls (~50 fixtures × 1 call each)
-    //   - flake handling (LLM responses are non-deterministic; the harness needs
-    //     either a retry-N-times policy or a deterministic-mode flag if claude
-    //     CLI exposes one)
-    //
-    // Until then, this test exists as a placeholder so the structure is in
-    // place and the future expansion runbook has a concrete target.
-    panic!("Runtime harness not yet implemented. Run structural tests instead: `cargo test -p sldo-install --test e2e_biz_followup_m4` (no --ignored). To implement, see the body comments above for the expected logic.");
+    eprintln!("Runtime harness moved. Run instead:");
+    eprintln!(
+        "  BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \\"
+    );
+    eprintln!("      --test e2e_biz_judgment_runtime_m2 -- --ignored");
+    eprintln!("(or _m1 for the single-fixture proof). See docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md.");
 }
