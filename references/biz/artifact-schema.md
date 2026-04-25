@@ -17,8 +17,12 @@ Every artifact written by a biz skill MUST carry the frontmatter schema below. T
 | `name` | string (kebab-slug) | yes | `nda-acme-contractor-2026-04` | Slug derived from doc-type + counterparty + date |
 | `created` | date (YYYY-MM-DD) | yes | `2026-04-25` | Date the artifact was generated |
 | `tier` | enum | yes | `confidential` | Exactly two permitted values: `confidential` \| `public`. No free-form. |
+| `archetype` | enum | yes | `advisor` | Exactly two permitted values: `advisor` \| `generator`. Distinguishes the four advisor cluster (legal / accounting / equity / fundraise) from the eleven generators across Runbooks B1, B2, C. Stable interface — added in Runbook B1 M1. |
 | `skill` | string (skill name without `/slo-` prefix) | yes | `slo-legal` | Provenance — which skill produced this artifact |
 | `mode` | enum | yes for advisor outputs | `draft` | Exactly four permitted values: `draft` \| `translate` \| `triage` \| `prepare`. Generators may omit this key. |
+| `mode_arg` | string | yes for generators with a domain-specific variant arg | `roadmap` | E.g., `/slo-product` accepts `roadmap`\|`metrics`\|`okrs`; `/slo-marketing` accepts `b2b`\|`b2c`; `/slo-metrics` accepts `consumer`\|`b2b` (Runbook B2); `/slo-hire` accepts role-shape arg (Runbook C). Absent for skills with a single variant. |
+| `pii_scan_override` | bool | optional | `true` | Set when a `tier: public` artifact intentionally contains content that would match the PII-pattern scan (e.g., anonymised pseudonyms used in a publicly-shared case study). Pairs with `tier_override_reason`. Read by `/slo-verify` Pass 4 PII scan. |
+| `tier_override_reason` | string | required when `pii_scan_override: true` | `anonymised pseudonyms — Alice / Bob / Carol — used in case study; no real persons` | One-line rationale. |
 | `jurisdiction` | enum | yes | `uk` | Exactly one permitted value in v1: `uk`. Non-UK requests are rejected before artifact write. |
 | `cost_baseline_ref` | string (path + retrieval-date stamp) | yes for advisor `draft` outputs | `references/biz/cost-baseline-jpp-law-2026.md@2026-04-25` | Auditable provenance for ROI claims |
 | `triage_gate_passed` | bool | yes for advisor outputs | `true` | False when any predicate in `references/biz/triage-gate.md` fired during evaluation |
