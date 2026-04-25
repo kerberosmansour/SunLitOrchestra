@@ -10,9 +10,18 @@ rules:
     metadata:
       cwe: "CWE-755: Improper Handling of Exceptional Conditions"
       category: security
-      confidence: HIGH
+      # MEDIUM (was HIGH in M1) — calibrated 2026-04-25 against the M1.6 follow-up
+      # large-codebase shakedown. The rule fires on every `.unwrap()` /
+      # `.expect()` / `panic!()` inside a Result-returning fn. Mature Rust
+      # libraries (regex, aho-corasick, bytes, http) intentionally use these
+      # idioms with maintainer-reviewed invariants — `.expect("invariant
+      # message")` is the documented "I know this cannot fail" pattern. The
+      # rule's findings are still actionable for review (every `.unwrap()`
+      # without a safety comment is worth a second look) but not all are
+      # bugs. HIGH confidence overstated the bug-vs-FP ratio.
+      confidence: MEDIUM
       source-of-bug-shape: "manual; structural shape inspired by trailofbits/semgrep-rules/rs/panic-in-function-returning-result.yaml (AGPL — re-authored fresh per references/sast/AUTHORING.md)"
-      sldo-rulegen-version: "M1"
+      sldo-rulegen-version: "M1.6-followup-shakedown"
       sldo-variation-template: "references/sast/variations/cwe-755.md"
     pattern-either:
       # Variation 1 — .unwrap() inside fn returning Result<T1, T2>
