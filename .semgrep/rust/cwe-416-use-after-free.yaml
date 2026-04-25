@@ -1,0 +1,50 @@
+rules:
+  - id: cwe-416-use-after-free
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Use-after-free shape detected. `Vec::set_len`-with-pre-stored-pointer,
+      raw-pointer dereference inside `unsafe` paired with an explicit `drop`
+      in the same function, and FFI-callback-with-borrowed-context patterns
+      retain pointers past their owner's lifetime. Either restructure to
+      avoid the pre-stored raw pointer, use `std::mem::ManuallyDrop`, or
+      validate via `cargo +nightly miri test` for FFI shapes.
+    metadata:
+      cwe: "CWE-416: Use After Free"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-416.md"
+      sldo-rulegen-version: "M1.6"
+      sldo-variation-template: "references/sast/variations/cwe-416.md"
+    pattern-either:
+      # Variation 1 — raw_pointer_deref_after_drop:
+      # An `unsafe` block dereferencing a raw pointer inside a fn that also
+      # explicitly `drop`s a value. Catches the `let p = v.as_ptr(); drop(v);
+      # *p` shape across the structural pattern-inside fn body.
+      - patterns:
+          - pattern: unsafe { ... *$P ... }
+          - pattern-inside: |
+              fn $F(...) { ... drop($V); ... }
+      - patterns:
+          - pattern: unsafe { ... *$P ... }
+          - pattern-inside: |
+              fn $F(...) -> $RT { ... drop($V); ... }
+      # Variation 2 — vec_set_len_then_use_old_ptr:
+      # The realloc-invalidates-pointer shape. After capturing as_mut_ptr,
+      # set_len + push reallocates. Flagging set_len + push together via
+      # pattern-inside fn body containing both.
+      - patterns:
+          - pattern: $V.push($_)
+          - pattern-inside: |
+              fn $F(...) { ... let $P = $V.as_mut_ptr(); ... $V.set_len($_); ... }
+      # Variation 3 — ffi_callback_outliving_owner:
+      # `ffi_register_callback(cb, &local as *const _ as *mut _)` — the local
+      # may drop while the callback is still registered. Flag the cast-to-raw-
+      # pointer shape on a borrow inside an FFI-call-shaped block.
+      - patterns:
+          - pattern: $FN($_, &$L as *const _ as *mut _)
+          - pattern-inside: |
+              fn $F(...) { ... unsafe { ... } ... }
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
