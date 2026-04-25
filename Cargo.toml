@@ -1,12 +1,8 @@
 [workspace]
 members = [
     "crates/sldo-common",
-    "crates/sldo-plan",
-    "crates/sldo-run",
     "crates/sldo-research",
-    "crates/sldo-tauri",
     "crates/sldo-install",
-    "crates/sldo-tla-sha",
     "xtasks/sast-verify",
 ]
 resolver = "2"
@@ -39,60 +35,8 @@ dotenvy = "0.15"
 base64 = "0.22"
 
 [[test]]
-name = "e2e_scaffold_m1"
-path = "tests/e2e_scaffold_m1.rs"
-
-[[test]]
 name = "e2e_common_m2"
 path = "tests/e2e_common_m2.rs"
-
-[[test]]
-name = "e2e_plan_m3"
-path = "tests/e2e_plan_m3.rs"
-
-[[test]]
-name = "e2e_run_m4"
-path = "tests/e2e_run_m4.rs"
-
-[[test]]
-name = "e2e_integration_m5"
-path = "tests/e2e_integration_m5.rs"
-
-[[test]]
-name = "e2e_tauri_m1"
-path = "tests/e2e_tauri_m1.rs"
-
-[[test]]
-name = "e2e_tauri_m3"
-path = "tests/e2e_tauri_m3.rs"
-
-[[test]]
-name = "e2e_tauri_m4"
-path = "tests/e2e_tauri_m4.rs"
-
-[[test]]
-name = "e2e_tauri_m5"
-path = "tests/e2e_tauri_m5.rs"
-
-[[test]]
-name = "e2e_tauri_m6"
-path = "tests/e2e_tauri_m6.rs"
-
-[[test]]
-name = "e2e_tauri_m7"
-path = "tests/e2e_tauri_m7.rs"
-
-[[test]]
-name = "e2e_tauri_m8"
-path = "tests/e2e_tauri_m8.rs"
-
-[[test]]
-name = "e2e_voice_tx_m1"
-path = "tests/e2e_voice_tx_m1.rs"
-
-[[test]]
-name = "e2e_voice_tx_m2"
-path = "tests/e2e_voice_tx_m2.rs"
 
 [[test]]
 name = "e2e_research_m1"
