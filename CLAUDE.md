@@ -70,14 +70,10 @@ Every feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows [docs/run
 ## Baseline test command (this repo)
 
 ```bash
-cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install -p sast-verify
+cargo test --workspace
 ```
 
-The `--workspace` baseline is NOT used because the parked `sldo-tauri` crate leaves it red on macOS arm64 (esbuild arm64 binary missing in its UI `node_modules/`). If Tauri is un-parked, restore the full-workspace baseline.
-
-## Parked work — `crates/sldo-tauri/`
-
-The Tauri desktop UI is parked as of 2026-04. Do NOT modify it; do NOT merge its branch into skill-pack work. Revisit only if there's a concrete user pulling for it.
+The workspace contains four crates: `sldo-common` (shared library), `sldo-research` (Rust backend driven by `/slo-research`), `sldo-install` (skill installer), and `xtasks/sast-verify` (Semgrep rule gate driven by `/slo-rulegen` + `/slo-ruleverify`). All other Rust code (the legacy `sldo-plan` / `sldo-run` CLIs, the parked `sldo-tauri` desktop UI, the `sldo-tla-sha` maintenance utility) was removed in the 2026-04 cleanup — the skills are the canonical interface now.
 
 ## Installing the pack on this machine
 
