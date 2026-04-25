@@ -381,20 +381,20 @@ pub fn discover_artifact(temp_repo: &TempRepo) -> Result<Option<DiscoveredArtifa
             walk_md(&dir, &mut found)?;
         }
     }
-    match found.len() {
-        0 => Ok(None),
-        1 => {
-            let p = found.pop().unwrap();
-            let raw = fs::read_to_string(&p).map_err(|e| format!("read {}: {e}", p.display()))?;
-            let fm = parse_artifact_frontmatter(&raw);
-            Ok(Some(DiscoveredArtifact { path: p, frontmatter: fm, raw }))
-        }
-        _ => Err(format!(
+    if found.len() > 1 {
+        return Err(format!(
             "multiple artifacts written ({} files); harness expects single artifact per fixture invocation: {:?}",
             found.len(),
             found
-        )),
+        ));
     }
+    let p = match found.into_iter().next() {
+        Some(p) => p,
+        None => return Ok(None),
+    };
+    let raw = fs::read_to_string(&p).map_err(|e| format!("read {}: {e}", p.display()))?;
+    let fm = parse_artifact_frontmatter(&raw);
+    Ok(Some(DiscoveredArtifact { path: p, frontmatter: fm, raw }))
 }
 
 fn walk_md(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), String> {
