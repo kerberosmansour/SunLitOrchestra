@@ -1,0 +1,27 @@
+rules:
+  - id: cwe-295-improper-cert-validation
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      TLS certificate validation disabled. danger_accept_invalid_certs(true)
+      and danger_accept_invalid_hostnames(true) on reqwest, or a custom
+      rustls verifier that accepts every cert, defeats the entire point of
+      TLS. Use the default verifier; add a pinned root certificate via
+      add_root_certificate when you need to trust a specific CA.
+    metadata:
+      cwe: "CWE-295: Improper Certificate Validation"
+      category: security
+      confidence: HIGH
+      source-of-bug-shape: "Existing semgrep-rules/rust/lang/security/{reqwest-accept-invalid,rustls-dangerous}.yml as starting point — re-authored fresh per references/sast/AUTHORING.md"
+      sldo-rulegen-version: "M1"
+      sldo-variation-template: "references/sast/variations/cwe-295.md"
+    pattern-either:
+      # Variation 1 — reqwest::ClientBuilder::danger_accept_invalid_certs(true)
+      - pattern: $X.danger_accept_invalid_certs(true)
+      # Variation 2 — reqwest::ClientBuilder::danger_accept_invalid_hostnames(true)
+      - pattern: $X.danger_accept_invalid_hostnames(true)
+      # Variation 3 — rustls dangerous() with set_certificate_verifier
+      - pattern: $CONFIG.dangerous().set_certificate_verifier($V)
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
