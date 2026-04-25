@@ -1,0 +1,30 @@
+rules:
+  - id: cwe-79-xss-in-rust-webapp
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      User-controlled data is interpolated into HTML output without
+      context-aware encoding. Use `html_escape::encode_text(&user_data)` before
+      `format!` / `axum::response::Html(...)`, or use a templating engine
+      (askama, tera, maud) that escapes by default — and DO NOT use the `safe`
+      filter or `Raw(...)` wrapper on user data.
+    metadata:
+      cwe: "CWE-79: Cross-site Scripting (XSS)"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-79.md"
+      sldo-rulegen-version: "M1.5"
+      sldo-variation-template: "references/sast/variations/cwe-79.md"
+    pattern-either:
+      # Variation 1 — axum::response::Html with format!
+      - pattern: axum::response::Html(format!(...))
+      # Variation 2 — Html::from(format!(...))
+      - pattern: axum::response::Html::from(format!(...))
+      # Variation 3 — write!(out, ...) inside a fn returning Html<...>
+      - patterns:
+          - pattern: write!($OUT, ...)
+          - pattern-inside: |
+              fn $F(...) -> axum::response::Html<$T> { ... }
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
