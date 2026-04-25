@@ -1,0 +1,14 @@
+# Paths excluded from semgrep scans.
+#
+# Pattern: same shape as .gitignore — one path or glob per line, comments
+# start with '#'. Read by `semgrep --config .semgrep/rust/ <path>` and by
+# the `cargo xtask sast-verify check-clean` driver.
+
+# Parked Tauri desktop UI — see CLAUDE.md "Parked work — `crates/sldo-tauri/`".
+# The crate is unmaintained; un-park decision lives outside SAST scope. Findings
+# here would be noise without a reviewer who owns the Tauri thread.
+crates/sldo-tauri/
+
+# Vendored / generated rule fixtures — these live UNDER `.semgrep/` so they
+# don't normally get scanned, but excluding `target/` is still defensive.
+target/
