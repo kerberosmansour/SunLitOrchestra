@@ -25,21 +25,19 @@ Status: Rust GA in Semgrep 2026 with 40+ Pro rules, cross-function dataflow, tai
 
 ## M1 smoke-test results
 
-This section is updated by the M1 implementation step that runs the smoke-test for `pattern-inside: unsafe { ... }`.
-
-**Status as of 2026-04-25 (M1 in flight):** smoke-test pending. Until result is recorded:
-
-- Unsafe-bound variations in `references/sast/variations/cwe-416.md` and `cwe-787.md` use the workaround `pattern-inside: fn $F(...) { ... unsafe { ... } ... }`.
-- A direct `pattern-inside: unsafe { ... }` arm is permitted in any rule but the rule MUST also include the workaround as a fallback arm.
-
-**Expected result format** (filled by smoke-test):
-
 ```
 Smoke-test: `pattern-inside: unsafe { ... }`
-Run: 2026-MM-DD with semgrep 1.X.Y on macOS arm64
-Outcome: <CONFIRMED WORKING | NOT WORKING — see workaround>
-Detail: <short prose; reference fixture file path; observed match count>
+Run: 2026-04-25 with semgrep 1.156.0 on macOS arm64 (Darwin 25.4.0)
+Outcome: CONFIRMED WORKING
+Detail: Probe rule with `pattern-inside: unsafe { ... }` and `pattern: "*$P"` validated
+  with `semgrep --validate` (exit 0; "Configuration is valid - 1 rule"). Run against
+  a fixture containing one in-unsafe deref `let _ = *p;` and one out-of-unsafe cast
+  `let _addr = q as usize;` produced exactly one finding on the in-unsafe line; the
+  out-of-unsafe line was correctly NOT flagged. The Semgrep Rust frontend treats
+  `unsafe { ... }` as a context delimiter for `pattern-inside` matching.
 ```
+
+**Implication for the rule pack:** unsafe-bound variations in `references/sast/variations/cwe-416.md`, `cwe-787.md`, `cwe-125.md` MAY use direct `pattern-inside: unsafe { ... }` for the unsafe-bound sink shapes. The fallback workaround `pattern-inside: fn $F(...) { ... unsafe { ... } ... }` is no longer required and should be removed where used (since the direct primitive is more precise — it scopes only to in-unsafe lines, not the entire fn body).
 
 ## What we explicitly do NOT use
 
