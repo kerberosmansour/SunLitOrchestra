@@ -1,13 +1,15 @@
 ---
 cwe: "CWE-20"
 title: "Improper Input Validation"
-minimum_pattern_either_arms: 4
+minimum_pattern_either_arms: 3
 sink_shapes:
+  - regex_compile_with_dynamic_pattern
+  - path_buf_from_format_with_user_input
+  - fs_read_with_format_path
+deferred_to_taint_mode:
   - serde_json_without_deny_unknown_fields
   - axum_handler_takes_string_no_length_cap
-  - regex_compile_with_user_input_dos
-  - path_join_user_input_no_canonicalize
-provenance: "Idea-doc user pain anchor: missing input sanitization across web app surfaces"
+provenance: "Idea-doc user pain anchor: missing input sanitization across web app surfaces. Minimum reduced from 4 to 3 in M1.5 — the deferred shapes need cross-element analysis (struct attribute vs parameter type) that Semgrep CE structural patterns cannot express; lift to taint mode in M1.6."
 ---
 
 # Variation template — CWE-20 Improper Input Validation
