@@ -1,0 +1,34 @@
+rules:
+  - id: cwe-125-out-of-bounds-read
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Out-of-bounds read primitive used. `slice::get_unchecked`,
+      `slice::from_raw_parts` with an attacker-controlled length, and
+      attacker-supplied length-prefixed parser slicing read past safe-Rust
+      bounds when their length / index argument is unverified. Prefer
+      `get(i)`, validate the length against `buf.len() - offset` before
+      slicing, and never trust an unauthenticated length field.
+    metadata:
+      cwe: "CWE-125: Out-of-bounds Read"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-125.md"
+      sldo-rulegen-version: "M1.6"
+      sldo-variation-template: "references/sast/variations/cwe-125.md"
+    pattern-either:
+      # Variation 1 — unchecked_get_unchecked
+      - pattern: $BUF.get_unchecked($I)
+      # Variation 2 — slice_from_raw_parts_attacker_len
+      - pattern: std::slice::from_raw_parts($PTR, $LEN)
+      - pattern: slice::from_raw_parts($PTR, $LEN)
+      # Variation 3 — parser_reads_attacker_length_field_unbounded:
+      # the canonical "trust the wire-format length prefix" shape — read 4
+      # bytes, cast to usize, slice with no bounds check.
+      - pattern: u32::from_le_bytes($BUF[$L..$R].try_into().unwrap())
+      - pattern: u32::from_be_bytes($BUF[$L..$R].try_into().unwrap())
+      - pattern: u64::from_le_bytes($BUF[$L..$R].try_into().unwrap())
+      - pattern: u64::from_be_bytes($BUF[$L..$R].try_into().unwrap())
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
