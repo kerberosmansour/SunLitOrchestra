@@ -1,0 +1,26 @@
+rules:
+  - id: cwe-20-improper-input-validation
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      User-controlled input flows into a regex compile, path construction, or
+      filesystem read without canonicalisation. Validate first: bounded charset
+      for regex; allow-list + canonicalize for paths; bounded length for any
+      string body.
+    metadata:
+      cwe: "CWE-20: Improper Input Validation"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-20.md"
+      sldo-rulegen-version: "M1.5"
+      sldo-variation-template: "references/sast/variations/cwe-20.md"
+    pattern-either:
+      # Variation 1 — regex::Regex::new with a non-literal argument
+      - pattern: regex::Regex::new($X)
+      # Variation 2 — PathBuf::from(format!(...))
+      - pattern: std::path::PathBuf::from(format!(...))
+      # Variation 3 — fs::read(format!(...))
+      - pattern: std::fs::read(format!(...))
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }

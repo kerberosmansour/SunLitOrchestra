@@ -1,0 +1,32 @@
+rules:
+  - id: cwe-697-incorrect-comparison
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Comparison of secrets / signatures using `==` is timing-side-channel
+      vulnerable. Use `subtle::ConstantTimeEq` or `ring::constant_time::verify_slices_are_equal`.
+      For domain / IDN comparisons, normalise via `idna::domain_to_ascii` before `==`.
+    metadata:
+      cwe: "CWE-697: Incorrect Comparison"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-697.md"
+      sldo-rulegen-version: "M1.5"
+      sldo-variation-template: "references/sast/variations/cwe-697.md"
+    pattern-either:
+      # Variation 1 — fn named `check_token` / `check_password` / `verify_*` returning bool with `==` on the args
+      - patterns:
+          - pattern: $A == $B
+          - pattern-inside: |
+              fn check_token($A: $T1, $B: $T2) -> bool { ... }
+      - patterns:
+          - pattern: $A == $B
+          - pattern-inside: |
+              fn check_password($A: $T1, $B: $T2) -> bool { ... }
+      - patterns:
+          - pattern: $A == $B
+          - pattern-inside: |
+              fn verify_signature($A: $T1, $B: $T2) -> bool { ... }
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
