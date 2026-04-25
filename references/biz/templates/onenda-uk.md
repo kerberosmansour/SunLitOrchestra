@@ -83,15 +83,20 @@
 
 -->
 
-# ONENDA-UK-PLACEHOLDER
+# ONENDA-UK-CANONICAL-PINNED
 
-This marker signals the canonical oneNDA UK template has NOT yet been pinned
-by the project owner. Until the manual-fetch procedure (above) runs and the
-project owner pins the canonical SHA-256, this marker is REQUIRED to be
-present.
+This marker signals the canonical oneNDA UK template has been pinned by the
+project owner. The SHA-256 below was computed against the .docx fetched
+from the canonical_url_discovered on `canonical_fetched_on`. Until a new
+oneNDA version ships, the founder's local copy must hash to this digest;
+mismatch indicates the file is stale, tampered with, or a different
+version.
 
-Once the canonical bytes are pinned, the marker becomes
-`ONENDA-UK-CANONICAL-PINNED` and the file's frontmatter records the SHA-256.
+Re-pinning procedure (when the consortium publishes a new version): repeat
+the manual-fetch steps in the comment block above, recompute SHA-256,
+update the digest + `canonical_fetched_on:` + `canonical_version:` here,
+and bump the version string in `skills/slo-legal/SKILL.md`'s cover-only
+flow documentation.
 
 ---
 # Frontmatter (parsed by structural tests)
@@ -101,8 +106,8 @@ canonical_source: https://www.onenda.org/
 canonical_format: docx
 canonical_version: v2.1
 canonical_url_discovered: https://storage.googleapis.com/lawinsider-public/assets/standards/onenda/oneNDA_v2.1.docx
-canonical_fetched_on: pending-user-fetch
-pinned_canonical_sha256: pending-user-fetch
+canonical_fetched_on: 2026-04-25
+pinned_canonical_sha256: 30597b160e4b90ff9c446e1852b9384422232feb4b84fdf2687be4eaf92cc8ce
 license: CC BY-ND 4.0
 license_obligation: render-canonical-bytes-verbatim-from-docx-no-markdown-derivative
 canonical_local_path_recommendation: ~/.sldo/onenda-uk-v2.1.docx

@@ -220,33 +220,35 @@ fn cost_baseline_md_carries_retrieval_date() {
 }
 
 // ---------------------------------------------------------------------------
-// BDD #6 — onenda-uk.md is in placeholder state OR matches a future-pinned hash.
+// BDD #6 — onenda-uk.md is in placeholder state OR canonical-pinned state.
 // ---------------------------------------------------------------------------
+
+const ONENDA_CANONICAL_PINNED_MARKER: &str = "ONENDA-UK-CANONICAL-PINNED";
 
 #[test]
 fn onenda_template_placeholder_or_pinned_hash() {
     let path = repo_root().join("references/biz/templates/onenda-uk.md");
     let body = read(&path);
 
-    // M1 ships the template in placeholder state. The marker MUST be present
-    // until canonical oneNDA bytes replace this file (per the
-    // replace-before-production-use instructions in the file itself, and the
-    // future small follow-up runbook that will pin a SHA-256 of the canonical
-    // bytes).
+    // The file is valid in two states: pre-pinning (PLACEHOLDER marker) and
+    // post-pinning (CANONICAL-PINNED marker). The post-pinning state was
+    // reached by follow-up `biz-pack-onenda-canonical-pin` once the project
+    // owner manually fetched the canonical .docx and computed SHA-256.
+    let placeholder = body.contains(ONENDA_PLACEHOLDER_MARKER);
+    let pinned = body.contains(ONENDA_CANONICAL_PINNED_MARKER);
     assert!(
-        body.contains(ONENDA_PLACEHOLDER_MARKER),
-        "M1 ships onenda-uk.md as a placeholder. The marker `{ONENDA_PLACEHOLDER_MARKER}` must be present until canonical oneNDA bytes replace this file. See the file's own header comment for replacement instructions; until replaced, /slo-legal draft nda will refuse to draft."
+        placeholder || pinned,
+        "onenda-uk.md must contain ONE OF: `{ONENDA_PLACEHOLDER_MARKER}` (pre-fetch state) or `{ONENDA_CANONICAL_PINNED_MARKER}` (post-pinning state). Neither is present — file is in an unknown state."
     );
 
-    // The placeholder file must explicitly cite onenda.org and CC BY-ND 4.0
-    // so the license obligation is documented even in the pre-production state.
+    // Whichever state, the canonical-source citations must remain present.
     assert!(
         body.contains("onenda.org"),
-        "onenda-uk.md placeholder must cite onenda.org as the canonical source"
+        "onenda-uk.md must cite onenda.org as the canonical source"
     );
     assert!(
         body.contains("CC BY-ND 4.0"),
-        "onenda-uk.md placeholder must document the CC BY-ND 4.0 license obligation"
+        "onenda-uk.md must document the CC BY-ND 4.0 license obligation"
     );
 }
 

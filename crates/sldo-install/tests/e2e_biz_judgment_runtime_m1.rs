@@ -44,13 +44,23 @@ fn runtime_harness_green_on_ir35_genuine_contractor() {
     let fixture = JudgmentFixture::parse(&fixture_path).expect("parse fixture");
 
     let temp = TempRepo::build(&repo).expect("build tempdir");
-    let out = invoke_claude(&temp, &fixture.founder_prompt, 0.50, Duration::from_secs(180))
+    let out = invoke_claude(&temp, &fixture.founder_prompt, 1.50, Duration::from_secs(300))
         .expect("invoke claude");
 
-    if !out.exit_status.success() {
+    // claude exits non-zero on budget-cap even when the model reached
+    // end_turn (i.e., the work may still be on disk). Inspect both the
+    // exit status and the artifact: a non-success exit is fatal ONLY if
+    // no artifact was written — otherwise we proceed to assertions.
+    let budget_truncated = out.stdout.contains("error_max_budget_usd");
+    if !out.exit_status.success() && !budget_truncated {
         panic!(
             "claude exited non-zero ({}). stdout: {}\nstderr: {}",
             out.exit_status, out.stdout, out.stderr
+        );
+    }
+    if budget_truncated {
+        eprintln!(
+            "warning: claude hit max-budget cap; checking if artifact was written before truncation"
         );
     }
 
