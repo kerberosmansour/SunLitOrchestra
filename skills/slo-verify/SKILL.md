@@ -69,6 +69,19 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 
 **Anti-pattern** — running DAST on a markdown-only or library-only target. DAST needs a service to scan; running it against a docs repo produces noise. The smoke-service-presence gate is the whole defense.
 
+**Biz-pack PII-pattern scan** (added Runbook B1 M1) — when the target repo contains a `docs/biz-public/` directory, Pass 4 ALSO runs a PII-pattern scan over every artifact in that subtree. This is the runtime enforcement for the biz-pack two-tier output convention (`docs/biz/` confidential / `docs/biz-public/` placeholder-only — see [`references/biz/artifact-schema.md`](../../references/biz/artifact-schema.md)). The scan flags artifacts that match any of these regex patterns:
+
+- **Email addresses** — RFC 5321 simplified: `[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}`.
+- **UK National Insurance numbers** — `\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\d{6}[A-D]\b` (HMRC format).
+- **UK sort codes** — `\b\d{2}-\d{2}-\d{2}\b` paired with the literal token "sort code" within ±3 lines.
+- **Capitalised-bigram named-person heuristic** — lines beginning with `name:` (case-insensitive) followed by a `[A-Z][a-z]+ [A-Z][a-z]+` pattern. False-positive tolerance is HIGH; this catches the common interview-transcript leak pattern.
+
+**Override mechanism** — an artifact MAY include `pii_scan_override: true` and `tier_override_reason: <one-line rationale>` in its frontmatter. The scan reads the override + reason and EMITS the override decision in the Pass 4 report (so it's auditable) but does NOT fail the milestone. Without the override, a match fails Pass 4 with the same regression-test flow as other findings: STOP → write a regression test → fix the file (move to `docs/biz/` or anonymise) → re-run.
+
+**Scan scope** — `docs/biz-public/` only. The `docs/biz/` subtree is NOT scanned (those artifacts are confidential by design and contain real PII). The founder's repo `.gitignore` excludes `docs/biz/` (skill prose enforces this; SKILL.md prose for every biz-pack skill includes a write-time warning). Pass 4 PII-scan is the second-line defense after the gitignore + write-time-warning first-line.
+
+**Threat-model rows** — this scan addresses `tm-biz-abuse-1` (founder repo leak) and `tm-biz-abuse-6` (founder pastes PII into generator). See [`docs/design/biz-skill-pack-threat-model.md`](../../docs/design/biz-skill-pack-threat-model.md).
+
 ## When you find a bug
 
 1. **STOP** and write a regression test that reproduces it. The test should fail today.

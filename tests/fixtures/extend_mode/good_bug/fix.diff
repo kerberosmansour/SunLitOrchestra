@@ -1,0 +1,12 @@
+diff --git a/src/api/users.rs b/src/api/users.rs
+index 1234567..89abcde 100644
+--- a/src/api/users.rs
++++ b/src/api/users.rs
+@@ -39,7 +39,8 @@ pub struct User {
+
+ pub async fn create_user(body: String) -> Result<axum::Json<User>, AppError> {
+-    let user: User = serde_json::from_str(&body).unwrap();
++    let user: User = serde_json::from_str(&body)
++        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+     Ok(axum::Json(user))
+ }

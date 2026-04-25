@@ -7,6 +7,7 @@ members = [
     "crates/sldo-tauri",
     "crates/sldo-install",
     "crates/sldo-tla-sha",
+    "xtasks/sast-verify",
 ]
 resolver = "2"
 
@@ -18,6 +19,10 @@ colored = "2"
 regex = "1"
 chrono = "0.4"
 which = "7"
+serde = { version = "1", features = ["derive"] }
+serde_yaml_ng = "0.10"
+serde_json = "1"
+tempfile = "3"
 
 # Root package hosts workspace-level E2E / integration tests.
 [package]
@@ -116,3 +121,11 @@ path = "tests/e2e_research_m6.rs"
 [[test]]
 name = "e2e_research_m7"
 path = "tests/e2e_research_m7.rs"
+
+[[test]]
+name = "e2e_sast_rulegen_a_m2"
+path = "tests/e2e_sast_rulegen_a_m2.rs"
+
+[[test]]
+name = "e2e_sast_rulegen_a_m3"
+path = "tests/e2e_sast_rulegen_a_m3.rs"

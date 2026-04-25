@@ -1,0 +1,27 @@
+rules:
+  - id: cwe-190-integer-overflow-in-security-context
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Integer arithmetic in a security-sensitive context (capacity calc,
+      length math, duration arithmetic, narrowing cast). Release-mode Rust
+      wraps silently; this can shrink an allocation, underflow a length,
+      bypass an expiry check, or truncate authoritative high bits. Use
+      checked_add / saturating_add / TryFrom instead.
+    metadata:
+      cwe: "CWE-190: Integer Overflow or Wraparound"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-190.md"
+      sldo-rulegen-version: "M1"
+      sldo-variation-template: "references/sast/variations/cwe-190.md"
+    pattern-either:
+      # Variation 1 — Vec::with_capacity with an arithmetic expression
+      - pattern: Vec::with_capacity($A + $B)
+      - pattern: Vec::with_capacity($A * $B)
+      # Variation 2 — String::with_capacity with an arithmetic expression
+      - pattern: String::with_capacity($A + $B)
+      - pattern: String::with_capacity($A * $B)
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
