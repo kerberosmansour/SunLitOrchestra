@@ -1,0 +1,24 @@
+[package]
+name = "sast-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "SAST rule-pack verifier xtask: validate / test / check-coverage / check-clean / gate. Wraps semgrep CLI; never reaches the network."
+
+[[bin]]
+name = "sast-verify"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+colored = { workspace = true }
+chrono = { workspace = true }
+which = { workspace = true }
+serde = { workspace = true }
+serde_yaml_ng = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -1,0 +1,40 @@
+rules:
+  - id: cwe-755-panic-on-result-fn
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Function declared to return Result panics on attacker-controllable input.
+      Panic in a Result-returning fn bypasses the caller's error path. Use ?
+      with map_err, or unwrap_or_default if "missing is empty" is the right
+      semantic.
+    metadata:
+      cwe: "CWE-755: Improper Handling of Exceptional Conditions"
+      category: security
+      confidence: HIGH
+      source-of-bug-shape: "manual; structural shape inspired by trailofbits/semgrep-rules/rs/panic-in-function-returning-result.yaml (AGPL — re-authored fresh per references/sast/AUTHORING.md)"
+      sldo-rulegen-version: "M1"
+      sldo-variation-template: "references/sast/variations/cwe-755.md"
+    pattern-either:
+      # Variation 1 — .unwrap() inside fn returning Result<T1, T2>
+      - patterns:
+          - pattern: $X.unwrap()
+          - pattern-inside: |
+              fn $F(...) -> Result<$T1, $T2> { ... }
+      # Variation 2 — .expect("...") inside fn returning Result<T1, T2>
+      - patterns:
+          - pattern: $X.expect($MSG)
+          - pattern-inside: |
+              fn $F(...) -> Result<$T1, $T2> { ... }
+      # Variation 3 — explicit panic!() inside fn returning Result<T1, T2>
+      - patterns:
+          - pattern: panic!(...)
+          - pattern-inside: |
+              fn $F(...) -> Result<$T1, $T2> { ... }
+      # Variation 4 — .unwrap() inside async fn returning Result<T1, T2>
+      - patterns:
+          - pattern: $X.unwrap()
+          - pattern-inside: |
+              async fn $F(...) -> Result<$T1, $T2> { ... }
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
