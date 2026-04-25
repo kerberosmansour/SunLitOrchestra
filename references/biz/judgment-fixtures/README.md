@@ -93,25 +93,39 @@ The v1 fixture set covers the highest-risk marginal cases identified in the comb
 - `vat-registration-near-threshold.md` — turnover approaching £90k. Permit triage; route to accountant for the registration timing.
 - `hmrc-investigation-letter.md` — counterparty effectively HMRC. Fire gate-3 (HMRC = represented party); route to lawyer + accountant.
 
-## Runtime harness (stub)
+## Runtime harness
 
-`crates/sldo-install/tests/e2e_biz_followup_m4.rs` contains:
+Two layers, one source of truth (`crates/sldo-install/tests/common/judgment_runtime.rs`):
 
-1. **Non-ignored structural tests** asserting:
-   - The fixture directory exists.
-   - Each fixture has the required frontmatter fields.
-   - Frontmatter values are within the documented enums.
-2. **`#[ignore]` runtime tests** that, when explicitly run, shell out to `claude` CLI with each fixture's prompt + the corresponding skill, capture the output artifact, parse its frontmatter, and assert the `gates_fired:` matches the fixture's `expected_gates_fired:`.
+1. **Non-ignored structural tests** in `crates/sldo-install/tests/e2e_biz_followup_m4.rs` — assert the fixture directory exists, each fixture has the required frontmatter, and frontmatter values are within the documented enums. Always run as part of `cargo test -p sldo-install`.
+2. **Ignored runtime tests** in `crates/sldo-install/tests/e2e_biz_judgment_runtime_m1.rs` (single-fixture proof) and `crates/sldo-install/tests/e2e_biz_judgment_runtime_m2.rs` (all 9 fixtures + global cost-cap). Each test invokes `claude -p` against one fixture, parses the resulting artifact's frontmatter, and asserts `gates_fired` / `triage_gate_passed` / `mode` match the fixture's expectations. Adversarial fixtures (`adversarial: true` or `must_refuse: true`) are checked against the refusal-phrase allowed list in `REFUSAL_PHRASES`.
 
-Run the structural tests:
+The runtime tests are gated by **both** `#[ignore]` AND the env var `BIZ_JUDGMENT_RUNTIME_LIVE=1`, so a developer running `cargo test -- --ignored` for unrelated reasons does NOT incur API spend.
+
+Run the structural tests (no API calls):
 ```
 cargo test -p sldo-install --test e2e_biz_followup_m4
 ```
 
-Run the runtime tests (slow — each test = one Claude API call):
+Run all 9 runtime tests (slow — each test = one Claude API call; ~$3-$5 USD aggregate):
 ```
-cargo test -p sldo-install --test e2e_biz_followup_m4 -- --ignored
+BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \
+    --test e2e_biz_judgment_runtime_m2 -- --ignored
 ```
+
+Run a single fixture (M1 — cheaper smoke):
+```
+BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \
+    --test e2e_biz_judgment_runtime_m1 -- --ignored
+```
+
+Optional env overrides:
+| Var | Default | Purpose |
+|---|---|---|
+| `BIZ_JUDGMENT_RUNTIME_LIVE` | unset | Set to `1` to enable claude invocations. Without this, the tests skip with a one-line message. |
+| `BIZ_JUDGMENT_RUNTIME_RETRIES` | `2` | Retries on transient errors (rate-limit, network reset). |
+| `BIZ_JUDGMENT_RUNTIME_GLOBAL_BUDGET_USD` | `5.00` | Hard ceiling for aggregate spend across all fixtures. |
+| `BIZ_JUDGMENT_RUNTIME_CLAUDE_BIN` | `claude` (PATH) | Override the binary path. |
 
 ## Fixture authoring guidelines
 
@@ -122,8 +136,8 @@ cargo test -p sldo-install --test e2e_biz_followup_m4 -- --ignored
 
 ## Status
 
-This is a **DESIGN + STUB** — followup runbook `biz-pack-judgment-tests` ships the fixtures + the structural test file. The actual runtime harness (the `#[ignore]` tests) is a placeholder; expanding it into real `claude`-CLI invocations is a separate ~1-2 week milestone.
+**STABLE** — runtime harness implemented in `crates/sldo-install/tests/e2e_biz_judgment_runtime_m{1,2}.rs`. The fixture format below is interface; individual fixtures are evolving. The legacy panic-stub in `e2e_biz_followup_m4.rs` is now a forwarder that prints the new test-file invocation.
 
 Combined critique findings addressed:
-- Runbook A f6 (LLM judgment residual on gate-4 + IR35) → fixture set seeded.
-- B1+B2+C f5 (IR35-pressure capitulation) → `tax-efficiency-pushback.md` fixture explicitly covers.
+- Runbook A f6 (LLM judgment residual on gate-4 + IR35) → fixture set seeded; runtime harness exercises it on demand.
+- B1+B2+C f5 (IR35-pressure capitulation) → `tax-efficiency-pushback.md` fixture explicitly covered by `fixture_slo_legal_tax_efficiency_pushback` in M2 with the JUDGMENT REGRESSION assertion path.
