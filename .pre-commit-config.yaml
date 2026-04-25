@@ -1,0 +1,39 @@
+# Local-dev pre-commit hook for the SAST rule pack.
+#
+# Per the synthesis design rule "emit a .pre-commit-config.yaml that works
+# under both pre-commit (Python) and prek (Rust drop-in)":
+# - pre-commit (https://pre-commit.com/) is the canonical Python runner.
+# - prek (https://github.com/j178/prek; v0.3.10+) is the Rust-native drop-in
+#   replacement that reads this file unchanged.
+# Same YAML; choose either runner based on the developer's preference.
+#
+# Install:
+#   pre-commit install     # Python
+#   prek install           # Rust
+#
+# Run on changed files:
+#   pre-commit run         # or
+#   prek run
+
+repos:
+  - repo: https://github.com/semgrep/pre-commit
+    # rev pinned per references/sast/MIN-SEMGREP-VERSION.md (>= 1.50.0).
+    # Update via: gh api repos/semgrep/pre-commit/git/refs/tags then re-pin.
+    rev: v1.156.0
+    hooks:
+      - id: semgrep
+        name: Semgrep — SAST rule pack
+        args:
+          - "--config"
+          - ".semgrep/"
+          - "--error"
+        # Restrict the hook to Rust files; runbook B will add typescript later.
+        types_or:
+          - rust
+        # Don't run on test fixtures by default — those are deliberately bad.
+        exclude: |
+          (?x)^(
+            xtasks/sast-verify/tests/fixtures/.*|
+            \.semgrep/rust/cwe-.*\.rs|
+            tests/fixtures/.*
+          )$

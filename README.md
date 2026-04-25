@@ -2,6 +2,67 @@
 
 A toolkit for orchestrating AI-driven software development through structured, milestone-based runbooks.
 
+Licensed under [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
+
+## SAST rule pack
+
+`/slo-rulegen` and `/slo-ruleverify` are Claude Code skills that produce a Semgrep rule pack covering the top-10 CWE classes idiomatic safe-Rust + popular ecosystem crates are most susceptible to in 2026 (panic-DoS, integer overflow in security context, improper certificate validation, use-after-free, OOB read/write, incorrect comparison, expired-resource, input validation, XSS in webapp rendering).
+
+The pack is gated by `cargo xtask sast-verify gate`, which composes:
+
+- `validate` — strict YAML parse + `semgrep --validate --json`
+- `test` — paired `<rule-id>.rs` fixture fire-on-bad / silent-on-good (runs `--validate` first per Semgrep #10319)
+- `check-coverage` — `pattern-either` arm count ≥ minimum from `references/sast/variations/cwe-<NNN>.md`
+- `check-clean` — zero false positives on a known-clean fixture subset
+
+Both skills DENY `WebFetch` and `WebSearch` in their toolflag config (per the threat model's prompt-injection-resistance posture).
+
+### Quickstart
+
+Install the skills (and the xtask alias):
+
+```bash
+cargo build -p sast-verify --release
+cargo build -p sldo-install --release
+./target/release/sldo-install              # symlinks skills/* into ~/.claude/skills/
+```
+
+Bootstrap a rule pack in a Rust workspace (this repo or another):
+
+```bash
+/slo-rulegen                                # generates 10 rule pairs at .semgrep/rust/
+/slo-ruleverify                             # confirms every rule passes gate
+cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
+```
+
+Extend the pack from a Claude-found bug (M2):
+
+```bash
+/slo-rulegen --extend \
+  --bug-summary /tmp/bug.md \
+  --fix-diff /tmp/fix.patch \
+  --file-paths src/api/users.rs,src/api/auth.rs
+```
+
+Wire CI + local hooks (M3):
+
+- `.github/workflows/semgrep.yml` — PR-blocking Semgrep CI (admission control + scan)
+- `.pre-commit-config.yaml` — works under both `pre-commit` (Python) and `prek` (Rust drop-in)
+
+See [references/sast/CI-WIRING.md](references/sast/CI-WIRING.md) for the full wiring guide and the cargo-audit-driven extend-mode trigger pattern.
+
+### Rule pack design docs
+
+- [docs/idea/sast-rulegen-skill-pack.md](docs/idea/sast-rulegen-skill-pack.md) — pain, capabilities, top risks, three approaches, recommendation
+- [docs/research/sast-rulegen-skill-pack/synthesis.md](docs/research/sast-rulegen-skill-pack/synthesis.md) — load-bearing design rules
+- [docs/design/sast-rulegen-skill-pack-overview.md](docs/design/sast-rulegen-skill-pack-overview.md)
+- [docs/design/sast-rulegen-skill-pack-stack-decision.md](docs/design/sast-rulegen-skill-pack-stack-decision.md)
+- [docs/design/sast-rulegen-skill-pack-interfaces.md](docs/design/sast-rulegen-skill-pack-interfaces.md) — public API stability contract
+- [docs/design/sast-rulegen-skill-pack-threat-model.md](docs/design/sast-rulegen-skill-pack-threat-model.md) — STRIDE × 7 components, 12 abuse cases
+- [docs/RUNBOOK-SAST-RULEGEN-A.md](docs/RUNBOOK-SAST-RULEGEN-A.md) — three-milestone runbook
+- [references/sast/cwe-map-rust.md](references/sast/cwe-map-rust.md) — top-10 CWE ranking with provenance
+- [references/sast/AUTHORING.md](references/sast/AUTHORING.md) — Trail of Bits AGPL clean-room policy + style guide
+
 ## Installation (Rust CLI — recommended)
 
 Install the Rust binaries with Cargo:
