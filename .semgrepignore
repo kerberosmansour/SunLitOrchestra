@@ -12,3 +12,20 @@ crates/sldo-tauri/
 # Vendored / generated rule fixtures — these live UNDER `.semgrep/` so they
 # don't normally get scanned, but excluding `target/` is still defensive.
 target/
+
+# Benchmark / example / fuzz code — not production-shipping. Microbenchmarks
+# routinely use unsafe-but-bounded primitives (e.g., `set_len(0)` on a
+# pre-allocated buffer) that fire CWE-787 / CWE-125 without being real bugs.
+# Examples are illustrative, not security-reviewed. Fuzz harnesses
+# deliberately exercise unsafe paths.
+benches/
+examples/
+fuzz/
+
+# Vendored third-party Rust source. If a project vendors a dependency, the
+# vendored copy was reviewed by upstream; running our pack against it would
+# duplicate effort + surface the same findings the upstream maintainers
+# already accepted. Override this exclusion by passing the explicit path
+# to semgrep if you want to gate vendored code (e.g., a fork you own).
+vendor/
+third_party/
