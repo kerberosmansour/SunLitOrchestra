@@ -25,6 +25,7 @@ mod semgrep_runner;
 mod test_cmd;
 mod tier_detect;
 mod validate;
+mod validate_file_paths;
 mod yaml_schema;
 
 #[derive(Parser, Debug)]
@@ -107,6 +108,18 @@ enum Cmd {
         #[arg(long)]
         repo_dir: Option<PathBuf>,
     },
+    /// Validate a comma-separated list of file paths against a repo root.
+    /// Each path must canonicalize to a location under the repo root.
+    /// Rejects absolute paths, `..` segments, missing files, and symlinks
+    /// pointing outside the repo. Used by `/slo-rulegen --extend` to gate
+    /// `--file-paths` input before any LLM invocation. Exit 4 on rejection.
+    ValidateFilePaths {
+        /// Comma-separated list of repo-relative paths to validate.
+        csv: String,
+        /// Repo root to check against (default: current working directory).
+        #[arg(long)]
+        repo_dir: Option<PathBuf>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -152,6 +165,9 @@ fn main() -> ExitCode {
             &opts,
         ),
         Cmd::DetectTier { repo_dir } => tier_detect::run(repo_dir.as_deref(), &opts),
+        Cmd::ValidateFilePaths { csv, repo_dir } => {
+            validate_file_paths::run(&csv, repo_dir.as_deref(), &opts)
+        }
     };
 
     match result {

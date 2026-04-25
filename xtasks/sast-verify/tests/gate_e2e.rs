@@ -25,7 +25,7 @@ fn semgrep_on_path() -> bool {
 }
 
 #[test]
-fn xtask_help_lists_five_subcommands() {
+fn xtask_help_lists_all_subcommands() {
     let root = workspace_root();
     let bin_path = root.join("target").join("release").join("sast-verify");
     if !bin_path.exists() {
@@ -46,6 +46,7 @@ fn xtask_help_lists_five_subcommands() {
         "check-clean",
         "gate",
         "detect-tier",
+        "validate-file-paths",
     ] {
         assert!(
             stdout.contains(sub),
