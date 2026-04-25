@@ -27,6 +27,21 @@ Power tools:
 | `/slo-freeze <path>` | Lock edits to one directory for the session |
 | `/slo-resume` | Read current runbook's tracker, suggest next step |
 
+## Biz skill pack — first-party advisor + generator skills
+
+UK-only (v1). Advisor skills (4) operate as `draft | translate | triage | prepare` modes with hard-block gates from [references/biz/triage-gate.md](references/biz/triage-gate.md) (regulated / >£5,000 / counterparty-with-lawyer / GDPR). Generator skills (11; shipped in Runbooks B1, B2, C — out of Runbook A scope) produce one artifact each.
+
+| Skill | Archetype | Domain | Cites |
+|---|---|---|---|
+| `/slo-legal` | advisor | UK legal — NDA, contractor SOW, IP assignment, T&Cs | [references/biz/templates/onenda-uk.md](references/biz/templates/onenda-uk.md) (CC BY-ND 4.0 verbatim), [references/biz/cost-baseline-jpp-law-2026.md](references/biz/cost-baseline-jpp-law-2026.md) |
+| `/slo-accounting` | advisor | UK accounting — bookkeeping, VAT, R&D credit, MTD | HMRC route default = accountant (per [references/biz/jurisdiction-uk.md](references/biz/jurisdiction-uk.md) UK regulator index) |
+| `/slo-equity` | advisor | UK equity — cofounder split, vesting, cap-table snapshot | [references/biz/hmrc-vcm-index.md](references/biz/hmrc-vcm-index.md) (VCM34080 / VCM3000 / VCM31000 + Abingdon Health line) — runs SEIS / EIS pre-check on every draft |
+| `/slo-fundraise` | advisor | UK fundraise — SAFE math, pitch narrative, term-sheet redline brief | HMRC VCM index + [references/biz/ir35-cest-factors.md](references/biz/ir35-cest-factors.md) — runs Advance Assurance pre-check on every interaction; refuses term-sheet drafting without AA ≥ 6 weeks ahead |
+
+Shared scaffolding lives at `references/biz/` at the repo root (NOT under `skills/` — `crates/sldo-install/src/install.rs:44-71`'s `discover_skills()` ignores it). Two-tier output: `docs/biz/` (gitignored, confidential drafts with real PII / deal terms) and `docs/biz-public/` (git-tracked, placeholder / decision artifacts). See [docs/design/biz-skill-pack-overview.md](docs/design/biz-skill-pack-overview.md) for the full design.
+
+GDPR posture: **broad hard-block on `draft`** for all GDPR documents (privacy notice, ROPA, DPA, internal policies). Locked 2026-04-25. Reversal requires fresh `/slo-architect` pass. Cost baseline: JPP Law fixed-fee public pricing, locked 2026-04-25.
+
 ## Third-party skills vendored
 
 | Skill | Purpose | Prereq |
