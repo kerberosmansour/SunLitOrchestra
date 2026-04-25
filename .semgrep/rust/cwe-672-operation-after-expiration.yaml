@@ -1,0 +1,61 @@
+rules:
+  - id: cwe-672-operation-after-expiration
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Operation on a resource after its expiration / release. Patterns
+      catch (a) raw-fd use after `drop`-ing the owning `File`, (b) RwLock
+      guard whose protected pointer outlives the guard, and (c) session
+      expiry checks that log-but-don't-`return-false`. Treat the resource
+      as gone after the expiration / release event; close the code path
+      with an early return.
+    metadata:
+      cwe: "CWE-672: Operation on a Resource after Expiration or Release"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-672.md"
+      sldo-rulegen-version: "M1.6"
+      sldo-variation-template: "references/sast/variations/cwe-672.md"
+    pattern-either:
+      # Variation 1 — file_handle_use_after_close:
+      # Calling a libc function with a fd that was harvested via as_raw_fd()
+      # in a fn that also `drop`s the owning File. Catches the canonical
+      # "use the fd after the File is gone" shape.
+      - patterns:
+          - pattern: $LIBC($FD, ...)
+          - pattern-inside: |
+              fn $F(...) { ... let $FD = $H.as_raw_fd(); ... drop($H); ... }
+      - patterns:
+          - pattern: $LIBC($FD, ...)
+          - pattern-inside: |
+              unsafe fn $F(...) { ... let $FD = $H.as_raw_fd(); ... drop($H); ... }
+      # Variation 2 — rwlock_guard_use_after_drop_extending_lifetime:
+      # Capturing a raw pointer into the lock's protected memory, then
+      # dropping the guard. The raw deref is the sink; the guard drop is
+      # the precondition.
+      - patterns:
+          - pattern: unsafe { ... *$P ... }
+          - pattern-inside: |
+              fn $F(...) { ... let $G = $LOCK.read().unwrap(); ... drop($G); ... }
+      - patterns:
+          - pattern: unsafe { ... *$P ... }
+          - pattern-inside: |
+              fn $F(...) { ... let $G = $LOCK.write().unwrap(); ... drop($G); ... }
+      # Variation 3 — session_token_use_after_expired:
+      # The most common business-logic shape: an expiry check whose `then`
+      # branch logs but doesn't return false. Detected by matching the warn
+      # call inside an `if expires_at < now` and asserting the surrounding
+      # function body does not have a matching `return` immediately after.
+      # We approximate by flagging the warn-only pattern; FPs are accepted
+      # given the MEDIUM confidence designation.
+      - pattern: |
+          if $S.expires_at < std::time::SystemTime::now() {
+              log::warn!($MSG);
+          }
+      - pattern: |
+          if $S.expires_at < SystemTime::now() {
+              log::warn!($MSG);
+          }
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }

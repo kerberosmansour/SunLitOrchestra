@@ -1,0 +1,28 @@
+rules:
+  - id: cwe-787-out-of-bounds-write
+    languages: [rust]
+    severity: WARNING
+    message: >-
+      Out-of-bounds write primitive used. `Vec::set_len`, `ptr::copy_nonoverlapping`,
+      and `slice::get_unchecked_mut` write past safe-Rust bounds when their
+      length / index argument is attacker-controlled or unverified. Verify
+      capacity before `set_len`, bound `n` against destination capacity for
+      `copy_nonoverlapping`, and prefer `get_mut(i)?` over `get_unchecked_mut`.
+    metadata:
+      cwe: "CWE-787: Out-of-bounds Write"
+      category: security
+      confidence: MEDIUM
+      source-of-bug-shape: "manual; sink shapes from references/sast/variations/cwe-787.md"
+      sldo-rulegen-version: "M1.6"
+      sldo-variation-template: "references/sast/variations/cwe-787.md"
+    pattern-either:
+      # Variation 1 — vec_set_len_past_capacity
+      - pattern: $V.set_len($N)
+      # Variation 2 — ptr_copy_nonoverlapping_attacker_len
+      - pattern: std::ptr::copy_nonoverlapping($SRC, $DST, $N)
+      - pattern: ptr::copy_nonoverlapping($SRC, $DST, $N)
+      # Variation 3 — get_unchecked_mut_unchecked_index
+      - pattern: $BUF.get_unchecked_mut($I)
+    pattern-not-inside: |
+      #[cfg(test)]
+      mod tests { ... }
