@@ -65,6 +65,17 @@ fn check_session_safe(session: &Session) -> bool {
     session.user_id == "admin"
 }
 
+// New (M1.6 follow-up tightening): warn-then-block-then-return is also OK —
+// the warn is benign because the fn DOES exit before using the resource.
+// pattern-not-inside excludes this shape from firing.
+fn check_session_warn_then_return(session: &Session) -> bool {
+    if session.expires_at < std::time::SystemTime::now() {
+        log::warn!("session expired");
+    }
+    // ok: cwe-672-operation-after-expiration
+    return false;
+}
+
 fn read_lock_short_lived(lock: &std::sync::RwLock<i32>) -> i32 {
     // ok: cwe-672-operation-after-expiration
     *lock.read().unwrap()
