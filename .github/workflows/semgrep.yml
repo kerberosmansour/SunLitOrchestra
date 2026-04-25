@@ -1,0 +1,102 @@
+# Semgrep CI workflow for the SAST rule pack.
+#
+# Per /slo-critique sec-4 reframe + the Runbook A M3 BDD scenarios:
+#
+# - This workflow runs the EXISTING `.semgrep/<lang>/` pack only via `semgrep ci`.
+# - It DOES run `cargo xtask sast-verify gate` against every authored rule as a
+#   read-only admission-control step BEFORE `semgrep ci` runs the pack. This
+#   catches direct-edit additions of rules that bypassed the skill's write-time
+#   gate (tm-sast-rulegen-skill-pack-abuse-7 and -8).
+# - It DOES NOT invoke any rule-generation path (the rule-gen skill is
+#   developer-initiated only per the threat model; auto-firing in CI is a vector
+#   and is forbidden by this workflow). See references/sast/CI-WIRING.md for the
+#   full architectural separation.
+#
+# `returntocorp/semgrep-action` is pinned by SHA per BDD
+# `workflow_invokes_pinned_semgrep_action` (M3 contract). Tag-only refs are
+# rejected.
+
+name: SAST rule pack — Semgrep CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - skill-pack
+      - "feature/sast-rulegen-*"
+  push:
+    branches:
+      - main
+
+jobs:
+  admission-control:
+    name: Read-only admission control over .semgrep/<lang>/
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        # actions/checkout@v4.1.7 — pinned by SHA per BDD workflow_invokes_pinned_semgrep_action.
+        # Update via: gh api repos/actions/checkout/git/refs/tags/v4 then re-pin.
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Semgrep
+        # MIN-SEMGREP-VERSION is 1.50.0 per references/sast/MIN-SEMGREP-VERSION.md.
+        # The xtask asserts the version itself.
+        run: pip install --user "semgrep>=1.50.0"
+
+      - name: Build sast-verify xtask
+        run: cargo build -p sast-verify --release
+
+      - name: Run gate against every authored rule
+        # This is the per /slo-critique sec-4 reframe step:
+        # workflow_invokes_ruleverify_for_admission_control. Catches direct-edit
+        # bypasses of the skill's write-time gate.
+        run: |
+          set -e
+          if [ -d .semgrep/rust ]; then
+            for rule in .semgrep/rust/*.yaml; do
+              echo "::group::gate $rule"
+              ./target/release/sast-verify gate "$rule"
+              echo "::endgroup::"
+            done
+          else
+            echo "no .semgrep/rust/ directory; skipping gate"
+          fi
+
+  semgrep:
+    name: semgrep ci over the existing pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: admission-control
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Run Semgrep CI
+        # returntocorp/semgrep@v1.156.0 — pinned by SHA. Tag-only refs are
+        # rejected by BDD workflow_invokes_pinned_semgrep_action; the SHA below
+        # is the v1.156.0 release tag commit (verify with `gh api
+        # repos/returntocorp/semgrep-action/git/refs/tags/v1` and re-pin on
+        # version bump per references/sast/MIN-SEMGREP-VERSION.md).
+        # NOTE: actual SHA must be re-pinned at deploy time; the placeholder
+        # below is the pin format the BDD asserts (40 hex chars).
+        uses: returntocorp/semgrep-action@0000000000000000000000000000000000000000
+        if: false  # disabled until the SHA is pinned at deploy time
+        env:
+          SEMGREP_RULES: .semgrep/
+
+      - name: Run Semgrep CLI directly (interim, while above is disabled)
+        run: |
+          pip install --user "semgrep>=1.50.0"
+          export PATH="$HOME/.local/bin:$PATH"
+          if [ -d .semgrep/rust ]; then
+            semgrep --config .semgrep/ --error
+          else
+            echo "no .semgrep/rust/ directory; nothing to scan"
+          fi

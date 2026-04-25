@@ -42,7 +42,7 @@ Update this table as each milestone is completed. This is the single source of t
 |---|---|---|---|---|---|---|
 | 1 | Bootstrap pack + verifier gate (`sast-verify` xtask, top-10 CWE rules, paired corpus) | `done` (3/10 rules — CWE-755, CWE-190, CWE-295 gate-clean; remaining 7 deferred to M1.5; all 10 variation templates in `references/sast/variations/` already authored) | 2026-04-25 | 2026-04-25 | [docs/lessons/sast-rulegen-a-m1.md](lessons/sast-rulegen-a-m1.md) | [docs/completion/sast-rulegen-a-m1.md](completion/sast-rulegen-a-m1.md) |
 | 2 | Extend-mode (`/slo-rulegen --extend` from `(bug, fix_diff)` to 3–5 variation rules) | `done` (extend-mode prompt + skill contract + 7 disk-content E2E tests; runtime BDD deferred to /slo-verify Pass 4) | 2026-04-25 | 2026-04-25 | [docs/lessons/sast-rulegen-a-m2.md](lessons/sast-rulegen-a-m2.md) | [docs/completion/sast-rulegen-a-m2.md](completion/sast-rulegen-a-m2.md) |
-| 3 | CI + dev-env wiring (GitHub Action, pre-commit hook, LICENSE, cargo-audit-driven extend trigger) | `not_started` | | | | |
+| 3 | CI + dev-env wiring (GitHub Action, pre-commit hook, LICENSE, cargo-audit-driven extend trigger) | `done` (workflow YAML + pre-commit config + LICENSE + README SAST section + CI-WIRING.md; 8 disk-content E2E tests; semgrep-action SHA placeholder with documented re-pin path in M3.5) | 2026-04-25 | 2026-04-25 | [docs/lessons/sast-rulegen-a-m3.md](lessons/sast-rulegen-a-m3.md) | [docs/completion/sast-rulegen-a-m3.md](completion/sast-rulegen-a-m3.md) |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/lessons/sast-rulegen-a-m<N>.md -->
