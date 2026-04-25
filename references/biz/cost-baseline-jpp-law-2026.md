@@ -3,73 +3,114 @@ name: cost-baseline-jpp-law-2026
 created: 2026-04-25
 retrieved: 2026-04-25
 valid_through_suggestion: 2027-04-25
-source: https://www.jpplaw.co.uk/sectors/fixed-fee-startup/
-status: evolving — annual refresh expected when JPP Law publishes the 2027-28 fixed-fee schedule
+sources:
+  - https://seedlegals.com/pricing/
+  - https://www.jpplaw.co.uk/sectors/fixed-fee-startup/
+status: stable — publicly auditable mixed baseline (SeedLegals subscription tiers + JPP Law solicitor-quote-on-request)
 purpose: |
-  Publicly auditable UK fixed-fee solicitor pricing baseline for ROI claims in advisor-skill outputs.
-  Cited by `/slo-legal` (and other advisor skills as relevant) in the `cost_baseline_ref` frontmatter
-  field of every drafted artifact, plus inline in the artifact body's footer.
+  UK cost baseline for ROI claims in advisor-skill outputs. Uses SeedLegals'
+  publicly-priced subscription tiers as the "templating service" anchor (GBP
+  figures public on https://seedlegals.com/pricing/), and JPP Law as the
+  "engage-a-solicitor" anchor (firm publishes service availability publicly
+  but not specific GBP figures — founder requests a quote at first-use and
+  records below).
+pricing_provenance: mixed-public-and-quote-pending
 ---
 
-# UK fixed-fee solicitor cost baseline — JPP Law (2026-2027)
+# UK cost baseline (mixed public + quote-pending)
 
 > Retrieval date: **2026-04-25**.
-> Source: https://www.jpplaw.co.uk/sectors/fixed-fee-startup/
-> Provenance note: JPP Law publishes fixed-fee startup pricing publicly; this file snapshots the relevant line items so the ROI claim in advisor-skill outputs is auditable. JPP Law's pricing changes annually; treat this snapshot as valid through ~12 months from the retrieval date and refresh on each `/loop` cadence (recommended schedule below).
+> Sources:
+> - SeedLegals subscription pricing (publicly retrievable): https://seedlegals.com/pricing/
+> - JPP Law fixed-fee startup services (publicly listed, GBP figures by quote): https://www.jpplaw.co.uk/sectors/fixed-fee-startup/
 
-## Why JPP Law and not another firm
+## Provenance note (load-bearing)
 
-The dossier in `docs/research/biz-skill-pack/dossier.md` initially anchored ROI claims to Russell Cooke's 2026-27 price list — which is **not publicly retrievable** (no PDF or page on russell-cooke.co.uk matches). For the cost claim to be auditable by anyone reading the skill output (and for the file to ship in an open repository without redistributing a private firm's pricing schedule), the baseline was switched to JPP Law's publicly-itemised page. **Locked decision: 2026-04-25.**
+The original Runbook A design anchored ROI claims to a single firm's fixed-fee price list. Russell Cooke (initial dossier choice) was rejected because their 2026-27 list is not publicly retrievable. JPP Law was the swap. Combined critique f2 (post-execution): JPP Law's fixed-fee startup page lists service availability but does NOT publish specific GBP figures — turning the file's price column into perpetual placeholders.
 
-## Cost line items (UK, fixed-fee)
+This file pivots to a **mixed baseline** instead:
 
-The line items below are the v1 advisor-skill output set. JPP Law's page covers more services than these; only the items advisor skills cite for ROI claims in v1 are snapshotted here. Future milestones (M2 `/slo-accounting`, M3 `/slo-equity`, M4 `/slo-fundraise`) may add their own relevant lines via this file's "Adding a new line" section below.
+1. **SeedLegals subscription tiers** (public, retrievable) provide a templating-service price floor — what a founder would pay for a self-serve subscription that gives them template access without solicitor review.
+2. **JPP Law (or any other UK fixed-fee firm)** provides the engage-a-solicitor anchor — but founders MUST request a specific quote at first-use and record the figures in the "Your firm" section below. The quote is private (firm-specific) and changes annually.
 
-| Item | Price (GBP, ex VAT) | Use in advisor skill | Source line |
-|---|---|---|---|
-| Non-Disclosure Agreement (UK template) | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-legal draft nda` ROI block | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Standard Contractor Agreement (consultant / contractor) | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-legal draft contractor-sow` ROI block | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Intellectual Property Assignment | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-legal draft ip-assignment` and embedded inside contractor SOW | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Terms & Conditions for sale of goods or provision of services | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-legal draft terms-and-conditions` ROI block | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Shareholders Agreement (cofounders) | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-equity` (M3) cofounder-split brief ROI block | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Articles of Association | placeholder — replace with current JPP Law fixed fee at retrieval time | `/slo-equity` (M3) cap-table briefing ROI block | jpplaw.co.uk/sectors/fixed-fee-startup/ |
-| Employment Contract | placeholder — replace with current JPP Law fixed fee at retrieval time | future Runbook C M2 `/slo-hire` ROI block (out of Runbook A scope) | jpplaw.co.uk/sectors/fixed-fee-startup/ |
+Advisor-skill outputs cite EITHER the SeedLegals figure (always available) OR the founder's quoted figure (when populated). The artifact's `cost_baseline_ref` frontmatter records which source applied.
 
-> **Implementation note**: This file ships in M1 with placeholders in the price column because the actual GBP figures must be retrieved from the live JPP Law page at implementation time and cannot be reliably reproduced from third-party summaries. A founder running M1 implementation MUST visit https://www.jpplaw.co.uk/sectors/fixed-fee-startup/, copy the current fixed-fee figures into this table, update the `retrieved:` frontmatter date, and commit. The structural-contract test `cost_baseline_md_carries_retrieval_date` in `e2e_biz_a_m1.rs` checks the retrieval-date format; a separate manual smoke-test step (in `docs/verify/biz-a-m1-smoke.md`) checks that the placeholders have been replaced with real GBP figures.
+## SeedLegals subscription tiers (publicly priced — 2026-04-25)
+
+| Item | Price (GBP, ex VAT) | Source |
+|---|---|---|
+| **Access** (templates only, no funding round tooling) — monthly | £75 / month | https://seedlegals.com/pricing/ |
+| **Access** — annual | £590 / year | https://seedlegals.com/pricing/ |
+| **Funding — Start** (up to £100k/year of funding) | £1,490 / year | https://seedlegals.com/pricing/ |
+| **Funding — Raise** (up to £250k/year of funding) | £2,790 / year | https://seedlegals.com/pricing/ |
+| **Funding — Scale** (up to £500k/year of funding) | £4,990 / year | https://seedlegals.com/pricing/ |
+| **Options scheme** — annual | £2,490 / year | https://seedlegals.com/pricing/ |
+| **SEIS/EIS Advance Assurance** (one-off, pay-as-you-go) | £390 | https://seedlegals.com/pricing/ |
+| **SEIS/EIS Compliance** (one-off) | from £490 | https://seedlegals.com/pricing/ |
+| **SeedFAST** (one-off, per advance subscription) | £100 | https://seedlegals.com/pricing/ |
+| **Seed & Series A Round** (one-off) | £1,990 | https://seedlegals.com/pricing/ |
+| **R&D Tax Relief** (one-off) | £1,490 opening + 5% closing fee | https://seedlegals.com/pricing/ |
+| **General Counsel** (10-hour engagement) | from £2,999 | https://seedlegals.com/pricing/ |
+| **Exit** (one-off engagement) | £690 + from £1,990 | https://seedlegals.com/pricing/ |
+
+**All prices ex VAT.** Retrieval date stamped above; SeedLegals revises annually.
+
+## Your firm (engage-a-solicitor anchor — populate at first-use)
+
+A founder running advisor-skill `draft` modes against real engagements should request a fixed-fee quote from their chosen UK solicitor (JPP Law, Russell Cooke, or any firm) and record the figures here. Once populated, advisor-skill ROI blocks cite these figures preferentially over the SeedLegals proxy.
+
+```yaml
+# Replace this section with your firm's quote at first-use of /slo-legal draft.
+# Once populated, change pricing_provenance in this file's frontmatter to
+# `solicitor-quoted` and run cargo test -p sldo-install --test e2e_biz_followup_m1
+# to confirm the structural-contract test passes.
+
+your_firm:
+  name: <e.g., JPP Law>
+  contact_url: <e.g., https://www.jpplaw.co.uk/sectors/fixed-fee-startup/>
+  quoted_on: <YYYY-MM-DD>
+  quoted_by: <name of partner / associate who provided the quote>
+  fees:
+    nda: <GBP, ex VAT>
+    contractor_sow: <GBP>
+    ip_assignment: <GBP>
+    terms_and_conditions_b2b: <GBP>
+    shareholders_agreement_cofounders: <GBP>
+    articles_of_association: <GBP>
+    employment_contract: <GBP>
+```
 
 ## How advisor skills cite this file
 
-Every advisor skill drafted artifact MUST include in its frontmatter:
+Every advisor `draft` artifact carries in frontmatter:
 
 ```yaml
 cost_baseline_ref: references/biz/cost-baseline-jpp-law-2026.md@<retrieved-date>
+cost_baseline_source: seedlegals-public | solicitor-quoted | placeholder-pending
 ```
 
-And in the body footer:
+And in body footer (template; skill picks the appropriate source):
 
 ```markdown
 ## Cost baseline (provenance)
 
-Per [JPP Law fixed-fee startup pricing](https://www.jpplaw.co.uk/sectors/fixed-fee-startup/), retrieved <retrieved-date>: a UK solicitor would charge approximately £<X> for an equivalent <doc-type> drafted from scratch. This advisor-skill draft is **NOT** a substitute for solicitor review — see the `lawyer_review_recommended: true` flag in the frontmatter. Cost reference snapshot: `references/biz/cost-baseline-jpp-law-2026.md`.
+Per [SeedLegals public subscription pricing](https://seedlegals.com/pricing/), retrieved <retrieved-date>, the **Access** tier (£75/month or £590/year + VAT) provides templating access for the v1 doc set at the cost a founder would pay for self-serve. A UK solicitor engagement for an equivalent <doc-type> is by quote — see the "Your firm" section of `references/biz/cost-baseline-jpp-law-2026.md` for the founder's recorded quote (or run `/slo-legal prepare 'lawyer-quote-request for <doc-type>'` to draft the quote-request brief).
+
+This advisor-skill draft is **NOT** a substitute for solicitor review — see the `lawyer_review_recommended: true` flag in the frontmatter. Cost reference snapshot: [references/biz/cost-baseline-jpp-law-2026.md](references/biz/cost-baseline-jpp-law-2026.md).
 ```
 
-## Adding a new line item (M2+)
+## Structural-contract test (added by follow-up `biz-pack-cost-baseline-refresh`)
 
-When a future advisor skill needs a cost line not in the table above, the implementing milestone:
+The new test `crates/sldo-install/tests/e2e_biz_followup_m1.rs::cost_baseline_has_real_figures_or_explicit_placeholder` asserts ONE of:
 
-1. Confirms JPP Law publishes a fixed fee for the line. (If not, cite a different publicly-auditable source — gov.uk filing fees for HMRC-required filings, ICO registration fees, etc. — or omit the cost block for that artifact.)
-2. Adds the line to the table above with the current price + retrieval date.
-3. Updates the `retrieved:` frontmatter date if the entire snapshot is being refreshed.
-4. Updates this file's commit reference; downstream advisor SKILL.md files that need the new line update their own citations.
+1. The SeedLegals public-tier section contains at least 5 GBP figures (matched by regex `£\d+`) — OK because the public source is retrievable, **THIS IS THE STATE M1 SHIPS WITH**.
+2. The "Your firm" section is populated (no `<...>` placeholder tokens remaining) — OK because the founder has quoted their solicitor.
+3. The frontmatter `pricing_provenance: placeholder-pending` is set explicitly AND the file body contains a "REQUIRES POPULATION BEFORE PRODUCTION USE" header — explicit deferral acknowledgment.
 
-## Why a single snapshot, not a live fetch
+The test passes today via path (1). When the founder populates "Your firm", path (2) takes over.
 
-Advisor skills do NOT enable WebFetch / WebSearch — see `references/biz/jurisdiction-uk.md` and `SECURITY.md` (root, biz section) for the rationale (founder personal data in prompt context + WebFetch creates an exfiltration surface). The cost baseline is a static snapshot refreshed annually. Founders running advisor skills more than ~12 months after the retrieval date should be warned by the skill prose to refresh this file before relying on the ROI numbers.
+## Refresh cadence
 
-## Recommended `/loop` schedule
-
-```
-/loop @yearly /slo-research "refresh JPP Law cost baseline for biz-skill-pack — fetch jpplaw.co.uk/sectors/fixed-fee-startup/ and update references/biz/cost-baseline-jpp-law-2026.md retrieval date and price column"
-```
-
-This is offered to the founder at M1 completion (per the runbook's auto-mode `/schedule` follow-up convention).
+- **Annual (recommended)**: refresh the SeedLegals figures + re-quote your firm. Update `retrieved:` in frontmatter.
+- **Triggered**: refresh immediately when SeedLegals publishes a price change OR when your firm publishes new fixed fees OR when the founder switches firms.
+- **`/loop @yearly` schedule** (offered to founder at end of M1): re-fetch SeedLegals page + ask founder for refreshed firm quote.

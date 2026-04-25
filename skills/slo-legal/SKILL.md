@@ -62,14 +62,24 @@ When a gate fires:
 5. Body MUST include a "what to bring to your [lawyer / DPO]" briefing checklist.
 6. Frontmatter MUST still cite `cost_baseline_ref: references/biz/cost-baseline-jpp-law-2026.md@<retrieved-date>` so the founder sees the cost-of-engagement number.
 
-## oneNDA verbatim render (`draft nda` only)
+## oneNDA cover-only flow (`draft nda` — updated 2026-04-25 by follow-up `biz-pack-onenda-canonical`)
 
-The canonical oneNDA UK template (CC BY-ND 4.0, TLB consortium, 2021) lives at [references/biz/templates/onenda-uk.md](../../references/biz/templates/onenda-uk.md). When `draft nda` is invoked:
+The canonical oneNDA UK template (CC BY-ND 4.0, TLB consortium / Law Insider, v2.1) is published as a **.docx** file at https://www.onenda.org/. The original Runbook A plan was to render the canonical body byte-for-byte unmodified inside a Markdown artifact — but **a Markdown rendering of a .docx is itself arguably a derivative work** under CC BY-ND 4.0 (forbidden), and the canonical-format mismatch made automated retrieval license-risky. The flow updates accordingly: this skill produces a Markdown cover artifact ONLY; the .docx body is fetched manually by the founder.
 
-1. Confirm the file is NOT in placeholder state. Search the file for the marker `ONENDA-UK-PLACEHOLDER`. If the marker is present, refuse to draft with the error: "oneNDA template not yet populated for this installation. See `references/biz/templates/onenda-uk.md` for the replace-before-production-use instructions. Until the canonical oneNDA bytes are landed, `/slo-legal draft nda` is not available — use `/slo-legal triage 'I need an NDA'` for the routing decision and `/slo-legal prepare 'NDA review with my solicitor'` for the prep work."
-2. Once the canonical bytes are in place: render the canonical body **byte-for-byte unmodified** as the body of the artifact at `docs/biz/legal/nda-<counterparty>-<date>.md`. Emit the company / counterparty / cover-page fields in a SEPARATE artifact at `docs/biz/legal/nda-cover-<counterparty>-<date>.md` that wraps but does not edit the canonical text.
-3. CC BY-ND 4.0 forbids derivative works. **Do not "fix typos" or "clean up formatting" or "modernise the language" of the oneNDA body.** Editing the body breaches the licence and exposes the project to a takedown notice from the consortium.
-4. The frontmatter of the cover artifact carries `template_source: onenda.org` and `template_license: CC-BY-ND-4.0`.
+**Updated flow (cover-only):**
+
+1. Read [references/biz/templates/onenda-uk.md](../../references/biz/templates/onenda-uk.md). Frontmatter declares `pinned_canonical_sha256:` (either a hex digest after the project owner has run the manual-fetch procedure, or `pending-user-fetch` until then) and `canonical_url_discovered:` (the .docx download URL, last-known).
+2. **Always produce ONLY a cover artifact** at `docs/biz/legal/nda-cover-<counterparty>-<date>.md`. Never inline or modify the .docx body. The cover artifact:
+   - Frontmatter: `template_source: https://www.onenda.org/`, `template_license: CC-BY-ND-4.0`, `template_format: docx`, `template_version: v2.1`, `pinned_canonical_sha256: <hex-or-pending-from-references-file>`.
+   - Company-specific fields the founder fills into the .docx: parties, effective date, governing-law selection, schedule details, return-of-materials timeline.
+   - Body footer "How to assemble" — instructs founder to:
+     a. Download oneNDA v2.1 .docx from https://www.onenda.org/.
+     b. If the references-file's `pinned_canonical_sha256:` is a real hex digest (not `pending-user-fetch`), verify the downloaded bytes via `shasum -a 256` and confirm match before proceeding. If it's pending, refuse to use this NDA in production until the founder runs the manual-fetch procedure documented in [references/biz/templates/onenda-uk.md](../../references/biz/templates/onenda-uk.md).
+     c. Save to a local path (recommended `~/.sldo/onenda-uk-v2.1.docx`).
+     d. Open in their preferred editor (Word, LibreOffice, Google Docs).
+     e. Fill the company-specific fields from this cover artifact into the corresponding fields in the .docx body — **do not edit the body prose itself** (CC BY-ND 4.0 verbatim).
+     f. Save as `<counterparty>-NDA-<date>.docx` and send for signature.
+3. CC BY-ND 4.0 forbids derivative works. The skill NEVER modifies the .docx body; the cover artifact is a SEPARATE work that REFERENCES but does not embed the canonical text.
 
 ## UK-only jurisdiction
 
