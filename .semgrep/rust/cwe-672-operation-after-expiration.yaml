@@ -43,19 +43,44 @@ rules:
               fn $F(...) { ... let $G = $LOCK.write().unwrap(); ... drop($G); ... }
       # Variation 3 — session_token_use_after_expired:
       # The most common business-logic shape: an expiry check whose `then`
-      # branch logs but doesn't return false. Detected by matching the warn
-      # call inside an `if expires_at < now` and asserting the surrounding
-      # function body does not have a matching `return` immediately after.
-      # We approximate by flagging the warn-only pattern; FPs are accepted
-      # given the MEDIUM confidence designation.
-      - pattern: |
-          if $S.expires_at < std::time::SystemTime::now() {
-              log::warn!($MSG);
-          }
-      - pattern: |
-          if $S.expires_at < SystemTime::now() {
-              log::warn!($MSG);
-          }
+      # branch logs but doesn't return false. The base pattern matches the
+      # warn-only if-block; `pattern-not-inside` suppresses the firing when
+      # the surrounding fn body has a `return` statement *after* the if-block
+      # (in which case the warn is benign — the fn does exit early). The
+      # multi-statement-with-ellipses shape is acceptable here because it
+      # appears INSIDE a `fn $F { ... }` enclosing pattern, not at top-level
+      # `pattern: |` (the latter form is the one Semgrep's Rust frontend
+      # rejects per references/sast/variations/cwe-672.md).
+      - patterns:
+          - pattern: |
+              if $S.expires_at < std::time::SystemTime::now() {
+                  log::warn!($MSG);
+              }
+          - pattern-not-inside: |
+              fn $F(...) {
+                  ...
+                  if $S.expires_at < std::time::SystemTime::now() {
+                      log::warn!($MSG);
+                  }
+                  ...
+                  return $RV;
+                  ...
+              }
+      - patterns:
+          - pattern: |
+              if $S.expires_at < SystemTime::now() {
+                  log::warn!($MSG);
+              }
+          - pattern-not-inside: |
+              fn $F(...) {
+                  ...
+                  if $S.expires_at < SystemTime::now() {
+                      log::warn!($MSG);
+                  }
+                  ...
+                  return $RV;
+                  ...
+              }
     pattern-not-inside: |
       #[cfg(test)]
       mod tests { ... }

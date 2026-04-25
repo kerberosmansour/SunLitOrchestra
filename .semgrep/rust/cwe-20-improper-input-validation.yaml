@@ -15,8 +15,15 @@ rules:
       sldo-rulegen-version: "M1.5"
       sldo-variation-template: "references/sast/variations/cwe-20.md"
     pattern-either:
-      # Variation 1 — regex::Regex::new with a non-literal argument
-      - pattern: regex::Regex::new($X)
+      # Variation 1 — regex::Regex::new with a non-literal argument.
+      # The dangerous shape is dynamic regex compilation from
+      # attacker-controlled input (ReDoS / catastrophic backtracking).
+      # Compile-time literal regexes are fine — exclude them via
+      # pattern-not. Both raw-string `r"..."` and regular `"..."` literals
+      # match Semgrep's `"..."` ellipsis-in-string.
+      - patterns:
+          - pattern: regex::Regex::new($X)
+          - pattern-not: regex::Regex::new("...")
       # Variation 2 — PathBuf::from(format!(...))
       - pattern: std::path::PathBuf::from(format!(...))
       # Variation 3 — fs::read(format!(...))
