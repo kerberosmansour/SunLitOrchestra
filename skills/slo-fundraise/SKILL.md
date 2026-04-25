@@ -82,6 +82,29 @@ UK only in v1. US Delaware C-corp founders raising US capital → canonical "v1 
 
 Two-tier per `references/biz/artifact-schema.md`. `draft safe-worksheet`, `draft pitch-narrative`, `draft investor-update`, `draft term-sheet-redline-brief` → `docs/biz/fundraise/` (confidential — investor names, deal terms, cap-table positions). Other modes → `docs/biz-public/fundraise/`.
 
+### Frontmatter discipline for triage outputs
+
+When a hard-block gate fires and the skill emits a triage memo (rather than a draft), the artifact's frontmatter **MUST** set `triage_gate_passed: false` AND populate `gates_fired:` with the list of fired predicate IDs from `references/biz/triage-gate.md`. Empty `gates_fired:` paired with `triage_gate_passed: false` is a frontmatter bug — downstream tooling (`/slo-verify`, the judgment-runtime harness) reads `gates_fired:` as the structured route-cause record. The memo body must also cite each fired gate by ID; the frontmatter is the structured complement, not a substitute.
+
+**Worked example — AA-not-yet-applied triage memo frontmatter (REQUIRED shape):**
+
+```yaml
+---
+name: triage-seis-aa-not-applied-<date>
+created: <YYYY-MM-DD>
+tier: public
+archetype: advisor
+skill: slo-fundraise
+mode: triage
+jurisdiction: uk
+triage_gate_passed: false
+gates_fired: [gate-1-regulated]
+lawyer_review_recommended: true
+---
+```
+
+The `gates_fired: [gate-1-regulated]` line is load-bearing — leaving it empty (or absent) when AA-not-yet-applied has fired the regulated-domain gate is a contract violation, not a stylistic choice. Apply the same shape to gate-2 / gate-3 / gate-4 firings (use the relevant ID, or multiple IDs if multiple gates fire).
+
 ## ROI block
 
 Per JPP Law fixed-fee public pricing — Shareholders Agreement (SEIS investment) line from [references/biz/cost-baseline-jpp-law-2026.md](../../references/biz/cost-baseline-jpp-law-2026.md). For SAFE-specific fees, JPP Law may not have a fixed line; the skill cites the SHA-SEIS line as the analogue and flags the caveat in the ROI block.
