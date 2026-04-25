@@ -79,24 +79,11 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Run Semgrep CI
-        # returntocorp/semgrep@v1.156.0 — pinned by SHA. Tag-only refs are
-        # rejected by BDD workflow_invokes_pinned_semgrep_action; the SHA below
-        # is the v1.156.0 release tag commit (verify with `gh api
-        # repos/returntocorp/semgrep-action/git/refs/tags/v1` and re-pin on
-        # version bump per references/sast/MIN-SEMGREP-VERSION.md).
-        # NOTE: actual SHA must be re-pinned at deploy time; the placeholder
-        # below is the pin format the BDD asserts (40 hex chars).
-        uses: returntocorp/semgrep-action@0000000000000000000000000000000000000000
-        if: false  # disabled until the SHA is pinned at deploy time
+        # returntocorp/semgrep-action@v1 (713efdd345f3035192eaa63f56867b88e63e4e5d).
+        # Pinned by 40-char SHA per BDD workflow_invokes_pinned_semgrep_action.
+        # Re-pin on tag movement: `gh api repos/returntocorp/semgrep-action/git/refs/tags/v1`
+        # and replace the SHA below; document the rationale in
+        # references/sast/CI-WIRING.md "Pin maintenance".
+        uses: returntocorp/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d
         env:
           SEMGREP_RULES: .semgrep/
-
-      - name: Run Semgrep CLI directly (interim, while above is disabled)
-        run: |
-          pip install --user "semgrep>=1.50.0"
-          export PATH="$HOME/.local/bin:$PATH"
-          if [ -d .semgrep/rust ]; then
-            semgrep --config .semgrep/ --error
-          else
-            echo "no .semgrep/rust/ directory; nothing to scan"
-          fi
