@@ -296,9 +296,11 @@ fn persona_mandate_is_self_bounded() {
 
 #[test]
 fn existing_critiques_valid_markdown() {
-    // tla-sha-autopop critique is the prior example; it should still be
-    // parseable as a Markdown document with a findings table.
-    let critique = read(&repo_root().join("docs/critique/tla-sha-autopop.md"));
+    // The biz-skill-pack-a critique is a real critique-output fixture and
+    // should still parse as a Markdown document with a findings table.
+    // (The original fixture — tla-sha-autopop — was removed in the 2026-04
+    // cleanup.)
+    let critique = read(&repo_root().join("docs/critique/biz-skill-pack-a.md"));
     assert!(
         critique.contains("| id |") || critique.contains("|id|"),
         "existing critique file must still contain the finding-row table"
