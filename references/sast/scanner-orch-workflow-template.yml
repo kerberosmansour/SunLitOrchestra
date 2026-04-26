@@ -1,0 +1,79 @@
+# Scanner-orchestration workflow template
+#
+# This is the static safe-template skeleton `/slo-sast` emits as
+# `.github/workflows/sast.yml` in the target repo. ONLY the action-SHA
+# placeholders ({{CHECKOUT_SHA}} / {{UPLOAD_SARIF_SHA}}) are substituted at
+# emission time — no other content varies. User-provided content (CWE list,
+# threat-model prose, slug names) NEVER flows into this file.
+#
+# This file is the LOAD-BEARING DEFENSE against tm-scanner-orchestration-abuse-3
+# (prompt injection via threat-model file content trying to splice
+# pull_request_target into emitted YAML). Template-skeleton with parameter-only
+# substitution is the architectural defense, not a runtime check.
+#
+# Stability: stable per docs/design/scanner-orchestration-interfaces.md §6.
+# Safety properties asserted by crates/sldo-install/tests/e2e_scanner_orch_m3.rs.
+
+name: SAST (Semgrep)
+
+# on: pull_request — NOT pull_request_target. Even after the 2025-12-08 GitHub
+# default-branch sourcing mitigation, pull_request_target confers full secret
+# access on PR runs. No SAST step the skill emits requires that. Hard ban.
+on:
+  pull_request:
+  schedule:
+    # Weekly full scan on main — diff-aware on PR, full on schedule.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+# permissions: {} at workflow scope — least-privilege default per Wiz / GitHub
+# Security Lab. Per-job permissions declare ONLY what each job needs.
+permissions: {}
+
+jobs:
+  semgrep:
+    name: Semgrep CI
+    runs-on: ubuntu-latest
+
+    # contents: read for actions/checkout. security-events: write for
+    # github/codeql-action/upload-sarif. Both scoped to this job; no other
+    # permissions granted.
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      # SHA-pinned, fetch-depth: 0 (default 1 breaks semgrep ci diff-aware
+      # scans per Semgrep KB). actions/checkout pin from references/sast/
+      # scanner-orch-action-shas.md; bumped via PR review (90-day cadence).
+      - name: Checkout
+        uses: actions/checkout@{{CHECKOUT_SHA}}
+        with:
+          fetch-depth: 0
+
+      # SEMGREP_RULES env var — NOT --config flag. CLI reference says --config
+      # is "not supported in ci mode" even though it works empirically; env-var
+      # path is the future-proof choice.
+      #
+      # Semgrep image is pinned to a major version via the action; the action
+      # itself is SHA-pinned upstream of any tag mutability.
+      - name: Semgrep CI
+        uses: semgrep/semgrep-action@2026.04.0
+        env:
+          SEMGREP_RULES: ./.semgrep.yml
+          # No SEMGREP_APP_TOKEN — stand-alone mode, no Semgrep AppSec Platform.
+          # No --autofix flag in any path (defends against compromised-rule
+          # autofix backdoors per tm-scanner-orchestration-abuse-2).
+
+      # SARIF upload to GitHub Code Scanning — surfaces findings as PR review
+      # comments without requiring Semgrep AppSec Platform. security-events:
+      # write scoped to this step (above at job level for atomicity).
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@{{UPLOAD_SARIF_SHA}}
+        with:
+          sarif_file: semgrep.sarif
+
+# NO secrets.* references in this workflow. The pull_request event isolates
+# fork-PR contributors from upstream secrets by GitHub's default behavior;
+# no explicit secret access is needed for SAST.
