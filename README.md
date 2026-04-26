@@ -80,22 +80,6 @@ cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
 
 CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-WIRING.md).
 
-### Run the workflow without Claude Code
-
-If you don't use Claude Code, the same flow runs through the Rust CLIs (which shell out to GitHub Copilot CLI):
-
-```bash
-cargo install --path crates/sldo-research
-cargo install --path crates/sldo-plan
-cargo install --path crates/sldo-run
-
-sldo-research --prompt "add OAuth2 login" --repo-dir /path/to/repo
-sldo-plan output/research-dossier.md /path/to/repo -o docs/RUNBOOK.md
-sldo-run docs/RUNBOOK.md /path/to/repo
-```
-
-See each binary's `--help` for full flags.
-
 ## Skill reference
 
 ### Sprint flow
@@ -160,13 +144,10 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 .
 ├── skills/                       # Claude Code skill pack (slo-*  + get-api-docs)
 ├── crates/
-│   ├── sldo-common/              # Shared library (CLI parsing, runbook parsing, ...)
-│   ├── sldo-plan/                # Binary: runbook generation
-│   ├── sldo-run/                 # Binary: milestone execution
-│   ├── sldo-research/            # Binary: research-dossier generation
-│   ├── sldo-install/             # Binary: skill installer (symlinks skills/* to ~/.claude/skills/)
-│   └── sldo-tauri/               # Desktop app (PARKED — see CLAUDE.md)
-├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate)
+│   ├── sldo-common/              # Shared library (used by sldo-research)
+│   ├── sldo-research/            # Backend driven by /slo-research skill
+│   └── sldo-install/             # Skill installer (symlinks skills/* to ~/.claude/skills/)
+├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate; driven by /slo-rulegen + /slo-ruleverify)
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
 ├── references/                   # Shared scaffolding read by skills (biz/, sast/)
 ├── docs/                         # Runbooks, design docs, lessons, completions
@@ -177,10 +158,8 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 ### Baseline test command
 
 ```bash
-cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install -p sast-verify
+cargo test --workspace
 ```
-
-The `--workspace` baseline is intentionally NOT used — see CLAUDE.md "Baseline test command (this repo)".
 
 ## Documentation
 

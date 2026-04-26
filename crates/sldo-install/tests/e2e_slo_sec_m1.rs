@@ -199,8 +199,10 @@ fn threat_model_template_has_ai_triad_conditional() {
 #[test]
 fn ideate_existing_idea_doc_still_reads() {
     // An existing idea doc without the new Top risks block must still be
-    // valid Markdown with frontmatter. We use tla-sha-autopop as a fixture.
-    let doc = read(&repo_root().join("docs/idea/tla-sha-autopop.md"));
+    // valid Markdown with frontmatter. We use the biz-skill-pack idea doc
+    // as a fixture — it predates the security-embedding milestone's Q7
+    // additions and so represents the pre-update shape.
+    let doc = read(&repo_root().join("docs/idea/biz-skill-pack.md"));
     assert!(
         doc.starts_with("---\n"),
         "existing idea doc must retain YAML frontmatter shape"
@@ -219,15 +221,11 @@ fn ideate_existing_idea_doc_still_reads() {
 // ---------------------------------------------------------------------------
 
 #[test]
-fn architect_existing_overview_still_valid() {
-    // Existing overview file lacks the three new frontmatter keys — must still
-    // be a valid YAML-frontmatter Markdown file.
-    let overview = read(&repo_root().join("docs/design/tla-sha-autopop-overview.md"));
-    assert!(
-        overview.starts_with("---\n"),
-        "existing overview must retain YAML frontmatter"
-    );
-    // SKILL.md must document defaults for absent keys.
+fn architect_documents_defaults_for_optional_keys() {
+    // /slo-architect SKILL.md must document defaults for the security-related
+    // frontmatter keys it added so that overviews without them still parse.
+    // (The original backward-compat fixture — tla-sha-autopop-overview.md —
+    // was removed in the 2026-04 cleanup; the prose-level invariant remains.)
     let skill = read(&repo_root().join("skills/slo-architect/SKILL.md"));
     let documents_defaults = skill.contains("default")
         && (skill.contains("security_libs_required") && skill.contains("false"))
@@ -459,10 +457,21 @@ fn frontmatter_type_checker_accepts_valid_frontmatter() {
 
 #[test]
 fn frontmatter_type_checker_accepts_absent_new_keys_backward_compat() {
-    // Existing overview files (e.g., tla-sha-autopop-overview.md) do not have
-    // the three new keys. They must still pass the checker — defaults apply.
-    let overview = read(&repo_root().join("docs/design/tla-sha-autopop-overview.md"));
-    check_overview_frontmatter(&overview).expect("existing overview must pass checker");
+    // Synthesised pre-security-embedding frontmatter — represents an
+    // overview written before /slo-architect added security_libs_required,
+    // ai_component, compliance. The checker must treat absent keys as
+    // defaults, not as errors. (The original on-disk fixture —
+    // tla-sha-autopop-overview.md — was removed in the 2026-04 cleanup.)
+    let synthesised_pre_sec_overview = concat!(
+        "---\n",
+        "name: pre-security-embedding-fixture\n",
+        "created: 2026-04-01\n",
+        "tla_required: false\n",
+        "---\n",
+        "# Overview body\n",
+    );
+    check_overview_frontmatter(synthesised_pre_sec_overview)
+        .expect("frontmatter without the security-embedding keys must pass the checker (backward-compat)");
 }
 
 // ---------------------------------------------------------------------------
@@ -471,10 +480,14 @@ fn frontmatter_type_checker_accepts_absent_new_keys_backward_compat() {
 
 #[test]
 fn existing_runbooks_still_parse() {
+    // Sentinel: every shipped runbook still carries a Milestone Tracker
+    // heading. (Earlier fixtures — RUNBOOK-API-FACADE / RUNBOOK-AWS-ORG-SETUP
+    // / RUNBOOK-TLA-SHA-AUTOPOP — were removed in the 2026-04 cleanup;
+    // re-pointed at the surviving biz + sast runbooks.)
     let runbook_files = [
-        "docs/RUNBOOK-API-FACADE.md",
-        "docs/RUNBOOK-AWS-ORG-SETUP.md",
-        "docs/RUNBOOK-TLA-SHA-AUTOPOP.md",
+        "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
+        "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
+        "docs/RUNBOOK-SAST-RULEGEN-A.md",
     ];
     for rb in runbook_files {
         let body = read(&repo_root().join(rb));

@@ -239,10 +239,13 @@ fn plan_skill_documents_empty_surface_rule() {
 
 #[test]
 fn existing_runbooks_have_milestone_tracker() {
+    // Sentinel: shipped runbooks still carry a Milestone Tracker heading.
+    // (Earlier fixtures were removed in the 2026-04 cleanup; re-pointed
+    // at the surviving biz + sast runbooks.)
     for rb in [
-        "docs/RUNBOOK-API-FACADE.md",
-        "docs/RUNBOOK-AWS-ORG-SETUP.md",
-        "docs/RUNBOOK-TLA-SHA-AUTOPOP.md",
+        "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
+        "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
+        "docs/RUNBOOK-SAST-RULEGEN-A.md",
     ] {
         let body = read(&repo_root().join(rb));
         assert!(
