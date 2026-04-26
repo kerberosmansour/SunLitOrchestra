@@ -421,11 +421,176 @@ Coverage-category notes: retry / concurrency / persistence / backward-compatibil
 
 ### Milestone 2 — Stack detection + `semgrep-rules` cache fetch + CWE × technology rule filter
 
-_Placeholder — will be authored in full once M1 is confirmed._
+**Goal**: The skill detects the target repo's stack from manifest files (per [scanner-orchestration-interfaces.md §3](design/scanner-orchestration-interfaces.md)), clones `github.com/semgrep/semgrep-rules` at a pinned SHA into `~/.cache/sldo/semgrep-rules/<SHA>/`, parses each cached rule's YAML metadata, and filters by `metadata.cwe ∋ <extracted CWE> ∧ (metadata.technology ∋ <detected stack> OR metadata.technology absent for language-agnostic rules)` — outputting a JSON object with `cwes_extracted`, `detected_stack`, and `selected_rules[]` to stdout. Still no file emission to target repo.
 
-**Goal (preview)**: The skill detects the target repo's stack from manifest files (`Cargo.toml`, `package.json`, `requirements.txt`, etc.), clones `github.com/semgrep/semgrep-rules` at a pinned SHA into `~/.cache/sldo/semgrep-rules/<SHA>/`, and filters registry rules by `metadata.cwe ∋ <extracted CWE> ∧ metadata.technology ∋ <detected stack>` — outputting the selected-rules list. Still no file emission yet.
+**Context**: M1 lands the parser. M2 builds two new sub-systems on top — stack detection (manifest-file inspection per the priority order in interfaces §3) and the cached registry fetch (HTTPS git clone at a pinned SHA, populating `~/.cache/sldo/semgrep-rules/<SHA>/`). The pinned SHA lives in a new reference file `references/sast/scanner-orch-pinned-rules-sha.md` so bumping it is an explicit, auditable step (never silent). Filter logic uses `serde_yaml_ng` (already in workspace deps) inside the test harness; the skill itself parses through Claude's Markdown-driven prompt logic. Output evolves from M1's "list of CWE strings" to a structured JSON object the M3 emission stage consumes.
 
-**Primary abuse case**: `tm-scanner-orchestration-abuse-2` (compromised semgrep-rules upstream). Defense: SHA pin, no autofix.
+**Important design rule**: SHA-pin always, never tag/branch references. The skill MUST refuse to clone if the configured reference is anything other than a 40-character commit SHA. This is the load-bearing defense against `tm-scanner-orchestration-abuse-2`. Bumping the pin requires editing `references/sast/scanner-orch-pinned-rules-sha.md`, which is reviewed in PR.
+
+**Refactor budget**: `Minimal local refactor permitted in listed files only` — `skills/slo-sast/SKILL.md` extended with stack-detection + fetch + filter sections; no reshape of M1's parser section.
+
+#### Contract Block
+
+| Field | Value |
+|---|---|
+| Inputs | M1's in-memory CWE list; target repo cwd; manifest files at canonical paths (`Cargo.toml`, `package.json`, etc.); pinned SHA constant from `references/sast/scanner-orch-pinned-rules-sha.md`; cache directory at `~/.cache/sldo/semgrep-rules/` (or `XDG_CACHE_HOME` override) |
+| Outputs | Single JSON object on stdout: `{"cwes_extracted": ["CWE-77", "CWE-89"], "detected_stack": ["rust", "python"], "selected_rules": [{"path": ".../sql-injection-using-raw.yaml", "rule_id": "...", "source_sha": "...", "metadata_cwe": ["CWE-89"], "metadata_technology": ["django"]}, ...], "selection_strategy": "threat-model-cwe" \| "default-fallback"}`; exits 0 on success; non-zero with stderr message on `git` unavailable / SHA mismatch / corrupted cache |
+| Interfaces touched | NEW: stack detection contract (manifest-file priority order per interfaces §3) — `stable`; NEW: cache layout `~/.cache/sldo/semgrep-rules/<SHA>/` per interfaces §7 — `evolving` for path; `stable` for SHA-suffixed subdir layout; NEW: rule filter logic (CWE × technology intersection); EXTENDED: `/slo-sast` skill output shape (M1 stdout was a list, M2 stdout is a JSON object — this is the downstream contract for M3) |
+| Files allowed to change | `skills/slo-sast/SKILL.md` (extend with sections for stack detection, cache fetch, rule filter; M1's parser section unchanged); `references/sast/scanner-orch-pinned-rules-sha.md` (NEW — pinned SHA + bump procedure); `references/sast/stack-detection-contract.md` (NEW — formalizes the manifest priority + tag derivation rules from interfaces §3); `crates/sldo-install/tests/e2e_scanner_orch_m2.rs` (NEW); `crates/sldo-install/tests/fixtures/scanner-orch/m2/` (NEW directory with manifest fixtures + faux-cache fixtures); `.gitignore` (review only — `~/.cache/sldo/` is in user home, not in repo) |
+| Files to read before changing anything | M1's outputs (`skills/slo-sast/SKILL.md`, `references/sast/threat-model-parser-contract.md`, `crates/sldo-install/tests/e2e_scanner_orch_m1.rs`); `docs/lessons/scanner-orch-m1.md`; `docs/design/scanner-orchestration-interfaces.md` (§§3, 7); `docs/design/scanner-orchestration-threat-model.md` (abuse case `tm-scanner-orchestration-abuse-2`); `docs/design/scanner-orchestration-stack-decision.md` (cache layout non-negotiable); `references/sast/MIN-SEMGREP-VERSION.md` (existing — semgrep version floor still applies); existing `~/.cache/` patterns from any other skill (none currently — this is a new pattern) |
+| New files allowed | `references/sast/scanner-orch-pinned-rules-sha.md`; `references/sast/stack-detection-contract.md`; `crates/sldo-install/tests/e2e_scanner_orch_m2.rs`; `crates/sldo-install/tests/fixtures/scanner-orch/m2/<manifest+cache fixtures>` |
+| New dependencies allowed | `none` — uses `git` CLI for clone (assumed on PATH like `claude`); `serde_yaml_ng` already in workspace for test-harness YAML parsing |
+| Migration allowed | `no` |
+| Compatibility commitments | M1 parser scope rule still enforced (BDD regression `parser_ignores_html_comment_cwe_refs` etc. still pass); `cargo test --workspace` baseline green; `sldo-install --dry-run` discovers all skills; M1's stdout-format consumers (none yet — only test fixtures) explicitly opt into the new JSON shape via M2's new test fixtures |
+| Forbidden shortcuts | No shell-out other than `git clone`/`git fetch`/`git rev-parse` (no `curl`, `wget`, `gh api`, language-specific HTTP); no caching parsed rule data across invocations (re-read YAML files per call to keep memory footprint deterministic); no fallback to vendor SaaS API (Semgrep AppSec was rejected in stack-decision); no autofix invocation in any path; no use of Semgrep `--config` flag (locked for M3 to use `SEMGREP_RULES` env var); no SHA-prefix matching (full 40-char SHA required); no tag/branch reference accepted (refuse on non-SHA input); no committing the cache (cache lives in `~/.cache/`, not the target repo) |
+| **Data classification** | `Internal` — manifest content is project-internal; cached registry rules are public data. The skill's output (JSON to stdout) is `Internal` — it surfaces design decisions (selected rules) but is consumed by M3 for emission, not directly by external systems. |
+| **Proactive controls in play** | OWASP Proactive Controls v3 — **C2 Define security requirements** (the SHA pin + manifest-priority + filter contract are documented requirements in `references/sast/scanner-orch-pinned-rules-sha.md` and `references/sast/stack-detection-contract.md`); **C5 Secure by default** (refuses non-SHA references — defends `tm-scanner-orchestration-abuse-2`); **C7 Validate input** (manifest-file content validated before stack-tag derivation; YAML parse errors are surfaced, not swallowed); **C8 Authentication** N/A; **C9 Authorization** N/A. |
+| **Abuse acceptance scenarios** | See BDD table below: `refuses_tag_reference_in_pinned_sha` (`tm-scanner-orchestration-abuse-2`), `refuses_branch_reference_in_pinned_sha` (same), `clean_cache_on_sha_mismatch` (same — defends against cache poisoning during a rebase). |
+
+#### Out of Scope / Must Not Do
+
+- File emission into target repo (M3 — DO NOT write `.semgrep/`, `.github/workflows/`)
+- Manifest JSON writing (M4)
+- Re-derivation trigger detection (M5)
+- `gh` invocation, PR creation (M5)
+- Autofix in any context
+- Vendor SaaS API integration
+- `/slo-rulegen` interaction
+- Modifying existing `references/sast/` files (additive only — new files allowed; existing untouched)
+- Changing M1's parser scope rule (regression-tested; if it breaks, M2 fails)
+
+#### Pre-Flight
+
+1. Complete the Global Entry Rules.
+2. Read `docs/lessons/scanner-orch-m1.md` and apply relevant corrections.
+3. Read the allowed files before editing.
+4. Copy the Evidence Log template into this milestone section or working notes.
+5. Re-state the milestone constraints before coding.
+
+#### Files Allowed To Change
+
+| File | Planned Change |
+|---|---|
+| `skills/slo-sast/SKILL.md` | Extend: add three sections — Stack Detection (cites `references/sast/stack-detection-contract.md`), Registry Fetch (cites `references/sast/scanner-orch-pinned-rules-sha.md` for the pinned SHA + bump procedure; SHA-only enforcement explicit), Rule Filter (intersection logic with language-agnostic fallback). Output flow updated from M1's plain-list to JSON object. M1's Parser section unchanged. |
+| `references/sast/scanner-orch-pinned-rules-sha.md` | NEW: records the current pinned 40-char SHA of `github.com/semgrep/semgrep-rules`, the date pinned, the bump procedure (PR with diff review), and the SHA-only enforcement rule. Cites `tm-scanner-orchestration-abuse-2`. |
+| `references/sast/stack-detection-contract.md` | NEW: formalizes manifest-file priority (`Cargo.toml`, `package.json`, `requirements.txt`, `pyproject.toml`, `go.mod`, `pom.xml`, `Gemfile`, `composer.json`, `Package.swift`); the per-manifest tag-derivation rules (e.g., `package.json` with `tsconfig.json` → both `javascript` and `typescript`; framework hints from declared deps); polyglot behavior (multi-stack tags emitted); empty detection (language-agnostic fallback). |
+| `crates/sldo-install/tests/e2e_scanner_orch_m2.rs` | NEW: E2E tests using `assert_cmd` + `tempfile` + `serde_yaml_ng`; sets `XDG_CACHE_HOME` to a tempdir so the cache is isolated per test; pre-populates fake `~/.cache/sldo/semgrep-rules/<SHA>/` with fixture YAML rules to avoid hitting GitHub during tests; asserts JSON output shape. |
+| `crates/sldo-install/tests/fixtures/scanner-orch/m2/manifests/<lang>/Cargo.toml` (etc.) | NEW: minimal manifest fixtures for each detected stack (rust, javascript, typescript, python, go, java, ruby, php, swift, polyglot rust+python). |
+| `crates/sldo-install/tests/fixtures/scanner-orch/m2/cache/<SHA>/<lang>/.../<rule>.yaml` | NEW: fixture rule YAMLs with `metadata.cwe` + `metadata.technology` populated; covering CWE-77 (rust), CWE-89 (python+django), CWE-78 (multi-language), and one rule with absent `metadata.technology` (language-agnostic). |
+| `crates/sldo-install/tests/fixtures/scanner-orch/m2/cache/<SHA>/legacy-no-technology.yaml` | NEW: rule with `metadata.cwe` set but `metadata.technology` absent (legacy schema gap per research finding). |
+| `.gitignore` | Reviewed; no expected additions in M2 (cache is in user home). |
+
+#### Step-by-Step
+
+1. Write E2E test stubs at `crates/sldo-install/tests/e2e_scanner_orch_m2.rs` covering all BDD scenarios below.
+2. Author all manifest + cache fixture files under `crates/sldo-install/tests/fixtures/scanner-orch/m2/`.
+3. Run `cargo test -p sldo-install --test e2e_scanner_orch_m2` — confirm tests fail (skill doesn't yet have stack-detection / fetch / filter logic).
+4. Write `references/sast/scanner-orch-pinned-rules-sha.md` (pinned SHA + bump procedure).
+5. Write `references/sast/stack-detection-contract.md` (manifest priority + tag derivation).
+6. Extend `skills/slo-sast/SKILL.md` with the three new sections (Stack Detection, Registry Fetch, Rule Filter); update output flow to JSON.
+7. Run `cargo test -p sldo-install --test e2e_scanner_orch_m2` — make all BDD scenarios pass.
+8. Run `cargo test -p sldo-install --test e2e_scanner_orch_m1` — confirm M1 regression intact.
+9. Run `cargo test --workspace` — confirm baseline green.
+10. Verify `git status`, review `.gitignore`, complete Self-Review Gate, write lessons + completion files.
+
+#### BDD Acceptance Scenarios
+
+**Feature: stack detection, registry fetch, rule filter**
+
+| Scenario | Category | Given | When | Then |
+|---|---|---|---|---|
+| `detects_rust_stack_from_cargo_toml` | happy path | a target repo containing `Cargo.toml` and a threat model with CWE-77 | the skill is invoked | output JSON contains `"detected_stack": ["rust"]` and `selected_rules[]` includes only rules with `metadata.cwe` matching CWE-77 AND (`metadata.technology` containing "rust" OR absent) |
+| `detects_polyglot_rust_python` | happy path | a target repo with both `Cargo.toml` and `requirements.txt` and threat model citing CWE-89 | the skill is invoked | `"detected_stack": ["rust", "python"]` (sorted); `selected_rules[]` includes rules tagged with either or language-agnostic |
+| `falls_back_to_language_agnostic_when_no_manifest` | empty state | a target repo with NO recognized manifest files; threat model cites CWE-89 | the skill is invoked | `"detected_stack": []`; `"selection_strategy": "default-fallback"`; `selected_rules[]` includes rules with `metadata.cwe` matching CWE-89 AND `metadata.technology` absent (language-agnostic) |
+| `parses_legacy_rule_with_absent_technology` | dependency failure (legacy schema) | the cache contains a rule with `metadata.cwe` set but no `metadata.technology` field | the skill is invoked with a CWE matching that rule | the rule appears in `selected_rules[]`; no panic; `metadata_technology: []` in JSON output |
+| `surfaces_yaml_parse_error_on_corrupted_rule` | invalid input | the cache contains a malformed YAML file | the skill is invoked | exit non-zero; stderr names the corrupted file; the corrupted rule does NOT appear in output; OTHER rules still parse and are returned |
+| `cache_miss_triggers_clone` | empty state (cache) | `~/.cache/sldo/semgrep-rules/<pinned-SHA>/` does not exist | the skill is invoked | `git clone` is invoked with the pinned SHA; cache is populated; subsequent BDD steps see populated cache (test-harness asserts `git` CLI was invoked exactly once) |
+| `cache_hit_skips_clone` | happy path (cached) | `~/.cache/sldo/semgrep-rules/<pinned-SHA>/` already exists with valid rules | the skill is invoked | `git clone` is NOT invoked; selected rules come from existing cache |
+| `refuses_tag_reference_in_pinned_sha` | abuse case (`tm-scanner-orchestration-abuse-2`) | `references/sast/scanner-orch-pinned-rules-sha.md` is rewritten to contain `develop` instead of a 40-char SHA | the skill is invoked | exit non-zero; stderr names the violation (`pinned-rules-sha must be a 40-char SHA, got "develop"`); no clone is attempted; no cache is written |
+| `refuses_branch_reference_in_pinned_sha` | abuse case (`tm-scanner-orchestration-abuse-2`) | the pinned reference is `main` | the skill is invoked | same as above — refused with clear error |
+| `refuses_short_sha_prefix` | abuse case (`tm-scanner-orchestration-abuse-2`) | the pinned reference is a 7-char SHA prefix (Git's default short form) | the skill is invoked | refused — full 40-char required |
+| `clean_cache_on_sha_mismatch` | abuse case (`tm-scanner-orchestration-abuse-2`) | a cache directory exists at `<SHA-A>/` but the post-clone `git rev-parse HEAD` reports `<SHA-B>` (e.g., upstream tag-rewriting attack mid-clone) | the skill is invoked | the partial cache at `<SHA-A>/` is wiped before exit; exit non-zero; stderr cites the mismatch |
+| `git_unavailable_clean_error` | dependency failure | `git` is not on PATH | the skill is invoked with cache miss | exit non-zero; stderr names "git CLI not found"; no partial state written |
+| `M1_parser_scope_still_enforced` | regression | the threat model contains `<!-- CWE-79 -->` in HTML comment AND `CWE-89` in prose | the skill is invoked (full M2 flow) | `cwes_extracted` contains only `CWE-89`; `selected_rules[]` does NOT include any CWE-79 rule |
+
+Coverage-category notes: concurrency / persistence / backward-compat — concurrency N/A (single-process, single-invocation); persistence applies only to cache reuse (covered by `cache_hit_skips_clone`); backward-compat covered by `M1_parser_scope_still_enforced`.
+
+#### Regression Tests
+
+- All M1 E2E tests pass unchanged (`cargo test -p sldo-install --test e2e_scanner_orch_m1`).
+- `cargo test --workspace` baseline green.
+- `sldo-install --dry-run` still discovers all skills.
+- `references/sast/` existing files (cwe-map-rust.md, AUTHORING.md, etc.) byte-identical except the two new files (`scanner-orch-pinned-rules-sha.md`, `stack-detection-contract.md`).
+- M1's stdout list-of-CWEs format is no longer the M2 contract — but the M1 E2E tests test through fixtures that exercise the parser only, so they still pass; downstream tests opt into M2's JSON object format via fixture updates.
+- `Cargo.toml` workspace deps unchanged.
+
+#### Compatibility Checklist
+
+- [ ] `cargo test --workspace` green
+- [ ] `cargo test -p sldo-install --test e2e_scanner_orch_m1` green (M1 regression)
+- [ ] `cargo test -p sldo-install --test e2e_scanner_orch_m2` green (12 BDD scenarios)
+- [ ] `./target/release/sldo-install --dry-run` discovers all pre-existing skills + `slo-sast`
+- [ ] No existing skill's `SKILL.md` is touched
+- [ ] No new entries in `Cargo.toml` workspace deps
+- [ ] `references/sast/` existing files byte-identical (only the two new M2 files are net-new)
+- [ ] `~/.cache/sldo/` is not committed to the target repo (verify via `git status` after a real cache populate)
+
+#### E2E Runtime Validation
+
+**File**: `crates/sldo-install/tests/e2e_scanner_orch_m2.rs`
+
+| E2E Test | What It Proves | Pass Criteria |
+|---|---|---|
+| `e2e_scanner_orch_m2_detects_rust_and_filters_by_cwe` | Stack detection + CWE filter intersection works end-to-end | A rust-only fixture repo with a CWE-77 threat model produces JSON output with `detected_stack: ["rust"]` and `selected_rules[]` containing only the rust+CWE-77 fixture rule plus any language-agnostic CWE-77 rules |
+| `e2e_scanner_orch_m2_detects_polyglot_intersects_correctly` | Multi-stack detection emits all relevant rules | Polyglot fixture (rust + python + django) with CWE-89 produces `selected_rules[]` containing the python.django.sql-injection-using-raw rule plus any python-tagged or language-agnostic CWE-89 rules |
+| `e2e_scanner_orch_m2_refuses_non_sha_pin` | SHA-only enforcement defuses tag-rewriting | All four invalid-pin variants (tag, branch, 7-char prefix, hex-but-wrong-length) exit non-zero with a clear stderr message |
+| `e2e_scanner_orch_m2_isolated_cache_uses_xdg_override` | Cache isolation via XDG_CACHE_HOME works | Setting `XDG_CACHE_HOME` to a tempdir routes cache writes there; absence of writes to actual `~/.cache/` |
+| `e2e_scanner_orch_m2_cache_hit_no_git_invocation` | Cache reuse skips clone | Pre-populated cache (test-harness mocks `git` to fail if invoked) succeeds — the skill consumes the cache without re-cloning |
+| `e2e_scanner_orch_m2_corrupted_cache_yaml_handled` | Single bad rule does not poison the whole run | Cache with one malformed YAML + four valid YAMLs — output excludes the bad rule, surfaces an stderr warning, and includes the four valid rules |
+| `e2e_scanner_orch_m2_M1_regression` | M1 parser scope rule survives | Full-M2 invocation against an HTML-comment-smuggled-CWE fixture produces output with `cwes_extracted: ["CWE-89"]` only |
+
+#### Smoke Tests
+
+1. Pin an actual SHA in `references/sast/scanner-orch-pinned-rules-sha.md` (e.g., the latest `semgrep-rules` HEAD at the time of M2 close).
+2. Wipe `~/.cache/sldo/semgrep-rules/` (manual `rm -rf`).
+3. Author a test threat model and a `Cargo.toml` fixture in `/tmp/scanner-orch-smoke/`.
+4. Run `cargo build -p sldo-install --release && ./target/release/sldo-install --local`.
+5. Invoke `claude /slo-sast /tmp/scanner-orch-smoke/threat-model.md` (or equivalent) — observe the JSON output containing `cwes_extracted`, `detected_stack: ["rust"]`, and `selected_rules[]`.
+6. Verify `~/.cache/sldo/semgrep-rules/<pinned-SHA>/` is populated (real clone happened).
+7. Re-run the skill — verify no new clone (logs from `git` should not appear).
+
+#### Evidence Log
+
+| Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
+|---|---|---|---|---|---|
+| Baseline tests | `cargo test --workspace` | all pre-existing tests green | | | |
+| BDD tests created | `crates/sldo-install/tests/e2e_scanner_orch_m2.rs` | compile or fail for expected reason | | | |
+| Fixtures created | `crates/sldo-install/tests/fixtures/scanner-orch/m2/` | manifests + cache fixtures present | | | |
+| `references/sast/scanner-orch-pinned-rules-sha.md` written | review | pinned 40-char SHA + bump procedure | | | |
+| `references/sast/stack-detection-contract.md` written | review | manifest priority + tag rules | | | |
+| `skills/slo-sast/SKILL.md` extended | review | three new sections; M1 sections unchanged | | | |
+| Full tests | `cargo test --workspace` | green | | | |
+| M1 regression | `cargo test -p sldo-install --test e2e_scanner_orch_m1` | green | | | |
+| M2 E2E | `cargo test -p sldo-install --test e2e_scanner_orch_m2` | green (7 tests) | | | |
+| Smoke tests | manual steps above | all checked, real clone happened, cache reuse works | | | |
+| Test artifact cleanup | `git status` | no untracked test artifacts; `~/.cache/sldo/` not in repo | | | |
+| .gitignore review | review | patterns current; no stale entries | | | |
+| Compatibility checks | `git diff --stat references/sast/`; baseline; M1 E2E | only two new files; M1 unchanged | | | |
+
+#### Definition of Done
+
+- [ ] `references/sast/scanner-orch-pinned-rules-sha.md` exists with a real 40-char SHA + bump procedure
+- [ ] `references/sast/stack-detection-contract.md` documents the manifest priority + tag derivation rules
+- [ ] `skills/slo-sast/SKILL.md` has three new sections (Stack Detection, Registry Fetch, Rule Filter); M1 parser section unchanged
+- [ ] `crates/sldo-install/tests/e2e_scanner_orch_m2.rs` exists with all 7 listed E2E tests passing
+- [ ] All 12 BDD scenarios pass
+- [ ] `cargo test --workspace` green
+- [ ] M1 E2E suite still green
+- [ ] Smoke tests demonstrate real clone + cache reuse
+- [ ] `git status` clean post-test-run
+- [ ] Lessons file at `docs/lessons/scanner-orch-m2.md`
+- [ ] Completion summary at `docs/completion/scanner-orch-m2.md`
+- [ ] Milestone Tracker row updated to `done`
 
 ---
 
