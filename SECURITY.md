@@ -216,6 +216,57 @@ Compensating controls in place today:
 
 A Phase-3 hardening runbook should extend `sldo-install`'s walker to include `references/<pack>/` and pin the contents in `~/.sldo/install.toml`. Until then, this is a documented residual that all biz / SAST skill authors and reviewers should know about.
 
+## Scanner orchestration skill — additional rules
+
+> Added 2026-04-26 by `/slo-architect scanner-orchestration`. Apply when authoring or executing `/slo-sast`. The full design lives at [docs/design/scanner-orchestration-overview.md](docs/design/scanner-orchestration-overview.md); the load-bearing safety properties below are restated here so any agent reading SECURITY.md as the source of truth sees them before generating code.
+
+### Emitted-workflow safety contract (non-negotiable)
+
+`/slo-sast` writes `.github/workflows/sast.yml` into the user's TARGET repo. Every emitted workflow MUST satisfy ALL of:
+
+- `on:` block uses `pull_request` (and optionally `schedule`); MUST NOT use `pull_request_target`. Even after the 2025-12-08 GitHub default-branch sourcing mitigation, `pull_request_target` confers full secret access on PR runs and no SAST step the skill emits requires that.
+- `permissions:` at workflow scope is `{}` (empty map). Per-job `permissions:` declares only what that job needs (analysis: `contents: read`; SARIF upload: adds `security-events: write`).
+- Every `uses:` line resolves to a 40-character commit SHA, never a tag or branch name. CVE-2025-30066 (`tj-actions/changed-files` compromise) and the Shai Hulud v2 worm are the failure-case evidence.
+- `actions/checkout` step has `with: { fetch-depth: 0 }`. Default `1` breaks `semgrep ci` diff-aware scans (canonical Semgrep KB pitfall).
+- The `semgrep ci` invocation uses the `SEMGREP_RULES` env var (NOT the `--config` flag, which the CLI reference says is "not supported in ci mode" even though it works empirically).
+- No `secrets.*` references in the analysis job.
+
+A structural-contract test fixture (`emitted_workflow_has_safe_defaults`) asserts these properties at skill-author time AND at runtime before any PR is opened. Any milestone that touches the workflow template MUST also touch this fixture.
+
+### Threat-model parser scope (defuses prompt-injection)
+
+The skill extracts CWE references from `docs/design/<slug>-threat-model.md` using regex `\bCWE-(\d+)\b` against the rendered Markdown body **only**. The parser MUST exclude:
+
+- HTML comments (`<!-- ... -->`).
+- Fenced code blocks (` ``` ` or `~~~`).
+- `~~~text` user-string fences (these are user content; the fence rule from slo-security-embedding is the load-bearing defense).
+
+Rationale: the threat-model file is user-authored prose. Treating its content as instructions (even implicitly via comment-scoped CWE references) creates a prompt-injection surface. The parser's narrow scope eliminates this class.
+
+### `semgrep-rules` upstream SHA-pin discipline
+
+The skill clones `github.com/semgrep/semgrep-rules` at a **commit SHA**, never a tag. SHA-pinning bounds the supply-chain trust window to "user explicitly bumps pin" events, which surface as a diff PR for human review. Bumping the pin without reviewing the upstream diff defeats the discipline. `references/sast/MIN-SEMGREP-VERSION.md` carries the floor; the pinned SHA is recorded in `.semgrep/manifest.json:semgrep_rules_sha` per emitted scan.
+
+### Manifest schema is audit-defense, not regulatory necessity
+
+`.semgrep/manifest.json` records `cwes_claimed` (from threat model) vs `cwes_actually_covered` (union of `metadata.cwe` from selected rules) for every scan run. The divergence surfaces gaps the user can route to manual review or to `/slo-rulegen`. **This is defensive design, not a regulatory mandate** — multiple search rounds did not surface a published audit-failure precedent fixing the "mapped-but-not-scanned" pattern as a documented requirement. Frame the field that way in any user-facing prose; do not overpromise audit acceptance.
+
+### Compliance citation discipline — PCI DSS 6.2.3, NOT 6.3.2
+
+Wherever `/slo-sast` (or any artifact it emits, or any documentation written about it) references PCI DSS code-review compliance, cite **PCI DSS 6.2.3 (v4.0.1)**. The v3.2.1 numbering for code review was 6.3.2; v4.0.1 renumbered it. **v4.0.1's 6.3.2 is the new bespoke / third-party software inventory mandate** (different scope; SBOM-adjacent; out of v1). Mixing the two is a substantive error, not a typo, and makes any coverage claim challengeable.
+
+### AI / LLM surfaces specific to `/slo-sast`
+
+Inherits the project-wide AI section. Surfaces specific to this skill:
+
+- **Prompt injection via threat-model file content** (ATLAS AML.T0051 family / OWASP LLM01 / NIST Measure 2.6) — defused by the parser scope rule above plus the workflow YAML template-skeleton (user prose NEVER spliced into emitted YAML; only regex-validated `CWE-\d+` integers and closed-enumeration stack tags flow into output).
+- **Tool poisoning via tampered semgrep-rules clone** (ATLAS AML.T0058 / OWASP LLM03 / NIST Manage 3.2) — bounded by SHA-pin; bumping the pin is a human-reviewed PR.
+- **Model output hijack** (ATLAS AML.T0048 / OWASP LLM02 / NIST Map 1.1) — every emitted file passes the structural-contract test suite BEFORE the PR is opened. The PR is the human-review surface for "did Claude emit what we asked."
+
+### Cache directory residual risk
+
+`~/.cache/sldo/semgrep-rules/<SHA>/` grows unbounded across pin bumps. Disk-quota DoS is theoretical for solo OSS maintainers but real for shared CI environments. v1 ships no pruning; users prune by hand. A pruning skill is a Phase-2 candidate.
+
 ## Out of scope for this file
 
 - Infrastructure hardening — SLO has no production infrastructure; it is a local skill pack.
