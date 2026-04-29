@@ -1,6 +1,6 @@
 //! Research loop orchestration for sldo-research.
 //!
-//! Drives the multi-phase Claude Code pipeline:
+//! Drives the optional multi-phase Claude batch pipeline:
 //!   1. Optional repo-context invocation when `--repo-dir` is supplied.
 //!   2. Exploration invocation (iteration 1).
 //!   3. Web-search invocations (1..=`max_searches`) between exploration and

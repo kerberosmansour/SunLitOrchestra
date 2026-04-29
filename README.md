@@ -1,37 +1,51 @@
 # SunLitOrchestrate
 
-> An AI-driven software-development workflow that adds the missing guardrails: idea → research → architecture → plan → critique → execute → verify → ship → reflect. Each step is a slash-command skill backed by file-based contracts (runbooks, threat models, lessons) so the work survives across sessions and reviewers.
+> An AI-first workflow that turns "build this" into scoped, reviewable, testable work. SunLitOrchestrate adds durable guardrails around LLM execution: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
 **Status:** active development. The skill pack and Rust CLIs are stable; the Tauri desktop UI is parked.
 
-## What problem this solves
+## Why SunLitOrchestrate
 
-Sit a senior engineer next to an LLM and the LLM will happily write 5,000 lines of beautiful code that solves the wrong problem, skips the important risks, and leaves no record of *why* anything happened. SunLitOrchestrate fixes that with three things:
+SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope drift, missing rationale, and lessons that die in chat history.
 
-1. **A v3 milestone-runbook contract.** Every feature lives in a `docs/RUNBOOK-<feature>.md` with explicit Contract Blocks (allowed files, forbidden shortcuts, BDD scenarios, abuse cases, regression tests). The LLM can't "silently widen scope" because the scope is checked against this file at every step.
-2. **A sequence of focused skills**, each doing one thing: `/slo-ideate` interrogates the idea, `/slo-research` produces a sourced dossier, `/slo-architect` commits to a stack + emits a threat model, `/slo-plan` writes the runbook one milestone at a time, `/slo-critique` rotates four adversarial reviewers (CEO, eng-lead, security, designer), `/slo-execute M<N>` drives one milestone with allow-list enforcement, `/slo-verify M<N>` runs the runtime QA, `/slo-retro M<N>` writes lessons + completion summaries.
-3. **A SAST rule pack** (`/slo-rulegen`) generating Semgrep rules for the top-10 CWE classes idiomatic Rust + popular crates are most susceptible to. Variation-template-driven, gated by `cargo xtask sast-verify`, never copies AGPL upstream YAML.
+- **Stop silent scope widening**: every feature lives in a `docs/RUNBOOK-<feature>.md` with allowed files, forbidden shortcuts, BDD scenarios, abuse cases, and regression tests.
+- **Preserve the why**: research dossiers, threat models, runbooks, lessons, and completion summaries survive across sessions and reviewers.
+- **Add formal rigor where it matters**: `/slo-tla` gives the workflow an explicit TLA+ step for designs with real concurrency, ordering, or protocol risk, so the system can be challenged as a spec before it is implemented as code.
+- **Keep follow-ups alive**: `/slo-retro` captures what was learned, and `/slo-resume` is the "what next?" entrypoint when work gets interrupted.
+- **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
 
-The raw `SKILL.md` contract is agent-neutral. The canonical living catalog lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific session notes live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md). If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
+If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
 
-## Highlights
+## What ships here
 
-- **Sprint-flow skill pack** — 11 first-party `/slo-*` skills covering ideate → research → architect → tla → plan → critique → execute → verify → retro → ship, plus power tools (`/slo-second-opinion`, `/slo-freeze`, `/slo-resume`).
-- **UK biz-pack** — 4 advisor skills (`/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`) and 11 generator skills (`/slo-talk-to-users`, `/slo-gtm`, `/slo-product`, `/slo-marketing`, `/slo-launch`, `/slo-sales-funnel`, `/slo-pricing`, `/slo-metrics`, `/slo-cofounder`, `/slo-hire`, `/slo-founder-check`) for the company-around-the-product side. Hard-block gates for regulated domains, deals over £5,000, counterparty-with-lawyer, and GDPR documents. JPP Law / SeedLegals public pricing as the cost baseline.
-- **SAST rule generator** — `/slo-rulegen` produces a 10/10 CWE-class Semgrep rule pack from variation templates; `/slo-ruleverify` re-gates the pack on demand. Trail-of-Bits-AGPL-clean-room policy is enforced by code review.
-- **Threat-model-by-default** — `/slo-architect` emits a `docs/design/<slug>-threat-model.md` (STRIDE × component, abuse cases, compliance mapping) for every project. `/slo-plan` cites threat-model rows as BDD abuse-case scenarios.
-- **No agentic shortcuts** — every skill *refuses* to run when its inputs aren't present (no idea doc → refuse `/slo-research`; no research dossier → refuse `/slo-architect`; non-`done` tracker rows → refuse `/slo-ship`). Slow is smooth, smooth is fast.
+| Pack | What it is for | Main entrypoints |
+|---|---|---|
+| Core sprint flow | Turning an idea or change request into a runbook-driven delivery loop | `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-plan`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship` |
+| Security + SAST | Threat-model-by-default design and Semgrep rule-pack generation | `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify` |
+| UK biz pack (v1) | Founder, GTM, pricing, legal, accounting, equity, and hiring artifacts for UK-only workflows | `/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`, `/slo-talk-to-users`, `/slo-gtm`, `/slo-product`, `/slo-marketing`, `/slo-launch`, `/slo-sales-funnel`, `/slo-pricing`, `/slo-metrics`, `/slo-cofounder`, `/slo-hire`, `/slo-founder-check` |
+
+The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md).
+
+The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v3 runbook contract at [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, and verification gates. For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation.
+
+## Pick a starting point
+
+- **New feature or product idea**: run `/slo-ideate` and expect `docs/idea/<slug>.md` as the first artifact.
+- **Existing idea doc or known problem**: start at `/slo-research` or `/slo-architect`, depending on whether you still need external evidence.
+- **Interrupted runbook**: run `/slo-resume`. It reads the tracker and suggests the next move without starting work for you.
+- **Security-only adoption**: jump straight to `/slo-rulegen` or `/slo-sast`.
+- **Business-only adoption**: use the UK biz-pack skills without adopting the entire sprint-flow path.
 
 ## Quick start
 
-If you want the step-by-step first-run path, read [docs/getting-started.md](docs/getting-started.md) first. The short version is below.
+If you want the step-by-step first-run path, read [docs/getting-started.md](docs/getting-started.md). The short version is below.
 
 ### Prerequisites
 
 - **Rust toolchain** (stable). `rustup install stable` if you don't have one.
 - **A supported host agent**: Claude Code or GitHub Copilot. Claude Code remains the default target if you do not pass `--host`.
-- **Semgrep** (`brew install semgrep` or `pip install semgrep`). Required for the SAST rule pack only.
+- **Semgrep** (`brew install semgrep` or `pip install semgrep`). Required only for the SAST rule-pack path.
 
 ### Install the skill pack
 
@@ -39,47 +53,58 @@ If you want the step-by-step first-run path, read [docs/getting-started.md](docs
 git clone https://github.com/kerberosmansour/SunLitOrchestrate.git
 cd SunLitOrchestrate
 
-# Build the installer
 cargo build -p sldo-install --release
 
-# Claude Code is still the default host
+# Claude Code (default host)
 ./target/release/sldo-install
+./target/release/sldo-install status
+./target/release/sldo-install verify
 
-# Install into GitHub Copilot instead
+# GitHub Copilot
 ./target/release/sldo-install --host github-copilot
+./target/release/sldo-install --host github-copilot status
+./target/release/sldo-install --host github-copilot verify
 
-# Project-local installs write into ./.claude/skills/ or ./.copilot/skills/
+# Project-local installs
 ./target/release/sldo-install --local
 ./target/release/sldo-install --host github-copilot --local
 ```
 
-After install, every `/slo-*` skill is available from the host you selected. If you omit `--host`, `sldo-install` uses `claude-code`.
+What success looks like:
 
-For the first-use path, expected output files, and troubleshooting, continue with [docs/getting-started.md](docs/getting-started.md).
+- `sldo-install` prints the selected target root.
+- `status` lists the installed skills for the host you chose.
+- Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`.
+- Local installs land in `./.claude/skills/` or `./.copilot/skills/` if you add `--local`.
 
-### Drive a feature end-to-end
+`/slo-research` now uses host-native research first in both Claude Code and GitHub Copilot. `sldo-research` remains an optional Claude batch backend when you explicitly want that automation path.
+
+### Typical flow
 
 ```text
-/slo-ideate          # YC-style product interrogation
-/slo-research        # Sourced dossier (wraps sldo-research)
-/slo-architect       # Stack + ARCHITECTURE.md + threat model
-/slo-plan            # v3 runbook, one milestone at a time
-/slo-critique        # 4-persona adversarial review
-/slo-execute M1      # Drive M1 with allow-list enforcement
-/slo-verify M1       # Runtime QA + Playwright if UI
-/slo-retro M1        # Lessons + completion + tracker update
+/slo-ideate          # interrogate the problem before code exists
+/slo-research        # produce a sourced dossier
+/slo-architect       # commit to a stack + threat model
+/slo-tla             # optional: model-check the design when concurrency or ordering risk is real
+/slo-plan            # write the v3 runbook one milestone at a time
+/slo-critique        # run the adversarial review pass
+/slo-execute M1      # drive one milestone within the allow-list
+/slo-verify M1       # runtime QA + Playwright if UI
+/slo-retro M1        # lessons + completion + tracker update
 # ... repeat /slo-execute / /slo-verify / /slo-retro per milestone ...
-/slo-ship            # Open PR with runbook-aware description
+/slo-ship            # open a runbook-aware PR
 ```
 
-### Generate a SAST rule pack
+If you step away mid-runbook, use `/slo-resume`. It is the pack's read-only orientation path: it reads the tracker and suggests the next action.
+
+### Security-only quick path
 
 ```bash
 # In a Rust workspace where you want the rules:
-/slo-rulegen                                    # generates 10 rule pairs at .semgrep/rust/
-/slo-ruleverify                                 # confirms every rule passes gate
+/slo-rulegen
+/slo-ruleverify
 
-# Run a specific rule's gate locally:
+# Run a specific gate locally:
 cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
 
 # Extend the pack from a real bug + fix:
@@ -91,63 +116,25 @@ cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
 
 CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-WIRING.md).
 
-## Skill reference
+## Host reality
 
-### Sprint flow
+- Claude Code and GitHub Copilot can both install and use the `SKILL.md` pack interactively.
+- Claude Code remains the default host if you omit `--host`.
+- Headless runtime automation is still host-specific today.
+- `sldo-research` as a batch backend and the live business judgment runtime harness are still Claude-only today.
+- For exact boundaries, read [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md).
 
-| Stage | Skill | Purpose |
-|---|---|---|
-| Ideate | `/slo-ideate` | YC-style product interrogation before any code |
-| Research | `/slo-research` | Wraps `sldo-research` Rust backend for sourced dossiers |
-| Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` flag + threat model |
-| Verify design | `/slo-tla` | TLC model-check the design (when `tla_required: true`) |
-| Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
-| Critique | `/slo-critique` | Four-persona adversarial review (CEO, eng-lead, security, designer) |
-| Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |
-| Verify | `/slo-verify M<N>` | Runtime QA with Playwright for UI surfaces |
-| Close | `/slo-retro M<N>` | Lessons + completion + tracker update |
-| Ship | `/slo-ship` | Open PR with runbook-aware description |
+## Full skill map
 
-Power tools: `/slo-second-opinion` (cross-model disagreement surfacer), `/slo-freeze <path>` (lock edits to one directory for the session), `/slo-resume` (read tracker, suggest next step).
+The README is the orientation page. For the full host-neutral skill list, output paths, and current support boundaries, use:
 
-### Biz pack (UK only, v1)
-
-Four advisor skills with `draft | translate | triage | prepare` modes; eleven generator skills producing one artifact each. See [docs/design/biz-skill-pack-overview.md](docs/design/biz-skill-pack-overview.md) for the full design.
-
-| Skill | Domain |
-|---|---|
-| `/slo-legal` | NDA, contractor SOW, IP assignment, T&Cs |
-| `/slo-accounting` | Bookkeeping, VAT, R&D credit, MTD |
-| `/slo-equity` | Cofounder split, vesting, cap-table snapshot |
-| `/slo-fundraise` | SAFE math, pitch narrative, term-sheet redline brief |
-| `/slo-talk-to-users` | Mom-test interviews + post-call extraction |
-| `/slo-gtm` | ICP / motion choice / channel strategy / KPI alignment |
-| `/slo-product` | Roadmap / metrics / OKRs |
-| `/slo-marketing` | B2B / B2C tactics with PECR routing |
-| `/slo-launch` | 4-stage launch sequence + readiness gates |
-| `/slo-sales-funnel` | Outbound funnel math + cold email templates |
-| `/slo-pricing` | Value-equation pricing + 3-tier-max model |
-| `/slo-metrics` | Financial KPI dashboard (consumer / B2B) |
-| `/slo-cofounder` | Cofounder evaluation + 4-week paid trial framing |
-| `/slo-hire` | IR35-aware hiring with mandatory CEST triage gate |
-| `/slo-founder-check` | 12-question self-assessment + worst-case-runway worksheet |
-
-### SAST pack
-
-| Skill | Purpose |
-|---|---|
-| `/slo-rulegen` | Generate or extend a Semgrep rule pack from variation templates |
-| `/slo-ruleverify` | Re-gate the rule pack |
-
-The xtask `cargo xtask sast-verify` exposes `validate`, `test`, `check-coverage`, `check-clean`, `gate`, `detect-tier`, and `validate-file-paths` subcommands. `gate` is the single deterministic entry point that `/slo-rulegen` shells out to before authorising any rule write.
-
-### Vendored
-
-| Skill | Purpose | Prereq |
-|---|---|---|
-| `/get-api-docs` | Fetch current third-party API docs via `chub` | `npm install -g @aisuite/chub` |
-
-See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attribution.
+- [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
+- [docs/getting-started.md](docs/getting-started.md) — first-run path with exact commands and expected results
+- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — what works in Claude Code, GitHub Copilot, or both
+- [CLAUDE.md](CLAUDE.md) — Claude Code overlay
+- [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay
+- [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — design philosophy: more internal discipline, less user-visible ceremony
+- [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) — attribution for the vendored `/get-api-docs` helper
 
 ## Project structure
 
@@ -155,8 +142,8 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 .
 ├── skills/                       # Skill pack (slo-* + get-api-docs)
 ├── crates/
-│   ├── sldo-common/              # Shared library (used by sldo-research)
-│   ├── sldo-research/            # Backend driven by /slo-research skill
+│   ├── sldo-common/              # Shared library (used by the remaining Rust tooling)
+│   ├── sldo-research/            # Optional Claude batch backend for /slo-research
 │   └── sldo-install/             # Skill installer (symlinks skills/* into the selected host root)
 ├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate; driven by /slo-rulegen + /slo-ruleverify)
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
@@ -170,20 +157,23 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 ### Baseline test command
 
 ```bash
-cargo test --workspace
+cargo test -p sldo-common -p sldo-install -p sldo-research
 ```
 
 ## Documentation
+
+Docs live in-repo today.
 
 Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
-- [CLAUDE.md](CLAUDE.md) — Claude Code overlay for the catalog
-- [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay for the catalog
-- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
-- [SECURITY.md](SECURITY.md) — project-wide security defaults
 - [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
+- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
+- [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — why the pack prefers more internal discipline with less user-visible ceremony
+- [SECURITY.md](SECURITY.md) — project-wide security defaults
+- [CLAUDE.md](CLAUDE.md) — Claude Code overlay
+- [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay
 
 Skill-pack design:
 
@@ -239,5 +229,8 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 ## Acknowledgements
 
 - Trail of Bits' [`semgrep-rules`](https://github.com/trailofbits/semgrep-rules) (AGPL) for the structural shape inspiration on the panic-DoS / CWE-755 rule. The SunLitOrchestrate rule pack is independently re-authored from variation templates per the AGPL clean-room policy in [references/sast/AUTHORING.md](references/sast/AUTHORING.md).
+- The [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) for helping popularize structured, lifecycle-aware AI-assisted development. SunLitOrchestrate arrives at a more contract-heavy, security-first shape, but it shares the belief that better outcomes come from explicit workflow rather than one-shot prompting.
+- [TLA+](https://github.com/tlaplus/tlaplus), and the broader formal-methods tradition around it, for reinforcing the idea that some designs should be challenged as specifications before they are implemented as code. SunLit carries that idea through `/slo-tla` when concurrency, ordering, or protocol risk is real.
+- Jim Manico's talk [*Securing Claude Code: Guardrails for AI-Assisted Development*](https://youtu.be/thsdAsgIsFc?si=FvxYtdHyus7DQTe7) for sharpening the guardrail-first mindset behind the project's threat-modeling, verification, and "no agentic shortcuts" posture.
 - The [oneNDA](https://www.onenda.org/) consortium (CC BY-ND 4.0) for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow defers to.
 - The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.

@@ -82,6 +82,6 @@ If the install target is right but the host still does not show the skills, rest
 
 That means a path already exists there as a normal directory or file instead of an installer-managed symlink. `sldo-install` refuses to overwrite that silently. Move or remove the conflicting path first, then rerun the install.
 
-### `/slo-research` still talks about a Claude backend
+### `/slo-research` mentions `sldo-research`
 
-That is a real limitation today. The skill pack installs into both hosts, but the automated batch backend behind `/slo-research` is still Claude-specific until the next portability milestone lands.
+The interactive `/slo-research` path now works through the host's own research tools and writes the same three files under `docs/research/<slug>/`. `sldo-research` is still available, but only as an optional Claude batch backend for users who explicitly want that automation path.

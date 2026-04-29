@@ -1,6 +1,6 @@
 # Loops + Lessons Closure — SunLitOrchestrate (AI-First Runbook v3)
 
-> **Purpose**: Make engineering loops and business loops first-class artifacts; extend `/slo-retro` to file lessons as tracked issues; close the loop at milestone start so prior-retro issues become scope candidates for the current milestone.
+> **Purpose**: Make engineering loops and business loops first-class artifacts; extend `/slo-retro` to file lessons as tracked issues; close the loop at milestone start so prior-retro issues become scope candidates for the current milestone; and make "what do I do next?" a first-class answer via the existing `/slo-resume` entrypoint.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Before starting any milestone, read its full section and the Global Execution Rules. After completing it, follow the Global Exit Rules.
 > **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/design/loops-and-lessons-closure-overview.md](design/loops-and-lessons-closure-overview.md), [docs/idea/loops-and-lessons-closure.md](idea/loops-and-lessons-closure.md), [docs/research/loops-and-lessons-closure/synthesis.md](research/loops-and-lessons-closure/synthesis.md), [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16), [Issue #17](https://github.com/kerberosmansour/SunLitOrchestrate/issues/17), [Issue #18](https://github.com/kerberosmansour/SunLitOrchestrate/issues/18)
@@ -25,6 +25,7 @@
   - `docs/lessons/<prefix>-m<N>.md` template
   - `skills/slo-retro/SKILL.md` Outputs contract (additive only)
   - `skills/slo-execute/SKILL.md` Pre-flight contract (additive only)
+  - `skills/slo-resume/SKILL.md` read-only orientation contract (additive only)
 
 ---
 
@@ -35,7 +36,8 @@
 | 1 | LOOPS-ENGINEERING.md authored + cross-linked | `not_started` | | | | |
 | 2 | LOOPS-BUSINESS.md authored + cross-linked | `not_started` | | | | |
 | 3 | `/slo-retro` extension: classify, dedupe, file lessons as issues | `not_started` | | | | |
-| 4 | `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section | `not_started` | | | | |
+| 4 | `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section with suggested lane | `not_started` | | | | |
+| 5 | `/slo-resume` next-step digest + lane-aware orientation | `not_started` | | | | |
 
 ---
 
@@ -85,6 +87,13 @@
 │              │ (M4 EXTENDED)                         │                      │
 │              │   gh issue list --label retro-derived │                      │
 │              │   surface as scope candidates         │                      │
+│              └──────────────┬───────────────────────┘                      │
+│                             │                                              │
+│                             ▼                                              │
+│              ┌──────────────────────────────────────┐                      │
+│              │ /slo-resume (M5 EXTENDED)           │                      │
+│              │ reads tracker + carry-forward lane  │                      │
+│              │ emits one next action               │                      │
 │              └──────────────────────────────────────┘                      │
 │                                                                            │
 │  Legend:  ─── existing    - - - new (this runbook)    ▶ data flow         │
@@ -100,7 +109,8 @@
 | `skills/slo-retro/SKILL.md` | Extended: classify each lesson, dedupe via `gh search`, file with confirmation | M3 EXTENDED | Existing lessons-file output preserved; issue filing additive |
 | `skills/slo-retro/references/issue-filing-discipline.md` | argv-list + dedupe + rate-limit + fallback | M3 NEW | Cited from SKILL.md |
 | `skills/slo-execute/SKILL.md` | Extended: pre-flight reads open prior-retro issues for this runbook's prefix | M4 EXTENDED | Existing pre-flight steps preserved; issue read additive |
-| `docs/runbook-template_v_3_template.md` | New optional "Carry-forward from prior retros" section | M4 EXTENDED | Read by `/slo-plan` and `/slo-resume` |
+| `docs/runbook-template_v_3_template.md` | New optional "Carry-forward from prior retros" section with suggested lane | M4 EXTENDED | Read by `/slo-plan` and `/slo-resume` |
+| `skills/slo-resume/SKILL.md` | Extended: reads tracker + carry-forward section, emits one next action and lane | M5 EXTENDED | Read-only orientation contract preserved; no state mutation |
 | `LESSONS-BACKLOG.md` | Local fallback for repos without `gh` available | M3 NEW | Append-only rows |
 
 ### Data Flow Summary
@@ -112,6 +122,7 @@
 | Issue creation | `/slo-retro` (with user confirmation) | GitHub OR LESSONS-BACKLOG.md | `gh issue create` argv-list OR file append | M3 |
 | Pre-flight loop closure | `/slo-execute` pre-flight | GitHub | `gh issue list` argv-list (read-only) | M4 |
 | Carry-forward surfacing | `/slo-execute` | Founder/operator console | Stdout prose | M4 |
+| Next-step orientation | `/slo-resume` | Founder/operator console | Read-only tracker + carry-forward summary | M5 |
 
 ---
 
@@ -162,6 +173,8 @@ What does not work:
 - Lessons that apply to SLO itself never get filed as tracked work.
 - The cyclic structures of the skill pack (engineering loops, business loops) are implicit; newcomers and freshly-loaded Claude instances cannot see them.
 - A milestone in M5 cannot easily surface a lesson learned at M2 — the look-back is one-step.
+- `/slo-resume` only reads the milestone tracker today; it cannot see carry-forward, issue-backed follow-ups, or whether the safest next move is tiny, milestone-sized, or "fresh runbook".
+- The current documentation shape risks showing mechanism before user outcome. A loops doc can be structurally complete and still fail the practical question: "Which loop am I in, and what do I run next?"
 
 ### Problem
 
@@ -169,6 +182,8 @@ What does not work:
 2. **Lateral dropout in upstream signal**: When `/slo-execute` discovers a bug in an upstream tool, the lesson sits in a markdown file. The library-feedback loop dies in a local file. Concrete: a Semgrep CLI flag deprecation was noted in `docs/lessons/slo-sec-m4.md` but never filed against the Semgrep repo.
 3. **Implicit loop structure**: ARCHITECTURE.md describes static structure; SKILL.md files describe individual moves. No document shows the cyclic feedback structures (sprint loop, security-tuning loop, lessons loop, library-feedback loop on engineering side; user-interview loop, GTM loop, pricing loop, founder-check loop on business side). Newcomers cannot answer "how does this skill pack improve itself?".
 4. **No fallback when `gh` is unavailable**: Any extension to `/slo-retro` that depends on `gh` becomes a hard dependency, which violates the graceful-degradation pattern observed across the rest of the pack. A `LESSONS-BACKLOG.md` local fallback closes this gap.
+5. **Orientation gap after interruptions**: the current `/slo-resume` answer is too thin. It can name the first non-`done` milestone, but not the highest-value follow-up carried from prior retros, nor whether the next move should stay tiny, consume the current milestone, or become a separate runbook.
+6. **Process-theatre risk**: this runbook adds real discipline, but if the user-facing surface expands into more prose, more tables, or more decisions without reducing reviewer work, the loop becomes "more process" rather than "simpler output from a stricter machine".
 
 ### Target Architecture
 
@@ -176,7 +191,7 @@ See "End-to-End Architecture Diagram" above.
 
 ### Key Design Principles
 
-0. **Over-engineering for simplicity**: per [`docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md`](PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md), the LLM-driven loop pipeline can sustainably carry MORE discipline than a human-driven equivalent because LLMs do not pay the cognitive-load tax. The lessons loop itself is the canonical example: humans skip post-mortems; LLMs file them as tracked work, run dedupe via `gh search`, and surface them at the next milestone's pre-flight. The user (founder / engineer) sees a working loop; the agent does the bookkeeping.
+0. **Over-engineering for simplicity**: per [`docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md`](PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md), the LLM-driven loop pipeline can sustainably carry MORE discipline than a human-driven equivalent because LLMs do not pay the cognitive-load tax. The lessons loop itself is the canonical example: humans skip post-mortems; LLMs file them as tracked work, run dedupe via `gh search`, and surface them at the next milestone's pre-flight. The user (founder / engineer) sees a working loop; the agent does the bookkeeping. The bound is still context and ambiguity: visible ceremony still costs the user, so the extra discipline must stay mostly behind the scenes.
 
 1. **Loop docs live next to architecture**: `docs/LOOPS-ENGINEERING.md` and `docs/LOOPS-BUSINESS.md` are top-level `docs/` siblings of `ARCHITECTURE.md`. Cross-links go both ways: ARCHITECTURE.md links to LOOPS-*.md; each implicated SKILL.md links to its loop section.
 2. **Issue filing requires user confirmation**: Issue creation is publicly visible; never auto-file. This is a discipline rule, not a security boundary.
@@ -184,6 +199,10 @@ See "End-to-End Architecture Diagram" above.
 4. **Graceful degradation when `gh` is unavailable**: `LESSONS-BACKLOG.md` local fallback. The retro skill never fails because of `gh` trouble.
 5. **Carry-forward at milestone start, not retro**: The retro filing produces issues but doesn't change behavior; surfacing at the next milestone's pre-flight is what closes the loop.
 6. **Argv-list discipline**: Every `gh` invocation in modified skill prose follows argv-list form. Inherited from `/slo-sast` M5 + `/slo-sec-libs` M3 disciplines.
+7. **Outcome-first presentation**: loop docs and read-only orientation outputs start with "where am I / what do I do next / what outcome does this loop produce?" before diagrams, rationale, or bookkeeping internals.
+8. **Maximal internal discipline, minimal visible ceremony**: every new user-visible field, section, or prompt must reduce user decisions or reviewer work. If it only helps the implementation, move it into a reference file or test instead of the point-of-use surface.
+9. **Strengthen existing entrypoints before minting new verbs**: this runbook improves `/slo-resume` rather than inventing a new `/slo-help` surface. The pack should converge on one canonical "what next?" orientation path.
+10. **Use scope lanes to prevent silent widening**: carry-forward items must be triaged as `micro`, `milestone`, or `fresh-runbook` so small fixes stay light-weight and large follow-ups do not smuggle themselves into the current milestone.
 
 ### What to Keep
 
@@ -199,7 +218,8 @@ See "End-to-End Architecture Diagram" above.
 - **`skills/slo-retro/SKILL.md`** — extend with classify/dedupe/file flow (M3).
 - **`skills/slo-retro/references/issue-filing-discipline.md`** — NEW (M3).
 - **`skills/slo-execute/SKILL.md`** — extend pre-flight with issue-list read (M4).
-- **`docs/runbook-template_v_3_template.md`** — add optional "Carry-forward from prior retros" section (M4).
+- **`docs/runbook-template_v_3_template.md`** — add optional "Carry-forward from prior retros" section with suggested lane (M4).
+- **`skills/slo-resume/SKILL.md`** — extend with carry-forward-aware, lane-aware orientation output (M5).
 - **`ARCHITECTURE.md`** — add cross-links to LOOPS-*.md (M1, M2).
 - **Each engineering SKILL.md and biz SKILL.md** referenced by a loop — add a one-line cross-reference into LOOPS-*.md (M1, M2).
 
@@ -227,6 +247,7 @@ For each milestone:
 - dependency failure (`gh` not on PATH, or auth missing)
 - backward compatibility (existing runbooks without "Carry-forward" section still work)
 - abuse case (per-milestone — see threat-model rows in [`docs/design/loops-and-lessons-closure-overview.md`](design/loops-and-lessons-closure-overview.md))
+- discoverability / orientation (an interrupted user can recover one clear next action without rereading the full runbook)
 
 ### Test File Naming
 
@@ -251,7 +272,11 @@ See template.
 
 ## Self-Review Gate
 
-See template.
+See template. Project-specific addendum:
+
+- Can an interrupted user recover the next concrete action in one screen of output?
+- Did every newly-added visible field or section reduce user decisions or reviewer work?
+- Did any methodology detail that is not needed at point-of-use get moved into a reference file instead?
 
 ---
 
@@ -271,11 +296,11 @@ See template (`docs/completion/loops-m<N>.md`).
 
 ### Milestone 1 — `docs/LOOPS-ENGINEERING.md` authored + cross-linked
 
-**Goal**: A `docs/LOOPS-ENGINEERING.md` that documents at minimum the four engineering loops (sprint, security-tuning, lessons, library-feedback), cross-linked from `ARCHITECTURE.md` and from each implicated engineering SKILL.md.
+**Goal**: A `docs/LOOPS-ENGINEERING.md` that documents at minimum the four engineering loops (sprint, security-tuning, lessons, library-feedback), cross-linked from `ARCHITECTURE.md` and from each implicated engineering SKILL.md, with a newcomer-friendly "Start here" orienter at the top.
 
 **Context**: The project has no engineering-loops doc today. Issue [#17](https://github.com/kerberosmansour/SunLitOrchestrate/issues/17) is the canonical decision record for "split from business loops, separate doc, separate concerns" + "living doc, no staleness check" + "no per-runbook declaration of loops".
 
-**Important design rule**: Match the closest existing design-doc style (likely `docs/design/scanner-orchestration-overview.md`) for ASCII vs Mermaid choice. Per loop: name, trigger, steps, exit condition, artifacts, skills involved, diagram.
+**Important design rule**: Match the closest existing design-doc style (likely `docs/design/scanner-orchestration-overview.md`) for ASCII vs Mermaid choice. The doc opens with a short "Start here" orienter (`question -> loop -> first skill -> expected artifact`). Per loop: user-visible outcome, trigger, steps, exit condition, artifacts, skills involved, diagram.
 
 **Refactor budget**: `No refactor permitted beyond direct implementation` — pure new doc + cross-link additions to existing files.
 
@@ -292,7 +317,7 @@ See template (`docs/completion/loops-m<N>.md`).
 | New dependencies allowed | `none` |
 | Migration allowed | `no` |
 | Compatibility commitments | All existing SKILL.md prose preserved; cross-link additions only |
-| Forbidden shortcuts | placeholder loop entries, hand-waved "and others"; every loop entry must name trigger / steps / exit condition / skills involved |
+| Forbidden shortcuts | placeholder loop entries, hand-waved "and others"; every loop entry must name user-visible outcome / trigger / steps / exit condition / skills involved; dumping loop internals before the orienter |
 | **Data classification** | `Public` — engineering loops doc is public-tier (no real PII; the SLO repo is currently private but the doc is intended for public consumption when the repo opens) |
 | **Proactive controls in play** | OWASP Proactive Controls v3 — `C1 Define Security Requirements` (loops document the engineering security-tuning loop explicitly); `C9 Implement Security Logging and Monitoring` (lessons loop is the engineering audit trail) |
 | **Abuse acceptance scenarios** | `tm-loops-abuse-1: prompt injection via lesson body content` — pre-existing `~~~text` user-string fence rule from `/slo-architect` SECURITY.md template applies; documented in this runbook's design overview as residual + mitigated |
@@ -325,7 +350,7 @@ See template (`docs/completion/loops-m<N>.md`).
 
 1. Write the structural-contract test stub in `tests/e2e_loops_m1.rs` first (asserts file existence + section headers + cross-reference targets).
 2. Confirm the test fails for the expected reason (file missing).
-3. Author `docs/LOOPS-ENGINEERING.md` with the four documented loops:
+3. Author `docs/LOOPS-ENGINEERING.md` with a top-level "Start here" orienter and the four documented loops:
    - **Sprint loop**: think → plan → build → review → test → ship → reflect (skills involved: every `/slo-*`).
    - **Security-tuning loop**: threat model → SAST/DAST tuning → findings → threat-model refinement (skills: `/slo-architect`, `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-verify`, `/slo-critique`).
    - **Lessons loop**: retro → issues → priority order → next milestone (skills: `/slo-retro`, `/slo-execute`).
@@ -343,6 +368,7 @@ See template (`docs/completion/loops-m<N>.md`).
 | Scenario | Category | Given | When | Then |
 |---|---|---|---|---|
 | Engineering loops doc exists | happy path | repo at HEAD | open `docs/LOOPS-ENGINEERING.md` | document opens with at least 4 loop sections (sprint, security-tuning, lessons, library-feedback) |
+| Newcomer can identify the right engineering loop quickly | discoverability / orientation | user asks "I have a repeated regression, where do I start?" | read top of `docs/LOOPS-ENGINEERING.md` | "Start here" section maps the question to the lessons loop and first skill |
 | ARCHITECTURE.md cross-links to engineering loops | happy path | ARCHITECTURE.md exists | grep ARCHITECTURE.md for `LOOPS-ENGINEERING.md` | match found in a "Feedback loops" section |
 | Each engineering SKILL.md cited in a loop has a cross-reference | happy path | SKILL.md cited under "Sprint loop" section | grep SKILL.md for `LOOPS-ENGINEERING.md` | match found |
 | Loop cited in doc has missing cross-reference | invalid input / structural | LOOPS-ENGINEERING.md cites SKILL.md X under loop Y | grep SKILL.md X for `LOOPS-ENGINEERING.md#<loop-y>` | structural-contract test FAILS until cross-reference is added |
@@ -369,6 +395,7 @@ See template (`docs/completion/loops-m<N>.md`).
 | E2E Test | What It Proves | Pass Criteria |
 |---|---|---|
 | `loops_engineering_doc_exists_and_has_required_sections` | Document is present with required loop sections | All four loop sections present; each has name + trigger + steps + exit-condition + skills + diagram |
+| `loops_engineering_doc_has_start_here_orienter` | Outcome-first orientation exists | grep finds "Start here" plus at least one `question -> loop -> first skill` mapping |
 | `architecture_md_cross_links_loops_engineering` | Bidirectional discoverability | ARCHITECTURE.md grep for `LOOPS-ENGINEERING.md` returns ≥ 1 match in a "Feedback loops" or equivalent section |
 | `every_cited_skill_has_cross_reference` | Cross-reference invariant | For every SKILL.md cited under a loop, that SKILL.md contains the corresponding `LOOPS-ENGINEERING.md#<loop>` link |
 
@@ -417,11 +444,11 @@ See template (`docs/completion/loops-m<N>.md`).
 
 ### Milestone 2 — `docs/LOOPS-BUSINESS.md` authored + cross-linked
 
-**Goal**: A `docs/LOOPS-BUSINESS.md` document covering at minimum the four business loops (user-interview, GTM, pricing, founder-check), cross-linked from each implicated biz SKILL.md.
+**Goal**: A `docs/LOOPS-BUSINESS.md` document covering at minimum the four business loops (user-interview, GTM, pricing, founder-check), cross-linked from each implicated biz SKILL.md, with a newcomer-friendly "Start here" orienter at the top.
 
 **Context**: Issue [#18](https://github.com/kerberosmansour/SunLitOrchestrate/issues/18) is the canonical decision record. Same shape as M1; biz domain. Possible additional loops to inventory before authoring: fundraise loop, cofounder loop, hiring loop, legal-triage loop (Issue #18 Q1 leaves these as open additions).
 
-**Important design rule**: Match M1's diagram style for consistency. Per loop: name, trigger, steps, exit condition, artifacts, skills involved, diagram.
+**Important design rule**: Match M1's diagram style for consistency. The doc opens with a short "Start here" orienter (`question -> loop -> first skill -> expected artifact`). Per loop: user-visible outcome, trigger, steps, exit condition, artifacts, skills involved, diagram.
 
 **Refactor budget**: `No refactor permitted beyond direct implementation`.
 
@@ -438,7 +465,7 @@ See template (`docs/completion/loops-m<N>.md`).
 | New dependencies allowed | `none` |
 | Migration allowed | `no` |
 | Compatibility commitments | M1 work unchanged; biz SKILL.md prose preserved |
-| Forbidden shortcuts | "see M1" placeholder for biz loop steps; every biz loop must be authored explicitly |
+| Forbidden shortcuts | "see M1" placeholder for biz loop steps; every biz loop must be authored explicitly; dumping loop internals before the orienter |
 | **Data classification** | `Public` — biz loops doc is structural; no real founder PII |
 | **Proactive controls in play** | OWASP C1 (security requirements anchored in user-interview loop's PII handling); C7 (Enforce Access Controls — biz docs `tier:` discipline anchored in user-interview loop's PII flow) |
 | **Abuse acceptance scenarios** | `tm-loops-abuse-1: prompt injection via lesson body content` (same as M1); `tm-loops-abuse-2: biz-loop documentation leaks PII via interview-quote example` — eliminated by structural rule "no real interview quotes in LOOPS-BUSINESS.md; all examples use Alice / Bob pseudonyms" |
@@ -468,7 +495,7 @@ See template (`docs/completion/loops-m<N>.md`).
 
 1. Test stub first.
 2. Confirm fails for expected reason.
-3. Author `docs/LOOPS-BUSINESS.md` with the documented loops (user-interview, GTM, pricing, founder-check; plus any inventory additions confirmed in pre-flight).
+3. Author `docs/LOOPS-BUSINESS.md` with a top-level "Start here" orienter and the documented loops (user-interview, GTM, pricing, founder-check; plus any inventory additions confirmed in pre-flight).
 4. Add per-skill cross-references.
 5. Make tests pass.
 6. Smoke tests.
@@ -481,6 +508,7 @@ See template (`docs/completion/loops-m<N>.md`).
 | Scenario | Category | Given | When | Then |
 |---|---|---|---|---|
 | Business loops doc exists | happy path | repo at HEAD | open `docs/LOOPS-BUSINESS.md` | doc opens with ≥ 4 loop sections |
+| Newcomer can identify the right business loop quickly | discoverability / orientation | founder asks "we're not learning from user calls, where do I start?" | read top of `docs/LOOPS-BUSINESS.md` | "Start here" section maps the question to the user-interview loop and first skill |
 | Per-biz-skill cross-reference present | happy path | SKILL.md cited under a loop | grep for `LOOPS-BUSINESS.md` | match found |
 | Real-PII example smuggled into doc | abuse case (`tm-loops-abuse-2`) | dev tries to commit LOOPS-BUSINESS.md with a real-name example | `/slo-verify` Pass 4 PII scan over docs/biz-public/ | scan flags; commit blocked until anonymized |
 | Backward compat with M1's LOOPS-ENGINEERING.md | backward compatibility | M1's doc + ARCHITECTURE cross-link | both docs present | both render; both cross-linked |
@@ -674,11 +702,11 @@ See template (`docs/completion/loops-m<N>.md`).
 
 ### Milestone 4 — `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section
 
-**Goal**: `/slo-execute M<N>` pre-flight queries open issues filed by `/slo-retro` for prior milestones in this runbook's prefix; surfaces them as scope candidates; user decides each milestone's bounds. Runbook template gains an optional "Carry-forward from prior retros" section so the loop is visible in the artifact, not just in the skill flow.
+**Goal**: `/slo-execute M<N>` pre-flight queries open issues filed by `/slo-retro` for prior milestones in this runbook's prefix; surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); user decides each milestone's bounds. Runbook template gains an optional "Carry-forward from prior retros" section so the loop is visible in the artifact, not just in the skill flow.
 
 **Context**: [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) decision: "close the loop in execution flow ... runbook template should reflect this — don't bolt it onto the skill alone." [Issue #16 Q3](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) decision (folded into this runbook): the template change lives here.
 
-**Important design rule**: Surfacing is informational, not auto-additive. The user decides each milestone's bounds; the skill never auto-extends the allow-list.
+**Important design rule**: Surfacing is informational, not auto-additive. The user decides each milestone's bounds; the skill never auto-extends the allow-list. The surface should reduce, not add, ceremony: at most the top 3 carry-forward items are shown inline, each with a suggested lane and a one-line why.
 
 **Refactor budget**: `Minimal local refactor permitted in listed files only`.
 
@@ -687,8 +715,8 @@ See template (`docs/completion/loops-m<N>.md`).
 | Field | Value |
 |---|---|
 | Inputs | Runbook at `docs/RUNBOOK-<feature>.md`; current milestone N; prefix from runbook metadata; `gh` CLI |
-| Outputs | Pre-flight stdout listing open prior-retro issues for this prefix; updated runbook template with new section schema |
-| Interfaces touched | `/slo-execute` SKILL.md pre-flight section (additive); `docs/runbook-template_v_3_template.md` (additive section) |
+| Outputs | Pre-flight stdout listing open prior-retro issues for this prefix plus suggested lane; updated runbook template with new section schema |
+| Interfaces touched | `/slo-execute` SKILL.md pre-flight section (additive); `docs/runbook-template_v_3_template.md` (additive section with lane column) |
 | Files allowed to change | `skills/slo-execute/SKILL.md`, `docs/runbook-template_v_3_template.md`, `crates/sldo-install/tests/e2e_loops_m4.rs` (new) |
 | Files to read before changing anything | `skills/slo-execute/SKILL.md` current pre-flight; M3's `references/issue-filing-discipline.md` (for marker choice); `docs/runbook-template_v_3_template.md` |
 | New files allowed | `crates/sldo-install/tests/e2e_loops_m4.rs` |
@@ -719,13 +747,13 @@ See template (`docs/completion/loops-m<N>.md`).
 | File | Planned Change |
 |---|---|
 | `skills/slo-execute/SKILL.md` | Add pre-flight Step 1.5: "Read open prior-retro issues filtered by this runbook's prefix; surface as scope candidates". Cite M3's marker choice. |
-| `docs/runbook-template_v_3_template.md` | Add new optional section "## Carry-forward from prior retros" between "Background Context" and "BDD and Runtime Validation Rules". Schema: per-row issue # + title + suggested-milestone column. |
+| `docs/runbook-template_v_3_template.md` | Add new optional section "## Carry-forward from prior retros" between "Background Context" and "BDD and Runtime Validation Rules". Schema: per-row issue # + title + suggested lane (`micro | milestone | fresh-runbook`) + suggested milestone column. |
 | `crates/sldo-install/tests/e2e_loops_m4.rs` | NEW: structural-contract test asserting SKILL.md change + template change |
 
 #### Step-by-Step
 
 1. Test stub.
-2. Update SKILL.md pre-flight prose with the additive Step 1.5.
+2. Update SKILL.md pre-flight prose with the additive Step 1.5 and compact top-3 carry-forward summary.
 3. Update runbook template with the new section.
 4. Update one existing runbook (this runbook itself, when M4 closes — dogfood) to include a "Carry-forward from prior retros" section listing M1-M3's filed issues if any.
 5. Verify structural-contract test.
@@ -738,7 +766,9 @@ See template (`docs/completion/loops-m<N>.md`).
 
 | Scenario | Category | Given | When | Then |
 |---|---|---|---|---|
-| Pre-flight surfaces open prior-retro issues | happy path | runbook prefix `loops`; M1-M3 closed; issues filed | `/slo-execute M4` pre-flight runs | stdout lists open `loops`-prefix retro-derived issues with title + # |
+| Pre-flight surfaces open prior-retro issues | happy path | runbook prefix `loops`; M1-M3 closed; issues filed | `/slo-execute M4` pre-flight runs | stdout lists open `loops`-prefix retro-derived issues with title + # + suggested lane |
+| Small follow-up stays small | discoverability / orientation | open prior-retro issue is low-risk doc polish | `/slo-execute` pre-flight runs | item is surfaced as `micro`, not silently expanded into milestone-sized work |
+| Large follow-up does not silently widen scope | discoverability / orientation | open prior-retro issue requires new architecture work | `/slo-execute` pre-flight runs | item is surfaced as `fresh-runbook`; current milestone allow-list stays unchanged |
 | No prior-retro issues for this prefix | empty state | first milestone of a runbook | `/slo-execute M1` pre-flight runs | stdout: "no carry-forward from prior retros (this is M1)" |
 | `gh` unavailable | dependency failure | `gh` missing | pre-flight runs | warns + proceeds (does not block on gh-availability for this informational read) |
 | `gh` returns rate-limit | dependency failure (paradigm: comprehensive degraded states) | `gh issue list` returns 403 secondary rate-limit | pre-flight | applies 5s timeout; falls back to "carry-forward unavailable; gh rate-limited at <retry_after>"; never hangs |
@@ -772,6 +802,7 @@ See template (`docs/completion/loops-m<N>.md`).
 |---|---|---|
 | `slo_execute_pre_flight_extended` | SKILL.md change applied | grep for "prior-retro" in pre-flight section |
 | `runbook_template_carry_forward_section` | Template change applied | grep `runbook-template_v_3_template.md` for "Carry-forward from prior retros" |
+| `runbook_template_carry_forward_lane_column` | Lane schema applied | grep template for `micro | milestone | fresh-runbook` |
 | `gh_issue_list_argv_list_documented` | argv-list discipline | grep for `gh issue list` argv pattern in SKILL.md |
 | `no_auto_extend_allowlist_documented` | Discipline preserved | grep SKILL.md for "user decides each milestone's bounds" |
 
@@ -791,6 +822,7 @@ See template (`docs/completion/loops-m<N>.md`).
 - All BDD scenarios pass.
 - Pre-flight Step 1.5 added without removing Step 1.
 - Runbook template gains the new optional section.
+- Carry-forward section and pre-flight prose both use the `micro | milestone | fresh-runbook` lane vocabulary.
 - Dogfood: this runbook itself includes a "Carry-forward from prior retros" section after M4 closes (even if empty for M1).
 - Tracker + lessons + completion files written.
 - ARCHITECTURE.md "Feedback loops" section updated to mention milestone-start carry-forward.
@@ -802,7 +834,149 @@ See template (`docs/completion/loops-m<N>.md`).
 
 #### Notes
 
-- This runbook self-tests the loop. After M4 closes, M5 (which doesn't exist) won't run — but if a future runbook executes after this one ships, it inherits the carry-forward mechanic.
+- This runbook now self-tests the loop end-to-end: M4 introduces carry-forward, and M5 dogfoods the read-only orientation path that consumes it. After M5 closes there is no M6 here, but future runbooks inherit the mechanic.
+
+---
+
+### Milestone 5 — `/slo-resume` next-step digest + lane-aware orientation
+
+**Goal**: Extend `/slo-resume` so it becomes the pack's canonical "what next?" entrypoint for interrupted work: it reads the runbook tracker plus the optional carry-forward section, emits exactly one next action, and classifies the safest path as `micro`, `milestone`, or `fresh-runbook` without starting anything automatically.
+
+**Context**: The current `/slo-resume` behavior is helpful but shallow: it can name the first non-`done` milestone, but not the highest-value carry-forward item or whether the work should stay tiny, consume the current milestone, or split into a new runbook. This is the most directly applicable adoption lesson from the BMAD comparison: the pack needs one obvious orientation surface, but it should strengthen the existing `/slo-resume` verb rather than minting a parallel `/slo-help`.
+
+**Important design rule**: `/slo-resume` stays read-only and brief. It must answer three questions in one screen: where am I, what should I do next, and what can wait. No auto-starting skills. No dumping the full carry-forward table inline. Surface at most the top 3 carry-forward items plus a count of remaining items.
+
+**Refactor budget**: `Minimal local refactor permitted in listed files only`.
+
+#### Contract Block
+
+| Field | Value |
+|---|---|
+| Inputs | Current runbook's Milestone Tracker; optional "Carry-forward from prior retros" section; latest lessons/completion summary if needed for one-line context |
+| Outputs | A short orientation message: current milestone, status, recommended lane, exact next action, and top carry-forward item(s) if relevant |
+| Interfaces touched | `skills/slo-resume/SKILL.md` output contract (additive only) |
+| Files allowed to change | `skills/slo-resume/SKILL.md`, `crates/sldo-install/tests/e2e_loops_m5.rs` (new), `docs/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md` (tracker + carry-forward dogfood row updates only) |
+| Files to read before changing anything | `skills/slo-resume/SKILL.md` current behavior; M4-updated `docs/runbook-template_v_3_template.md`; this runbook's new carry-forward section shape |
+| New files allowed | `crates/sldo-install/tests/e2e_loops_m5.rs` |
+| New dependencies allowed | `none` |
+| Migration allowed | `no` |
+| Compatibility commitments | `/slo-resume` stays read-only; existing "multiple runbooks -> ask user which" gate preserved; existing tracker-first behavior preserved and extended, not replaced |
+| Forbidden shortcuts | auto-starting the recommended skill; emitting a wall of prose; ignoring carry-forward lane; inventing a new public verb |
+| **Data classification** | `Internal` — runbook tracker plus carry-forward issue summaries |
+| **Proactive controls in play** | C5 (Validate inputs — runbook / carry-forward parsing is exact); C9 (Auditability — orientation output references artifact state rather than agent memory) |
+| **Abuse acceptance scenarios** | `tm-loops-abuse-8: carry-forward overload turns orientation into noise` — mitigated by top-3 inline cap + remainder count; `tm-loops-abuse-9: malicious carry-forward issue body smuggles prompt-injection text into /slo-resume output` — mitigated by not inlining full bodies and fence-wrapping any quoted snippets |
+
+#### Out of Scope / Must Not Do
+
+- Creating a new `/slo-help` skill.
+- Auto-starting `/slo-execute`, `/slo-verify`, or `/slo-ship`.
+- Rewriting milestone tracker status based on inference.
+- Mutating the runbook from `/slo-resume`.
+
+#### Pre-Flight
+
+1. Complete Global Entry Rules.
+2. Read [`skills/slo-resume/SKILL.md`](../skills/slo-resume/SKILL.md) end-to-end.
+3. Read the M4-updated carry-forward section schema in [`docs/runbook-template_v_3_template.md`](runbook-template_v_3_template.md).
+4. Inspect at least one completed runbook that already contains a carry-forward section to confirm the parser shape remains realistic.
+
+#### Files Allowed To Change
+
+| File | Planned Change |
+|---|---|
+| `skills/slo-resume/SKILL.md` | Extend the Method and Output sections so the skill reads carry-forward and emits one next action plus lane |
+| `crates/sldo-install/tests/e2e_loops_m5.rs` | NEW: structural-contract test asserting carry-forward-aware orientation rules |
+
+#### Step-by-Step
+
+1. Write the structural-contract test stub first.
+2. Confirm it fails for the expected reason.
+3. Update `/slo-resume` so it reads the tracker first, then the carry-forward section if present.
+4. Add the lane rules:
+   - `micro` = safe, bounded follow-up; keep within current or immediate next milestone.
+   - `milestone` = real milestone work inside the current runbook.
+   - `fresh-runbook` = material scope/risk shift; do not widen the current runbook silently.
+5. Keep the output compact: milestone, status, lane, next action, one-line context, top carry-forward item(s).
+6. Make the structural-contract test pass.
+7. Smoke test with one empty-state runbook and one runbook with carry-forward rows.
+8. Self-review gate.
+
+#### BDD Acceptance Scenarios
+
+**Feature: one-screen orientation after interruptions**
+
+| Scenario | Category | Given | When | Then |
+|---|---|---|---|---|
+| Next action from tracker only | happy path | one runbook; M1 done, M2 not_started; no carry-forward rows | `/slo-resume` runs | output names M2 and suggests the correct next skill |
+| Carry-forward item influences orientation | happy path | current milestone is in progress; carry-forward section has one `micro` item | `/slo-resume` runs | output keeps the current milestone, surfaces the `micro` item as context, and does not invent a new runbook |
+| Fresh-runbook follow-up is not silently widened into current milestone | discoverability / orientation | carry-forward row is marked `fresh-runbook` | `/slo-resume` runs | output says the current runbook should not widen scope and names the follow-up as separate work |
+| Empty carry-forward section | empty state | runbook has the section but no rows | `/slo-resume` runs | output still orients cleanly; no error about missing follow-ups |
+| Multiple runbooks present | dependency / ambiguity | more than one `docs/RUNBOOK-*.md` exists | `/slo-resume` runs | asks the user which runbook before orienting |
+| Blocked milestone | dependency failure | first non-`done` row is `blocked` | `/slo-resume` runs | output prints blocker plus the safest next human decision, not `/slo-execute` |
+| Carry-forward overload | abuse case (`tm-loops-abuse-8`) | carry-forward table has 12 open items | `/slo-resume` runs | inline output shows top 3 plus "9 more" instead of dumping the whole table |
+| Malicious carry-forward title/body snippet | abuse case (`tm-loops-abuse-9`) | carry-forward row references issue with prompt-injection text | `/slo-resume` runs | only short title/snippet appears, fence-wrapped if quoted; no raw full body is emitted |
+| All milestones done | backward compatibility | every tracker row is `done` | `/slo-resume` runs | suggests `/slo-ship` or confirms the runbook is complete |
+
+#### Regression Tests
+
+- `cargo test --workspace`.
+- Existing `/slo-resume` install tests still pass.
+- M1-M4 structural-contract tests still pass.
+
+#### Compatibility Checklist
+
+- [ ] `/slo-resume` remains read-only.
+- [ ] Existing tracker-only orientation still works when no carry-forward section exists.
+- [ ] Multiple-runbook ambiguity still asks the user rather than guessing.
+- [ ] No existing test fails.
+
+#### E2E Runtime Validation
+
+**File**: `crates/sldo-install/tests/e2e_loops_m5.rs`
+
+| E2E Test | What It Proves | Pass Criteria |
+|---|---|---|
+| `slo_resume_reads_carry_forward_section` | Carry-forward is part of orientation contract | grep `skills/slo-resume/SKILL.md` for "Carry-forward from prior retros" |
+| `slo_resume_lane_vocabulary_documented` | Lane model is fixed | grep for `micro`, `milestone`, and `fresh-runbook` in the orientation logic |
+| `slo_resume_output_stays_short` | Minimal visible ceremony preserved | output section explicitly says short message / one screen / top 3 carry-forward items max |
+| `slo_resume_no_auto_start_preserved` | Read-only rule still intact | grep for "Do not start the next action" or equivalent |
+
+#### Smoke Tests
+
+- [ ] Run `/slo-resume` against a runbook with no carry-forward rows; verify the old simple orientation still works.
+- [ ] Run `/slo-resume` against a runbook with `micro`, `milestone`, and `fresh-runbook` rows; verify the lane appears in output.
+- [ ] Verify output stays short when the carry-forward table is long.
+- [ ] `cargo test -p sldo-install` passes.
+
+#### Evidence Log
+
+| Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
+|---|---|---|---|---|---|
+| Baseline | `cargo test --workspace` | green | | | |
+| Test stub created | `tests/e2e_loops_m5.rs` | fails for missing carry-forward-aware contract | | | |
+| `/slo-resume` updated | inspect file | tracker + carry-forward + lane + short output rules present | | | |
+| Empty-state smoke | manual `/slo-resume` run | correct simple orientation | | | |
+| Carry-forward smoke | manual `/slo-resume` run | one next action + lane + compact output | | | |
+| Full tests | `cargo test --workspace` | green | | | |
+| `.gitignore` review | | no new patterns needed | | | |
+
+#### Definition of Done
+
+- All BDD scenarios pass.
+- `/slo-resume` stays read-only and compact.
+- Lane vocabulary is documented and matches M4 (`micro | milestone | fresh-runbook`).
+- A user can recover one next action without rereading the full runbook.
+- Lessons + completion files written.
+- Tracker updated.
+
+#### Post-Flight
+
+- README.md update: optional, if the docs index calls out `/slo-resume` as the orientation entrypoint.
+- No runbook-template change required beyond M4.
+
+#### Notes
+
+- This is intentionally not a new `/slo-help` skill. The product lesson from BMAD is "one obvious way to ask what's next", not "more verbs".
 
 ---
 
@@ -813,23 +987,24 @@ See template (`docs/completion/loops-m<N>.md`).
 | 1 | Add "Feedback loops" section linking LOOPS-ENGINEERING.md | optional bullet in docs index | none | Per-skill SKILL.md cross-references |
 | 2 | Update "Feedback loops" section to link LOOPS-BUSINESS.md too | optional | none | Per-biz-skill SKILL.md cross-references |
 | 3 | Note `/slo-retro` issue-filing extension | optional | none | `skills/slo-retro/references/issue-filing-discipline.md` (new) |
-| 4 | Note `/slo-execute` pre-flight loop closure | optional | none | `docs/runbook-template_v_3_template.md` (new section) |
+| 4 | Note `/slo-execute` pre-flight loop closure | optional | none | `docs/runbook-template_v_3_template.md` (new section + lane column) |
+| 5 | none required | optional: mention `/slo-resume` as "what next?" entrypoint | none | `skills/slo-resume/SKILL.md` |
 
 ---
 
 ## Optional Fast-Fail Review Prompt for Agents
 
-> Restate the milestone goal, allowed files, forbidden changes, compatibility requirements, tests that must be written first, and the exact Definition of Done. Then list the smallest implementation approach that satisfies the contract without widening scope.
+> Restate the milestone goal, allowed files, forbidden changes, compatibility requirements, tests that must be written first, and the exact Definition of Done. Then list the smallest implementation approach that satisfies the contract without widening scope, and explain how the user-facing result reduces user decisions or reviewer work.
 
 ---
 
 ## Carry-forward from prior retros
 
-(This section is the dogfood of M4's template change. It is empty until M3 produces filings, at which point M3's own retro lands carry-forward into a hypothetical M5 — which doesn't exist for this runbook. The section is here so the artifact-shape is visible.)
+(This section is the dogfood of M4's template change. It is empty until M3 produces filings; M5 then uses the section as the read-only orientation input. The section is here so the artifact-shape is visible even before real rows accumulate.)
 
-| Issue | Title | Suggested milestone | Status |
-|---|---|---|---|
-| (none yet — M1) | | | |
+| Issue | Title | Suggested lane | Suggested milestone | Status |
+|---|---|---|---|---|
+| (none yet — M1) | | | | |
 
 ---
 
@@ -867,6 +1042,14 @@ The paradigm's "multi-layer defense without user friction" pattern:
 | Lessons drop-out | `/slo-retro` always writes lessons file FIRST | issue filing additive after | M4 surfaces at next milestone | LESSONS-BACKLOG.md fallback if `gh` unavailable |
 | Marker drift | single canonical marker chosen in M3 spike | structural-contract test asserts marker-format | three-strike search defends against evasion | spike-result review at +6 months (per critique L-3) |
 
+### One-screen orientation instead of more process
+
+The main user-facing simplicity rule added by this revision is: a stricter loop is only a win if the operator can still answer "what next?" without rereading the whole system. M4 introduces the `micro | milestone | fresh-runbook` lane so carry-forward does not silently widen scope; M5 teaches `/slo-resume` to turn that structure into a single next-step digest. This is the practical application of the BMAD comparison: keep the internal discipline, but make recovery and orientation feel lighter.
+
+### Anti-process-theatre check
+
+Every added user-visible surface in this runbook must pass one question: **does it reduce user decisions or reviewer work?** If not, it belongs in a reference file, a structural-contract test, or nowhere. That rule is the counter-weight to the paradigm's "add more discipline" instinct.
+
 ### Bounded by context-window
 
-This runbook stays inside the paradigm's "balance against context window, not attention" rule: the v3 template is the orchestrator (used by `/slo-plan`); methodology lives in `references/issue-filing-discipline.md` (consulted on-demand); the LESSONS-BACKLOG.md row schema is one line of text in the contract block; abuse-case BDD rows are individually small. No file in this runbook approaches the soft 200-line cap from R2.
+This runbook stays inside the paradigm's "balance against context window, not attention" rule: the v3 template is the orchestrator (used by `/slo-plan`); methodology lives in `references/issue-filing-discipline.md` (consulted on-demand); the LESSONS-BACKLOG.md row schema is one line of text in the contract block; abuse-case BDD rows are individually small; `/slo-resume` compresses the result back down to one screen for the user. No file in this runbook approaches the soft 200-line cap from R2.
