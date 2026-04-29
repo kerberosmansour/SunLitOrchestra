@@ -14,11 +14,13 @@ use colored::Colorize;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::host::Host;
 use crate::manifest::{Entry, Manifest};
 use crate::paths;
 
 pub struct Options {
     pub skills_dir: PathBuf,
+    pub host: Host,
     pub local: bool,
     pub force: bool,
     pub dry_run: bool,
@@ -73,10 +75,16 @@ fn discover_skills(skills_dir: &Path) -> Result<Vec<(String, PathBuf)>> {
 fn compute_root_and_manifest(opts: &Options) -> Result<(PathBuf, PathBuf)> {
     if opts.local {
         let cwd = std::env::current_dir().context("Failed to read current directory")?;
-        Ok((paths::local_skills_root(&cwd), paths::local_manifest_path(&cwd)))
+        Ok((
+            paths::local_skills_root(&cwd, opts.host),
+            paths::local_manifest_path(&cwd, opts.host),
+        ))
     } else {
         let home = paths::home_dir()?;
-        Ok((paths::global_skills_root(&home), paths::global_manifest_path(&home)))
+        Ok((
+            paths::global_skills_root(&home, opts.host),
+            paths::global_manifest_path(&home),
+        ))
     }
 }
 
@@ -185,7 +193,12 @@ pub fn install(opts: &Options) -> Result<()> {
                 item.source.display()
             )
         })?;
-        manifest.upsert(item.name.clone(), item.target.clone(), item.source.clone());
+        manifest.upsert(
+            opts.host,
+            item.name.clone(),
+            item.target.clone(),
+            item.source.clone(),
+        );
         println!(
             "  {} {} {} {}",
             "+".green().bold(),
@@ -197,8 +210,13 @@ pub fn install(opts: &Options) -> Result<()> {
 
     for item in &plan.up_to_date {
         // Still ensure it's in the manifest (e.g., after manifest loss).
-        if manifest.find(&item.name).is_none() {
-            manifest.upsert(item.name.clone(), item.target.clone(), item.source.clone());
+        if manifest.find(&item.name, opts.host).is_none() {
+            manifest.upsert(
+                opts.host,
+                item.name.clone(),
+                item.target.clone(),
+                item.source.clone(),
+            );
         }
         println!("  {} {} (already installed)", "=".dimmed(), item.name);
     }
@@ -218,29 +236,40 @@ pub fn install(opts: &Options) -> Result<()> {
 }
 
 pub fn uninstall(opts: &Options) -> Result<()> {
-    let (_root, manifest_path) = compute_root_and_manifest(opts)?;
+    let (root, manifest_path) = compute_root_and_manifest(opts)?;
     let mut manifest = Manifest::load(&manifest_path)?;
+    let host_entries: Vec<Entry> = manifest
+        .entries_for_host(opts.host)
+        .into_iter()
+        .cloned()
+        .collect();
 
-    if manifest.entries.is_empty() {
-        println!("nothing to uninstall (manifest is empty or missing).");
+    if host_entries.is_empty() {
+        println!("nothing to uninstall for {}.", opts.host.id());
         return Ok(());
     }
 
     if opts.dry_run {
-        println!("would remove:");
-        for entry in &manifest.entries {
+        println!("would remove for {}:", opts.host.id());
+        for entry in &host_entries {
             println!("  - {}", entry.target.display());
         }
         println!("  manifest: {}", manifest_path.display());
         return Ok(());
     }
 
-    let to_remove: Vec<Entry> = manifest.entries.clone();
+    let to_remove = host_entries;
+    let mut bad = 0usize;
     for entry in to_remove {
+        if let Err(error) = validate_entry_target_in_host_root(&entry, &root) {
+            eprintln!("  {} {}: {}", "x".red().bold(), entry.name, error);
+            bad += 1;
+            continue;
+        }
         match remove_managed_symlink(&entry) {
             Ok(true) => {
                 println!("  {} {}", "-".yellow().bold(), entry.name);
-                manifest.remove(&entry.name);
+                manifest.remove(&entry.name, opts.host);
             }
             Ok(false) => {
                 eprintln!(
@@ -251,6 +280,7 @@ pub fn uninstall(opts: &Options) -> Result<()> {
             }
             Err(e) => {
                 eprintln!("  {} {}: {}", "x".red().bold(), entry.name, e);
+                bad += 1;
             }
         }
     }
@@ -260,33 +290,49 @@ pub fn uninstall(opts: &Options) -> Result<()> {
     } else {
         manifest.save(&manifest_path)?;
     }
+
+    if bad > 0 {
+        bail!("{} skill(s) were rejected or failed uninstall", bad);
+    }
     Ok(())
 }
 
 pub fn status(opts: &Options) -> Result<()> {
     let (_root, manifest_path) = compute_root_and_manifest(opts)?;
     let manifest = Manifest::load(&manifest_path)?;
-    if manifest.entries.is_empty() {
-        println!("no skills installed.");
+    let host_entries = manifest.entries_for_host(opts.host);
+    if host_entries.is_empty() {
+        println!("no skills installed for {}.", opts.host.id());
         return Ok(());
     }
-    println!("installed skills ({}):", manifest.entries.len());
-    for e in &manifest.entries {
+    println!(
+        "installed skills for {} ({}):",
+        opts.host.id(),
+        host_entries.len()
+    );
+    for e in host_entries {
         println!("  {} -> {}  [installed {}]", e.name, e.source.display(), e.installed_at);
     }
     Ok(())
 }
 
 pub fn verify(opts: &Options) -> Result<()> {
-    let (_root, manifest_path) = compute_root_and_manifest(opts)?;
+    let (root, manifest_path) = compute_root_and_manifest(opts)?;
     let manifest = Manifest::load(&manifest_path)?;
-    if manifest.entries.is_empty() {
-        println!("manifest is empty — nothing to verify.");
+    let host_entries = manifest.entries_for_host(opts.host);
+    if host_entries.is_empty() {
+        println!("manifest is empty for {} — nothing to verify.", opts.host.id());
         return Ok(());
     }
 
+    println!("verifying {} entries for {}:", host_entries.len(), opts.host.id());
     let mut bad = 0usize;
-    for entry in &manifest.entries {
+    for entry in host_entries {
+        if let Err(error) = validate_entry_target_in_host_root(entry, &root) {
+            eprintln!("  {} {}: {}", "x".red(), entry.name, error);
+            bad += 1;
+            continue;
+        }
         if !entry.target.is_symlink() {
             eprintln!("  {} {}: target is not a symlink", "x".red(), entry.name);
             bad += 1;
@@ -366,6 +412,18 @@ fn remove_managed_symlink(entry: &Entry) -> Result<bool> {
     }
     fs::remove_file(&entry.target)?;
     Ok(true)
+}
+
+fn validate_entry_target_in_host_root(entry: &Entry, root: &Path) -> Result<()> {
+    if entry.target.starts_with(root) {
+        return Ok(());
+    }
+
+    bail!(
+        "target {} is outside the selected host root {}",
+        entry.target.display(),
+        root.display()
+    )
 }
 
 fn print_plan(plan: &Plan, root: &Path) {
