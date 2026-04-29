@@ -38,7 +38,7 @@ Global installs land in `~/.copilot/skills/`. Local installs land in `./.copilot
 ## Current limitations
 
 - Headless runtime automation in GitHub Copilot is **not supported yet**. Do not assume there is a Copilot CLI runtime equivalent to the Claude-only test harnesses.
-- `/slo-research` still has a Claude-specific batch backend behind the scenes today. Treat that as a documented limitation until the host-neutral interactive rewrite lands.
+- `/slo-research` now supports host-native interactive research without installing Claude. The separate `sldo-research` path remains an optional Claude batch backend when a user explicitly wants batch automation.
 - The live business judgment runtime harness remains Claude-only today because it shells out to `claude -p`.
 
 ## First session checklist

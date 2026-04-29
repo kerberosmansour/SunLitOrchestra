@@ -39,7 +39,7 @@ Update this table as each milestone is completed. This is the single source of t
 |---|---|---|---|---|---|---|
 | 1 | Installer host profiles | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m1.md` | `docs/completion/agent-host-m1.md` |
 | 2 | Living docs, getting started, and host overlays | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m2.md` | `docs/completion/agent-host-m2.md` |
-| 3 | Agent-neutral `/slo-research` interactive path | `not_started` | | | | |
+| 3 | Agent-neutral `/slo-research` interactive path | `in_progress` | 2026-04-29 | | | |
 | 4 | Isolate Claude-only automation surfaces | `not_started` | | | | |
 | 5 | Targeted skill and structural-test cleanup | `not_started` | | | | |
 
@@ -1050,10 +1050,10 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Compatibility Checklist
 
-- [ ] `docs/research/<slug>/` output paths are unchanged.
-- [ ] `incomplete: true` remains the explicit missing-coverage signal.
-- [ ] `sldo-research` still builds for existing Claude batch users.
-- [ ] No living doc now implies that all hosts must install Claude to use `/slo-research` interactively.
+- [x] `docs/research/<slug>/` output paths are unchanged.
+- [x] `incomplete: true` remains the explicit missing-coverage signal.
+- [x] `sldo-research` still builds for existing Claude batch users.
+- [x] No living doc now implies that all hosts must install Claude to use `/slo-research` interactively.
 
 #### E2E Runtime Validation
 
@@ -1068,25 +1068,25 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 - [ ] Follow `docs/verify/agent-host-m3-smoke.md` in a Claude session
 - [ ] Follow `docs/verify/agent-host-m3-smoke.md` in a Copilot session
-- [ ] `cargo test -p sldo-install --test e2e_agent_host_m3` passes
-- [ ] `cargo test -p sldo-research` stays green
-- [ ] `git status` shows no untracked test artifacts
+- [x] `cargo test -p sldo-install --test e2e_agent_host_m3` passes
+- [x] `cargo test -p sldo-research` stays green
+- [x] `git status` shows no untracked test artifacts
 
 #### Evidence Log
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | | | |
-| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m3.rs` | fail for expected reason | | | |
-| E2E stubs created | same file + smoke checklist | fail or remain incomplete for expected reason | | | |
-| Implementation | `/slo-research` rewrite + doc clarification | interactive path is host-neutral | | | |
-| Full tests | `cargo test -p sldo-install --test e2e_agent_host_m3 && cargo test -p sldo-research` | green | | | |
-| E2E runtime | manual smoke checklist | both hosts behave as documented | | | |
-| Build/boot | `cargo build -p sldo-research` | builds cleanly | | | |
-| Smoke tests | `docs/verify/agent-host-m3-smoke.md` | all checked | | | |
-| Test artifact cleanup | `git status` | no untracked test artifacts | | | |
-| .gitignore review | review `.gitignore` | no new patterns needed | | | |
-| Compatibility checks | artifact-path and incomplete-flag checks | no regressions | | | |
+| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | full in-scope baseline passed before and after the M3 implementation slice; one unrelated pre-existing unused-import warning remained in `crates/sldo-install/tests/e2e_biz_followup_m5.rs` | Pass | Final rerun was taken after the capability-matrix wording correction so the last green run matches the final tree |
+| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m3.rs` | fail for expected reason | first run failed because `skills/slo-research/SKILL.md` still lacked a host-native path and the living docs did not yet call `sldo-research` an optional Claude batch backend | Pass | Failure stayed local to the intended M3 contract |
+| E2E stubs created | same file + smoke checklist | fail or remain incomplete for expected reason | structural test file and `docs/verify/agent-host-m3-smoke.md` were added first; the checklist intentionally kept host-session items manual while the new test exposed the hidden dependency wording | Pass | This gave a concrete guardrail before rewriting the skill |
+| Implementation | `/slo-research` rewrite + doc clarification | interactive path is host-neutral | rewrote `skills/slo-research/SKILL.md` around interactive host-native research; marked `sldo-research` as an optional Claude batch backend in README, overlays, catalog, architecture, getting-started, capability matrix, and `sldo-research` help/module docs | Pass | `docs/getting-started.md` and `docs/design/agent-host-capabilities.md` were updated as living-doc truth fixes so host-support claims stayed consistent |
+| Full tests | `cargo test -p sldo-install --test e2e_agent_host_m3 && cargo test -p sldo-research` | green | `e2e_agent_host_m3`, existing `e2e_slo_sp_m3`, `cargo test -p sldo-research`, and the final full baseline all passed | Pass | Confirms both the new contract and the pre-existing `/slo-research` structural guard still hold |
+| E2E runtime | manual smoke checklist | both hosts behave as documented | local validation items were completed, but the actual Claude-session and Copilot-session checklist steps remain pending because this terminal-only environment cannot open those host UIs directly | Partial | Manual host smoke is the only remaining milestone closeout item |
+| Build/boot | `cargo build -p sldo-research` | builds cleanly | `cargo build -p sldo-install -p sldo-research` passed; `./target/debug/sldo-research --help` exits 0 and now describes the optional batch backend honestly | Pass | Existing CLI flags remained intact |
+| Smoke tests | `docs/verify/agent-host-m3-smoke.md` | all checked | local validation checks are done; the two host-session checks are still unchecked pending manual execution in Claude Code and GitHub Copilot | Partial | Do not mark the milestone done until those two session checks are completed |
+| Test artifact cleanup | `git status` | no untracked test artifacts | final `git status --short` showed only intended tracked edits and the two new milestone files; no generated artifacts were left behind | Pass | New source files are expected |
+| .gitignore review | review `.gitignore` | no new patterns needed | existing `.claude/`, `.copilot/`, `.sldo-logs/`, `.copilot-logs/`, and `output/` ignores already cover the surfaces touched by this milestone | Pass | No `.gitignore` change required |
+| Compatibility checks | artifact-path and incomplete-flag checks | no regressions | `docs/research/<slug>/` paths stayed unchanged, `incomplete: true` remained explicit, `sldo-research` still builds for Claude batch users, and no living doc now tells Copilot users to install Claude for interactive `/slo-research` use | Pass | `sldo-research --help` now names the backend boundary explicitly |
 
 #### Definition of Done
 

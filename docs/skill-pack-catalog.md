@@ -18,7 +18,7 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 | Stage | Skill | Purpose |
 |---|---|---|
 | Ideate | `/slo-ideate` | YC-style product interrogation before any code |
-| Research | `/slo-research` | Wraps the `sldo-research` backend for sourced dossiers |
+| Research | `/slo-research` | Host-native interactive research first; optional Claude batch backend for sourced dossiers |
 | Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` flag |
 | Verify design | `/slo-tla` | TLC model-check the design when concurrency or ordering risk is real |
 | Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
@@ -87,5 +87,5 @@ These skills generate exactly one primary artifact each.
 
 - Claude Code and GitHub Copilot can both consume the installed `SKILL.md` files.
 - GitHub Copilot should be treated as an interactive host today, not a headless runtime target.
-- `/slo-research` still has a Claude-specific automated batch backend today.
+- `/slo-research` interactive use is host-neutral today; `sldo-research` remains an optional Claude batch backend.
 - The live business judgment runtime harness is still Claude-only today.

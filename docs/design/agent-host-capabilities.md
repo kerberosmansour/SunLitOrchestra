@@ -17,7 +17,7 @@ This document is the capability matrix for the current host story. Use it when y
 | Read the canonical skill catalog | Supported | Supported | Catalog is host-neutral |
 | Interactive use of installed skills | Supported | Supported | Exact UX depends on the host's skill/session model |
 | Host-specific overlay doc | `CLAUDE.md` | `copilot-instructions.md` | Both point back to the same canonical catalog |
-| `/slo-research` automated batch backend | Supported | Not supported yet | Current batch backend shells out to `claude` via `sldo-research` |
+| `/slo-research` automated batch backend | Supported | Not supported yet | Optional Claude batch backend shells out to `claude` via `sldo-research` |
 | Headless runtime automation | Supported on specific Claude-only paths | Not supported yet | No Copilot runtime harness is shipped today |
 | Live business judgment runtime harness | Supported as opt-in Claude-only automation | Not supported yet | Current harness depends on `claude -p` |
 
@@ -25,7 +25,7 @@ This document is the capability matrix for the current host story. Use it when y
 
 - The installer is multi-host now. The runtime story is not.
 - GitHub Copilot should be treated as an interactive host today, not a headless automation target.
-- `/slo-research` is the main remaining hidden host boundary. The installed skill is visible in both hosts, but the current batch backend is still Claude-specific.
+- `/slo-research` no longer hides a second-agent dependency in the interactive path. Only the optional batch backend remains Claude-specific.
 
 ## What to read next
 

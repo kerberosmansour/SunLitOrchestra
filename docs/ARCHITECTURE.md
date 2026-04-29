@@ -64,7 +64,7 @@ The current workspace has four active members:
 | Member | Role |
 |---|---|
 | `crates/sldo-common` | Shared library used by the remaining Rust tools |
-| `crates/sldo-research` | Research backend for sourced dossier generation |
+| `crates/sldo-research` | Optional Claude batch backend for sourced dossier generation |
 | `crates/sldo-install` | Host-aware installer for the skill pack |
 | `xtasks/sast-verify` | Deterministic Semgrep validation, coverage, and gate runner |
 
@@ -96,7 +96,7 @@ The root package `sunlit-orchestrate-tests` hosts workspace-level integration te
 | `prompt.rs` | Prompt construction |
 | `dossier.rs` | Dossier assembly and related helpers |
 
-The installed skill is host-neutral. The automated batch backend behind it is still Claude-specific today, which is why the capability matrix calls that boundary out explicitly.
+The installed skill is host-neutral for interactive use. `sldo-research` is the optional Claude batch backend for users who explicitly want automated dossier generation from a Claude-backed CLI flow.
 
 ## Installer: `sldo-install`
 
@@ -135,6 +135,7 @@ The current host line is simple:
 - The catalog and the `SKILL.md` contract are host-neutral.
 - Interactive skill use is supported in Claude Code and GitHub Copilot.
 - Headless runtime automation is still Claude-specific where it exists today.
-- `/slo-research` automated batch execution and the live business judgment runtime harness are the main remaining Claude-only paths.
+- `/slo-research` interactive use is multi-host today; `sldo-research` remains an optional Claude batch backend.
+- The live business judgment runtime harness remains a Claude-only path.
 
 Read `docs/design/agent-host-capabilities.md` before making any stronger host-compatibility promise than that.
