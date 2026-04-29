@@ -1,6 +1,8 @@
 # SunLitOrchestrate Skill Pack
 
-Source of truth for every `/slo-*` skill plus any third-party skills vendored into this pack. Each subdirectory here is one skill; each must contain a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by the skill body.
+This directory is the raw source for every `/slo-*` skill plus any third-party skills vendored into the pack. Each subdirectory here is one skill; each must contain a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by the skill body.
+
+The canonical living catalog is [../docs/skill-pack-catalog.md](../docs/skill-pack-catalog.md). Host-specific session overlays live in [../CLAUDE.md](../CLAUDE.md) and [../copilot-instructions.md](../copilot-instructions.md). The first-run guide lives in [../docs/getting-started.md](../docs/getting-started.md).
 
 ## Layout
 
