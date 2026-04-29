@@ -1,6 +1,6 @@
 # SunLitOrchestrate
 
-> An AI-driven software-development workflow that adds the missing guardrails: idea → research → architecture → plan → critique → execute → verify → ship → reflect. Each step is a slash-command skill for Claude Code, backed by file-based contracts (runbooks, threat models, lessons) so the work survives across sessions and reviewers.
+> An AI-driven software-development workflow that adds the missing guardrails: idea → research → architecture → plan → critique → execute → verify → ship → reflect. Each step is a slash-command skill backed by file-based contracts (runbooks, threat models, lessons) so the work survives across sessions and reviewers.
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
 **Status:** active development. The skill pack and Rust CLIs are stable; the Tauri desktop UI is parked.
@@ -13,7 +13,7 @@ Sit a senior engineer next to an LLM and the LLM will happily write 5,000 lines 
 2. **A sequence of focused skills**, each doing one thing: `/slo-ideate` interrogates the idea, `/slo-research` produces a sourced dossier, `/slo-architect` commits to a stack + emits a threat model, `/slo-plan` writes the runbook one milestone at a time, `/slo-critique` rotates four adversarial reviewers (CEO, eng-lead, security, designer), `/slo-execute M<N>` drives one milestone with allow-list enforcement, `/slo-verify M<N>` runs the runtime QA, `/slo-retro M<N>` writes lessons + completion summaries.
 3. **A SAST rule pack** (`/slo-rulegen`) generating Semgrep rules for the top-10 CWE classes idiomatic Rust + popular crates are most susceptible to. Variation-template-driven, gated by `cargo xtask sast-verify`, never copies AGPL upstream YAML.
 
-The skills can now be installed into [Claude Code](https://claude.com/claude-code) or GitHub Copilot. `sldo-install` still defaults to Claude Code for backward compatibility, and this milestone only changes installer support — broader host-specific docs and runtime capability notes are tracked separately.
+The raw `SKILL.md` contract is agent-neutral. The canonical living catalog lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific session notes live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md). If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
 
 ## Highlights
 
@@ -24,6 +24,8 @@ The skills can now be installed into [Claude Code](https://claude.com/claude-cod
 - **No agentic shortcuts** — every skill *refuses* to run when its inputs aren't present (no idea doc → refuse `/slo-research`; no research dossier → refuse `/slo-architect`; non-`done` tracker rows → refuse `/slo-ship`). Slow is smooth, smooth is fast.
 
 ## Quick start
+
+If you want the step-by-step first-run path, read [docs/getting-started.md](docs/getting-started.md) first. The short version is below.
 
 ### Prerequisites
 
@@ -52,6 +54,8 @@ cargo build -p sldo-install --release
 ```
 
 After install, every `/slo-*` skill is available from the host you selected. If you omit `--host`, `sldo-install` uses `claude-code`.
+
+For the first-use path, expected output files, and troubleshooting, continue with [docs/getting-started.md](docs/getting-started.md).
 
 ### Drive a feature end-to-end
 
@@ -158,7 +162,8 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
 ├── references/                   # Shared scaffolding read by skills (biz/, sast/)
 ├── docs/                         # Runbooks, design docs, lessons, completions
-├── CLAUDE.md                     # Project guidance for Claude Code
+├── CLAUDE.md                     # Claude Code overlay for the canonical skill catalog
+├── copilot-instructions.md       # GitHub Copilot overlay for the same skill pack
 └── SECURITY.md                   # Project-wide security defaults
 ```
 
@@ -172,7 +177,11 @@ cargo test --workspace
 
 Start here:
 
-- [CLAUDE.md](CLAUDE.md) — project guidance read by Claude Code on every session
+- [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
+- [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
+- [CLAUDE.md](CLAUDE.md) — Claude Code overlay for the catalog
+- [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay for the catalog
+- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
 - [SECURITY.md](SECURITY.md) — project-wide security defaults
 - [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
 
@@ -197,7 +206,7 @@ Contributions are welcome. The recommended workflow:
 1. **Fork + clone.** `git clone <your-fork>` and `cd SunLitOrchestrate`.
 2. **Open an issue first** for non-trivial work — the v3 runbook discipline only pays off when the work is scoped before code is written.
 3. **Use the skills on yourself.** `/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` produces a runbook the maintainers can review without any code yet. This is the lowest-friction path to merging.
-4. **Pass the baseline.** `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install -p sast-verify` must be green.
+4. **Pass the baseline.** `cargo test -p sldo-common -p sldo-install -p sldo-research` must be green.
 5. **Open a PR.** The PR description should link to the runbook + the closed milestone's completion summary.
 
 What's currently most welcome:

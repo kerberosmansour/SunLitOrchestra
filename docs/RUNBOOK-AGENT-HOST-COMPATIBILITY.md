@@ -38,7 +38,7 @@ Update this table as each milestone is completed. This is the single source of t
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
 | 1 | Installer host profiles | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m1.md` | `docs/completion/agent-host-m1.md` |
-| 2 | Living docs, getting started, and host overlays | `not_started` | | | | |
+| 2 | Living docs, getting started, and host overlays | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m2.md` | `docs/completion/agent-host-m2.md` |
 | 3 | Agent-neutral `/slo-research` interactive path | `not_started` | | | | |
 | 4 | Isolate Claude-only automation surfaces | `not_started` | | | | |
 | 5 | Targeted skill and structural-test cleanup | `not_started` | | | | |
@@ -887,11 +887,11 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Compatibility Checklist
 
-- [ ] `CLAUDE.md` still exists and remains usable for Claude users.
-- [ ] Host install examples in docs match actual installer behavior.
-- [ ] `README.md` links to `docs/getting-started.md` as the first-run path.
-- [ ] No historical runbook, lessons, or completion file was edited outside the allow-list.
-- [ ] `docs/ARCHITECTURE.md` matches the current workspace, not removed legacy surfaces.
+- [x] `CLAUDE.md` still exists and remains usable for Claude users.
+- [x] Host install examples in docs match actual installer behavior.
+- [x] `README.md` links to `docs/getting-started.md` as the first-run path.
+- [x] No historical runbook, lessons, or completion file was edited outside the allow-list.
+- [x] `docs/ARCHITECTURE.md` matches the current workspace, not removed legacy surfaces.
 
 #### E2E Runtime Validation
 
@@ -905,29 +905,29 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] Read the README install section end-to-end; it mentions both Claude and Copilot and links to `docs/getting-started.md`
-- [ ] Read `docs/getting-started.md` end-to-end; it explains prerequisites, install, first-use, and troubleshooting without assuming prior SLO knowledge
-- [ ] Read `CLAUDE.md`; it remains useful but no longer claims to be the only canonical skill catalog
-- [ ] Read `copilot-instructions.md`; it is actionable for a Copilot session
-- [ ] Read `docs/ARCHITECTURE.md`; it reflects the actual workspace members
-- [ ] `cargo test -p sldo-install --test e2e_agent_host_m2` passes
-- [ ] `git status` shows no untracked test artifacts
+- [x] Read the README install section end-to-end; it mentions both Claude and Copilot and links to `docs/getting-started.md`
+- [x] Read `docs/getting-started.md` end-to-end; it explains prerequisites, install, first-use, and troubleshooting without assuming prior SLO knowledge
+- [x] Read `CLAUDE.md`; it remains useful but no longer claims to be the only canonical skill catalog
+- [x] Read `copilot-instructions.md`; it is actionable for a Copilot session
+- [x] Read `docs/ARCHITECTURE.md`; it reflects the actual workspace members
+- [x] `cargo test -p sldo-install --test e2e_agent_host_m2` passes
+- [x] `git status` shows no untracked test artifacts
 
 #### Evidence Log
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | | | |
-| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m2.rs` | fail for expected reason | | | |
-| E2E stubs created | same file | fail for expected reason | | | |
-| Implementation | living docs + getting-started guide + overlays | docs become truthful, beginner-friendly, and non-duplicative | | | |
-| Full tests | `cargo test -p sldo-install --test e2e_agent_host_m2` | green | | | |
-| E2E runtime | `cargo test -p sldo-install --test e2e_agent_host_m2` | green | | | |
-| Build/boot | `cargo build -p sldo-install` | builds cleanly | | | |
-| Smoke tests | manual doc review | all checked | | | |
-| Test artifact cleanup | `git status` | no untracked test artifacts | | | |
-| .gitignore review | review `.gitignore` | no new patterns needed beyond M1 | | | |
-| Compatibility checks | overlay, architecture, and onboarding checks | no regressions | | | |
+| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | all targeted crates and doc-structure tests passed; one unrelated pre-existing unused-import warning remained in `e2e_biz_followup_m5.rs` | Pass | Warning is non-blocking and outside this milestone's scope |
+| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m2.rs` | fail for expected reason | first run failed because `copilot-instructions.md`, `docs/getting-started.md`, and `docs/design/agent-host-capabilities.md` did not exist yet | Pass | Missing-doc failure cleanly exposed the required M2 deliverables |
+| E2E stubs created | same file | fail for expected reason | initial structural checks also showed the old catalog and overlay split was still implicit | Pass | The failing test gave the smallest truthful edit surface |
+| Implementation | living docs + getting-started guide + overlays | docs become truthful, beginner-friendly, and non-duplicative | added `copilot-instructions.md`, `docs/getting-started.md`, and `docs/design/agent-host-capabilities.md`; rewrote `docs/skill-pack-catalog.md` and `docs/ARCHITECTURE.md`; updated `README.md`, `CLAUDE.md`, and `skills/README.md` | Pass | Canonical catalog, overlays, onboarding, and capability matrix now have distinct roles |
+| Full tests | `cargo test -p sldo-install --test e2e_agent_host_m2` | green | 4 passed; 0 failed | Pass | Confirms the new doc contract |
+| E2E runtime | `cargo test -p sldo-install --test e2e_agent_host_m2` | green | 4 passed; 0 failed | Pass | Same focused validation used for the milestone gate |
+| Build/boot | `cargo build -p sldo-install` | builds cleanly | build finished successfully | Pass | Confirms docs-only milestone did not disturb the supported installer target |
+| Smoke tests | manual doc review | all checked | README, getting-started, Claude overlay, Copilot overlay, and architecture doc were read end-to-end and aligned with the current host split | Pass | No prior-SLO assumptions remain in the first-run guide |
+| Test artifact cleanup | `git status` | no untracked test artifacts | worktree showed only intended source edits and newly added milestone files; no generated artifacts appeared | Pass | New tracked docs/tests are expected |
+| .gitignore review | review `.gitignore` | no new patterns needed beyond M1 | existing `.claude/` and `.copilot/` ignores already cover the local host state introduced so far | Pass | No M2 `.gitignore` change required |
+| Compatibility checks | overlay, architecture, and onboarding checks | no regressions | Claude overlay remained usable, install examples matched M1 behavior, README linked to the first-run guide, and architecture now matches the four active workspace members | Pass | Current Claude-only runtime limits are documented instead of implied |
 
 #### Definition of Done
 
