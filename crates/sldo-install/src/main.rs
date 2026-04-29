@@ -1,19 +1,23 @@
 //! `sldo-install` — install, update, and uninstall the SunLitOrchestrate skill pack.
 //!
 //! Symlinks the skill directories under `skills/` in this repo into the
-//! host agent's skills directory (default: `~/.claude/skills/`), or into a
-//! project-local `.claude/skills/` when `--local` is passed.
+//! selected host agent's skills directory (default: `~/.claude/skills/`), or
+//! into a project-local host directory such as `./.claude/skills/` or
+//! `./.copilot/skills/` when `--local` is passed.
 //!
 //! The installer is idempotent: running it twice leaves the same state as
 //! running it once. Uninstall reverses every change recorded in the manifest.
 
 use anyhow::{bail, Context, Result};
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+mod host;
 mod install;
 mod manifest;
 mod paths;
+
+use host::Host;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -30,11 +34,11 @@ struct Cli {
     #[arg(long, global = true)]
     skills_dir: Option<PathBuf>,
 
-    /// Install into the project-local `.claude/skills/` instead of `~/.claude/skills/`.
+    /// Install into the project-local host skills directory instead of the global host root.
     #[arg(long, global = true)]
     local: bool,
 
-    /// Target host agent. Only `claude-code` is implemented in M1.
+    /// Target host agent. Defaults to `claude-code` for backward compatibility.
     #[arg(long, value_enum, default_value_t = Host::ClaudeCode, global = true)]
     host: Host,
 
@@ -59,17 +63,13 @@ enum Command {
     Verify,
 }
 
-#[derive(Copy, Clone, Debug, ValueEnum)]
-enum Host {
-    ClaudeCode,
-}
-
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let command = cli.command.unwrap_or(Command::Install);
 
     let opts = install::Options {
         skills_dir: resolve_skills_dir(cli.skills_dir)?,
+        host: cli.host,
         local: cli.local,
         force: cli.force,
         dry_run: cli.dry_run,

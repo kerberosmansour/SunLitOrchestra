@@ -13,7 +13,7 @@ Sit a senior engineer next to an LLM and the LLM will happily write 5,000 lines 
 2. **A sequence of focused skills**, each doing one thing: `/slo-ideate` interrogates the idea, `/slo-research` produces a sourced dossier, `/slo-architect` commits to a stack + emits a threat model, `/slo-plan` writes the runbook one milestone at a time, `/slo-critique` rotates four adversarial reviewers (CEO, eng-lead, security, designer), `/slo-execute M<N>` drives one milestone with allow-list enforcement, `/slo-verify M<N>` runs the runtime QA, `/slo-retro M<N>` writes lessons + completion summaries.
 3. **A SAST rule pack** (`/slo-rulegen`) generating Semgrep rules for the top-10 CWE classes idiomatic Rust + popular crates are most susceptible to. Variation-template-driven, gated by `cargo xtask sast-verify`, never copies AGPL upstream YAML.
 
-The skills run inside [Claude Code](https://claude.com/claude-code). The Rust CLIs (`sldo-plan`, `sldo-run`, `sldo-research`) implement the same orchestration without Claude Code (they shell out to GitHub Copilot CLI or Claude Code CLI directly).
+The skills can now be installed into [Claude Code](https://claude.com/claude-code) or GitHub Copilot. `sldo-install` still defaults to Claude Code for backward compatibility, and this milestone only changes installer support — broader host-specific docs and runtime capability notes are tracked separately.
 
 ## Highlights
 
@@ -28,7 +28,7 @@ The skills run inside [Claude Code](https://claude.com/claude-code). The Rust CL
 ### Prerequisites
 
 - **Rust toolchain** (stable). `rustup install stable` if you don't have one.
-- **Claude Code** ([install instructions](https://docs.claude.com/en/docs/claude-code/quickstart)). Required for the `/slo-*` skills.
+- **A supported host agent**: Claude Code or GitHub Copilot. Claude Code remains the default target if you do not pass `--host`.
 - **Semgrep** (`brew install semgrep` or `pip install semgrep`). Required for the SAST rule pack only.
 
 ### Install the skill pack
@@ -37,14 +37,21 @@ The skills run inside [Claude Code](https://claude.com/claude-code). The Rust CL
 git clone https://github.com/kerberosmansour/SunLitOrchestrate.git
 cd SunLitOrchestrate
 
-# Build the installer + the SAST verifier
-cargo build -p sldo-install -p sast-verify --release
+# Build the installer
+cargo build -p sldo-install --release
 
-# Symlink skills/* into ~/.claude/skills/
+# Claude Code is still the default host
 ./target/release/sldo-install
+
+# Install into GitHub Copilot instead
+./target/release/sldo-install --host github-copilot
+
+# Project-local installs write into ./.claude/skills/ or ./.copilot/skills/
+./target/release/sldo-install --local
+./target/release/sldo-install --host github-copilot --local
 ```
 
-After install, every `/slo-*` skill is invocable from any Claude Code session.
+After install, every `/slo-*` skill is available from the host you selected. If you omit `--host`, `sldo-install` uses `claude-code`.
 
 ### Drive a feature end-to-end
 
@@ -142,11 +149,11 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 
 ```
 .
-├── skills/                       # Claude Code skill pack (slo-*  + get-api-docs)
+├── skills/                       # Skill pack (slo-* + get-api-docs)
 ├── crates/
 │   ├── sldo-common/              # Shared library (used by sldo-research)
 │   ├── sldo-research/            # Backend driven by /slo-research skill
-│   └── sldo-install/             # Skill installer (symlinks skills/* to ~/.claude/skills/)
+│   └── sldo-install/             # Skill installer (symlinks skills/* into the selected host root)
 ├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate; driven by /slo-rulegen + /slo-ruleverify)
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
 ├── references/                   # Shared scaffolding read by skills (biz/, sast/)

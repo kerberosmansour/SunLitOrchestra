@@ -13,11 +13,11 @@ SunLitOrchestrate is an AI-driven software development toolkit with two interfac
 
 Both interfaces share `sldo-common`, a library of reusable modules.
 
-A third, first-class surface ships alongside the CLIs and desktop app: the `/slo-*` **skill pack** (see [Skill Pack](#skill-pack) below). Skills are Markdown `SKILL.md` files consumed by Claude Code; they are not compiled Rust. The CLI tools (`sldo-plan`, `sldo-run`) were the original interface; the skill pack is the active direction (the `sldo-tauri` desktop app is parked).
+A third, first-class surface ships alongside the CLIs and desktop app: the `/slo-*` **skill pack** (see [Skill Pack](#skill-pack) below). Skills are Markdown `SKILL.md` files consumed by skill-capable coding agents; they are not compiled Rust. `sldo-install` currently supports installing them into Claude Code and GitHub Copilot, with Claude Code still the default host for backward compatibility. The CLI tools (`sldo-plan`, `sldo-run`) were the original interface; the skill pack is the active direction (the `sldo-tauri` desktop app is parked).
 
 ## Skill Pack
 
-The skill pack lives at `skills/slo-*/` and is installed to `~/.claude/skills/` by `sldo-install`. Each skill is a directory with a single `SKILL.md` plus optional support files (`personas/`, `examples/`, `references/`). Skills are invoked by the user as `/<skill-name>` in Claude Code; the loader reads `SKILL.md` frontmatter (`name:`, `description:`) and exposes the skill.
+The skill pack lives at `skills/slo-*/` and is installed by `sldo-install`. Global installs land in `~/.claude/skills/` by default or `~/.copilot/skills/` when `--host github-copilot` is selected; local installs land in `./.claude/skills/` or `./.copilot/skills/`. Global installs share `~/.sldo/install.toml`, and each manifest entry records its owning host so `status`, `verify`, and `uninstall` stay host-specific. Each skill is a directory with a single `SKILL.md` plus optional support files (`personas/`, `examples/`, `references/`).
 
 | Stage | Skill | Purpose |
 |---|---|---|
