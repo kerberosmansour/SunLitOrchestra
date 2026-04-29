@@ -17,14 +17,15 @@ mod research;
 /// recover between calls.
 const COOLDOWN_SECS: u64 = 5;
 
-/// Generate a research dossier using Claude Code CLI.
+/// Generate a research dossier using the optional Claude batch backend.
 ///
 /// Takes a research prompt (via file or inline arg), explores the topic using
-/// Claude Code, and produces a structured dossier ready for use with sldo-plan.
+/// the optional Claude batch backend, and produces a structured dossier ready
+/// for use with sldo-plan.
 #[derive(Parser, Debug)]
 #[command(
     name = "sldo-research",
-    about = "Generate a research dossier using Claude Code CLI."
+    about = "Generate a research dossier using the optional Claude batch backend."
 )]
 struct Cli {
     /// Path to a file containing the research prompt.
@@ -70,7 +71,7 @@ fn run() -> Result<()> {
         _ => {}
     }
 
-    header("Research Dossier Generator");
+    header("Research Dossier Generator (Claude batch backend)");
     info(&format!("Output:         {}", cli.output.display()));
     info(&format!("Model:          {}", cli.model));
     info(&format!("Max iterations: {}", cli.max_iterations));
