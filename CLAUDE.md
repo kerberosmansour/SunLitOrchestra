@@ -1,6 +1,6 @@
-# SunLitOrchestrate — Claude Code project notes
+# SunLitOrchestrate — Claude Code overlay
 
-This repo hosts the SunLitOrchestrate (SLO) skill pack for Claude Code. When you are working in this repo, the skills below are available via `sldo-install`.
+This file is the Claude Code overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in Claude Code and need Claude-specific session notes. For the host-neutral list of shipped skills, read the catalog first. For GitHub Copilot-specific notes, read [copilot-instructions.md](copilot-instructions.md).
 
 ## Skill pack — first-party `/slo-*` skills
 
@@ -9,7 +9,7 @@ Sprint flow: Think → Plan → Build → Review → Test → Ship → Reflect.
 | Stage | Skill | Purpose |
 |---|---|---|
 | Ideate | `/slo-ideate` | YC-style product interrogation before any code |
-| Research | `/slo-research` | Wraps `sldo-research` Rust backend for sourced dossiers |
+| Research | `/slo-research` | Host-native research first; optional Claude batch backend via `sldo-research` |
 | Architect | `/slo-architect` | Stack + ARCHITECTURE.md + interfaces lock-in + `tla_required` flag |
 | Verify design | `/slo-tla` | TLC model-check the design (when `tla_required: true`) |
 | Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
@@ -70,10 +70,10 @@ Every feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows [docs/run
 ## Baseline test command (this repo)
 
 ```bash
-cargo test --workspace
+cargo test -p sldo-common -p sldo-install -p sldo-research
 ```
 
-The workspace contains four crates: `sldo-common` (shared library), `sldo-research` (Rust backend driven by `/slo-research`), `sldo-install` (skill installer), and `xtasks/sast-verify` (Semgrep rule gate driven by `/slo-rulegen` + `/slo-ruleverify`). All other Rust code (the legacy `sldo-plan` / `sldo-run` CLIs, the parked `sldo-tauri` desktop UI, the `sldo-tla-sha` maintenance utility) was removed in the 2026-04 cleanup — the skills are the canonical interface now.
+The workspace contains four crates: `sldo-common` (shared library), `sldo-research` (optional Claude batch backend for `/slo-research`), `sldo-install` (skill installer), and `xtasks/sast-verify` (Semgrep rule gate driven by `/slo-rulegen` + `/slo-ruleverify`). All other Rust code (the legacy `sldo-plan` / `sldo-run` CLIs, the parked `sldo-tauri` desktop UI, the `sldo-tla-sha` maintenance utility) was removed in the 2026-04 cleanup — the skills are the canonical interface now.
 
 ## Installing the pack on this machine
 
@@ -87,3 +87,7 @@ cargo build -p sldo-install --release
 ```
 
 Manifest: `~/.sldo/install.toml`.
+
+If you are using GitHub Copilot instead of Claude Code, use [copilot-instructions.md](copilot-instructions.md) for the matching host overlay.
+
+If you are completely new to the repo, start with [docs/getting-started.md](docs/getting-started.md) before using this overlay.
