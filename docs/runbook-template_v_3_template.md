@@ -335,6 +335,38 @@ These are forbidden unless explicitly overridden inside a milestone.
 
 ---
 
+## Carry-forward from prior retros
+
+> **Optional section.** Existing runbooks without this section remain valid; `/slo-execute` Step 1.5 falls back to a live `gh issue list --label retro-derived` query. Authors of new runbooks SHOULD include this section once `/slo-retro` files at least one retro-derived issue against this runbook's prefix.
+>
+> **What this section is**: a table of open prior-retro issues (filed by `/slo-retro` for this runbook's prefix) that should be considered as scope candidates at each milestone start. Each row has a suggested **lane** so small follow-ups stay small and large follow-ups do not silently widen scope.
+>
+> **What this section is NOT**: an auto-extension of any milestone's allow-list. The user decides each milestone's bounds. Carry-forward is informational input to that decision, not a substitute for it.
+
+| Issue | Title | Suggested lane | Suggested milestone | Status |
+|---|---|---|---|---|
+| (e.g., #42) | (one-line summary) | `micro` \| `milestone` \| `fresh-runbook` | (M3 \| M4 \| next runbook) | (open \| closed-via-PR-pending \| transferred) |
+
+### Lane vocabulary
+
+- **`micro`** — safe, bounded follow-up. Can be folded into the current or immediate next milestone without widening scope (typical: doc polish, small test gap, naming-convention drift).
+- **`milestone`** — real milestone-sized work. Warrants its own milestone in this runbook or the next; do not bolt onto an unrelated milestone.
+- **`fresh-runbook`** — material scope or risk shift. Do NOT widen the current runbook silently; spin a separate runbook (typical: new architecture work, regulated-domain question, multi-week effort).
+
+### How `/slo-execute` reads this section
+
+`/slo-execute M<N>` pre-flight Step 1.5 prefers rows from this section over a live `gh` query when the rows are fresh. Rows with `status: closed-via-PR-pending` or `transferred` surface with annotation; the user decides whether to track. Inline output caps at the top 3 items.
+
+### How `/slo-resume` reads this section
+
+`/slo-resume` reads the milestone tracker plus this section to emit one next action with a lane. Top-3 inline cap; remainder summarized as `... N more`.
+
+### Backward compat
+
+Runbooks without this section continue to work; `/slo-execute` and `/slo-resume` fall back to the live `gh` query and the tracker-only orientation respectively.
+
+---
+
 ## BDD and Runtime Validation Rules
 
 Every milestone follows these rules.
