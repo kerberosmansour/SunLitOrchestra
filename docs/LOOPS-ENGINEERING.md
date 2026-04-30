@@ -212,7 +212,7 @@ If a future addition to this doc cannot point at a concrete user-visible outcome
 
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md) — static structure of the skill pack at HEAD.
 - [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — business-side loops (user-interview, GTM, pricing, founder-check).
-- [docs/runbook-template_v_3_template.md](runbook-template_v_3_template.md) — the canonical planning artifact whose "Carry-forward from prior retros" section is the lessons loop's read-back.
+- [docs/runbook-template_v_4_template.md](runbook-template_v_4_template.md) — the canonical planning artifact whose "Carry-forward from prior retros" section is the lessons loop's read-back. (The earlier [v3 template](runbook-template_v_3_template.md) remains in place for runbooks already authored against it.)
 - [skills/slo-retro/SKILL.md](../skills/slo-retro/SKILL.md) — the writer end of the lessons loop.
 - [skills/slo-execute/SKILL.md](../skills/slo-execute/SKILL.md) — the reader end of the lessons loop (pre-flight carry-forward).
 - [skills/slo-resume/SKILL.md](../skills/slo-resume/SKILL.md) — one-screen orientation across loops.
