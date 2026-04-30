@@ -245,7 +245,7 @@ fn existing_runbooks_have_milestone_tracker() {
     for rb in [
         "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
         "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
-        "docs/RUNBOOK-SAST-RULEGEN-A.md",
+        "docs/RUNBOOK-SLO-SEC-LIBS.md",
     ] {
         let body = read(&repo_root().join(rb));
         assert!(
