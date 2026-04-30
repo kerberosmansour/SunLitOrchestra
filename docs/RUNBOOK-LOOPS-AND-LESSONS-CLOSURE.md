@@ -36,8 +36,8 @@
 | 1 | LOOPS-ENGINEERING.md authored + cross-linked | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m1.md](lessons/loops-m1.md) | [docs/completion/loops-m1.md](completion/loops-m1.md) |
 | 2 | LOOPS-BUSINESS.md authored + cross-linked | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m2.md](lessons/loops-m2.md) | [docs/completion/loops-m2.md](completion/loops-m2.md) |
 | 3 | `/slo-retro` extension: classify, dedupe, file lessons as issues | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m3.md](lessons/loops-m3.md) | [docs/completion/loops-m3.md](completion/loops-m3.md) |
-| 4 | `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section with suggested lane | `not_started` | | | | |
-| 5 | `/slo-resume` next-step digest + lane-aware orientation | `not_started` | | | | |
+| 4 | `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section with suggested lane | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m4.md](lessons/loops-m4.md) | [docs/completion/loops-m4.md](completion/loops-m4.md) |
+| 5 | `/slo-resume` next-step digest + lane-aware orientation | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m5.md](lessons/loops-m5.md) | [docs/completion/loops-m5.md](completion/loops-m5.md) |
 
 ---
 
@@ -1000,11 +1000,11 @@ See template (`docs/completion/loops-m<N>.md`).
 
 ## Carry-forward from prior retros
 
-(This section is the dogfood of M4's template change. It is empty until M3 produces filings; M5 then uses the section as the read-only orientation input. The section is here so the artifact-shape is visible even before real rows accumulate.)
+(This section dogfoods M4's template change. M3 closed without producing GitHub-filed retro-derived issues yet, so the rows below are placeholder + lessons-derived candidates rather than live `gh issue list` output. M5 will treat this section as the read-only orientation input.)
 
 | Issue | Title | Suggested lane | Suggested milestone | Status |
 |---|---|---|---|---|
-| (none yet — M1) | | | | |
+| (none yet — first run of the loop) | M1-M4 lessons did not produce any blocker-class follow-ups; the Library-feedback loop placeholder is tracked in the runbook itself, not as a separate issue. | `micro` | M5 | open |
 
 ---
 
