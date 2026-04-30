@@ -123,11 +123,75 @@ Do not fix these yourself. Tell the user which rows are blank, which questions a
 - <limitation>
 ```
 
+## Issue filing
+
+After the lessons file, completion summary, and tracker update are on disk, classify each lesson and file it as a tracked issue with explicit user confirmation. **Issue filing is strictly additive** — if anything fails here, the three on-disk artifacts above are still safe.
+
+Read [`references/issue-filing-discipline.md`](references/issue-filing-discipline.md) for the locked rules. The procedure below is the in-prose summary; the reference file is the authoritative source.
+
+### Step 1 — classify each lesson
+
+For every flagged lesson in `docs/lessons/<prefix>-m<N>.md`, decide one of:
+
+- **`product`** — lesson applies to the current target product / repo. Filed against the current repo (resolved via `git config remote.origin.url`).
+- **`upstream-OSS`** — lesson applies to a third-party tool (Semgrep, Playwright, `cargo audit`, etc.). Filed against the resolved upstream repo via `.sldo/upstream-mapping.toml` (with crates.io / npm fallback).
+- **`slo-process`** — lesson applies to SunLitOrchestrate itself (skill prose, runbook template, the lessons loop mechanism). Filed against `kerberosmansour/SunLitOrchestrate`.
+
+If a lesson does not fit any of the three, ask the user. Do not invent a fourth classification.
+
+### Step 2 — three-strike dedupe
+
+For each candidate filing, run **three** `gh search issues --label retro-derived` queries:
+
+1. Literal title search.
+2. NFKC-normalized title search.
+3. ASCII-collapsed (lowercase, whitespace-collapsed, non-ASCII stripped) search.
+
+If any strike returns a hit, surface it and skip filing unless the user explicitly says "file new anyway". Reject candidates with U+202E / U+202D (RTL / LTR override codepoints) outright — escalate to the user.
+
+Also check `LESSONS-BACKLOG.md` for matching `body_sha256` rows (cross-session dedupe).
+
+### Step 3 — confirm with user
+
+Before any `gh issue create`, surface a confirmation prompt with: classification, resolved destination URL, dedupe disposition (`none` / `match-id` / `ambiguous`), candidate title, candidate body preview. **Never auto-file.** Issue creation is publicly visible; user gate is non-negotiable.
+
+### Step 4 — file with argv-list discipline
+
+```
+gh issue create --title "<title>" --body "<body>" --label retro-derived
+```
+
+**Rules**:
+- argv-list form only — no shell-string interpolation of lesson body. Inherits from `/slo-sast` M5.
+- **NO `--repo` flag** — confused-deputy defense. Rely on `gh`'s default origin-based resolution.
+- Wrap the lesson body in `~~~text` fence (per `/slo-architect` user-string-fence rule) so downstream skills (M4 carry-forward, `/slo-resume`) treat it as literal text.
+- Truncate body at 65,536 chars with a `... [truncated; full body in lessons file at <path>]` footer.
+- Cap: 40 issues per session per hour. Spill remaining lessons to `LESSONS-BACKLOG.md` with `disposition: spilled-cap`.
+- Adaptive backoff on `gh` rate-limit responses — read `Retry-After` (default 60 s); never retry blind.
+
+### Step 5 — record in lessons file frontmatter
+
+Append a `filed_issues:` frontmatter block to `docs/lessons/<prefix>-m<N>.md` listing each filing's URL, classification, disposition (`filed` / `skipped-dupe` / `skipped-user` / `spilled-cap`), and `body_sha256` (first 12 hex chars).
+
+### Fallback — `gh` unavailable
+
+If `which gh` returns nothing, OR `gh auth status` returns unauth, append the lesson to a top-level `LESSONS-BACKLOG.md` file using the 12-field audit row schema in `references/issue-filing-discipline.md`. The lessons file is still written first (the graceful-degradation rule). Notify the user with a `gh auth login` install hint.
+
+### Forbidden in this flow
+
+- Auto-filing without confirmation.
+- `--repo` flag.
+- Shell-string interpolation of lesson body.
+- Skipping dedupe.
+- Replacing or skipping the lessons-file write — issue filing is ALWAYS additive, after the file is on disk.
+
 ## Anti-patterns
 
 - Writing platitudes — "it went well", "nothing to note". The template fields exist because honest post-mortems find things. If a field is truly N/A, write the one-line reason it's N/A.
 - Closing a milestone with out-of-scope edits un-flagged — the lessons file is where scope breaches get documented so the next milestone's allow-list can learn.
 - Skipping the "rules for the next milestone" section. This is the single most valuable part of the lessons file and the next milestone will read it first.
+- Auto-filing issues. Issue creation is publicly visible — confirmation is non-negotiable.
+- Filing without `--label retro-derived`. The label is the canonical marker `/slo-execute` M4 carry-forward queries against.
 
 ## Handoff
 
