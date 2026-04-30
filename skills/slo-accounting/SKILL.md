@@ -127,3 +127,7 @@ After a successful `draft brief-the-accountant`, suggest the founder schedule th
 - **Not a tax-advice tool.** Accounting / tax advice for specific founder situations routes to the founder's accountant via `triage` or `prepare`.
 - **Not a legal tool.** Legal questions route to `/slo-legal`. Cross-domain questions (e.g., contractor IP assignment with R&D credit implications) route to triage with both accountant + lawyer routing.
 - **Not jurisdiction-aware.** UK only in v1.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).

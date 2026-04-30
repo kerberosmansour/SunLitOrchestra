@@ -118,3 +118,7 @@ After offer + acceptance: suggest `/slo-equity` (Runbook A M3) for option-grant 
 - Not a payroll tool. PAYE / NI / pension setup is `/slo-accounting`.
 - Not a contract drafter. Employment contract is `/slo-legal`.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).
