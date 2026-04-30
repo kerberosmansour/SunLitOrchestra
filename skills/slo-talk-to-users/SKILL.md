@@ -172,3 +172,7 @@ After `pre-interview`: suggest the founder block 30 min on the calendar + send t
 - Not a feature-validation tool — interviews surface PAIN, not feature votes. If the founder is asking "should I build X?", redirect to `/slo-ideate` for the wedge question + this skill for grounding.
 - Not a CRM. The artifact is a single interview's record. Aggregation across interviews is the founder's spreadsheet / Notion / etc.
 - Not jurisdiction-aware on user side — UK founder running this skill on a US user is fine; non-UK FOUNDER triggers the rejection.
+
+---
+
+**Loops**: User-interview loop — see [docs/LOOPS-BUSINESS.md#user-interview-loop](../../docs/LOOPS-BUSINESS.md#user-interview-loop).

@@ -117,3 +117,7 @@ After the strategy doc is written, suggest `/slo-product roadmap` (M3) to transl
 - Not a sales playbook — outbound scripts / cold-email templates are `/slo-sales-funnel` (Runbook B2 M2) territory.
 - Not a brand guide — brand voice / visual identity is `/slo-marketing` (M4) territory.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: GTM loop — see [docs/LOOPS-BUSINESS.md#gtm-loop](../../docs/LOOPS-BUSINESS.md#gtm-loop).

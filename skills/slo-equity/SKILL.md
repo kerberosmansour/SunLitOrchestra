@@ -101,3 +101,7 @@ After `draft cofounder-split-rationale`, suggest the founder use `/slo-equity pr
 - Not a tax-advice tool for individuals — Founder personal-tax implications of equity (CGT on disposal, employment-related-securities elections) route to accountant.
 - Not jurisdiction-aware — UK only in v1.
 - Not a vesting-agreement template generator — the vesting-schedule output is a memo / spreadsheet brief; the actual vesting agreement is solicitor-drafted.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).
