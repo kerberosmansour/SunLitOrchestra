@@ -1,7 +1,7 @@
 //! sldo-common — shared library for SunLitOrchestrate Rust tools.
 
+pub mod claude_cli;
 pub mod color;
-pub mod copilot;
 pub mod detect;
 pub mod git;
 pub mod logging;

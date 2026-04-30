@@ -95,7 +95,12 @@ The v1 fixture set covers the highest-risk marginal cases identified in the comb
 
 ## Runtime harness
 
-Two layers, one source of truth (`crates/sldo-install/tests/common/judgment_runtime.rs`):
+This is a **Claude-only live runtime harness**. It shells out to `claude -p`
+and there is no host-neutral equivalent. The agent-host runbook's M4 cleanup
+renamed the helper module from `judgment_runtime.rs` to `claude_runtime.rs`
+so the source tree itself signals the boundary.
+
+Two layers, one source of truth (`crates/sldo-install/tests/common/claude_runtime.rs`):
 
 1. **Non-ignored structural tests** in `crates/sldo-install/tests/e2e_biz_followup_m4.rs` — assert the fixture directory exists, each fixture has the required frontmatter, and frontmatter values are within the documented enums. Always run as part of `cargo test -p sldo-install`.
 2. **Ignored runtime tests** in `crates/sldo-install/tests/e2e_biz_judgment_runtime_m1.rs` (single-fixture proof) and `crates/sldo-install/tests/e2e_biz_judgment_runtime_m2.rs` (all 9 fixtures + global cost-cap). Each test invokes `claude -p` against one fixture, parses the resulting artifact's frontmatter, and asserts `gates_fired` / `triage_gate_passed` / `mode` match the fixture's expectations. Adversarial fixtures (`adversarial: true` or `must_refuse: true`) are checked against the refusal-phrase allowed list in `REFUSAL_PHRASES`.
