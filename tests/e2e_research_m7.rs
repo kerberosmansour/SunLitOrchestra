@@ -24,14 +24,6 @@ fn binary() -> String {
     env!("CARGO_MANIFEST_DIR").to_string() + "/target/debug/sldo-research"
 }
 
-fn plan_binary() -> String {
-    env!("CARGO_MANIFEST_DIR").to_string() + "/target/debug/sldo-plan"
-}
-
-fn run_binary() -> String {
-    env!("CARGO_MANIFEST_DIR").to_string() + "/target/debug/sldo-run"
-}
-
 fn fixture_path(rel: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
@@ -237,47 +229,10 @@ fn test_plan_ready_fixture_is_consumable_by_sldo_plan() {
 }
 
 // ── Backwards-compat regression guards ───────────────────────────────────
-
-#[test]
-fn test_sldo_plan_help_unchanged_after_m7() {
-    let output = Command::new(plan_binary())
-        .arg("--help")
-        .output()
-        .expect("failed to execute sldo-plan --help");
-    assert!(output.status.success());
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    // Pin a few canonical surface bits.
-    for needle in [
-        "sldo-plan",
-        "PROMPT_FILE",
-        "REPO_DIR",
-        "--output",
-        "--model",
-    ] {
-        assert!(
-            stdout.contains(needle),
-            "sldo-plan --help missing expected surface: {}",
-            needle
-        );
-    }
-}
-
-#[test]
-fn test_sldo_run_help_unchanged_after_m7() {
-    let output = Command::new(run_binary())
-        .arg("--help")
-        .output()
-        .expect("failed to execute sldo-run --help");
-    assert!(output.status.success());
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    for needle in ["sldo-run", "RUNBOOK", "REPO_DIR"] {
-        assert!(
-            stdout.contains(needle),
-            "sldo-run --help missing expected surface: {}",
-            needle
-        );
-    }
-}
+//
+// Note: `sldo-plan` and `sldo-run` CLIs were removed in the 2026-04 cleanup
+// (see CLAUDE.md). Their backwards-compat tests have been deleted; the
+// `sldo-research` surface guard remains.
 
 #[test]
 fn test_sldo_research_help_unchanged_after_m7() {
