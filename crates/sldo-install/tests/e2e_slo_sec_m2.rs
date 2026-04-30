@@ -10,16 +10,17 @@ use std::path::{Path, PathBuf};
 
 // --- Fixture: FNV-1a 64-bit hash of docs/runbook-template_v_3_template.md.
 //
-// Captured at the start of M2 via
-//     python3 -c "<inline FNV-1a>"  <docs/runbook-template_v_3_template.md
-// on 2026-04-24. If this constant changes during M2, somebody edited the
-// template — which the M2 contract forbids. The test fails loudly.
+// Re-pinned 2026-04-30 by the loops-and-lessons-closure runbook M4, which
+// explicitly authorizes adding the optional "Carry-forward from prior retros"
+// section to the template. Earlier value (M2-era, 2026-04-24) was
+// 0x5c2f04635249e0a2 / 29978 bytes. Future template edits must also be
+// authorized by a milestone contract; if a future runbook touches the
+// template without authorization, this test fails loudly.
 //
 // FNV-1a is non-cryptographic but stable, cheap to compute inline, and
-// avoids pulling in `sha2` as a dev-dependency (the milestone contract
-// allows no new deps).
-const EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64: u64 = 0x5c2f04635249e0a2;
-const EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN: usize = 29978;
+// avoids pulling in `sha2` as a dev-dependency.
+const EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64: u64 = 0xfe57e5c116c1542e;
+const EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN: usize = 32341;
 
 fn fnv1a_64(s: &[u8]) -> u64 {
     let mut h: u64 = 0xcbf29ce484222325;
@@ -301,13 +302,13 @@ fn runbook_v3_template_fnv1a_unchanged() {
     assert_eq!(
         body.len(),
         EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN,
-        "template byte length changed — template was modified during M2"
+        "template byte length changed — re-pin only when authorized by an explicit milestone contract"
     );
     let hash = fnv1a_64(&body);
     assert_eq!(
         hash,
         EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64,
-        "template FNV-1a-64 hash changed (expected 0x{EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64:016x}, got 0x{hash:016x}) — template was modified during M2 (forbidden by contract)"
+        "template FNV-1a-64 hash changed (expected 0x{EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64:016x}, got 0x{hash:016x}) — re-pin only when authorized by an explicit milestone contract"
     );
 }
 
