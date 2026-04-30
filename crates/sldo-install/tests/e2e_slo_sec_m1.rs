@@ -487,7 +487,7 @@ fn existing_runbooks_still_parse() {
     let runbook_files = [
         "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
         "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
-        "docs/RUNBOOK-SAST-RULEGEN-A.md",
+        "docs/RUNBOOK-SLO-SEC-LIBS.md",
     ];
     for rb in runbook_files {
         let body = read(&repo_root().join(rb));

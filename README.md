@@ -2,9 +2,6 @@
 
 > An AI-first workflow that turns "build this" into scoped, reviewable, testable work. SunLitOrchestrate adds durable guardrails around LLM execution: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
 
-**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
-**Status:** active development. The skill pack and Rust CLIs are stable; the Tauri desktop UI is parked.
-
 ## Why SunLitOrchestrate
 
 SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope drift, missing rationale, and lessons that die in chat history.
@@ -16,6 +13,10 @@ SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope
 - **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
 
 If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
+
+**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
+
+**Status:** active development. The skill pack and Rust CLIs are stable.
 
 ## What ships here
 
