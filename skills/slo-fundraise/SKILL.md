@@ -129,3 +129,7 @@ After `draft safe-worksheet`, suggest `/slo-fundraise prepare 'lawyer + accounta
 - Not an investor-finder / pitch-deck designer. The pitch narrative is a structured prose output; deck design and investor outreach are separate work.
 - Not a tax-advice tool. SEIS / EIS qualifying decisions route to accountant / specialist VCT advisor.
 - Not jurisdiction-aware. UK only in v1.
+
+---
+
+**Loops**: Pricing loop, Founder-check loop — see [docs/LOOPS-BUSINESS.md#pricing-loop](../../docs/LOOPS-BUSINESS.md#pricing-loop).

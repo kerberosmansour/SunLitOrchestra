@@ -170,6 +170,8 @@ Start here:
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
 - [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
+- [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
+- [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — why the pack prefers more internal discipline with less user-visible ceremony
 - [SECURITY.md](SECURITY.md) — project-wide security defaults
