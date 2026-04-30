@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|---|
 | 1 | LOOPS-ENGINEERING.md authored + cross-linked | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m1.md](lessons/loops-m1.md) | [docs/completion/loops-m1.md](completion/loops-m1.md) |
 | 2 | LOOPS-BUSINESS.md authored + cross-linked | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m2.md](lessons/loops-m2.md) | [docs/completion/loops-m2.md](completion/loops-m2.md) |
-| 3 | `/slo-retro` extension: classify, dedupe, file lessons as issues | `not_started` | | | | |
+| 3 | `/slo-retro` extension: classify, dedupe, file lessons as issues | `done` | 2026-04-30 | 2026-04-30 | [docs/lessons/loops-m3.md](lessons/loops-m3.md) | [docs/completion/loops-m3.md](completion/loops-m3.md) |
 | 4 | `/slo-execute` pre-flight loop closure + runbook template "Carry-forward from prior retros" section with suggested lane | `not_started` | | | | |
 | 5 | `/slo-resume` next-step digest + lane-aware orientation | `not_started` | | | | |
 
