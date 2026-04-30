@@ -1,4 +1,10 @@
 //! Pre-flight validation checks.
+//!
+//! Includes a Claude-CLI presence check used by the optional `sldo-research`
+//! Claude batch backend. The check is explicitly Claude-specific — there is
+//! no host-neutral "is an agent CLI on PATH" abstraction here, and inventing
+//! one would hide the same dependency the agent-host milestones removed from
+//! the interactive `/slo-research` skill.
 
 use anyhow::{bail, Context, Result};
 use std::path::{Path, PathBuf};
@@ -6,6 +12,10 @@ use std::path::{Path, PathBuf};
 use crate::git;
 
 /// Check that the `claude` CLI is installed and return its path.
+///
+/// Used by the optional Claude batch backend `sldo-research`. Callers that
+/// run host-natively (the interactive `/slo-research` path, for example)
+/// must not call this — the interactive path is host-neutral by design.
 pub fn check_claude_installed() -> Result<PathBuf> {
     which::which("claude").context(
         "Claude Code CLI ('claude') not found on PATH. \

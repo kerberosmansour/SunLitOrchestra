@@ -76,12 +76,12 @@ The root package `sunlit-orchestrate-tests` hosts workspace-level integration te
 
 | Module | Responsibility |
 |---|---|
+| `claude_cli` | Claude-CLI invocation helper used by the optional Claude batch backend in `sldo-research`. Explicitly Claude-only — there is no host-neutral runtime abstraction. |
 | `color` | Small color and output helpers |
-| `copilot` | Agent/CLI invocation helpers used by the Rust backends |
 | `detect` | Environment and tool detection helpers |
 | `git` | Git inspection helpers |
 | `logging` | Logging setup and formatting |
-| `preflight` | Pre-run checks for required binaries and environment state |
+| `preflight` | Pre-run checks for required binaries and environment state, including the Claude-CLI presence check used by `sldo-research`. |
 | `runbook` | Shared runbook parsing and validation helpers |
 | `toolflags` | Shared allow-flag definitions and related helpers |
 
@@ -136,6 +136,8 @@ The current host line is simple:
 - Interactive skill use is supported in Claude Code and GitHub Copilot.
 - Headless runtime automation is still Claude-specific where it exists today.
 - `/slo-research` interactive use is multi-host today; `sldo-research` remains an optional Claude batch backend.
-- The live business judgment runtime harness remains a Claude-only path.
+- `/slo-second-opinion` is host-neutral: it compares the current host against an external provider CLI (Codex or Gemini), and never silently falls back to asking the current host to imitate the other provider.
+- `/slo-rulegen` and `/slo-sast` are host-neutral; their subprocess discipline targets `git`, `gh`, and `semgrep` rather than any agent CLI.
+- The live business judgment runtime harness remains a Claude-only path. The helper module (`crates/sldo-install/tests/common/claude_runtime.rs`) and its env vars (`BIZ_JUDGMENT_RUNTIME_*`) are explicitly Claude-named.
 
 Read `docs/design/agent-host-capabilities.md` before making any stronger host-compatibility promise than that.
