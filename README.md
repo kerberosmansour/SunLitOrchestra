@@ -2,9 +2,6 @@
 
 > An AI-first workflow that turns "build this" into scoped, reviewable, testable work. SunLitOrchestrate adds durable guardrails around LLM execution: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
 
-**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
-**Status:** active development. The skill pack and Rust CLIs are stable; the Tauri desktop UI is parked.
-
 ## Why SunLitOrchestrate
 
 SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope drift, missing rationale, and lessons that die in chat history.
@@ -16,6 +13,10 @@ SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope
 - **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
 
 If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
+
+**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
+
+**Status:** active development. The skill pack and Rust CLIs are stable.
 
 ## What ships here
 
@@ -169,6 +170,8 @@ Start here:
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
 - [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
+- [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
+- [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — why the pack prefers more internal discipline with less user-visible ceremony
 - [SECURITY.md](SECURITY.md) — project-wide security defaults

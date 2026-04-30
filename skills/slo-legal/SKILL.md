@@ -157,3 +157,7 @@ After a successful `draft`, suggest the founder run `/slo-execute` to track the 
 - **Not a tax / accounting tool.** Tax implications of equity grants, contractor classification, R&D credits — those route to `/slo-accounting` (M2 of Runbook A — not yet shipped) or to the founder's accountant.
 - **Not jurisdiction-aware.** UK only in v1. Non-UK jurisdictions emit an error.
 - **Not an editor of canonical templates.** oneNDA renders verbatim; CC BY-ND 4.0 verbatim is non-negotiable.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).

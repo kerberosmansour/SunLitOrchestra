@@ -96,3 +96,7 @@ After the cofounder doc: suggest `/slo-equity` (Runbook A M3) IF the trial succe
 - Not a recruiter. Sourcing is `/slo-hire` (M2).
 - Not a legal-doc tool. SHA / shareholders agreements / vesting agreements are `/slo-equity` + `/slo-legal`.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).

@@ -99,3 +99,7 @@ After pricing doc: suggest `/slo-sales-funnel` (M2) for the conversion-rate meas
 - Not a market-research tool — competitive pricing data is the founder's research, not the skill's.
 - Not a pricing-page designer — visual / interaction design is `/slo-marketing` brand-voice territory.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: Pricing loop, GTM loop — see [docs/LOOPS-BUSINESS.md#pricing-loop](../../docs/LOOPS-BUSINESS.md#pricing-loop).

@@ -321,3 +321,7 @@ tool: "TLC 1.8.0"
 After `-verified.md` is written and TLC is green at the declared bound, suggest `/slo-plan` (if a runbook does not yet exist) or `/slo-critique` (if it does) so the plan reviewers can read the verification.
 
 If the suitability gate short-circuited ("TLA+ is not the right tool here"), the handoff still works: suggest `/slo-plan` directly and recommend the alternative verification approach (property-based tests, schema review, etc.) be included as a milestone in the runbook.
+
+---
+
+**Loops**: Sprint loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).

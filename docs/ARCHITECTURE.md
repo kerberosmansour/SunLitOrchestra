@@ -127,6 +127,15 @@ The installed skill is host-neutral for interactive use. `sldo-research` is the 
 | `validate_file_paths.rs` | Input path checks |
 | `yaml_schema.rs` | YAML/schema helpers |
 
+## Feedback loops
+
+The skill pack improves itself through cyclic feedback structures that are not visible in a static dependency diagram. They are documented separately so newcomers and freshly-loaded Claude instances can answer "which loop am I in, and what do I run next?" in 90 seconds.
+
+- [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — sprint loop, security-tuning loop, lessons loop, library-feedback loop.
+- [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — user-interview loop, GTM loop, pricing loop, founder-check loop.
+
+The lessons loop is the canonical example: `/slo-retro` writes `docs/lessons/<prefix>-m<N>.md` at every milestone close, classifies each lesson, dedupes via `gh search`, and files tracked issues with explicit user confirmation (rules locked in [`skills/slo-retro/references/issue-filing-discipline.md`](../skills/slo-retro/references/issue-filing-discipline.md)); `/slo-execute` pre-flight Step 1.5 then queries open `retro-derived` issues for the runbook's prefix and surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); `/slo-resume` compresses the result back to one screen.
+
 ## Current host boundaries
 
 The current host line is simple:
