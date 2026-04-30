@@ -125,3 +125,7 @@ After dashboard: suggest `/slo-fundraise prepare 'investor-update review'` for m
 - Not an accounting tool — books / VAT / corporation tax computations are `/slo-accounting`.
 - Not a forecasting tool — financial models / scenarios are out of v1 scope.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: Pricing loop, GTM loop — see [docs/LOOPS-BUSINESS.md#pricing-loop](../../docs/LOOPS-BUSINESS.md#pricing-loop).

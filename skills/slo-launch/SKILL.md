@@ -99,3 +99,7 @@ After launch: suggest `/slo-marketing` (ongoing tactics — Runbook B1 M4) for p
 - Not a press-release writer. Press-release prose is `/slo-marketing` territory.
 - Not a PR-firm finder. The skill produces the sequence; the founder owns execution.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: GTM loop — see [docs/LOOPS-BUSINESS.md#gtm-loop](../../docs/LOOPS-BUSINESS.md#gtm-loop).

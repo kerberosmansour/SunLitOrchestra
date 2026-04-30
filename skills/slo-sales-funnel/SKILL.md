@@ -106,3 +106,7 @@ After funnel doc: suggest `/slo-pricing` (M3) for the trial-£ + tier-model deci
 - Not a CRM. Per-deal tracking lives in HubSpot / Pipedrive / Notion.
 - Not a SDR-hire tool. The funnel math tells the founder when to hire; the hire decision is `/slo-hire` (Runbook C).
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: GTM loop — see [docs/LOOPS-BUSINESS.md#gtm-loop](../../docs/LOOPS-BUSINESS.md#gtm-loop).
