@@ -130,3 +130,7 @@ Do not fix these yourself. Tell the user which rows are blank, which questions a
 ## Handoff
 
 After writing, suggest the next step: `/slo-execute M<N+1>` or, if the runbook's last milestone is now done, `/slo-ship` to open the PR.
+
+---
+
+**Loops**: Sprint loop, Lessons loop, Library-feedback loop — see [docs/LOOPS-ENGINEERING.md#lessons-loop](../../docs/LOOPS-ENGINEERING.md#lessons-loop).

@@ -121,3 +121,7 @@ incomplete: false
 ## Note on chub / get-api-docs
 
 Context Hub (`chub`) handles third-party library API documentation lookups. This skill does NOT. If during research you discover you need API reference for a specific SDK, use the `get-api-docs` skill instead; do not pollute the research dossier with API shape.
+
+---
+
+**Loops**: Sprint loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).

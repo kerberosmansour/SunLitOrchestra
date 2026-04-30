@@ -130,3 +130,7 @@ After all milestones, fill:
 ## Handoff
 
 After the runbook is complete, suggest `/slo-critique` to run the four-persona adversarial review before execution starts.
+
+---
+
+**Loops**: Sprint loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).

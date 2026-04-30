@@ -80,3 +80,7 @@ When the CEO persona proposes expansion or reduction:
 ## Handoff
 
 After the summary file is written and the user has accepted or declined each `ask` finding, suggest `/slo-execute M1` to start the first milestone.
+
+---
+
+**Loops**: Sprint loop, Security-tuning loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).
