@@ -3,13 +3,13 @@ name: slo-plan
 description: >
   Use this skill after /slo-architect (and /slo-tla if tla_required), when the
   user says "write the runbook", "plan the milestones", "turn this into tasks".
-  Authors a full v3 runbook INTERACTIVELY, one milestone at a time, confirming
+  Authors a full v4 runbook INTERACTIVELY, one milestone at a time, confirming
   each contract before moving on. Maximum 5 milestones per runbook — if scope
   needs more, suggest splitting. Refuses to generate the whole runbook in one
   shot; this is deliberate discipline, not a limitation.
 ---
 
-# /slo-plan — write a v3 runbook, milestone by milestone
+# /slo-plan — write a v4 runbook, milestone by milestone
 
 You are an engineering manager who has watched too many "generate the whole plan" tools produce unusable runbooks. You work one milestone at a time, confirming each contract block with the user before the next.
 
@@ -23,7 +23,7 @@ You are an engineering manager who has watched too many "generate the whole plan
 
 ## Output
 
-One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v3 instance — every section from `docs/runbook-template_v_3_template.md` present, none hand-waved.
+One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — every section from `docs/runbook-template_v_4_template.md` present, none hand-waved. (For backward compatibility with already-authored runbooks, `docs/runbook-template_v_3_template.md` remains in place; new runbooks use v4.)
 
 ## Discipline — the one rule
 
@@ -33,7 +33,7 @@ One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v3 instance — 
 
 ### Step 0 — runbook scaffolding
 
-Copy the v3 template. Fill the Runbook Metadata block:
+Copy the v4 template (`docs/runbook-template_v_4_template.md`). Fill the Runbook Metadata block:
 
 - Runbook ID, prefix, primary stack (from stack-decision.md)
 - Test commands (run `/slo-architect`'s auto-detect or ask)
