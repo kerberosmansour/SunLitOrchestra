@@ -294,3 +294,7 @@ The runbook closes by running `/slo-sast` against this SLO repo using `docs/desi
 - [`docs/design/scanner-orchestration-threat-model.md`](../../docs/design/scanner-orchestration-threat-model.md) — abuse cases `tm-scanner-orchestration-abuse-1` (smuggled CWE refs) and `tm-scanner-orchestration-abuse-2` (compromised semgrep-rules upstream).
 - [`docs/design/scanner-orchestration-interfaces.md`](../../docs/design/scanner-orchestration-interfaces.md) §§1–3, §7 (interface contracts).
 - [`docs/RUNBOOK-SCANNER-ORCHESTRATION.md`](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md) — M1 lands the parser; M2 lands stack detection + fetch + filter; M3–M5 extend the skill sequentially.
+
+---
+
+**Loops**: Security-tuning loop — see [docs/LOOPS-ENGINEERING.md#security-tuning-loop](../../docs/LOOPS-ENGINEERING.md#security-tuning-loop).

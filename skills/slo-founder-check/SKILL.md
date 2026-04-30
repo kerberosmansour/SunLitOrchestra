@@ -116,3 +116,7 @@ Founder is encouraged to schedule a quarterly re-run of this skill (`/loop @quar
 - Not financial advice. Personal-finance concerns route out.
 - Not a YC-acceptance predictor. Application prep is a self-assessment, not a probability calculator.
 - Not jurisdiction-aware — UK only in v1; routing references (StepChange, Founder's Bar) are UK-specific.
+
+---
+
+**Loops**: Founder-check loop — see [docs/LOOPS-BUSINESS.md#founder-check-loop](../../docs/LOOPS-BUSINESS.md#founder-check-loop).

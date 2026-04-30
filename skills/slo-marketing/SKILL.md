@@ -140,3 +140,7 @@ After `b2b`: suggest `/slo-sales-funnel` (B2 M2) for the outbound-channel cold-e
 - Not a sales-funnel tool — that's `/slo-sales-funnel` (B2 M2).
 - Not a brand-design / visual-identity tool — those are creative-agency outputs, not skill outputs.
 - Not jurisdiction-aware — UK only in v1; the PECR / ASA / CRA references are UK-specific.
+
+---
+
+**Loops**: GTM loop — see [docs/LOOPS-BUSINESS.md#gtm-loop](../../docs/LOOPS-BUSINESS.md#gtm-loop).

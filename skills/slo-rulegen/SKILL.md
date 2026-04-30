@@ -122,3 +122,7 @@ If a rule cannot be authored without textual reference to the AGPL source, `refe
 ## Handoff
 
 After bootstrap mode completes, suggest `/slo-ruleverify` to confirm the pack is `gate`-clean across all rules. If running standalone in a Rust app repo, also suggest the user wire `.github/workflows/semgrep.yml` per Runbook A M3.
+
+---
+
+**Loops**: Security-tuning loop — see [docs/LOOPS-ENGINEERING.md#security-tuning-loop](../../docs/LOOPS-ENGINEERING.md#security-tuning-loop).

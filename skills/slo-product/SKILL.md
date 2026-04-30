@@ -162,3 +162,7 @@ After `roadmap`: suggest `/slo-execute` if the items will be tracked as a runboo
 - Not a feature-spec tool — roadmap items are titled, not detailed specs.
 - Not a sprint-planning tool — sprints are 30-day buckets in the roadmap, not daily standups.
 - Not jurisdiction-aware — UK only in v1.
+
+---
+
+**Loops**: User-interview loop — see [docs/LOOPS-BUSINESS.md#user-interview-loop](../../docs/LOOPS-BUSINESS.md#user-interview-loop).
