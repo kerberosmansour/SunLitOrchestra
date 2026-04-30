@@ -77,3 +77,7 @@ If any failed, the operator's next step is `/slo-rulegen --rule-id <failing-id> 
 If all rules pass: suggest committing any pending rule additions and (if not already done) wiring `.github/workflows/semgrep.yml` per Runbook A M3.
 
 If any rule fails: tell the user the failing rule id, which sub-step failed (`validate` / `test` / `check-coverage` / `check-clean`), and the structured exit code from the xtask. Suggest `/slo-rulegen --rule-id <id> --action revise` (M2+) or manual revision.
+
+---
+
+**Loops**: Security-tuning loop — see [docs/LOOPS-ENGINEERING.md#security-tuning-loop](../../docs/LOOPS-ENGINEERING.md#security-tuning-loop).

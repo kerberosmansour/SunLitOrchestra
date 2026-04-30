@@ -67,3 +67,7 @@ You are the release engineer. The runbook's tracker is all `done`. Your job is t
 ## Handoff
 
 Print the PR URL. Stop there — do NOT merge, do NOT `--auto`, do NOT deploy. Those are separate decisions.
+
+---
+
+**Loops**: Sprint loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).

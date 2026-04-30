@@ -108,3 +108,7 @@ Answer every question. If any answer is "no", the milestone is not complete — 
 ## Handoff
 
 When every row of the Evidence Log has an Actual Result and every item in the Definition of Done is true, suggest `/slo-verify` to run runtime QA before the milestone is marked done.
+
+---
+
+**Loops**: Sprint loop, Lessons loop, Library-feedback loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).
