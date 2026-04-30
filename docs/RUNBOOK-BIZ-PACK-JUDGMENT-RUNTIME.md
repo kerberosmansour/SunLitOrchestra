@@ -1,5 +1,15 @@
 # Biz-pack judgment runtime harness — SunLitOrchestrate (AI-First Runbook v3)
 
+> **Forward-looking note (agent-host M4, 2026-04-30)**: this runbook describes
+> a Claude-only live runtime harness. Agent-host milestone 4 renamed the
+> helper module from `tests/common/judgment_runtime.rs` to
+> `tests/common/claude_runtime.rs` so the source tree itself signals the
+> Claude-only boundary. Behavior, env vars (`BIZ_JUDGMENT_RUNTIME_*`), and
+> public test entrypoints are unchanged. There is no host-neutral equivalent
+> at HEAD; do not introduce a generic agent-runtime trait without a second
+> real implementation. Historical references below to `judgment_runtime.rs`
+> still describe the same code, now under the renamed file.
+
 > **Purpose**: Replace the `#[ignore]` runtime stub at `crates/sldo-install/tests/e2e_biz_followup_m4.rs::runtime_harness_invokes_claude_cli_per_fixture` with a real harness that walks `references/biz/judgment-fixtures/<skill>/*.md`, invokes the target advisor skill via `claude -p`, and asserts the output artifact's frontmatter matches each fixture's declared expectations.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work the two milestones sequentially. M1 proves the harness against a single non-adversarial fixture. M2 wires all 9 fixtures + retry policy + cost cap.
