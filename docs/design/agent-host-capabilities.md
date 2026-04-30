@@ -17,9 +17,21 @@ This document is the capability matrix for the current host story. Use it when y
 | Read the canonical skill catalog | Supported | Supported | Catalog is host-neutral |
 | Interactive use of installed skills | Supported | Supported | Exact UX depends on the host's skill/session model |
 | Host-specific overlay doc | `CLAUDE.md` | `copilot-instructions.md` | Both point back to the same canonical catalog |
-| `/slo-research` automated batch backend | Supported | Not supported yet | Optional Claude batch backend shells out to `claude` via `sldo-research` |
+| Optional Claude batch backend (`sldo-research`) | Supported | Not supported yet | The interactive `/slo-research` path is host-neutral; only the optional batch backend is Claude-only |
 | Headless runtime automation | Supported on specific Claude-only paths | Not supported yet | No Copilot runtime harness is shipped today |
-| Live business judgment runtime harness | Supported as opt-in Claude-only automation | Not supported yet | Current harness depends on `claude -p` |
+| Live business judgment runtime harness | Supported as opt-in Claude-only automation | Not supported yet | Current harness depends on `claude -p`; the helper module is `crates/sldo-install/tests/common/claude_runtime.rs` |
+
+## Per-skill notes
+
+This list covers skills whose host story is non-obvious. Skills not listed here are uniformly host-neutral at the `SKILL.md` layer.
+
+| Skill | Host story | Why it matters |
+|---|---|---|
+| `/slo-second-opinion` | Host-neutral logic. The skill compares whatever the current host produced against an external provider CLI (Codex or Gemini). It does not require Claude. | The skill's "current host said" column captures the agent running this skill, not Claude specifically. The skill must never silently fall back to asking the current host to imitate the other provider. |
+| `/slo-research` | Host-neutral interactive path. Optional Claude batch backend (`sldo-research`) is explicitly Claude-only. | A Copilot user can use `/slo-research` interactively without installing Claude; only the batch backend requires `claude`. |
+| `/slo-rulegen` | Host-neutral. The bug-summary input can come from any agent-driven workflow. | Earlier copy implied "Claude-found bug summary"; that is no longer accurate. |
+| `/slo-sast` | Host-neutral. M1 is parser-only; later milestones shell out to `git`, `gh`, and `semgrep` — none of which are agent CLIs. | The `claude` mention in the M1 anti-pattern list is honest: M1 must not shell out to any agent CLI. |
+| Live business judgment runtime harness | Claude-only by design. | There is no host-neutral abstraction; the runbook explicitly forbids inventing one without a second real implementation. |
 
 ## Important boundaries
 

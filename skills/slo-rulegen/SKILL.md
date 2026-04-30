@@ -4,7 +4,7 @@ description: >
   Use this skill to generate or extend a Semgrep rule pack for a Rust workspace.
   In bootstrap mode (no flags), seeds `.semgrep/rust/` with the top-10 Rust CWE
   classes (CWE-755 panic-DoS, CWE-416 UAF, CWE-697 incorrect-comparison, etc.).
-  In extend mode (`--extend`), takes a Claude-found bug summary + fix diff and
+  In extend mode (`--extend`), takes an agent-found bug summary + fix diff and
   produces 3-5 variation rules with auto-derived corpus, appended to the
   existing pack ONLY after `cargo xtask sast-verify gate` passes for every new
   rule. Trigger when the user says "generate Rust SAST rules", "bootstrap a

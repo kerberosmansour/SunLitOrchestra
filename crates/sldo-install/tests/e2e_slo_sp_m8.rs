@@ -58,6 +58,14 @@ fn second_opinion_is_disagreement_finder_not_arbitrator() {
             || lower.contains("not a verdict"),
         "skill must explicitly reject vote/arbitration framing"
     );
+    // Host-neutral wording (agent-host M5): the current-host half of the
+    // comparison must not be hardcoded to "Claude" because the skill works
+    // in any host that can shell out to a second-opinion provider CLI.
+    assert!(
+        !body.contains("Claude said"),
+        "diff-of-findings table must use host-neutral wording (e.g. 'current host said'), \
+         not 'Claude said' — see agent-host M5 cleanup"
+    );
 }
 
 #[test]

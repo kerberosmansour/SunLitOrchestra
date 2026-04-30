@@ -15,7 +15,7 @@
 
 mod common;
 
-use common::judgment_runtime::{
+use common::claude_runtime::{
     assert_expectations, claude_available, global_budget_usd, repo_root, retries, run_fixture,
     skip_if_not_live, JudgmentFixture, DEFAULT_PER_FIXTURE_BUDGET_USD,
 };

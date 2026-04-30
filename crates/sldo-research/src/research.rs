@@ -21,8 +21,8 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 
+use sldo_common::claude_cli::ClaudeInvocation;
 use sldo_common::color::warn;
-use sldo_common::copilot::ClaudeInvocation;
 use sldo_common::logging::LogFile;
 use sldo_common::toolflags;
 

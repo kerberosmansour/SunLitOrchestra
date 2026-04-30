@@ -1,7 +1,17 @@
-//! Claude Code CLI invocation.
+//! Claude Code CLI invocation — Claude-specific batch automation helper.
 //!
-//! Builds and executes a `claude` CLI command, piping output to both the
-//! terminal and a log file.
+//! This module is explicitly Claude-only. It builds and executes a `claude`
+//! CLI command, piping output to both the terminal and a log file. It is the
+//! shared helper used by `sldo-research` (the optional Claude batch backend
+//! for `/slo-research`) and by any other Rust path that drives Claude
+//! noninteractively. It is NOT a host-neutral runtime abstraction: there is
+//! no second backend behind a trait. If a future host needs noninteractive
+//! automation, build the new helper alongside this one — do not generalise
+//! prematurely.
+//!
+//! Naming history: this file was previously `copilot.rs` even though every
+//! line of its body invoked `claude`. The rename in agent-host milestone 4
+//! makes the boundary honest in the source tree itself.
 
 use anyhow::{Context, Result};
 use std::io::{BufRead, BufReader};
@@ -20,8 +30,8 @@ pub struct ClaudeInvocation {
 }
 
 impl ClaudeInvocation {
-    /// Spawn the copilot process, pipe stdout/stderr to both the terminal and
-    /// the log file, and return the exit code.
+    /// Spawn the `claude` process, pipe stdout/stderr to both the terminal
+    /// and the log file, and return the exit code.
     pub fn run(&self, log_file: &LogFile) -> Result<i32> {
         self.run_with_callback(log_file, |line, stream| match stream {
             "stdout" => println!("{}", line),
@@ -29,13 +39,13 @@ impl ClaudeInvocation {
         })
     }
 
-    /// Spawn the copilot process, calling `on_line` for each stdout/stderr line
-    /// instead of printing directly. The callback receives the line content and
-    /// the stream name (`"stdout"` or `"stderr"`).
+    /// Spawn the `claude` process, calling `on_line` for each stdout/stderr
+    /// line instead of printing directly. The callback receives the line
+    /// content and the stream name (`"stdout"` or `"stderr"`).
     ///
     /// Stdout and stderr are read concurrently via separate threads to avoid
-    /// pipe-buffer deadlocks (the classic sequential-read problem where a full
-    /// stderr buffer blocks the child while we're still draining stdout).
+    /// pipe-buffer deadlocks (the classic sequential-read problem where a
+    /// full stderr buffer blocks the child while we're still draining stdout).
     pub fn run_with_callback<F>(&self, log_file: &LogFile, mut on_line: F) -> Result<i32>
     where
         F: FnMut(&str, &str),
@@ -160,7 +170,6 @@ mod tests {
         // Then: It either succeeds (claude exists) or returns an error (not panics)
         match result {
             Ok(code) => {
-                // claude existed, we got some exit code
                 let _ = code;
             }
             Err(e) => {
@@ -192,9 +201,9 @@ mod tests {
 
     #[test]
     fn run_with_callback_receives_all_lines() {
-        // Given: A CopilotInvocation using `echo` as a mock for copilot
-        // We can't easily mock copilot, but we can test the callback signature
-        // and verify backward compatibility of run() via run_with_callback.
+        // Given: A ClaudeInvocation. We can't easily mock claude, but we can
+        // exercise the callback signature and verify backward compatibility
+        // of run() via run_with_callback.
         let tmp = std::env::temp_dir().join("sldo_test_callback");
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();
@@ -234,7 +243,7 @@ mod tests {
 
     #[test]
     fn run_still_works_after_refactor() {
-        // Given: A CopilotInvocation (backward compatibility test)
+        // Given: A ClaudeInvocation (backward compatibility test)
         let tmp = std::env::temp_dir().join("sldo_test_run_compat");
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();

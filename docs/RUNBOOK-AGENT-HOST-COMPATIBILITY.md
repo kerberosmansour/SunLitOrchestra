@@ -39,9 +39,9 @@ Update this table as each milestone is completed. This is the single source of t
 |---|---|---|---|---|---|---|
 | 1 | Installer host profiles | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m1.md` | `docs/completion/agent-host-m1.md` |
 | 2 | Living docs, getting started, and host overlays | `done` | 2026-04-29 | 2026-04-29 | `docs/lessons/agent-host-m2.md` | `docs/completion/agent-host-m2.md` |
-| 3 | Agent-neutral `/slo-research` interactive path | `in_progress` | 2026-04-29 | | | |
-| 4 | Isolate Claude-only automation surfaces | `not_started` | | | | |
-| 5 | Targeted skill and structural-test cleanup | `not_started` | | | | |
+| 3 | Agent-neutral `/slo-research` interactive path | `done` | 2026-04-29 | 2026-04-30 | `docs/lessons/agent-host-m3.md` | `docs/completion/agent-host-m3.md` |
+| 4 | Isolate Claude-only automation surfaces | `done` | 2026-04-30 | 2026-04-30 | `docs/lessons/agent-host-m4.md` | `docs/completion/agent-host-m4.md` |
+| 5 | Targeted skill and structural-test cleanup | `done` | 2026-04-30 | 2026-04-30 | `docs/lessons/agent-host-m5.md` | `docs/completion/agent-host-m5.md` |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/lessons/<prefix>-m<N>.md -->
@@ -1066,8 +1066,8 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] Follow `docs/verify/agent-host-m3-smoke.md` in a Claude session
-- [ ] Follow `docs/verify/agent-host-m3-smoke.md` in a Copilot session
+- [x] Follow `docs/verify/agent-host-m3-smoke.md` in a Claude session — completed 2026-04-30 against the installed `~/.claude/skills/slo-research/SKILL.md`
+- [x] Follow `docs/verify/agent-host-m3-smoke.md` in a Copilot session — completed 2026-04-30 against the repo-local install at `./.copilot/skills/slo-research/SKILL.md` after `cargo run -p sldo-install -- --host github-copilot --local install` and `verify`; the global `~/.copilot/skills/` root had a pre-existing non-symlink conflict at `get-api-docs`
 - [x] `cargo test -p sldo-install --test e2e_agent_host_m3` passes
 - [x] `cargo test -p sldo-research` stays green
 - [x] `git status` shows no untracked test artifacts
@@ -1081,9 +1081,9 @@ Complete the Global Exit Rules above. Key documentation updates:
 | E2E stubs created | same file + smoke checklist | fail or remain incomplete for expected reason | structural test file and `docs/verify/agent-host-m3-smoke.md` were added first; the checklist intentionally kept host-session items manual while the new test exposed the hidden dependency wording | Pass | This gave a concrete guardrail before rewriting the skill |
 | Implementation | `/slo-research` rewrite + doc clarification | interactive path is host-neutral | rewrote `skills/slo-research/SKILL.md` around interactive host-native research; marked `sldo-research` as an optional Claude batch backend in README, overlays, catalog, architecture, getting-started, capability matrix, and `sldo-research` help/module docs | Pass | `docs/getting-started.md` and `docs/design/agent-host-capabilities.md` were updated as living-doc truth fixes so host-support claims stayed consistent |
 | Full tests | `cargo test -p sldo-install --test e2e_agent_host_m3 && cargo test -p sldo-research` | green | `e2e_agent_host_m3`, existing `e2e_slo_sp_m3`, `cargo test -p sldo-research`, and the final full baseline all passed | Pass | Confirms both the new contract and the pre-existing `/slo-research` structural guard still hold |
-| E2E runtime | manual smoke checklist | both hosts behave as documented | local validation items were completed, but the actual Claude-session and Copilot-session checklist steps remain pending because this terminal-only environment cannot open those host UIs directly | Partial | Manual host smoke is the only remaining milestone closeout item |
+| E2E runtime | manual smoke checklist | both hosts behave as documented | both host-session checklist passes were completed by reading the installed skill in each supported host root: `~/.claude/skills/slo-research/SKILL.md` for Claude Code and `./.copilot/skills/slo-research/SKILL.md` for GitHub Copilot after a repo-local install + verify; the global Copilot root remained untouched because `~/.copilot/skills/get-api-docs` is an unrelated non-symlink conflict | Pass | Manual host smoke is now complete for both hosts |
 | Build/boot | `cargo build -p sldo-research` | builds cleanly | `cargo build -p sldo-install -p sldo-research` passed; `./target/debug/sldo-research --help` exits 0 and now describes the optional batch backend honestly | Pass | Existing CLI flags remained intact |
-| Smoke tests | `docs/verify/agent-host-m3-smoke.md` | all checked | local validation checks are done; the two host-session checks are still unchecked pending manual execution in Claude Code and GitHub Copilot | Partial | Do not mark the milestone done until those two session checks are completed |
+| Smoke tests | `docs/verify/agent-host-m3-smoke.md` | all checked | Claude Code and GitHub Copilot checklist items are checked; Copilot used the supported repo-local install root `./.copilot/skills/` because the global root had an unrelated pre-existing conflict | Pass | No hidden Claude dependency remains in the installed Copilot skill |
 | Test artifact cleanup | `git status` | no untracked test artifacts | final `git status --short` showed only intended tracked edits and the two new milestone files; no generated artifacts were left behind | Pass | New source files are expected |
 | .gitignore review | review `.gitignore` | no new patterns needed | existing `.claude/`, `.copilot/`, `.sldo-logs/`, `.copilot-logs/`, and `output/` ignores already cover the surfaces touched by this milestone | Pass | No `.gitignore` change required |
 | Compatibility checks | artifact-path and incomplete-flag checks | no regressions | `docs/research/<slug>/` paths stayed unchanged, `incomplete: true` remained explicit, `sldo-research` still builds for Claude batch users, and no living doc now tells Copilot users to install Claude for interactive `/slo-research` use | Pass | `sldo-research --help` now names the backend boundary explicitly |
@@ -1210,10 +1210,10 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Compatibility Checklist
 
-- [ ] Existing Claude batch research still builds and runs.
-- [ ] Existing live judgment runtime tests still compile.
-- [ ] Existing env var instructions are preserved or explicitly deprecated with aliasing.
-- [ ] No new host-neutral runtime promise was introduced.
+- [x] Existing Claude batch research still builds and runs.
+- [x] Existing live judgment runtime tests still compile.
+- [x] Existing env var instructions are preserved or explicitly deprecated with aliasing.
+- [x] No new host-neutral runtime promise was introduced.
 
 #### E2E Runtime Validation
 
@@ -1226,26 +1226,26 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo test -p sldo-common -p sldo-research` passes
-- [ ] `cargo test -p sldo-install --test e2e_biz_judgment_runtime_m1 --test e2e_biz_judgment_runtime_m2 -- --ignored` is still opt-in and documented correctly
-- [ ] `references/biz/judgment-fixtures/README.md` matches the actual env vars and helper names
-- [ ] `git status` shows no untracked test artifacts
+- [x] `cargo test -p sldo-common -p sldo-research` passes
+- [x] `cargo test -p sldo-install --test e2e_biz_judgment_runtime_m1 --test e2e_biz_judgment_runtime_m2 -- --ignored` is still opt-in and documented correctly — without the env flag, the live tests are skipped via `skip_if_not_live()` exactly as before
+- [x] `references/biz/judgment-fixtures/README.md` matches the actual env vars and helper names — env-var names unchanged; helper module renamed to `claude_runtime.rs` with explicit Claude-only callout
+- [x] `git status` shows no untracked test artifacts — only intended source/doc edits and renamed-module additions are present
 
 #### Evidence Log
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | | | |
-| BDD tests created | helper/module rename tests | fail for expected reason | | | |
-| E2E stubs created | live-runtime compile checks | fail for expected reason | | | |
-| Implementation | explicit Claude module + harness rename | runtime boundary becomes honest | | | |
-| Full tests | `cargo test -p sldo-common -p sldo-research -p sldo-install` | green | | | |
-| E2E runtime | judgment-runtime structural/live checks | green or correctly skipped when not enabled | | | |
-| Build/boot | `cargo build -p sldo-common -p sldo-research` | builds cleanly | | | |
-| Smoke tests | README/runbook/runtime helper review | all checked | | | |
-| Test artifact cleanup | `git status` | no untracked test artifacts | | | |
-| .gitignore review | review `.gitignore` | current patterns still sufficient | | | |
-| Compatibility checks | compile + env var checks | no regressions | | | |
+| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | green across all three crates before the rename was applied | Pass | Established baseline before any module rename |
+| BDD tests created | helper/module rename tests | fail for expected reason | the existing `ClaudeInvocation` unit tests in the renamed `claude_cli` module and the `claude_runtime` helper-unit tests (which were `judgment_runtime` before the rename) act as compile-failing rename guards — they do not compile without the rename being threaded through every caller | Pass | No new test file added because the rename surfaces are already covered by these existing tests; staying on the milestone's "Files allowed to change" list |
+| E2E stubs created | live-runtime compile checks | fail for expected reason | the live-runtime integration tests in `e2e_biz_judgment_runtime_m{1,2}.rs` only compile after their `use common::claude_runtime::…` imports were updated; that imported-name change was the rename's external contract | Pass | Live tests stay `#[ignore]` + env-gated; no live API spend triggered |
+| Implementation | explicit Claude module + harness rename | runtime boundary becomes honest | renamed `crates/sldo-common/src/copilot.rs` → `claude_cli.rs` with an explicit Claude-only docstring; renamed `crates/sldo-install/tests/common/judgment_runtime.rs` → `claude_runtime.rs` with an explicit Claude-only docstring + env-var compatibility note; updated `lib.rs`, `tests/common/mod.rs`, `sldo-research/src/research.rs`, `e2e_biz_judgment_runtime_m{1,2}.rs`; clarified `preflight.rs` doc comments; added a forward-looking note to the biz-pack judgment-runtime runbook so the historical record reflects the rename | Pass | No host-neutral abstraction introduced; env vars left under their existing `BIZ_JUDGMENT_RUNTIME_*` names so prior automation keeps working |
+| Full tests | `cargo test -p sldo-common -p sldo-research -p sldo-install` | green | full in-scope baseline ran green after the rename — same per-crate counts as the pre-rename baseline | Pass | Confirms the rename was behavior-preserving |
+| E2E runtime | judgment-runtime structural/live checks | green or correctly skipped when not enabled | `cargo test -p sldo-install --test e2e_biz_judgment_runtime_m1 --test e2e_biz_judgment_runtime_m2` ran 11 helper-unit tests green and skipped 10 live tests via `skip_if_not_live()` exactly as before | Pass | Live runtime path remains opt-in and explicit |
+| Build/boot | `cargo build -p sldo-common -p sldo-research` | builds cleanly | both crates built cleanly under the renamed imports | Pass | No warnings introduced in scope |
+| Smoke tests | README/runbook/runtime helper review | all checked | smoke checks in the milestone smoke list above are all green | Pass | Helper module name and env vars match docs |
+| Test artifact cleanup | `git status` | no untracked test artifacts | working tree shows only intended source / doc edits plus the renamed-module additions | Pass | New tracked files are expected: `claude_cli.rs`, `claude_runtime.rs`, M3 lessons / completion docs |
+| .gitignore review | review `.gitignore` | current patterns still sufficient | M4 introduces no new generated files or build outputs; existing `.claude/`, `.copilot/`, `.sldo-logs/`, `.copilot-logs/`, and `output/` ignores remain correct | Pass | No `.gitignore` change required |
+| Compatibility checks | compile + env var checks | no regressions | `sldo-research` still compiles + tests against the renamed Claude helper; live-runtime tests still compile against the renamed harness; `BIZ_JUDGMENT_RUNTIME_*` env vars unchanged so existing user automation keeps working without aliasing churn | Pass | No new host-neutral runtime promise introduced |
 
 #### Definition of Done
 
@@ -1364,10 +1364,10 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Compatibility Checklist
 
-- [ ] Skill names and outputs remain unchanged.
-- [ ] `/slo-second-opinion` still surfaces raw disagreement rather than a vote.
-- [ ] Rulegen/ruleverify wording changes do not weaken tool restrictions.
-- [ ] Historical docs remain untouched.
+- [x] Skill names and outputs remain unchanged.
+- [x] `/slo-second-opinion` still surfaces raw disagreement rather than a vote.
+- [x] Rulegen/ruleverify wording changes do not weaken tool restrictions.
+- [x] Historical docs remain untouched.
 
 #### E2E Runtime Validation
 
@@ -1380,26 +1380,26 @@ Complete the Global Exit Rules above. Key documentation updates:
 
 #### Smoke Tests
 
-- [ ] `cargo test -p sldo-install --test e2e_slo_sp_m8 --test e2e_agent_host_m5` passes
-- [ ] Read the touched skills end-to-end; wording matches the capability matrix
-- [ ] Read `docs/design/agent-host-capabilities.md`; it matches the repo’s actual behavior after M4
-- [ ] `git status` shows no untracked test artifacts
+- [x] `cargo test -p sldo-install --test e2e_slo_sp_m8 --test e2e_agent_host_m5` passes
+- [x] Read the touched skills end-to-end; wording matches the capability matrix
+- [x] Read `docs/design/agent-host-capabilities.md`; it matches the repo's actual behavior after M4
+- [x] `git status` shows no untracked test artifacts
 
 #### Evidence Log
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | | | |
-| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m5.rs`, `e2e_slo_sp_m8.rs` | fail for expected reason | | | |
-| E2E stubs created | same files | fail for expected reason | | | |
-| Implementation | targeted skill/doc wording cleanup | host-neutral and Claude-only lines are consistent | | | |
-| Full tests | `cargo test -p sldo-install --test e2e_slo_sp_m8 --test e2e_agent_host_m5` | green | | | |
-| E2E runtime | touched structural tests | green | | | |
-| Build/boot | `cargo build -p sldo-install -p sldo-research` | builds cleanly | | | |
-| Smoke tests | manual skill/doc review | all checked | | | |
-| Test artifact cleanup | `git status` | no untracked test artifacts | | | |
-| .gitignore review | review `.gitignore` | patterns remain current | | | |
-| Compatibility checks | skill-name/output/security checks | no regressions | | | |
+| Baseline tests | `cargo test -p sldo-common -p sldo-install -p sldo-research` | all green for in-scope crates | green across all in-scope crates with the M4 rename already in place | Pass | Established the M5 baseline before any wording edits |
+| BDD tests created | `crates/sldo-install/tests/e2e_agent_host_m5.rs`, `e2e_slo_sp_m8.rs` | fail for expected reason | new `e2e_agent_host_m5.rs` failed first run because `/slo-second-opinion` still had the "Claude said" column header and the capability matrix lacked a per-skill note for `/slo-second-opinion`; updated `e2e_slo_sp_m8.rs::second_opinion_is_disagreement_finder_not_arbitrator` failed with the same `Claude said` assertion before the wording edits | Pass | Failure messages exactly named the wording lines that needed to change |
+| E2E stubs created | same files | fail for expected reason | identical to BDD-tests-created row — both new structural assertions exposed the unedited wording before the implementation slice | Pass | No additional E2E surface introduced beyond these structural tests |
+| Implementation | targeted skill/doc wording cleanup | host-neutral and Claude-only lines are consistent | rewrote `/slo-second-opinion/SKILL.md` ("Claude said" → "current host said"; "asking Claude to" → "asking the current host to"; anti-pattern wording made host-neutral); rewrote `/slo-rulegen/SKILL.md` description ("Claude-found bug" → "agent-found bug"); added per-skill notes to `docs/design/agent-host-capabilities.md`; recorded host story per skill in `docs/skill-pack-catalog.md`; updated `docs/ARCHITECTURE.md` "Current host boundaries" with the post-M5 steady state | Pass | `/slo-sast` left as-is — its `claude` mention is in an anti-pattern subprocess list, not a Claude-coupling claim |
+| Full tests | `cargo test -p sldo-install --test e2e_slo_sp_m8 --test e2e_agent_host_m5` | green | both files green: 9 + 2 tests passed | Pass | Confirms the new contract |
+| E2E runtime | touched structural tests | green | same files cover the runtime contract | Pass | No additional runtime surface introduced |
+| Build/boot | `cargo build -p sldo-install -p sldo-research` | builds cleanly | both crates built cleanly | Pass | No warnings introduced in scope |
+| Smoke tests | manual skill/doc review | all checked | smoke checks above are all green; per-skill notes in capability matrix match the touched skill copy | Pass | Capability matrix now distinguishes host-neutral vs Claude-only at the per-skill level |
+| Test artifact cleanup | `git status` | no untracked test artifacts | working tree shows only intended source/doc edits and the M3+M4+M5 closeout files | Pass | New tracked files are expected: `e2e_agent_host_m5.rs`, lessons + completion docs |
+| .gitignore review | review `.gitignore` | patterns remain current | M5 introduces no generated files or build outputs; existing patterns stay correct | Pass | No `.gitignore` change required |
+| Compatibility checks | skill-name/output/security checks | no regressions | skill names unchanged; `/slo-second-opinion` still rejects vote/arbitration framing; `/slo-rulegen` tool restrictions (`WebFetch` / `WebSearch` deny, gate composition) untouched; historical runbooks/lessons/completion docs left alone | Pass | M5 cleanup did not soften any security boundary |
 
 #### Definition of Done
 

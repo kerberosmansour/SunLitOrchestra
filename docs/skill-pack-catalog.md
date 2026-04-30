@@ -30,14 +30,14 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 
 ## Power tools
 
-| Skill | Purpose |
-|---|---|
-| `/slo-second-opinion` | Cross-model disagreement surfacer |
-| `/slo-freeze <path>` | Lock edits to one directory for the session |
-| `/slo-resume` | Read the current runbook tracker and suggest the next move |
-| `/slo-rulegen` | Bootstrap or extend Semgrep rule packs for Rust workspaces |
-| `/slo-ruleverify` | Run the deterministic SAST gate over an existing rule pack |
-| `/slo-sast` | Wire threat-model-driven SAST scanning into a target repo |
+| Skill | Purpose | Host story |
+|---|---|---|
+| `/slo-second-opinion` | Cross-model disagreement surfacer | Host-neutral. Compares the current host against an external provider (Codex / Gemini). |
+| `/slo-freeze <path>` | Lock edits to one directory for the session | Host-neutral. |
+| `/slo-resume` | Read the current runbook tracker and suggest the next move | Host-neutral. |
+| `/slo-rulegen` | Bootstrap or extend Semgrep rule packs for Rust workspaces | Host-neutral. The bug-summary input can come from any agent-driven workflow. |
+| `/slo-ruleverify` | Run the deterministic SAST gate over an existing rule pack | Host-neutral. |
+| `/slo-sast` | Wire threat-model-driven SAST scanning into a target repo | Host-neutral. Subprocess invocations are `git`, `gh`, and `semgrep` — never an agent CLI. |
 
 ## Business advisor skills
 
