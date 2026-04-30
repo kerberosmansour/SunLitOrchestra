@@ -1,7 +1,8 @@
 //! M1 — biz-pack judgment runtime harness, single-fixture proof.
 //!
-//! This file is the first runtime user of `tests/common/judgment_runtime.rs`.
-//! It runs ONE fixture (`ir35-genuine-contractor.md`) end-to-end:
+//! This file is the first runtime user of `tests/common/claude_runtime.rs`
+//! (named `judgment_runtime.rs` before agent-host M4). It runs ONE fixture
+//! (`ir35-genuine-contractor.md`) end-to-end:
 //!   1. parse the fixture
 //!   2. build a tempdir with skills + references symlinked, HOME redirected
 //!   3. invoke `claude -p` with a budget cap
@@ -20,7 +21,7 @@ mod common;
 
 use std::time::Duration;
 
-use common::judgment_runtime::{
+use common::claude_runtime::{
     claude_available, discover_artifact, invoke_claude, repo_root, skip_if_not_live,
     JudgmentFixture, TempRepo,
 };

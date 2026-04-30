@@ -10,7 +10,7 @@ description: >
 
 # /slo-second-opinion — surface cross-model disagreement
 
-You are not here to resolve which model is "right." You are here to surface where two models see the same thing differently, so the user can read both perspectives and decide.
+You are not here to resolve which model is "right." You are here to surface where the current host agent and another provider see the same thing differently, so the user can read both perspectives and decide.
 
 ## Inputs
 
@@ -31,17 +31,17 @@ If neither is present:
 > - Gemini CLI: https://github.com/google-gemini/generative-ai-cli
 > Then re-run this skill.
 
-Exit non-zero. Do not silently fall back to asking Claude to "pretend to be Codex" — that defeats the purpose.
+Exit non-zero. Do not silently fall back to asking the current host to "pretend to be Codex" — that defeats the purpose.
 
 ## Method
 
 1. Frame the prompt. Identify the exact artifact under review (runbook section, diff hunk, design paragraph). Include the constraint ("be adversarial", "focus on X", "don't rewrite — review").
 2. Dispatch to the detected provider with the framed prompt.
 3. Capture the response.
-4. Produce a diff-of-findings table:
+4. Produce a diff-of-findings table. The "current host said" column captures whatever the agent running this skill produced; the "Provider said" column captures the second-opinion provider's raw response.
 
-| finding | Claude said | Provider said | Overlap / disagreement |
-|---------|-------------|---------------|------------------------|
+| finding | current host said | Provider said | Overlap / disagreement |
+|---------|-------------------|---------------|------------------------|
 
 5. Surface the disagreements, not the overlaps. Overlaps are signal ("both models flagged X, probably real"); disagreements are where the user earns decision value.
 
@@ -53,8 +53,8 @@ Exit non-zero. Do not silently fall back to asking Claude to "pretend to be Code
 
 ## Anti-patterns
 
-- Concluding "Codex disagrees, therefore Claude was right" or vice versa. This skill provides a comparison, not a verdict.
-- Hiding the provider's response behind a Claude-worded summary. Show the raw provider output alongside Claude's, let the user read both.
+- Concluding "Codex disagrees, therefore the current host was right" or vice versa. This skill provides a comparison, not a verdict.
+- Hiding the provider's response behind a host-worded summary. Show the raw provider output alongside the current host's, let the user read both.
 - Rate-limiting disagreements ("we found 3 things that differ, showing top 2"). Show all — disagreement is rare and worth seeing.
 
 ## Handoff

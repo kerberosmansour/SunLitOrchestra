@@ -1,22 +1,38 @@
-//! Runtime harness for biz-pack judgment fixtures.
+//! Claude-only live runtime harness for biz-pack judgment fixtures.
 //!
-//! Drives `claude -p` against a single fixture in an isolated tempdir, walks
-//! the resulting `docs/biz/` + `docs/biz-public/` for an artifact, parses its
-//! frontmatter, and produces a `FixtureResult` the test files assert on.
+//! This module is explicitly Claude-specific. It drives `claude -p` against
+//! a single fixture in an isolated tempdir, walks the resulting `docs/biz/`
+//! + `docs/biz-public/` for an artifact, parses its frontmatter, and
+//! produces a `FixtureResult` the test files assert on. There is no
+//! host-neutral runtime abstraction here — agent-host milestone 4
+//! deliberately renamed this module from the previous host-neutral
+//! `judgment_runtime` name so the source tree itself signals the boundary.
 //!
 //! Stdlib + `tempfile` only — no regex / yaml / serde crates. Fixture
 //! frontmatter is flat key:value, parsed line-by-line.
 //!
 //! Surfaces guarded:
-//! - HOME redirected to `<tempdir>/home` so the harness never touches the
-//!   user's real `~/.claude/` (Proactive Control C8 — protect data
-//!   everywhere).
+//! - The per-fixture tempdir at `cwd` constrains where files are written
+//!   (the assertion target). HOME is intentionally NOT redirected — see
+//!   `invoke_claude` for why (auth via Claude's keychain / OAuth lives in
+//!   real `$HOME/.claude/`). The harness still never writes into the user's
+//!   real host state because the working directory and `--add-dir` are
+//!   pinned to the tempdir.
 //! - Fixture path must live under `references/biz/judgment-fixtures/`;
 //!   parsing aborts on path-traversal-shaped inputs (Proactive Control C5
 //!   — validate all inputs).
 //! - Multiple-artifact-write is an error, not silent first-wins (defends
 //!   against a skill that writes both an artifact AND an explanation file
 //!   under docs/biz/, which would muddy assertions).
+//!
+//! Env-var compatibility (agent-host M4):
+//! - `BIZ_JUDGMENT_RUNTIME_CLAUDE_BIN` keeps its existing name. The variable
+//!   was already explicitly Claude-named, so the file rename does not
+//!   require a new alias.
+//! - `BIZ_JUDGMENT_RUNTIME_LIVE`, `BIZ_JUDGMENT_RUNTIME_GLOBAL_BUDGET_USD`,
+//!   and `BIZ_JUDGMENT_RUNTIME_RETRIES` likewise keep their names — they
+//!   are scoped to the biz-pack judgment fixtures and renaming them would
+//!   break user automation for no behavior gain.
 
 #![allow(dead_code)] // helpers used selectively by per-milestone test files
 
