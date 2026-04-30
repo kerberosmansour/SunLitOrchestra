@@ -65,7 +65,7 @@ See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attri
 
 ## Canonical planning artifact
 
-Every feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md). This template is the output contract of `/slo-plan`; do not bypass it for batch CLI shortcuts when interactive planning is an option.
+Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows [docs/runbook-template_v_4_template.md](docs/runbook-template_v_4_template.md). This is the v4 template — the output contract of `/slo-plan` — which adds Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable") on top of v3's SunLit-specific structure (carry-forward from prior retros, abuse-acceptance scenarios, threat-model integration). Do not bypass it for batch CLI shortcuts when interactive planning is an option. [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) remains in place as the historical artifact for runbooks already authored against v3.
 
 ## Baseline test command (this repo)
 

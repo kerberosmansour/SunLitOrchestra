@@ -44,7 +44,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
 - **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md` and `copilot-instructions.md` are overlays, not competing sources of truth.
-- **Canonical planning artifact.** Every feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/runbook-template_v_3_template.md`.
+- **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`. Local installs land in `./.claude/skills/` or `./.copilot/skills/`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
