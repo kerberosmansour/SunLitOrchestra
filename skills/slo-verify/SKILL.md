@@ -127,3 +127,7 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 ## Handoff
 
 When every BDD scenario has a runtime row with a `pass` result, suggest `/slo-retro M<N>` to close out the milestone. If bugs were found and fixed, the retro should mention them as "missing coverage" in the lessons file.
+
+---
+
+**Loops**: Sprint loop, Security-tuning loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).

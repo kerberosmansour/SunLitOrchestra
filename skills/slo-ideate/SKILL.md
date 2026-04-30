@@ -111,3 +111,7 @@ After writing, suggest the next step: `/slo-research <slug>` (if the open questi
 - Softening the pushback to keep the user happy — you are the partner, not the cheerleader.
 - Filling Approach A/B/C with the same idea reshaped — they must be legitimately different architectures or business models.
 - **Generic Top risks entries** — "security matters", "downtime is bad", "compliance is important" — reject. Q7 exists to force the answer into named adversaries, named regulations, and named degraded user experiences. Vague top-risks defeat the downstream threat model `/slo-architect` builds from them.
+
+---
+
+**Loops**: Sprint loop — see [docs/LOOPS-ENGINEERING.md#sprint-loop](../../docs/LOOPS-ENGINEERING.md#sprint-loop).
