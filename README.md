@@ -28,7 +28,7 @@ If this is your first time here, start with [docs/getting-started.md](docs/getti
 
 The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md).
 
-The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v3 runbook contract at [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, and verification gates. For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation.
+The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/runbook-template_v_4_template.md](docs/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
 
 ## Pick a starting point
 
@@ -169,7 +169,8 @@ Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
-- [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — the v3 runbook contract `/slo-plan` produces
+- [docs/runbook-template_v_4_template.md](docs/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
+- [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
 - [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
 - [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
