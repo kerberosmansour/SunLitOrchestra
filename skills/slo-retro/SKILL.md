@@ -22,11 +22,13 @@ You are the engineering manager running the post-mortem. The milestone just fini
 
 ## Outputs
 
-Write exactly three things:
+Write exactly three things, then run the additive issue-filing flow (see "Issue filing" below):
 
-1. `docs/lessons/<prefix>-m<N>.md` — lessons-learned file (v3 template).
+1. `docs/lessons/<prefix>-m<N>.md` — lessons-learned file (v3 template). **Always written first**, even when `gh` is unavailable.
 2. `docs/completion/<prefix>-m<N>.md` — completion summary (v3 template).
 3. Inline edits to the runbook: Milestone Tracker row updated to `done`, with Completed date and paths.
+
+After those three are on disk, run the issue-filing flow as described under "Issue filing". If issue filing fails for any reason, the three artifacts above are still safely written — issue filing is strictly additive.
 
 ## Pre-conditions
 
