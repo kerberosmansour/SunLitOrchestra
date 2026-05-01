@@ -62,7 +62,7 @@ This is the single source of truth for progress. Update as each milestone comple
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | Shared security-reporting integration extended to `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-ship` | `not_started` | | | | |
+| 1 | Shared security-reporting integration extended to `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-ship` | `in_progress` | 2026-05-01 | | | |
 | 2 | Example output gallery under `examples/` | `not_started` | | | | |
 | 3 | Standards traceability matrix (CWE / OWASP / ASVS / OpenCRE) wired into security outputs | `not_started` | | | | |
 | 4 | Optional Claude plugin packaging assessment + (if green-lit) `.claude-plugin/plugin.json` and SHA-pinned release-zip workflow | `not_started` | | | | |
@@ -588,10 +588,11 @@ Path: `docs/slo/completion/sap-imp-m<N>.md`. Standard v4 template.
 | Inputs | Existing SKILL.md prose for the four skills; existing security templates |
 | Outputs | Updated SKILL.md prose with template citations; new structural-contract test that asserts the citation invariant |
 | Interfaces touched | SKILL.md prose for `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-ship`; new test file under `xtasks/sast-verify/tests/` |
-| Files allowed to change | `skills/slo-sast/SKILL.md`, `skills/slo-rulegen/SKILL.md`, `skills/slo-ruleverify/SKILL.md`, `skills/slo-ship/SKILL.md`, `xtasks/sast-verify/tests/sap_imp_m1_citations.rs` (NEW), `xtasks/sast-verify/Cargo.toml` (only if test target needs registration), `.gitignore` (only if needed) |
+| Files allowed to change | `skills/slo-sast/SKILL.md`, `skills/slo-rulegen/SKILL.md`, `skills/slo-ruleverify/SKILL.md`, `skills/slo-ship/SKILL.md`, `xtasks/sast-verify/tests/sap_imp_m1_citations.rs` (NEW), `xtasks/sast-verify/Cargo.toml` (test target registration + `pulldown-cmark` dev-dep per allow-list extension below), `Cargo.toml` (root — `pulldown-cmark` workspace.dependencies entry per allow-list extension below), `.gitignore` (only if needed) |
+| Allow-list extension (M1, 2026-05-01) | `pulldown-cmark` (latest stable, MIT/Apache-2.0) added as `[workspace.dependencies]` in root `Cargo.toml` and as `[dev-dependencies]` in `xtasks/sast-verify/Cargo.toml`. **Rationale**: F-ENG-1 critique resolution mandates AST-based Markdown parsing for the structural-contract test (no regex/hand-rolled parsing). No production code depends on it; dev-only; one test file consumes it. Reverting requires reverting F-ENG-1's mandate. **Granted**: 2026-05-01 by user during `/slo-execute M1`. |
 | Files to read before changing anything | `skills/slo-critique/SKILL.md` and `skills/slo-verify/SKILL.md` (existing citation patterns to mirror); `references/security/security-finding-template.md`; `references/security/security-assessment-summary-template.md`; `xtasks/sast-verify/Cargo.toml`; `xtasks/sast-verify/src/main.rs` (to understand existing test-target conventions) |
 | New files allowed | `xtasks/sast-verify/tests/sap_imp_m1_citations.rs` |
-| New dependencies allowed | `none` |
+| New dependencies allowed | `pulldown-cmark` (dev-dep only, per allow-list extension above) |
 | Migration allowed | `no` |
 | Compatibility commitments | All four SKILL.md install paths unchanged; frontmatter `name` and `description` unchanged; existing prose semantics preserved (citations are *added*, not replacing existing text) |
 | Resource bounds introduced/changed | Citation count per skill: ≥ 1 link to either template; structural-contract test counts links and asserts ≥ 1 per skill in the set {slo-sast, slo-rulegen, slo-ruleverify, slo-ship, slo-critique, slo-verify}. Hard cap: 4 NEW citations added (one per non-citing skill). |
