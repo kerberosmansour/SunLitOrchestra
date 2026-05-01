@@ -3,7 +3,9 @@
 > **Status**: canonical living catalog of shipped SunLitOrchestrate skills at HEAD.
 > **Audience**: contributors, host-overlay authors, and users deciding which skill to run.
 
-Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [getting-started.md](getting-started.md) for the first-run path, and [design/agent-host-capabilities.md](design/agent-host-capabilities.md) for current host support boundaries.
+Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [getting-started.md](getting-started.md) for the first-run path, and [design/agent-host-capabilities.md](design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, …) are defined in [GLOSSARY.md](GLOSSARY.md).
+
+**Shipped skills at HEAD: 32** (10 sprint flow + 6 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 32 entries.
 
 ## Repo reality at HEAD
 
@@ -21,7 +23,7 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 | Research | `/slo-research` | Host-native interactive research first; optional Claude batch backend for sourced dossiers |
 | Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` flag |
 | Verify design | `/slo-tla` | TLC model-check the design when concurrency or ordering risk is real |
-| Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
+| Plan | `/slo-plan` | Interactive v4 runbook authoring, one milestone at a time |
 | Critique | `/slo-critique` | Four-persona adversarial review before execution |
 | Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |
 | Verify | `/slo-verify M<N>` | Runtime QA with Playwright for UI surfaces |
