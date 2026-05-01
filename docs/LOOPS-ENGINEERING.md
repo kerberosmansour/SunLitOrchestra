@@ -13,7 +13,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 | Your question | First skill | Loop | Expected artifact |
 |---|---|---|---|
 | "I have an idea — is it worth building?" | `/slo-ideate` | [Sprint loop](#sprint-loop) | `docs/slo/idea/<slug>.md` |
-| "I'm starting a new feature, what do I do?" | `/slo-ideate` then `/slo-research` | [Sprint loop](#sprint-loop) | `docs/slo/current/RUNBOOK-<feature>.md` once `/slo-plan` completes |
+| "I'm starting a new feature, what do I do?" | `/slo-ideate` then `/slo-research` | [Sprint loop](#sprint-loop) | `docs/RUNBOOK-<feature>.md` once `/slo-plan` completes |
 | "I have a repeated regression — where do I start?" | `/slo-resume` (orient) then check prior `docs/slo/lessons/` | [Lessons loop](#lessons-loop) | A scope candidate at the next milestone's pre-flight |
 | "Findings keep coming back from SAST — how do I tune?" | `/slo-rulegen --extend` | [Security-tuning loop](#security-tuning-loop) | A new rule pack rev under `.semgrep/<lang>/` |
 | "An upstream tool has a gap — what now?" | `/slo-sec-libs` (when shipped) | [Library-feedback loop](#library-feedback-loop) | An issue in the upstream repo |
@@ -35,14 +35,14 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
 2. `/slo-research` — sourced dossier under `docs/slo/research/<slug>/`.
 3. `/slo-architect` — `ARCHITECTURE.md` updates plus stack lock-in, sets `tla_required`.
 4. `/slo-tla` — only when `tla_required: true`; verify the design.
-5. `/slo-plan` — author `docs/slo/current/RUNBOOK-<feature>.md` interactively, one milestone at a time.
+5. `/slo-plan` — author `docs/RUNBOOK-<feature>.md` interactively, one milestone at a time.
 6. `/slo-critique` — adversarial four-pass review BEFORE any milestone executes.
 7. Per milestone: `/slo-execute M<N>` → `/slo-verify M<N>` → `/slo-retro M<N>`.
 8. `/slo-ship` — open the PR with a runbook-aware description.
 
 **Exit condition**: every milestone tracker row is `done`, every Evidence Log row has an Actual Result, the PR is open, and a completion summary plus lessons file is written.
 
-**Artifacts**: `docs/slo/idea/<slug>.md`, `docs/slo/research/<slug>/`, `docs/slo/current/RUNBOOK-<feature>.md`, `docs/slo/lessons/<prefix>-m<N>.md`, `docs/slo/completion/<prefix>-m<N>.md`, the PR.
+**Artifacts**: `docs/slo/idea/<slug>.md`, `docs/slo/research/<slug>/`, `docs/RUNBOOK-<feature>.md`, `docs/slo/lessons/<prefix>-m<N>.md`, `docs/slo/completion/<prefix>-m<N>.md`, the PR.
 
 **Skills involved**: `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-plan`, `/slo-critique`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship`.
 
@@ -212,7 +212,7 @@ If a future addition to this doc cannot point at a concrete user-visible outcome
 
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md) — static structure of the skill pack at HEAD.
 - [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — business-side loops (user-interview, GTM, pricing, founder-check).
-- [docs/slo/templates/runbook-template_v_4_template.md](runbook-template_v_4_template.md) — the canonical planning artifact whose "Carry-forward from prior retros" section is the lessons loop's read-back. (The earlier [v3 template](runbook-template_v_3_template.md) remains in place for runbooks already authored against it.)
+- [docs/slo/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md) — the canonical planning artifact whose "Carry-forward from prior retros" section is the lessons loop's read-back. (The earlier [v3 template](templates/runbook-template_v_3_template.md) remains in place for runbooks already authored against it.)
 - [skills/slo-retro/SKILL.md](../skills/slo-retro/SKILL.md) — the writer end of the lessons loop.
 - [skills/slo-execute/SKILL.md](../skills/slo-execute/SKILL.md) — the reader end of the lessons loop (pre-flight carry-forward).
 - [skills/slo-resume/SKILL.md](../skills/slo-resume/SKILL.md) — one-screen orientation across loops.

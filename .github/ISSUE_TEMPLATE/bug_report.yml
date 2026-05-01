@@ -1,0 +1,76 @@
+name: Bug report
+description: Something in the skill pack, installer, or runbook flow does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please complete the fields below — the more concrete the repro, the faster we can fix it.
+        For security vulnerabilities, do **not** file a public issue — see [SECURITY.md](../../SECURITY.md).
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence describing the bug.
+      placeholder: e.g. `sldo-install verify` reports `ok` for a skill whose symlink target was deleted.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps. Include the exact commands you ran.
+      placeholder: |
+        1. `cargo build -p sldo-install --release`
+        2. `./target/release/sldo-install`
+        3. `rm skills/slo-plan/SKILL.md`
+        4. `./target/release/sldo-install verify`
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include relevant log output or error messages in a fenced block.
+    validations:
+      required: true
+  - type: dropdown
+    id: host
+    attributes:
+      label: Host agent
+      multiple: true
+      options:
+        - Claude Code
+        - GitHub Copilot
+        - Other / not host-specific
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - WSL
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Repo version
+      description: Output of `git rev-parse --short HEAD` from the repo root.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Anything else useful — related runbook, recent change, workaround tried.
