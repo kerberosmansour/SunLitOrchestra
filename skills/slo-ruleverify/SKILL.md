@@ -58,6 +58,10 @@ Verified <X> rules; <Y> passed, <Z> failed.
 
 If any failed, the operator's next step is `/slo-rulegen --rule-id <failing-id> --action revise` (M2+) or manual rule revision followed by re-running this skill.
 
+### Expanded failure findings
+
+When a rule fails the `gate` and the compact `<rule-id> (<CWE>): FAIL` line would hide the evidence (which fixture matched, which clean-tree path tripped, which sink shape went uncovered), surface the failure as an expanded finding using [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md). The expanded finding is REQUIRED when a clean-tree breach or coverage gate fail produces a high-severity rule rejection — the per-finding evidence + remediation + verification path live there, with the compact line acting as the index.
+
 ## What you MUST NOT do
 
 - Write or edit any rule YAML, fixture, or `references/sast/` file.
