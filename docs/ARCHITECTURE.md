@@ -37,6 +37,9 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 | Security and SAST helpers | `skills/slo-{rulegen,ruleverify,sast}` | Semgrep rule generation, verification, and SAST wiring |
 | Utilities | `skills/slo-{freeze,resume,second-opinion}` | Session control, resumption, and disagreement surfacing |
 | Vendored helper | `skills/get-api-docs` | Third-party API doc fetches via `chub` |
+| Examples gallery | `examples/` | Synthetic, non-normative gallery (7 files) showing what shipped SLO outputs look like — read [`examples/README.md`](../examples/README.md). Not installable; not consumed by any skill. |
+| Specialist agents (optional, Claude-only) | `agents/slo-{runbook-review-lead,security-reviewer,design-reviewer,verification-lead}.md` | Host-native agent files for Claude Code that mirror `/slo-critique` persona rotation. Output paths constrained to `docs/slo/critique/` and `docs/slo/verify/`. GitHub Copilot users use `/slo-critique` directly (canonical portable path). See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md). |
+| Distribution channels | `sldo-install` (canonical, multi-host) + optional `.claude-plugin/plugin.json` (Claude-only, additive) | Tagged releases produce a downloadable zip via the SHA-pinned [`release-zip workflow`](../.github/workflows/release-zip.yml). |
 
 For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 
@@ -54,7 +57,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 ### References subtrees
 
 - `references/biz/` holds shared business-pack scaffolding such as gates, jurisdiction notes, templates, and regulator indexes.
-- `references/security/` holds shared security finding and assessment summary templates used by review / verification skills.
+- `references/security/` holds shared security finding and assessment summary templates used by review / verification skills, plus the curated CWE × OWASP × ASVS × OpenCRE table at [`references/security/standards-mapping.md`](../references/security/standards-mapping.md) (added by sap-imp M3).
 - `references/sast/` holds SAST-specific references consumed by the security tooling and rule-pack work.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
 
@@ -113,7 +116,7 @@ The installed skill is host-neutral for interactive use. `sldo-research` is the 
 
 ## SAST xtask: `xtasks/sast-verify`
 
-`xtasks/sast-verify/` is the deterministic Semgrep verification toolchain used by the SAST skill work.
+`xtasks/sast-verify/` is the deterministic Semgrep verification toolchain used by the SAST skill work. It also hosts Markdown structural-contract tests added by feature runbooks.
 
 | File | Responsibility |
 |---|---|
@@ -127,6 +130,18 @@ The installed skill is host-neutral for interactive use. `sldo-research` is the 
 | `semgrep_runner.rs` | Shared Semgrep invocation plumbing |
 | `validate_file_paths.rs` | Input path checks |
 | `yaml_schema.rs` | YAML/schema helpers |
+
+### Structural-contract test families
+
+Feature runbooks land Markdown / YAML / JSON structural-contract tests under `xtasks/sast-verify/tests/`. They walk shipped artifacts at HEAD (skills, references, examples, workflows, agents) and assert documented invariants. Each milestone of a runbook owns one test file named `<prefix>_m<N>_<feature>.rs`.
+
+| Test family | Asserts |
+|---|---|
+| `sap_imp_m1_citations` | `pulldown-cmark` AST-based: every security-relevant skill cites a shared template; cited paths resolve at HEAD; `/slo-ship` security-summary section is gated by "new public surface" phrase; no shipped SKILL.md links to `examples/`. |
+| `sap_imp_m2_examples` | `examples/` contains exactly 7 synthetic, non-normative artifacts; PII regex scan zero matches across email + UK NI + UK sort code + US SSN + EU IBAN; every `abbreviates:` resolves; ≤ 10 KB per file. |
+| `sap_imp_m3_standards` | `references/security/standards-mapping.md` has dated rows; 4 target skills cite the mapping; threshold rule (high/critical → CWE) is documented in `/slo-critique` and `/slo-verify`; live `docs/slo/{critique,verify}/*.md` walked for the threshold rule. |
+| `sap_imp_m4_workflow_pinning` | Every workflow `uses:` SHA-pinned (40-char hex) and has explicit `permissions:` block; `host-capability-matrix.md` carries a decision row; plugin.json has no path traversal; release workflow uses `git archive` + tag-trigger only. |
+| `sap_imp_m5_agents` | Exactly 4 agent files; frontmatter complete; `output-paths` constrained to `{docs/slo/critique/, docs/slo/verify/}` with traversal/absolute-path rejected; `copilot-fallback` non-empty; ≤ 200 lines per agent; `skills/slo-critique/SKILL.md` SHA-256 byte-identical to pinned baseline. |
 
 ## Feedback loops
 
