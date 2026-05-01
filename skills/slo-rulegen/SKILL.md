@@ -119,6 +119,10 @@ If a rule cannot be authored without textual reference to the AGPL source, `refe
 - Inventing new metadata fields beyond the schema — `serde_yaml_ng` strict parse rejects them; you'll waste time chasing the parse error. Stick to the schema in `references/sast/manifest-schema.md`.
 - Auto-running in CI on attacker-supplied PR diffs. Per `tm-sast-rulegen-skill-pack-abuse-3`, extend mode is developer-initiated only. The CI workflow runs the existing pack via `semgrep ci`; it never invokes this skill.
 
+## Reporting suspect rules
+
+When a generated rule fails the `gate` (clean-tree breach, coverage gap, or low-confidence variation arm), surface the failure as an expanded finding using the shared template at [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md). Reserve the expanded form for cases where the failure carries non-trivial evidence (rule yaml + offending fixture + CWE mapping) or where the remediation needs more than one cell — compact gate output remains the index. Required fields per the M1 citation invariant: bug class / CWE, concrete scenario, remediation. Optional: OWASP / ASVS / OpenCRE mapping.
+
 ## Handoff
 
 After bootstrap mode completes, suggest `/slo-ruleverify` to confirm the pack is `gate`-clean across all rules. If running standalone in a Rust app repo, also suggest the user wire `.github/workflows/semgrep.yml` per Runbook A M3.
