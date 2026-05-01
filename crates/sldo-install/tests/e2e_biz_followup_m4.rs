@@ -177,7 +177,7 @@ fn tax_efficiency_pushback_fixture_present() {
 
 // ---------------------------------------------------------------------------
 // Runtime harness — implemented in `e2e_biz_judgment_runtime_m{1,2}.rs`
-// (see `docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md`). The function below
+// (see `docs/slo/completed/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md`). The function below
 // remains as a forwarder so external tooling that targets this name by
 // convention still has a callable entry — but it does no work; pointers
 // only.
@@ -191,5 +191,5 @@ fn runtime_harness_invokes_claude_cli_per_fixture() {
         "  BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \\"
     );
     eprintln!("      --test e2e_biz_judgment_runtime_m2 -- --ignored");
-    eprintln!("(or _m1 for the single-fixture proof). See docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md.");
+    eprintln!("(or _m1 for the single-fixture proof). See docs/slo/completed/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md.");
 }

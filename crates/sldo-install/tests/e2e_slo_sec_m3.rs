@@ -69,8 +69,8 @@ fn persona_requires_class_naming() {
 fn persona_requires_threat_model_citation() {
     let persona = read(&repo_root().join("skills/slo-critique/personas/security.md"));
     assert!(
-        persona.contains("docs/design/") && persona.contains("threat-model"),
-        "security persona must require every finding to cite a row from docs/design/<slug>-threat-model.md"
+        persona.contains("docs/slo/design/") && persona.contains("threat-model"),
+        "security persona must require every finding to cite a row from docs/slo/design/<slug>-threat-model.md"
     );
 }
 
@@ -300,7 +300,7 @@ fn existing_critiques_valid_markdown() {
     // should still parse as a Markdown document with a findings table.
     // (The original fixture — tla-sha-autopop — was removed in the 2026-04
     // cleanup.)
-    let critique = read(&repo_root().join("docs/critique/biz-skill-pack-a.md"));
+    let critique = read(&repo_root().join("docs/slo/critique/biz-skill-pack-a.md"));
     assert!(
         critique.contains("| id |") || critique.contains("|id|"),
         "existing critique file must still contain the finding-row table"

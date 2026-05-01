@@ -8,7 +8,7 @@ If you are new to the repo, start with [docs/getting-started.md](docs/getting-st
 
 1. [docs/getting-started.md](docs/getting-started.md) — first-run path
 2. [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog
-3. [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — what works today and what is still host-specific
+3. [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — what works today and what is still host-specific
 
 ## Install into GitHub Copilot
 
@@ -46,4 +46,4 @@ Global installs land in `~/.copilot/skills/`. Local installs land in `./.copilot
 1. Confirm the install target is Copilot by running `./target/release/sldo-install --host github-copilot status`.
 2. Read [docs/getting-started.md](docs/getting-started.md) for the first-run path.
 3. Use [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) to pick the skill you want.
-4. Check [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) before assuming a runtime or automation surface exists.
+4. Check [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) before assuming a runtime or automation surface exists.

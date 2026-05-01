@@ -67,7 +67,7 @@ Implication for `/slo-legal triage`: From **2026-06-19**, the gate-4 routing for
 ## What this file is NOT
 
 - This file is NOT legal advice. It is a citation index summarising publicly-published ICO and legislation.gov.uk content as of the retrieval date.
-- This file is NOT authorization to relax the broad GDPR hard-block on `draft` mode. The broad block (locked 2026-04-25) is reversible only via fresh `/slo-architect` pass with new evidence — see `references/biz/ico-enforcement-reality.md` for the descriptive evidence, and `docs/design/biz-skill-pack-overview.md` for the locked-decision provenance.
+- This file is NOT authorization to relax the broad GDPR hard-block on `draft` mode. The broad block (locked 2026-04-25) is reversible only via fresh `/slo-architect` pass with new evidence — see `references/biz/ico-enforcement-reality.md` for the descriptive evidence, and `docs/slo/design/biz-skill-pack-overview.md` for the locked-decision provenance.
 - This file is NOT exhaustive on DUAA. Many other provisions exist (smart data schemes, digital identity verification trust framework, online safety amendments) that are out of scope for the biz skill pack.
 
 ## Refresh cadence

@@ -8,7 +8,7 @@
 //! cross-skill citation test in `e2e_biz_a_m2.rs`) can rely on it.
 //!
 //! BDD scenarios are taken verbatim from
-//! `docs/RUNBOOK-BIZ-SKILL-PACK-A.md` Milestone 1.
+//! `docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md` Milestone 1.
 //!
 //! Note on the oneNDA SHA-256 hash check: M1 ships the template as a placeholder
 //! (see `references/biz/templates/onenda-uk.md` replace-before-production-use

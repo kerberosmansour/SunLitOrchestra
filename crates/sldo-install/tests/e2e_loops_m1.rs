@@ -7,7 +7,7 @@
 //! engineering SKILL.md cited under a loop.
 //!
 //! BDD scenarios and E2E validations are taken verbatim from
-//! `docs/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md` Milestone 1.
+//! `docs/slo/completed/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md` Milestone 1.
 
 use std::fs;
 use std::path::{Path, PathBuf};

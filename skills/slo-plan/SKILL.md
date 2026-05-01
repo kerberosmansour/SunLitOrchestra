@@ -15,15 +15,15 @@ You are an engineering manager who has watched too many "generate the whole plan
 
 ## Inputs
 
-- `docs/idea/<slug>.md`
-- `docs/research/<slug>/synthesis.md`
+- `docs/slo/idea/<slug>.md`
+- `docs/slo/research/<slug>/synthesis.md`
 - `ARCHITECTURE.md` or `docs/ARCHITECTURE.md` — if missing, `/slo-plan` auto-generates one from current codebase reality before scaffolding the runbook (see Step 0.5). Not a hard blocker.
-- `docs/design/stack-decision.md`, `docs/design/interfaces.md` — present when `/slo-architect` ran; optional for feature-add runbooks on an already-designed system.
-- If `tla_required: true`: `docs/design/<slug>-verified.md` plus the TLC results.
+- `docs/slo/design/stack-decision.md`, `docs/slo/design/interfaces.md` — present when `/slo-architect` ran; optional for feature-add runbooks on an already-designed system.
+- If `tla_required: true`: `docs/slo/design/<slug>-verified.md` plus the TLC results.
 
 ## Output
 
-One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — every section from `docs/runbook-template_v_4_template.md` present, none hand-waved. (For backward compatibility with already-authored runbooks, `docs/runbook-template_v_3_template.md` remains in place; new runbooks use v4.)
+One file: `docs/slo/current/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — every section from `docs/slo/templates/runbook-template_v_4_template.md` present, none hand-waved. (For backward compatibility with already-authored runbooks, `docs/slo/templates/runbook-template_v_3_template.md` remains in place; new runbooks use v4.)
 
 ## Discipline — the one rule
 
@@ -33,7 +33,7 @@ One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — 
 
 ### Step 0 — runbook scaffolding
 
-Copy the v4 template (`docs/runbook-template_v_4_template.md`). Fill the Runbook Metadata block:
+Copy the v4 template (`docs/slo/templates/runbook-template_v_4_template.md`). Fill the Runbook Metadata block:
 
 - Runbook ID, prefix, primary stack (from stack-decision.md)
 - Test commands (run `/slo-architect`'s auto-detect or ask)
@@ -83,11 +83,11 @@ For milestone N, write the full section:
 5. **Contract Block** — the full table. Base rows: Inputs, Outputs, Interfaces touched, Files allowed to change, Files to read before changing, New files allowed, New dependencies allowed, Migration allowed, Compatibility commitments, Forbidden shortcuts. **Three additional required rows for every milestone** (added by slo-sec-m2):
    - **Data classification**: one of the fixed four values `Public`, `Internal`, `Confidential`, `Restricted`. The full enum and its rules live in [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md). A milestone that handles `Confidential` or higher data MUST additionally cite a relevant control in the next row and include at least one abuse-case scenario.
    - **Proactive controls in play**: stack-aware vocabulary from [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md). For Rust-axum targets with `security_libs_required: true`, cite SunLitSecureLibraries crate names + OWASP C-numbers (e.g. `C5 secure_boundary::SecureJson`). For Pulumi/AWS, cite Hulumi components (e.g. `@hulumi/baseline.aws.SecureBucket`). For other stacks, cite OWASP Proactive Controls v3 category names directly (C1–C10).
-   - **Abuse acceptance scenarios**: pointer into the milestone's BDD table for the specific abuse-case rows seeded from `docs/design/<slug>-threat-model.md` and the example pool at [`references/abuse-case-examples.md`](references/abuse-case-examples.md). Row format includes a `tm-<slug>-abuse-N` citation back to the threat-model row. **Required when the milestone introduces a new surface** (endpoint / IPC handler / file write / subprocess / outbound request / persisted state). When the milestone introduces no new surface (pure-documentation, refactor-only), fill the row with `N/A — no new surface introduced, see <reason>` — silent omission is forbidden.
+   - **Abuse acceptance scenarios**: pointer into the milestone's BDD table for the specific abuse-case rows seeded from `docs/slo/design/<slug>-threat-model.md` and the example pool at [`references/abuse-case-examples.md`](references/abuse-case-examples.md). Row format includes a `tm-<slug>-abuse-N` citation back to the threat-model row. **Required when the milestone introduces a new surface** (endpoint / IPC handler / file write / subprocess / outbound request / persisted state). When the milestone introduces no new surface (pure-documentation, refactor-only), fill the row with `N/A — no new surface introduced, see <reason>` — silent omission is forbidden.
 6. **Out of Scope / Must Not Do** — explicit non-goals.
 7. **Files Allowed to Change** — the table with planned changes.
 8. **Step-by-Step** — numbered, 10 or fewer.
-9. **BDD Acceptance Scenarios** — cover happy path, invalid input, empty state, dependency failure, and whichever of {retry, concurrency, persistence, backward compat, **abuse case**} apply. The `abuse case` category is required whenever the milestone introduces a new surface; the rows are seeded from `docs/design/<slug>-threat-model.md` via [`references/abuse-case-examples.md`](references/abuse-case-examples.md). Every abuse case cites a threat-model row (`tm-<slug>-abuse-N`) and names a concrete attacker-role + step + outcome. N/A-with-reason is acceptable only when no new surface is introduced.
+9. **BDD Acceptance Scenarios** — cover happy path, invalid input, empty state, dependency failure, and whichever of {retry, concurrency, persistence, backward compat, **abuse case**} apply. The `abuse case` category is required whenever the milestone introduces a new surface; the rows are seeded from `docs/slo/design/<slug>-threat-model.md` via [`references/abuse-case-examples.md`](references/abuse-case-examples.md). Every abuse case cites a threat-model row (`tm-<slug>-abuse-N`) and names a concrete attacker-role + step + outcome. N/A-with-reason is acceptable only when no new surface is introduced.
 10. **Regression Tests** — specific tests that must still pass.
 11. **Compatibility Checklist** — checkboxes.
 12. **E2E Runtime Validation** — test functions and pass criteria.

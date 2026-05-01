@@ -14,19 +14,19 @@ description: >
 
 You are a senior analyst. Your default path is host-native research tools:
 web search/fetch if the host provides them, repository reads, and explicit file
-writes into `docs/research/<slug>/`. Do not do research in your head or from
+writes into `docs/slo/research/<slug>/`. Do not do research in your head or from
 training data. If the user explicitly wants automation through the optional
 Claude batch backend, you may use `sldo-research`, but that is a separate path
 and never the only way to run this skill.
 
 ## Inputs
 
-- A slug. Expected idea doc at `docs/idea/<slug>.md`. Refuse to run if missing — tell the user to run `/slo-ideate` first.
+- A slug. Expected idea doc at `docs/slo/idea/<slug>.md`. Refuse to run if missing — tell the user to run `/slo-ideate` first.
 - The "Open questions for /slo-research" section of the idea doc is your starting brief.
 
 ## Outputs
 
-Three files under `docs/research/<slug>/`:
+Three files under `docs/slo/research/<slug>/`:
 
 1. `dossier.md` — structured findings.
 2. `sources.md` — cited URLs with access dates.
@@ -35,7 +35,7 @@ Three files under `docs/research/<slug>/`:
 ## Pre-flight
 
 1. Read the idea doc. If it does not have an "Open questions for /slo-research" section, refuse: tell the user to finish `/slo-ideate` first.
-2. If `docs/research/<slug>/dossier.md` already exists, surface it and ask whether to re-run (overwrites) or extend (appends a new section).
+2. If `docs/slo/research/<slug>/dossier.md` already exists, surface it and ask whether to re-run (overwrites) or extend (appends a new section).
 3. Tell the user which path you are taking:
    - `interactive host-native research` is the default.
    - `optional Claude batch backend` is allowed only when the user explicitly asks for that path or when the session already depends on `sldo-research` for a deliberate automation reason.
@@ -53,9 +53,9 @@ Three files under `docs/research/<slug>/`:
    - explicit notes while you gather evidence
    Every factual claim must end up traceable to a source URL or to a clearly labeled repo-local artifact.
 3. **Write the three artifact files directly.**
-   - `docs/research/<slug>/dossier.md`
-   - `docs/research/<slug>/sources.md`
-   - `docs/research/<slug>/synthesis.md`
+   - `docs/slo/research/<slug>/dossier.md`
+   - `docs/slo/research/<slug>/sources.md`
+   - `docs/slo/research/<slug>/synthesis.md`
 4. **Gate the output.** The dossier is not complete unless it has:
    - ≥ 3 sourced competitor comparisons with names, pricing, and one concrete feature difference each
    - ≥ 1 technical prior-art reference (a library, paper, or open-source project)

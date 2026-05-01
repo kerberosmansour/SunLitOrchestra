@@ -2,7 +2,7 @@
 name: slo-sast
 description: >
   Use this skill to wire threat-model-driven SAST scanning into a target product
-  repo. Reads docs/design/<slug>-threat-model.md for CWE references, picks tuned
+  repo. Reads docs/slo/design/<slug>-threat-model.md for CWE references, picks tuned
   Semgrep rule packs for the detected stack, emits a safe GitHub Actions workflow
   plus a baselined config plus an audit-defense manifest, and re-derives the
   ruleset on threat-model edit. Pure Markdown skill; no Rust binary dependency.
@@ -14,12 +14,12 @@ description: >
 
 You are a security engineer wiring SAST into a target product repo. The user's project has (or should have) a threat model; your job is to translate that threat model into a tuned Semgrep configuration and a safe GitHub Actions workflow, with an audit-defense manifest, and re-derive everything when the threat model changes.
 
-This is the M1 milestone of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md): **parser-only**. M2–M5 progressively add stack detection, registry fetch + filter, file emission, manifest + preview-mode, and the re-derivation loop. Prior to M2 landing, this skill produces a CWE list to stdout and stops there.
+This is the M1 milestone of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md): **parser-only**. M2–M5 progressively add stack detection, registry fetch + filter, file emission, manifest + preview-mode, and the re-derivation loop. Prior to M2 landing, this skill produces a CWE list to stdout and stops there.
 
 ## Inputs
 
 - A target repository (cwd = target repo root, or `--target-dir` if specified).
-- `docs/design/<slug>-threat-model.md` — the slug is derived from runbook context (current `docs/RUNBOOK-<SLUG>.md` in the cwd) or the optional first positional argument (`/slo-sast scanner-orchestration` resolves to `docs/design/scanner-orchestration-threat-model.md`).
+- `docs/slo/design/<slug>-threat-model.md` — the slug is derived from runbook context (current `docs/slo/current/RUNBOOK-<SLUG>.md` in the cwd) or the optional first positional argument (`/slo-sast scanner-orchestration` resolves to `docs/slo/design/scanner-orchestration-threat-model.md`).
 - (M2+) Manifest files for stack detection (`Cargo.toml`, `package.json`, `requirements.txt`, etc.).
 - (M2+) Pinned `semgrep-rules` SHA from `references/sast/scanner-orch-pinned-rules-sha.md`.
 
@@ -55,11 +55,11 @@ Future milestones extend this:
 ## Pre-flight (every invocation)
 
 1. Confirm cwd contains a target repo (a `.git/` directory or equivalent). If not, exit non-zero with stderr `"/slo-sast must run inside a git repository (cwd=$PWD)"`.
-2. Resolve the threat-model path: `docs/design/<slug>-threat-model.md`. The slug is taken from:
+2. Resolve the threat-model path: `docs/slo/design/<slug>-threat-model.md`. The slug is taken from:
    - The optional first positional argument, if given.
-   - Otherwise, derive from the current `docs/RUNBOOK-<SLUG>.md` (lowercase, kebab-case).
-   - If neither resolves, exit non-zero with stderr `"/slo-sast cannot determine slug; pass it as the first argument or run inside a directory with docs/RUNBOOK-<slug>.md"`.
-3. If `docs/design/<slug>-threat-model.md` does not exist, exit non-zero with stderr `"threat-model not found: docs/design/<slug>-threat-model.md"`. Do NOT print a partial CWE list. The user must run `/slo-architect <slug>` first.
+   - Otherwise, derive from the current `docs/slo/current/RUNBOOK-<SLUG>.md` (lowercase, kebab-case).
+   - If neither resolves, exit non-zero with stderr `"/slo-sast cannot determine slug; pass it as the first argument or run inside a directory with docs/slo/current/RUNBOOK-<slug>.md"`.
+3. If `docs/slo/design/<slug>-threat-model.md` does not exist, exit non-zero with stderr `"threat-model not found: docs/slo/design/<slug>-threat-model.md"`. Do NOT print a partial CWE list. The user must run `/slo-architect <slug>` first.
 
 ## Method (M1 — parser scaffold)
 
@@ -232,7 +232,7 @@ If the user declines preview-mode, the target repo's `git status` post-invocatio
 
 Per [`references/sast/scanner-orch-rederivation-triggers.md`](../../references/sast/scanner-orch-rederivation-triggers.md), evaluate the four predicates at every invocation when `.semgrep/manifest.json` exists:
 
-1. **Threat-model SHA changed** — current `git ls-files -s docs/design/<slug>-threat-model.md` blob SHA differs from `manifest.threat_model_sha`.
+1. **Threat-model SHA changed** — current `git ls-files -s docs/slo/design/<slug>-threat-model.md` blob SHA differs from `manifest.threat_model_sha`.
 2. **`semgrep_rules_sha` pin bumped** — current pinned value in `references/sast/scanner-orch-pinned-rules-sha.md` differs from `manifest.semgrep_rules_sha`.
 3. **Stack added** — current manifest-file inventory yields a `detected_stack` that's a superset of `manifest.detected_stack`.
 4. **CWEs claimed changed** — current parser output differs from `manifest.cwes_claimed`.
@@ -263,7 +263,7 @@ Read [`references/sast/scanner-orch-rederivation-triggers.md`](../../references/
 
 ### Dogfood (runbook-close validation)
 
-The runbook closes by running `/slo-sast` against this SLO repo using `docs/design/scanner-orchestration-threat-model.md` as input. The dogfood test fixture mirrors the real SLO subtree via **file-content copy** (NOT symlinks — ENG-6) to a `tempfile::TempDir`. Every test step that might write into the dogfood-subtree fixture stays inside the tempdir; the real repo is never mutated by the test.
+The runbook closes by running `/slo-sast` against this SLO repo using `docs/slo/design/scanner-orchestration-threat-model.md` as input. The dogfood test fixture mirrors the real SLO subtree via **file-content copy** (NOT symlinks — ENG-6) to a `tempfile::TempDir`. Every test step that might write into the dogfood-subtree fixture stays inside the tempdir; the real repo is never mutated by the test.
 
 ### Anti-patterns (M5 specific)
 
@@ -291,9 +291,9 @@ The runbook closes by running `/slo-sast` against this SLO repo using `docs/desi
 - [`references/sast/threat-model-parser-contract.md`](../../references/sast/threat-model-parser-contract.md) — the regex and three exclusion regions documented in detail.
 - [`references/sast/stack-detection-contract.md`](../../references/sast/stack-detection-contract.md) — manifest-priority order + tag derivation (M2).
 - [`references/sast/scanner-orch-pinned-rules-sha.md`](../../references/sast/scanner-orch-pinned-rules-sha.md) — the pinned `semgrep-rules` SHA + bump procedure (M2).
-- [`docs/design/scanner-orchestration-threat-model.md`](../../docs/design/scanner-orchestration-threat-model.md) — abuse cases `tm-scanner-orchestration-abuse-1` (smuggled CWE refs) and `tm-scanner-orchestration-abuse-2` (compromised semgrep-rules upstream).
-- [`docs/design/scanner-orchestration-interfaces.md`](../../docs/design/scanner-orchestration-interfaces.md) §§1–3, §7 (interface contracts).
-- [`docs/RUNBOOK-SCANNER-ORCHESTRATION.md`](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md) — M1 lands the parser; M2 lands stack detection + fetch + filter; M3–M5 extend the skill sequentially.
+- [`docs/slo/design/scanner-orchestration-threat-model.md`](../../docs/slo/design/scanner-orchestration-threat-model.md) — abuse cases `tm-scanner-orchestration-abuse-1` (smuggled CWE refs) and `tm-scanner-orchestration-abuse-2` (compromised semgrep-rules upstream).
+- [`docs/slo/design/scanner-orchestration-interfaces.md`](../../docs/slo/design/scanner-orchestration-interfaces.md) §§1–3, §7 (interface contracts).
+- [`docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md`](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md) — M1 lands the parser; M2 lands stack detection + fetch + filter; M3–M5 extend the skill sequentially.
 
 ---
 

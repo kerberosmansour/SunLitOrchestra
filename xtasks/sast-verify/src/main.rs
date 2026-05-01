@@ -11,7 +11,7 @@
 //! path — the xtask is a write-time gate, not a CI rule-gen runner.
 //!
 //! Exit codes 0–7 are owned by this binary; ≥64 reserved for unrecoverable
-//! crashes (panic / signal). See `docs/design/sast-rulegen-skill-pack-interfaces.md` §1.
+//! crashes (panic / signal). See `docs/slo/design/sast-rulegen-skill-pack-interfaces.md` §1.
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};

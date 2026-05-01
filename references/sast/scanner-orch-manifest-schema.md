@@ -1,6 +1,6 @@
 # Scanner-orchestration manifest schema v1.0
 
-> The audit-defense + reproducibility manifest `/slo-sast` writes at `.semgrep/manifest.json` in the target repo. Locked in M4 of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md) and [`docs/design/scanner-orchestration-interfaces.md` §5](../../docs/design/scanner-orchestration-interfaces.md). **Defensive design, not regulatory mandate** — see Framing below.
+> The audit-defense + reproducibility manifest `/slo-sast` writes at `.semgrep/manifest.json` in the target repo. Locked in M4 of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md) and [`docs/slo/design/scanner-orchestration-interfaces.md` §5](../../docs/slo/design/scanner-orchestration-interfaces.md). **Defensive design, not regulatory mandate** — see Framing below.
 
 ## Schema (v1.0)
 
@@ -9,7 +9,7 @@
   "schema_version": "1.0",
   "generated_at": "2026-04-26T15:30:00Z",
   "generated_by_skill_version": "0.1.0",
-  "threat_model_path": "docs/design/scanner-orchestration-threat-model.md",
+  "threat_model_path": "docs/slo/design/scanner-orchestration-threat-model.md",
   "threat_model_sha": "<git-blob-SHA-of-threat-model-file>",
   "semgrep_rules_sha": "<git-commit-SHA-of-semgrep-rules-clone>",
   "semgrep_version": "1.161.0",
@@ -78,4 +78,4 @@ The same constraint applies to PCI DSS 6.2.3 references elsewhere — cite **6.2
 
 ## Stability
 
-This schema is **`stable`** at v1.0 per [`docs/design/scanner-orchestration-interfaces.md` §5](../../docs/design/scanner-orchestration-interfaces.md). Adding fields is non-breaking (additive — downstream consumers MUST tolerate unknown fields). Renaming or removing fields requires a migration milestone with explicit handling for existing manifests at the prior schema_version.
+This schema is **`stable`** at v1.0 per [`docs/slo/design/scanner-orchestration-interfaces.md` §5](../../docs/slo/design/scanner-orchestration-interfaces.md). Adding fields is non-breaking (additive — downstream consumers MUST tolerate unknown fields). Renaming or removing fields requires a migration milestone with explicit handling for existing manifests at the prior schema_version.

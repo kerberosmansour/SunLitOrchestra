@@ -1,4 +1,4 @@
-//! Structural-contract tests for `docs/runbook-template_v_4_template.md`.
+//! Structural-contract tests for `docs/slo/templates/runbook-template_v_4_template.md`.
 //!
 //! v4 is the canonical going-forward runbook template — `/slo-plan`'s
 //! output contract — adding Carmack-style reliability controls
@@ -30,7 +30,7 @@ fn read(path: &Path) -> String {
         .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
-const V4_PATH: &str = "docs/runbook-template_v_4_template.md";
+const V4_PATH: &str = "docs/slo/templates/runbook-template_v_4_template.md";
 
 #[test]
 fn v4_template_exists_with_required_top_sections() {
@@ -246,7 +246,7 @@ fn v3_template_still_present_for_historical_runbooks() {
     // v3 stays in place as the historical artifact for runbooks already
     // authored against it. Removing it would break the FNV-1a pin tests
     // and break references in completed runbooks.
-    let path = repo_root().join("docs/runbook-template_v_3_template.md");
+    let path = repo_root().join("docs/slo/templates/runbook-template_v_3_template.md");
     assert!(
         path.exists(),
         "v3 template must remain in place as the historical artifact for runbooks already authored against it"

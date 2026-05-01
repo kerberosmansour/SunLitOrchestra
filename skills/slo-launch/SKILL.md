@@ -79,7 +79,7 @@ Skill prose explicitly NORMALISES the NO outcome — most launches don't hit. Re
 
 ## UK-only jurisdiction
 
-UK only in v1. Non-UK founder context triggers the canonical error from `references/biz/jurisdiction-uk.md`: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md).**" Cross-border launches (UK founder launching to international audience) are permitted; non-UK founder context triggers rejection.
+UK only in v1. Non-UK founder context triggers the canonical error from `references/biz/jurisdiction-uk.md`: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md).**" Cross-border launches (UK founder launching to international audience) are permitted; non-UK founder context triggers rejection.
 
 ## No WebFetch / WebSearch.
 
