@@ -56,6 +56,8 @@ Future milestones extend this:
 
 When a `/slo-sast` run produces a non-empty `unmatched_cwes` set or a stack-detection mismatch, the run MAY surface a coverage-gap summary using the shared assessment-summary template at [`../../references/security/security-assessment-summary-template.md`](../../references/security/security-assessment-summary-template.md). Individual high-severity gaps (e.g., a CWE in the threat model with zero matching rules) MAY be expanded into a per-finding entry using [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) when the compact summary cell would hide standards mapping, evidence, or remediation detail.
 
+**Standards mapping** — coverage-gap rows have `CWE claimed vs covered` as the **required** mapping per the per-output-type tier matrix at [`../../references/security/standards-mapping.md`](../../references/security/standards-mapping.md). OWASP / ASVS rationale is **optional**. Live OpenCRE lookup is explicitly out of scope; consult the curated table for OpenCRE ids when available.
+
 ## Pre-flight (every invocation)
 
 1. Confirm cwd contains a target repo (a `.git/` directory or equivalent). If not, exit non-zero with stderr `"/slo-sast must run inside a git repository (cwd=$PWD)"`.

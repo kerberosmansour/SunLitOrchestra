@@ -28,6 +28,12 @@ on:
     branches:
       - main
 
+# Minimum-privilege per F-SEC-4 (sap-imp M4 critique resolution).
+# This workflow only needs read access to repo content + write to the PR check
+# status. No issue / actions / packages writes required.
+permissions:
+  contents: read
+
 jobs:
   admission-control:
     name: Read-only admission control over .semgrep/<lang>/
@@ -40,10 +46,14 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        # dtolnay/rust-toolchain "stable" — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
+        # Re-pin via: gh api repos/dtolnay/rust-toolchain/branches/stable --jq .commit.sha
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
 
       - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
+        # Swatinem/rust-cache@v2 — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
+        # Re-pin via: gh api repos/Swatinem/rust-cache/git/ref/tags/v2.7.5 (latest at pin)
+        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
 
       - name: Install Semgrep
         # MIN-SEMGREP-VERSION is 1.50.0 per references/sast/MIN-SEMGREP-VERSION.md.
