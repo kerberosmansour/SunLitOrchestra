@@ -23,7 +23,14 @@ You are an engineering manager who has watched too many "generate the whole plan
 
 ## Output
 
-One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — every section from `docs/runbook-template_v_4_template.md` present, none hand-waved. (For backward compatibility with already-authored runbooks, `docs/runbook-template_v_3_template.md` remains in place; new runbooks use v4.)
+One file: `docs/RUNBOOK-<kebab-slug>.md` (in the **user's** project, not in this repo). It must be a faithful v4 instance — every section from the v4 template present, none hand-waved.
+
+**Template lookup (do this in order, use the first that exists):**
+
+1. `references/runbook-template_v_4_template.md` — the skill-local copy that ships with this skill (resolves to `~/.claude/skills/slo-plan/references/...` after `sldo-install`). This is the canonical lookup path because it works in any project.
+2. `docs/templates/runbook-template_v_4_template.md` — the human-browsable mirror in the SunLit repo only. Identical bytes; a CI test guards drift.
+
+(For backward compatibility with already-authored runbooks, `runbook-template_v_3_template.md` remains in place at both locations; new runbooks use v4.)
 
 ## Discipline — the one rule
 
@@ -33,7 +40,7 @@ One file: `docs/RUNBOOK-<kebab-slug>.md`. It must be a faithful v4 instance — 
 
 ### Step 0 — runbook scaffolding
 
-Copy the v4 template (`docs/runbook-template_v_4_template.md`). Fill the Runbook Metadata block:
+Copy the v4 template (read from `references/runbook-template_v_4_template.md` — the skill-local copy that works in any project; the `docs/templates/runbook-template_v_4_template.md` mirror is for humans browsing this repo on GitHub). Fill the Runbook Metadata block:
 
 - Runbook ID, prefix, primary stack (from stack-decision.md)
 - Test commands (run `/slo-architect`'s auto-detect or ask)

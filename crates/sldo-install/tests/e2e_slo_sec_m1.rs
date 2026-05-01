@@ -499,12 +499,12 @@ fn existing_runbooks_still_parse() {
 }
 
 // ---------------------------------------------------------------------------
-// E2E invariant: docs/runbook-template_v_3_template.md has not been touched.
+// E2E invariant: docs/templates/runbook-template_v_3_template.md has not been touched.
 // ---------------------------------------------------------------------------
 
 #[test]
 fn v3_template_not_modified() {
-    let template = read(&repo_root().join("docs/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
     // A few stable sections that should remain present and unchanged in wording.
     assert!(template.contains("## Runbook Metadata"));
     assert!(template.contains("## Milestone Tracker"));
