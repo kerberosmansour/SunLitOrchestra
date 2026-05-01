@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest a new skill, a new runbook-template field, or a change to existing behavior.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening this, please check whether an existing `/slo-*` skill already covers the use case — see [docs/skill-pack-catalog.md](../../docs/skill-pack-catalog.md).
+        For broad design discussions, prefer [Discussions](https://github.com/kerberosmansour/SunLitOrchestrate/discussions) over a feature issue.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is the user / engineer / founder trying to do that is hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: A short sketch of the desired behavior. If this is a new skill, give the slash-command name and a one-line `description:` field draft.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you weigh? Why are they worse?
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      multiple: true
+      options:
+        - New `/slo-*` skill
+        - Existing `/slo-*` skill change
+        - Runbook template (v4)
+        - Installer (`sldo-install`)
+        - SAST rule pack
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
