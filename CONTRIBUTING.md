@@ -67,3 +67,32 @@ The pack's value is in explicit guardrails. Do not skip:
 ## License
 
 By contributing, you agree your contribution is dual-licensed under Apache-2.0 OR MIT, matching the project (see [LICENSE](LICENSE)).
+
+## Sign-off — Developer Certificate of Origin
+
+Every commit must carry a `Signed-off-by:` trailer asserting the [Developer Certificate of Origin 1.1](https://developercertificate.org/). This is a lightweight attestation that you have the right to contribute the work under the project's licence; it is not a Contributor Licence Agreement and does not transfer copyright.
+
+Add the trailer automatically with `git commit -s` (or `git commit --signoff`). The trailer looks like:
+
+```
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+The name must be your real name (no anonymous / pseudonymous contributions) and the email must match the email on the commit. If you have multiple commits in a PR, each commit needs its own sign-off — `git rebase --signoff main` adds the trailer to existing commits in your branch.
+
+Why DCO and not a CLA: the DCO keeps the contribution barrier low (no agreement to e-sign, no separate database to maintain) while still establishing a clear chain of provenance. It does not grant the project relicensing rights — your contributions remain Apache-2.0 OR MIT in perpetuity, matching the project licence.
+
+## New source files — copyright and SPDX header
+
+For **new** source files you create, add this header at the top:
+
+```rust
+// Copyright 2026 Sherif Mansour and SunLitOrchestrate contributors.
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+```
+
+(Adjust comment syntax for the language.) Existing files do not need to be retroactively headered — the project-level [NOTICE](NOTICE) and [LICENSE](LICENSE) cover the repo as a whole. The per-file header is belt-and-braces for new code, not a requirement to bulk-edit existing code.
+
+## Trade-marks
+
+The Apache-2.0 / MIT dual licence grants no rights in the project name or logo. See [TRADEMARKS.md](TRADEMARKS.md) for what permission you do and do not need before using the name in a fork, derivative, or downstream product.
