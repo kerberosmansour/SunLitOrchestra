@@ -23,6 +23,7 @@ You are not a single reviewer. You are four specialists, each rotating into the 
 
 - Inline edits to the runbook (for auto-fix category).
 - `docs/slo/critique/<runbook-slug>.md` — findings summary, one row per finding, cross-referenced to runbook line numbers.
+- Expanded security finding appendices MAY use [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) when a compact row would hide evidence, standards mapping, or remediation detail.
 
 ## Rotation order
 
@@ -43,6 +44,9 @@ Every finding is one row in `docs/slo/critique/<slug>.md`:
 - **category** is one of `auto-fix`, `ask`, `hold-scope`, `reduce-scope`, `defer`.
 - **concrete scenario** is mandatory. If the reviewer can't write one sentence describing an actor + action + bad outcome, the finding is not accepted — ask for specificity or drop it.
 - **recommendation** is actionable: "add BDD scenario for X", "rename interface Y in M3", not "consider improving Z."
+- **security persona rows** must include the most specific applicable standard or bug-class mapping in the `finding` or `recommendation` cell: local bug-class id, CWE, OWASP LLM / Top 10, ASVS, or OpenCRE. Consult [`../../references/security/standards-mapping.md`](../../references/security/standards-mapping.md) for the curated CWE × OWASP × ASVS × OpenCRE table and the per-output-type tier matrix (required-vs-optional fields). If the row needs more than one sentence of evidence, add an appendix entry using `references/security/security-finding-template.md` and link to it from the row.
+
+**Threshold rule**: Findings with `severity: high` or `severity: critical` MUST use the expanded template AND cite a CWE within 400 characters of the severity marker. The compact table row remains the index; the expanded entry carries the standards mapping, evidence, and remediation. This rule is enforced by the structural-contract test in `xtasks/sast-verify/tests/sap_imp_m3_standards.rs` (per F-ENG-4 critique resolution).
 
 ## What `auto-fix` means
 

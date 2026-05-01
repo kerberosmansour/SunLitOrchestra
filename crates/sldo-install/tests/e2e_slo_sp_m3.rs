@@ -17,8 +17,13 @@ fn repo_root() -> PathBuf {
 }
 
 fn skill_body() -> String {
-    fs::read_to_string(repo_root().join("skills").join("slo-research").join("SKILL.md"))
-        .expect("slo-research SKILL.md missing")
+    fs::read_to_string(
+        repo_root()
+            .join("skills")
+            .join("slo-research")
+            .join("SKILL.md"),
+    )
+    .expect("slo-research SKILL.md missing")
 }
 
 #[test]

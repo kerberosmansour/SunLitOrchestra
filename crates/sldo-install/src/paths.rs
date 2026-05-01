@@ -37,7 +37,8 @@ pub fn global_manifest_path(home: &Path) -> PathBuf {
 
 /// Where the local manifest lives: `<cwd>/<host>/slo-install.toml`.
 pub fn local_manifest_path(cwd: &Path, host: Host) -> PathBuf {
-    cwd.join(host.descriptor().config_dir).join("slo-install.toml")
+    cwd.join(host.descriptor().config_dir)
+        .join("slo-install.toml")
 }
 
 #[cfg(test)]

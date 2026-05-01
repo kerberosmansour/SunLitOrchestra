@@ -4,7 +4,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -43,7 +48,10 @@ fn slo_pricing_documents_value_equation() {
     let skill = read(&repo_root().join("skills/slo-pricing/SKILL.md"));
     let signals = ["25-33%", "value-equation", "price = 25"];
     let count = signals.iter().filter(|s| skill.contains(**s)).count();
-    assert!(count >= 2, "/slo-pricing must document the 25-33% value-equation framing (found {count})");
+    assert!(
+        count >= 2,
+        "/slo-pricing must document the 25-33% value-equation framing (found {count})"
+    );
 }
 
 #[test]
@@ -57,9 +65,17 @@ fn slo_pricing_caps_tiers_at_three() {
 #[test]
 fn slo_pricing_documents_50_percent_experiment() {
     let skill = read(&repo_root().join("skills/slo-pricing/SKILL.md"));
-    let signals = ["Increase price by 50%", "increase price by 50%", "× 1.5", "1.5×"];
+    let signals = [
+        "Increase price by 50%",
+        "increase price by 50%",
+        "× 1.5",
+        "1.5×",
+    ];
     let any = signals.iter().any(|s| skill.contains(s));
-    assert!(any, "/slo-pricing must document the canonical 'increase by 50%' experiment");
+    assert!(
+        any,
+        "/slo-pricing must document the canonical 'increase by 50%' experiment"
+    );
 }
 
 #[test]

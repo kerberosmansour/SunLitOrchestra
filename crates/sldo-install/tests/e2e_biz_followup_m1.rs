@@ -13,7 +13,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -83,7 +88,14 @@ fn cost_baseline_seedlegals_section_present_with_known_tiers() {
     let body = read(&repo_root().join("references/biz/cost-baseline-jpp-law-2026.md"));
 
     // SeedLegals tiers a founder might cite — at least 4 of these named tier labels must appear.
-    let tiers = ["Access", "Funding — Start", "Funding — Raise", "Funding — Scale", "Options scheme", "SEIS/EIS Advance Assurance"];
+    let tiers = [
+        "Access",
+        "Funding — Start",
+        "Funding — Raise",
+        "Funding — Scale",
+        "Options scheme",
+        "SEIS/EIS Advance Assurance",
+    ];
     let count = tiers.iter().filter(|t| body.contains(**t)).count();
     assert!(
         count >= 4,
@@ -103,7 +115,12 @@ fn cost_baseline_your_firm_template_includes_required_fee_categories() {
 
     // The "Your firm" template must include the v1 fee categories so a founder
     // populating it captures the right line items.
-    let categories = ["nda:", "contractor_sow:", "ip_assignment:", "terms_and_conditions_b2b:"];
+    let categories = [
+        "nda:",
+        "contractor_sow:",
+        "ip_assignment:",
+        "terms_and_conditions_b2b:",
+    ];
     for cat in &categories {
         assert!(
             body.contains(cat),

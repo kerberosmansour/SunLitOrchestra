@@ -311,7 +311,12 @@ pub fn status(opts: &Options) -> Result<()> {
         host_entries.len()
     );
     for e in host_entries {
-        println!("  {} -> {}  [installed {}]", e.name, e.source.display(), e.installed_at);
+        println!(
+            "  {} -> {}  [installed {}]",
+            e.name,
+            e.source.display(),
+            e.installed_at
+        );
     }
     Ok(())
 }
@@ -321,11 +326,18 @@ pub fn verify(opts: &Options) -> Result<()> {
     let manifest = Manifest::load(&manifest_path)?;
     let host_entries = manifest.entries_for_host(opts.host);
     if host_entries.is_empty() {
-        println!("manifest is empty for {} — nothing to verify.", opts.host.id());
+        println!(
+            "manifest is empty for {} — nothing to verify.",
+            opts.host.id()
+        );
         return Ok(());
     }
 
-    println!("verifying {} entries for {}:", host_entries.len(), opts.host.id());
+    println!(
+        "verifying {} entries for {}:",
+        host_entries.len(),
+        opts.host.id()
+    );
     let mut bad = 0usize;
     for entry in host_entries {
         if let Err(error) = validate_entry_target_in_host_root(entry, &root) {

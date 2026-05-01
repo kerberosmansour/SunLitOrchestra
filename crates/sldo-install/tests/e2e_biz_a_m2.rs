@@ -31,8 +31,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
@@ -325,9 +324,6 @@ fn references_biz_dir_still_not_discovered_as_skill() {
     // M1 + M2 advisor skills must exist under skills/.
     for skill_name in ADVISOR_SKILLS {
         let path = skills_dir.join(skill_name).join("SKILL.md");
-        assert!(
-            path.exists(),
-            "skills/{skill_name}/SKILL.md must exist"
-        );
+        assert!(path.exists(), "skills/{skill_name}/SKILL.md must exist");
     }
 }

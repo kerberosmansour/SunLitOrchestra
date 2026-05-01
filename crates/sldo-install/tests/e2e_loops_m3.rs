@@ -24,8 +24,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 #[test]
@@ -84,9 +83,7 @@ fn issue_filing_discipline_reference_exists() {
 
 #[test]
 fn argv_list_discipline_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     assert!(
         body.contains("argv-list"),
         "issue-filing-discipline.md must document argv-list discipline (inherits from /slo-sast M5)"
@@ -95,9 +92,7 @@ fn argv_list_discipline_documented() {
 
 #[test]
 fn no_repo_flag_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     assert!(
         body.contains("--repo") && (body.contains("NO ") || body.contains("never")),
         "issue-filing-discipline.md must document the NO --repo rule (confused-deputy defense)"
@@ -106,9 +101,7 @@ fn no_repo_flag_documented() {
 
 #[test]
 fn rate_limit_cap_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     assert!(
         body.contains("40 issues") || body.contains("40 per session") || body.contains("40/hr"),
         "issue-filing-discipline.md must document the 40-issues/hour rate-limit cap"
@@ -117,9 +110,7 @@ fn rate_limit_cap_documented() {
 
 #[test]
 fn lessons_backlog_fallback_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     assert!(
         body.contains("LESSONS-BACKLOG.md"),
         "issue-filing-discipline.md must document the LESSONS-BACKLOG.md local fallback"
@@ -128,9 +119,7 @@ fn lessons_backlog_fallback_documented() {
 
 #[test]
 fn three_strike_dedupe_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     let lower = body.to_lowercase();
     assert!(
         lower.contains("three-strike") || lower.contains("three strike"),
@@ -144,9 +133,7 @@ fn three_strike_dedupe_documented() {
 
 #[test]
 fn body_sha256_audit_row_documented() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     let lower = body.to_lowercase();
     assert!(
         lower.contains("body_sha256") || lower.contains("body-sha256"),
@@ -156,9 +143,7 @@ fn body_sha256_audit_row_documented() {
 
 #[test]
 fn marker_choice_locked() {
-    let body = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     // The marker choice (title prefix `[retro]`, label `retro-derived`,
     // or body sentinel `<!-- retro-derived -->`) is decided in the M3
     // spike. The test only requires the marker be named explicitly so
@@ -178,7 +163,10 @@ fn slo_retro_install_unchanged() {
     // reference file lives under `skills/slo-retro/references/` which
     // does NOT mint a new top-level skill.
     let path = repo_root().join("skills/slo-retro/SKILL.md");
-    assert!(path.exists(), "skills/slo-retro/SKILL.md must still be present");
+    assert!(
+        path.exists(),
+        "skills/slo-retro/SKILL.md must still be present"
+    );
 
     // The new reference file is INSIDE the slo-retro skill directory,
     // not in the top-level skills/ tree where it would be discovered as

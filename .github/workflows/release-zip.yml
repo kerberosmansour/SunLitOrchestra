@@ -1,0 +1,50 @@
+# Release zip workflow — sap-imp M4
+#
+# Triggered on tag push (v*); generates a release zip from `git archive HEAD`
+# (tracked files only — no runner working-dir leakage). SHA-pinned per
+# F-ENG-5 / F-SEC-4 / F-SEC-5 critique resolutions.
+
+name: Release zip
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Minimum-privilege per F-SEC-4 (sap-imp M4 critique resolution).
+# `contents: write` is required for `gh release create`; nothing else.
+permissions:
+  contents: write
+
+jobs:
+  release-zip:
+    name: Build and upload release zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        # actions/checkout pinned by SHA per F-ENG-5.
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          # Fetch the exact commit; no need for full history.
+          fetch-depth: 1
+
+      - name: Build release zip via git archive
+        # Per F-SEC-5: emit only tracked files at HEAD; no runner working-dir
+        # leakage (no tar / cp / zip of the working directory).
+        run: |
+          set -e
+          TAG="${GITHUB_REF_NAME}"
+          PREFIX="sunlit-orchestrate-${TAG}"
+          mkdir -p dist
+          git archive --format=zip --prefix="${PREFIX}/" HEAD -o "dist/${PREFIX}.zip"
+          ls -la dist/
+
+      - name: Upload release artifact
+        # softprops/action-gh-release pinned by SHA per F-ENG-5 / F-SEC-4.
+        # SHA captured 2026-05-01 from `gh api repos/softprops/action-gh-release/branches/master`.
+        # Re-pin via the same command on tag movement.
+        uses: softprops/action-gh-release@2bc819c87a4e63a4ac4e581a02085318bd49975a
+        with:
+          files: dist/*.zip
+          fail_on_unmatched_files: true

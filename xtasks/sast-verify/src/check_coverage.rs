@@ -43,7 +43,10 @@ pub fn run(rule_path: &Path, references_dir: Option<&Path>, opts: &GlobalOpts) -
                     opts,
                     "fail",
                     "variation_template_unreadable",
-                    &format!("could not read minimum-arms for {cwe} from {}: {e:#}", variation_path.display()),
+                    &format!(
+                        "could not read minimum-arms for {cwe} from {}: {e:#}",
+                        variation_path.display()
+                    ),
                 );
                 return Ok(6);
             }
@@ -69,7 +72,9 @@ pub fn run(rule_path: &Path, references_dir: Option<&Path>, opts: &GlobalOpts) -
                 "below_minimum_arms",
                 &format!(
                     "rule `{}` ({}) has {arms} pattern-either arms; minimum is {min_arms} per {}",
-                    rule.id, cwe, variation_path.display()
+                    rule.id,
+                    cwe,
+                    variation_path.display()
                 ),
             );
             return Ok(2);

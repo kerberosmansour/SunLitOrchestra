@@ -26,8 +26,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const V4_PATH: &str = "docs/slo/templates/runbook-template_v_4_template.md";
@@ -230,8 +229,7 @@ fn v4_definition_of_done_includes_new_gates() {
         "v4 Definition of Done must require formatter + typecheck + static analyzer"
     );
     assert!(
-        lower.contains("declared resource bounds")
-            && lower.contains("are encoded and tested"),
+        lower.contains("declared resource bounds") && lower.contains("are encoded and tested"),
         "v4 Definition of Done must require declared resource bounds to be encoded"
     );
     assert!(
@@ -291,8 +289,12 @@ fn v4_skill_local_copy_matches_docs_mirror() {
     let root = repo_root();
     let docs_mirror = fs::read(root.join("docs/slo/templates/runbook-template_v_4_template.md"))
         .expect("docs/slo/templates/runbook-template_v_4_template.md must exist");
-    let skill_local = fs::read(root.join("skills/slo-plan/references/runbook-template_v_4_template.md"))
-        .expect("skills/slo-plan/references/runbook-template_v_4_template.md must exist (skill-local copy)");
+    let skill_local = fs::read(
+        root.join("skills/slo-plan/references/runbook-template_v_4_template.md"),
+    )
+    .expect(
+        "skills/slo-plan/references/runbook-template_v_4_template.md must exist (skill-local copy)",
+    );
     assert_eq!(
         docs_mirror, skill_local,
         "v4 template drift: skills/slo-plan/references/runbook-template_v_4_template.md must be byte-identical to docs/slo/templates/runbook-template_v_4_template.md. \
@@ -305,8 +307,12 @@ fn v3_skill_local_copy_matches_docs_mirror() {
     let root = repo_root();
     let docs_mirror = fs::read(root.join("docs/slo/templates/runbook-template_v_3_template.md"))
         .expect("docs/slo/templates/runbook-template_v_3_template.md must exist");
-    let skill_local = fs::read(root.join("skills/slo-plan/references/runbook-template_v_3_template.md"))
-        .expect("skills/slo-plan/references/runbook-template_v_3_template.md must exist (skill-local copy)");
+    let skill_local = fs::read(
+        root.join("skills/slo-plan/references/runbook-template_v_3_template.md"),
+    )
+    .expect(
+        "skills/slo-plan/references/runbook-template_v_3_template.md must exist (skill-local copy)",
+    );
     assert_eq!(
         docs_mirror, skill_local,
         "v3 template drift: skills/slo-plan/references/runbook-template_v_3_template.md must be byte-identical to docs/slo/templates/runbook-template_v_3_template.md. \

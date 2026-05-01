@@ -40,13 +40,18 @@ fn runtime_harness_green_on_ir35_genuine_contractor() {
     }
 
     let repo = repo_root();
-    let fixture_path = repo
-        .join("references/biz/judgment-fixtures/slo-legal/ir35-genuine-contractor.md");
+    let fixture_path =
+        repo.join("references/biz/judgment-fixtures/slo-legal/ir35-genuine-contractor.md");
     let fixture = JudgmentFixture::parse(&fixture_path).expect("parse fixture");
 
     let temp = TempRepo::build(&repo).expect("build tempdir");
-    let out = invoke_claude(&temp, &fixture.founder_prompt, 1.50, Duration::from_secs(300))
-        .expect("invoke claude");
+    let out = invoke_claude(
+        &temp,
+        &fixture.founder_prompt,
+        1.50,
+        Duration::from_secs(300),
+    )
+    .expect("invoke claude");
 
     // claude exits non-zero on budget-cap even when the model reached
     // end_turn (i.e., the work may still be on disk). Inspect both the
@@ -96,9 +101,7 @@ fn runtime_harness_green_on_ir35_genuine_contractor() {
     // says it's required only when triage_gate_passed:false.
     if let Some(gates) = fm.get("gates_fired") {
         assert!(
-            gates.trim().is_empty()
-                || gates.trim() == "[]"
-                || gates.contains("none"),
+            gates.trim().is_empty() || gates.trim() == "[]" || gates.contains("none"),
             "ir35-genuine-contractor expected empty gates_fired, got `{gates}`"
         );
     }

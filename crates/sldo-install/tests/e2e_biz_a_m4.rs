@@ -21,8 +21,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
@@ -34,12 +33,8 @@ const FOUR_PREDICATE_IDS: &[&str] = &[
 
 const FOUR_MODES: &[&str] = &["draft", "translate", "triage", "prepare"];
 
-const ALL_FOUR_ADVISOR_SKILLS: &[&str] = &[
-    "slo-legal",
-    "slo-accounting",
-    "slo-equity",
-    "slo-fundraise",
-];
+const ALL_FOUR_ADVISOR_SKILLS: &[&str] =
+    &["slo-legal", "slo-accounting", "slo-equity", "slo-fundraise"];
 
 #[test]
 fn slo_fundraise_skill_md_has_required_frontmatter() {
@@ -99,7 +94,15 @@ fn triage_gate_predicate_set_still_unchanged_after_m4() {
 #[test]
 fn ir35_cest_factors_documents_three_primary_factors() {
     let ir35 = read(&repo_root().join("references/biz/ir35-cest-factors.md"));
-    let factors = ["substitution", "Substitution", "MOO", "mutuality", "Mutuality", "control", "Control"];
+    let factors = [
+        "substitution",
+        "Substitution",
+        "MOO",
+        "mutuality",
+        "Mutuality",
+        "control",
+        "Control",
+    ];
     // At least 5 of the factor signals must appear (covering all three concepts).
     let count = factors.iter().filter(|f| ir35.contains(**f)).count();
     assert!(
@@ -135,13 +138,7 @@ fn ir35_cest_factors_documents_seven_hard_block_triggers() {
 #[test]
 fn slo_fundraise_runs_advance_assurance_precheck() {
     let skill = read(&repo_root().join("skills/slo-fundraise/SKILL.md"));
-    let signals = [
-        "Advance Assurance",
-        "AA",
-        "6 weeks",
-        "VCM34080",
-        "VCM31000",
-    ];
+    let signals = ["Advance Assurance", "AA", "6 weeks", "VCM34080", "VCM31000"];
     for s in &signals {
         assert!(
             skill.contains(s),

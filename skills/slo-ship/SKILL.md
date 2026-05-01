@@ -49,6 +49,12 @@ You are the release engineer. The runbook's tracker is all `done`. Your job is t
 
 6. `gh pr create` with the composed title/body. If `gh` isn't installed, print the manual URL.
 
+### Optional security-summary section (gated)
+
+If the runbook **introduced new public surface**, append a security-summary section to the PR body using [`../../references/security/security-assessment-summary-template.md`](../../references/security/security-assessment-summary-template.md). "New public surface" means any of: a new HTTP endpoint, IPC handler, CLI command, configuration key, persisted-state schema, public type, GitHub Actions workflow, agent file, or release artifact. The section structure mirrors the template: scope, findings index, residual risk, sign-off note. **Optional and gated** — for pure-refactor or doc-only runbooks (no new public surface), omit it.
+
+A high-severity finding from `/slo-critique` or `/slo-verify` Pass 4 referenced in the section MAY also be expanded inline using [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) when reviewer evidence would otherwise be lost.
+
 ## Gates — refuse when
 
 - On `main` or `master`.

@@ -1,0 +1,8 @@
+{
+  "name": "sunlit-orchestrate",
+  "version": "0.1.0",
+  "description": "SunLitOrchestrate skill pack — runbook-driven sprint loop with security woven in. Optional Claude Code plugin distribution; sldo-install remains canonical for multi-host (Claude Code + GitHub Copilot).",
+  "author": "kerberosmansour",
+  "license": "Apache-2.0 OR MIT",
+  "skills_dir": "skills"
+}

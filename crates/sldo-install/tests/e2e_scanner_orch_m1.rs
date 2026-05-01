@@ -25,8 +25,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 fn skill_md() -> String {
@@ -266,11 +265,7 @@ fn skill_md_documents_sort_order() {
 fn skill_md_scopes_m1_to_parser_only() {
     let skill = skill_md();
     // Anti-patterns section explicitly forbids M2+ behaviors.
-    let antipattern_signals = [
-        "Anti-patterns",
-        "Emitting any artifact",
-        "Inferring stack",
-    ];
+    let antipattern_signals = ["Anti-patterns", "Emitting any artifact", "Inferring stack"];
     for sig in antipattern_signals {
         assert!(
             skill.contains(sig),

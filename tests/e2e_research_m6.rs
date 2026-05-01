@@ -226,7 +226,10 @@ fn test_synthesis_fallback_still_writes_dossier() {
         "binary should still exit 0 when synthesis fails; stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(dossier.exists(), "dossier should be written even on synth failure");
+    assert!(
+        dossier.exists(),
+        "dossier should be written even on synth failure"
+    );
     let content = std::fs::read_to_string(&dossier).unwrap();
     assert!(
         content.contains("EXPLORE-MARKER-M6"),
@@ -253,8 +256,7 @@ fn test_successful_synthesis_replaces_stub_sentinel() {
     let cwd = unique_tmp("synth_replaces_cwd");
     let _ = std::fs::remove_dir_all(&cwd);
     std::fs::create_dir_all(&cwd).unwrap();
-    let shim =
-        shim_dir_with_well_formed_synth_claude("synth_replaces_shim", "SYNTH-OK-M6");
+    let shim = shim_dir_with_well_formed_synth_claude("synth_replaces_shim", "SYNTH-OK-M6");
     let dossier = cwd.join("replaced.md");
     // When
     let output = Command::new(binary())
