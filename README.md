@@ -12,7 +12,7 @@ SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope
 - **Keep follow-ups alive**: `/slo-retro` captures what was learned, and `/slo-resume` is the "what next?" entrypoint when work gets interrupted.
 - **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
 
-If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
+If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md). Unfamiliar acronyms (TLA+, BDD, CWE, SEIS, IR35, CAC, NDR, …) are defined in [docs/GLOSSARY.md](docs/GLOSSARY.md).
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
 
@@ -217,7 +217,7 @@ Out-of-scope:
 
 ### Code of conduct
 
-Be excellent to each other. We follow the spirit of the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/); no separate file is shipped because the project is small enough that the spirit suffices.
+This project adopts the [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for the full text and how to report unacceptable behavior.
 
 ## License
 
