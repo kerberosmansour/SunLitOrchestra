@@ -151,7 +151,7 @@ No concurrent actors, no distributed state. Conversational intake is sequential 
 
 ## Global Execution Rules
 
-See [docs/runbook-template_v_3_template.md §"Global Execution Rules"](runbook-template_v_3_template.md). Project-specific overrides:
+See [docs/templates/runbook-template_v_3_template.md §"Global Execution Rules"](templates/runbook-template_v_3_template.md). Project-specific overrides:
 
 - The four hard-block predicate IDs in `references/biz/triage-gate.md` are **immutable** by structural-contract test (`triage_gate_predicate_set_unchanged_from_m1`); this runbook does not touch them.
 - `WebFetch` / `WebSearch` denial at the SLO-CLI invocation layer is preserved across this runbook (per `tm-biz-abuse-1`). External regulatory anchors fetched at runbook-author time only and captured as `last_checked:` dates.

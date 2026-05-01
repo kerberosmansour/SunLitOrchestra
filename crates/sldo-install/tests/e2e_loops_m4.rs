@@ -84,7 +84,7 @@ fn slo_execute_gh_issue_list_argv_list_documented() {
 
 #[test]
 fn runbook_template_carry_forward_section() {
-    let template = read(&repo_root().join("docs/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
     assert!(
         template.contains("Carry-forward from prior retros"),
         "runbook-template_v_3_template.md must add the optional 'Carry-forward from prior retros' section"
@@ -93,7 +93,7 @@ fn runbook_template_carry_forward_section() {
 
 #[test]
 fn runbook_template_carry_forward_lane_column() {
-    let template = read(&repo_root().join("docs/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
     // The lane vocabulary must appear in the template so authors know
     // the contract.
     for lane in &["micro", "milestone", "fresh-runbook"] {
@@ -106,7 +106,7 @@ fn runbook_template_carry_forward_lane_column() {
 
 #[test]
 fn runbook_template_carry_forward_section_is_optional() {
-    let template = read(&repo_root().join("docs/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
     let lower = template.to_lowercase();
     // The new section must be marked optional so existing runbooks
     // remain valid without it.
