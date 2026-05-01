@@ -276,3 +276,40 @@ fn canonical_pointers_now_target_v4() {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// Drift guards — the v4 / v3 templates exist in two places by design:
+//   - skills/slo-plan/references/...  (skill-local copy that travels with
+//     `sldo-install`'s symlink, used at runtime in any project)
+//   - docs/slo/templates/...              (human-browsable mirror in this repo)
+// They MUST be byte-identical. The drift guard fails loudly the moment
+// someone edits one without the other.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn v4_skill_local_copy_matches_docs_mirror() {
+    let root = repo_root();
+    let docs_mirror = fs::read(root.join("docs/slo/templates/runbook-template_v_4_template.md"))
+        .expect("docs/slo/templates/runbook-template_v_4_template.md must exist");
+    let skill_local = fs::read(root.join("skills/slo-plan/references/runbook-template_v_4_template.md"))
+        .expect("skills/slo-plan/references/runbook-template_v_4_template.md must exist (skill-local copy)");
+    assert_eq!(
+        docs_mirror, skill_local,
+        "v4 template drift: skills/slo-plan/references/runbook-template_v_4_template.md must be byte-identical to docs/slo/templates/runbook-template_v_4_template.md. \
+         If you intentionally edited one, copy it over the other and re-run."
+    );
+}
+
+#[test]
+fn v3_skill_local_copy_matches_docs_mirror() {
+    let root = repo_root();
+    let docs_mirror = fs::read(root.join("docs/slo/templates/runbook-template_v_3_template.md"))
+        .expect("docs/slo/templates/runbook-template_v_3_template.md must exist");
+    let skill_local = fs::read(root.join("skills/slo-plan/references/runbook-template_v_3_template.md"))
+        .expect("skills/slo-plan/references/runbook-template_v_3_template.md must exist (skill-local copy)");
+    assert_eq!(
+        docs_mirror, skill_local,
+        "v3 template drift: skills/slo-plan/references/runbook-template_v_3_template.md must be byte-identical to docs/slo/templates/runbook-template_v_3_template.md. \
+         If you intentionally edited one, copy it over the other and re-run."
+    );
+}

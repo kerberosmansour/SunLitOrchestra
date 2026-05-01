@@ -156,7 +156,7 @@ No concurrent actors, no distributed state. Single-session, single-actor, sequen
 
 ## Global Execution Rules
 
-See [docs/slo/templates/runbook-template_v_3_template.md §"Global Execution Rules"](runbook-template_v_3_template.md). Project-specific overrides:
+See [docs/slo/templates/runbook-template_v_3_template.md §"Global Execution Rules"](templates/runbook-template_v_3_template.md). Project-specific overrides:
 
 - **Argv-list discipline non-negotiable**. Every `git`, `gh`, `python3` invocation uses argv-list form. Never shell-string interpolation. Inherited from `/slo-sast` M5 + `/slo-rulegen`.
 - **NO `--repo` flag on `gh pr create` / `gh issue create`** (SEC-8 from `/slo-sast` M5; confused-deputy defense).
