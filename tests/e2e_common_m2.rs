@@ -9,9 +9,9 @@ use std::path::Path;
 fn parse_v3_template_tracker() {
     // Given: The v3 runbook template (the canonical contract /slo-plan emits)
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    let template_path = Path::new(manifest_dir).join("docs/runbook-template_v_3_template.md");
+    let template_path = Path::new(manifest_dir).join("docs/templates/runbook-template_v_3_template.md");
     let content = std::fs::read_to_string(&template_path)
-        .expect("Failed to read docs/runbook-template_v_3_template.md");
+        .expect("Failed to read docs/templates/runbook-template_v_3_template.md");
 
     // When: parse_tracker is called on the template content
     let rows = sldo_common::runbook::parse_tracker(&content);

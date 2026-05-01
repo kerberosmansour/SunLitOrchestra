@@ -8,7 +8,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-// --- Fixture: FNV-1a 64-bit hash of docs/runbook-template_v_3_template.md.
+// --- Fixture: FNV-1a 64-bit hash of docs/templates/runbook-template_v_3_template.md.
 //
 // Re-pinned 2026-04-30 by the loops-and-lessons-closure runbook M4, which
 // explicitly authorizes adding the optional "Carry-forward from prior retros"
@@ -296,7 +296,7 @@ fn plan_skill_line_count_sane() {
 
 #[test]
 fn runbook_v3_template_fnv1a_unchanged() {
-    let path = repo_root().join("docs/runbook-template_v_3_template.md");
+    let path = repo_root().join("docs/templates/runbook-template_v_3_template.md");
     let body = fs::read(&path)
         .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
     assert_eq!(

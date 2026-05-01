@@ -37,7 +37,7 @@ No new runtime dependencies. No schema migrations.
 | `docs/LOOPS-BUSINESS.md` | First-class business-loops doc | M2 | Cross-linked from each implicated biz SKILL.md |
 | `/slo-retro` extension | Classifies each lesson + dedupes via `gh search` + files issue with confirmation | M3 | `gh issue create` (argv-list); fallback `LESSONS-BACKLOG.md` |
 | `/slo-execute` pre-flight extension | Reads open prior-retro issues at milestone start; surfaces as scope candidates | M4 | `gh issue list` (argv-list); reads from runbook's `<prefix>` for filtering |
-| `docs/runbook-template_v_3_template.md` | Adds "Carry-forward from prior retros" section | M4 | Read by `/slo-plan` and `/slo-resume` |
+| `docs/templates/runbook-template_v_3_template.md` | Adds "Carry-forward from prior retros" section | M4 | Read by `/slo-plan` and `/slo-resume` |
 
 ## Data flow
 
