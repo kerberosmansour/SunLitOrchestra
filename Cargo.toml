@@ -7,6 +7,10 @@ members = [
 ]
 resolver = "2"
 
+[workspace.package]
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/kerberosmansour/SunLitOrchestrate"
+
 [workspace.dependencies]
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"

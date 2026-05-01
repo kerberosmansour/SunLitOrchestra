@@ -298,7 +298,7 @@ Dual-licensed under either of:
 - [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - [MIT license](https://opensource.org/licenses/MIT)
 
-at your option (see [LICENSE](LICENSE) for both texts, and [NOTICE](NOTICE) for the project-level copyright notice). Pick whichever fits your project; you do not need to comply with both.
+at your option (canonical texts: [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT); the dual-license arrangement is described in [LICENSE](LICENSE); the project-level copyright notice is in [NOTICE](NOTICE)). Pick whichever fits your project; you do not need to comply with both.
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions. Contributions require a Developer Certificate of Origin sign-off — see [CONTRIBUTING.md](CONTRIBUTING.md#sign-off--developer-certificate-of-origin).
 
