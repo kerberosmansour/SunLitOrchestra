@@ -52,6 +52,10 @@ Future milestones extend this:
 - **M4** adds `.semgrep/manifest.json` (audit-defense schema v1.0) plus first-install preview-mode UX.
 - **M5** detects re-derivation triggers and surfaces drift as a GitHub PR.
 
+### Coverage-gap reporting
+
+When a `/slo-sast` run produces a non-empty `unmatched_cwes` set or a stack-detection mismatch, the run MAY surface a coverage-gap summary using the shared assessment-summary template at [`../../references/security/security-assessment-summary-template.md`](../../references/security/security-assessment-summary-template.md). Individual high-severity gaps (e.g., a CWE in the threat model with zero matching rules) MAY be expanded into a per-finding entry using [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) when the compact summary cell would hide standards mapping, evidence, or remediation detail.
+
 ## Pre-flight (every invocation)
 
 1. Confirm cwd contains a target repo (a `.git/` directory or equivalent). If not, exit non-zero with stderr `"/slo-sast must run inside a git repository (cwd=$PWD)"`.
