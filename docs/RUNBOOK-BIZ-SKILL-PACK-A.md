@@ -26,7 +26,7 @@
   - New skill verbs added by this runbook: `/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise` (four advisor skills; mode contract `draft|translate|triage|prepare`)
   - The four triage-gate predicate ids in `references/biz/triage-gate.md`: `gate-1-regulated`, `gate-2-deal-value-over-5k`, `gate-3-counterparty-has-lawyer-or-their-paper`, `gate-4-gdpr-document`
   - `SKILL.md` frontmatter keys consumed by the Claude Code skill loader: `name`, `description`
-  - `docs/RUNBOOK-<slug>.md` v3 structure as defined in `docs/runbook-template_v_3_template.md` — existing runbooks must continue to parse
+  - `docs/RUNBOOK-<slug>.md` v3 structure as defined in `docs/templates/runbook-template_v_3_template.md` — existing runbooks must continue to parse
   - Canonical baseline test command above
   - oneNDA template body bytes — `references/biz/templates/onenda-uk.md` SHA-256 is pinned in `e2e_biz_a_m1`; license is CC BY-ND 4.0 verbatim render
   - The biz artifact frontmatter schema (`tier`, `skill`, `mode`, `jurisdiction`, `cost_baseline_ref`, `triage_gate_passed`, `lawyer_review_recommended`, `expires_or_review_by`) — defined in `docs/design/biz-skill-pack-interfaces.md` and shipped in `references/biz/artifact-schema.md` in M2
@@ -174,7 +174,7 @@ These rules apply to every milestone in this runbook without exception.
 - Do not refactor unrelated skill files or Rust crates.
 - Do not rename existing skill invocation verbs, `SKILL.md` frontmatter keys, persona filenames, the canonical runbook baseline test command, or the four triage-gate predicate ids.
 - Do not introduce a new dependency unless the milestone explicitly allows it.
-- Do not modify `docs/runbook-template_v_3_template.md` — backward compatibility with existing runbooks is load-bearing.
+- Do not modify `docs/templates/runbook-template_v_3_template.md` — backward compatibility with existing runbooks is load-bearing.
 - Do not modify `crates/sldo-tauri/` — parked per CLAUDE.md.
 - **Do not place shared scaffolding under `skills/` or `skills/_biz-shared/`.** The location is `references/biz/` at repo root, full stop. `crates/sldo-install/src/install.rs:44-71` confirms that anything under `skills/<name>/` containing a `SKILL.md` is auto-discovered and symlinked into `~/.claude/skills/`; adding shared scaffolding there would either double-install or create a fragile undocumented convention.
 
@@ -285,7 +285,7 @@ See the End-to-End Architecture Diagram above and [docs/design/biz-skill-pack-ov
 ### What to Keep
 
 - Existing skill invocation verbs and file paths (see Runbook Metadata).
-- `docs/runbook-template_v_3_template.md` — do not modify.
+- `docs/templates/runbook-template_v_3_template.md` — do not modify.
 - `skills/slo-{ideate,research,architect,tla,plan,critique,execute,verify,retro,ship,resume,freeze,second-opinion}/` and `skills/get-api-docs/` — none touched in this runbook.
 - `crates/sldo-install/src/install.rs` skill-discovery walk — do not change; the design relies on its current behavior of requiring `<skills_dir>/<name>/SKILL.md` to discover.
 - Baseline test command: `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install`.
@@ -319,7 +319,7 @@ See the End-to-End Architecture Diagram above and [docs/design/biz-skill-pack-ov
 - No secrets in source control.
 - No test output data committed to source control.
 - **No modifications to `crates/sldo-tauri/`** — parked per CLAUDE.md.
-- **No bypassing `docs/runbook-template_v_3_template.md` backward compat** — every runbook predating this work must continue to parse.
+- **No bypassing `docs/templates/runbook-template_v_3_template.md` backward compat** — every runbook predating this work must continue to parse.
 - **No advisor mode inventions.** The four modes are fixed: `draft`, `translate`, `triage`, `prepare`. Adding a fifth mode is a `/slo-architect` decision.
 - **No edits to oneNDA template body bytes after M1 ships.** The hash is pinned. License-required.
 - **No enabling WebFetch / WebSearch in any biz SKILL.md.** Citations only.
@@ -401,7 +401,7 @@ M1–M4 add no new dependencies. Tests reuse: `assert_cmd` (binary invocation, i
 
 ### Migration policy
 
-No schema migration in M1–M4. No new runbook template fields. No changes to `docs/runbook-template_v_3_template.md`. New artifact frontmatter schema is additive (M2 ships `references/biz/artifact-schema.md` describing it; consumers — the founders' downstream tooling — are not yet wired to read it, so the schema is a forward contract, not a migration).
+No schema migration in M1–M4. No new runbook template fields. No changes to `docs/templates/runbook-template_v_3_template.md`. New artifact frontmatter schema is additive (M2 ships `references/biz/artifact-schema.md` describing it; consumers — the founders' downstream tooling — are not yet wired to read it, so the schema is a forward contract, not a migration).
 
 ### Refactor budget
 
@@ -454,11 +454,11 @@ If any answer is "no", the milestone is not complete.
 
 ## Lessons-Learned File Template
 
-Path: `docs/lessons/biz-a-m<N>.md`. Use the shape from `docs/runbook-template_v_3_template.md`.
+Path: `docs/lessons/biz-a-m<N>.md`. Use the shape from `docs/templates/runbook-template_v_3_template.md`.
 
 ## Completion Summary Template
 
-Path: `docs/completion/biz-a-m<N>.md`. Use the shape from `docs/runbook-template_v_3_template.md`.
+Path: `docs/completion/biz-a-m<N>.md`. Use the shape from `docs/templates/runbook-template_v_3_template.md`.
 
 ---
 
@@ -500,7 +500,7 @@ Path: `docs/completion/biz-a-m<N>.md`. Use the shape from `docs/runbook-template
 - No customer-generator skills (`/slo-talk-to-users`, etc.) — Runbook B.
 - No team skills (`/slo-cofounder`, etc.) — Runbook C.
 - No DOCX export — out of scope; Markdown only.
-- No edits to `docs/runbook-template_v_3_template.md`.
+- No edits to `docs/templates/runbook-template_v_3_template.md`.
 - No edits to `crates/sldo-tauri/`.
 - No PII-pattern scan implementation in `/slo-verify` — that lands in M2 (when the artifact-schema reference exists to define what categories are confidential vs public). M1's `docs/biz/` placement discipline is enforced by skill prose + manual smoke test only.
 - No `--jurisdiction` flag implementation in M1; non-UK requests emit an error message, not a stub for future jurisdictions.
@@ -571,9 +571,9 @@ The following pre-existing tests must still pass after M1:
 #### Compatibility Checklist
 
 - [ ] All 14 existing skills load via `sldo-install --dry-run` without error.
-- [ ] All existing runbooks (`docs/RUNBOOK-API-FACADE.md`, `RUNBOOK-AWS-ORG-SETUP.md`, `RUNBOOK-RESEARCH-GENERATED.md`, `RUNBOOK-RESEARCH.md`, `RUNBOOK-RUST-REWRITE.md`, `RUNBOOK-SKILL-PACK.md`, `RUNBOOK-SLO-SECURITY-EMBEDDING.md`, `RUNBOOK-TAURI-DESKTOP.md`, `RUNBOOK-TLA-SHA-AUTOPOP.md`, `RUNBOOK-VOICE-FIX-HOME.md`) continue to parse against `docs/runbook-template_v_3_template.md`.
+- [ ] All existing runbooks (`docs/RUNBOOK-API-FACADE.md`, `RUNBOOK-AWS-ORG-SETUP.md`, `RUNBOOK-RESEARCH-GENERATED.md`, `RUNBOOK-RESEARCH.md`, `RUNBOOK-RUST-REWRITE.md`, `RUNBOOK-SKILL-PACK.md`, `RUNBOOK-SLO-SECURITY-EMBEDDING.md`, `RUNBOOK-TAURI-DESKTOP.md`, `RUNBOOK-TLA-SHA-AUTOPOP.md`, `RUNBOOK-VOICE-FIX-HOME.md`) continue to parse against `docs/templates/runbook-template_v_3_template.md`.
 - [ ] `crates/sldo-install/src/install.rs` `discover_skills()` is unchanged.
-- [ ] `docs/runbook-template_v_3_template.md` is unchanged.
+- [ ] `docs/templates/runbook-template_v_3_template.md` is unchanged.
 - [ ] `SECURITY.md` (root) — only the existing biz-pack section (added by `/slo-architect`) is present; no further edits in M1.
 - [ ] `crates/sldo-tauri/` is unchanged.
 
@@ -690,7 +690,7 @@ Documented in `docs/verify/biz-a-m1-smoke.md`. Manual invocation in a real Claud
 - No new dependencies. All structural-contract tests use crates already pulled in by M1's `e2e_biz_a_m1.rs` (which added `sha2` if not present).
 - No template-render functionality for `/slo-accounting` — accounting docs (e.g., a one-page brief-the-accountant memo) are prose-shaped and do not need a verbatim template like oneNDA. If a consumer wants templated output for, say, an R&D claim cover letter, that ships in a future runbook.
 - No `--jurisdiction` flag implementation for non-UK jurisdictions; the formalised error in `jurisdiction-uk.md` is the v1 surface.
-- No `docs/runbook-template_v_3_template.md` edits.
+- No `docs/templates/runbook-template_v_3_template.md` edits.
 - No `crates/sldo-tauri/` edits.
 - No editing the oneNDA bytes — license-required.
 
@@ -766,8 +766,8 @@ The following pre-existing tests must still pass after M2:
 - [ ] `references/biz/triage-gate.md` is byte-identical to its M1 commit (or the predicate-id table textually unchanged).
 - [ ] `references/biz/cost-baseline-jpp-law-2026.md` is unchanged from M1.
 - [ ] `references/biz/templates/onenda-uk.md` SHA-256 matches the pinned hash in `e2e_biz_a_m1.rs`.
-- [ ] All existing runbooks parse against `docs/runbook-template_v_3_template.md`.
-- [ ] `docs/runbook-template_v_3_template.md` unchanged.
+- [ ] All existing runbooks parse against `docs/templates/runbook-template_v_3_template.md`.
+- [ ] `docs/templates/runbook-template_v_3_template.md` unchanged.
 - [ ] `crates/sldo-install/src/install.rs` unchanged.
 - [ ] `crates/sldo-tauri/` unchanged.
 - [ ] `SECURITY.md` (root) — unchanged in M2 (the count update from 12 → 15 already landed alongside this M2 draft as part of the design propagation).

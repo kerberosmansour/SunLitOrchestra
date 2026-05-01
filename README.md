@@ -12,7 +12,7 @@ SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope
 - **Keep follow-ups alive**: `/slo-retro` captures what was learned, and `/slo-resume` is the "what next?" entrypoint when work gets interrupted.
 - **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
 
-If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md).
+If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md). Unfamiliar acronyms (TLA+, BDD, CWE, SEIS, IR35, CAC, NDR, …) are defined in [docs/GLOSSARY.md](docs/GLOSSARY.md).
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
 
@@ -28,7 +28,7 @@ If this is your first time here, start with [docs/getting-started.md](docs/getti
 
 The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md).
 
-The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/runbook-template_v_4_template.md](docs/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
+The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/templates/runbook-template_v_4_template.md](docs/templates/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/templates/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
 
 ## Pick a starting point
 
@@ -169,8 +169,8 @@ Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
-- [docs/runbook-template_v_4_template.md](docs/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
-- [docs/runbook-template_v_3_template.md](docs/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
+- [docs/templates/runbook-template_v_4_template.md](docs/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
+- [docs/templates/runbook-template_v_3_template.md](docs/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
 - [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
 - [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
@@ -217,7 +217,7 @@ Out-of-scope:
 
 ### Code of conduct
 
-Be excellent to each other. We follow the spirit of the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/); no separate file is shipped because the project is small enough that the spirit suffices.
+This project adopts the [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for the full text and how to report unacceptable behavior.
 
 ## License
 
@@ -236,5 +236,6 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 - The [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) for helping popularize structured, lifecycle-aware AI-assisted development. SunLitOrchestrate arrives at a more contract-heavy, security-first shape, but it shares the belief that better outcomes come from explicit workflow rather than one-shot prompting.
 - [TLA+](https://github.com/tlaplus/tlaplus), and the broader formal-methods tradition around it, for reinforcing the idea that some designs should be challenged as specifications before they are implemented as code. SunLit carries that idea through `/slo-tla` when concurrency, ordering, or protocol risk is real.
 - Jim Manico's talk [*Securing Claude Code: Guardrails for AI-Assisted Development*](https://youtu.be/thsdAsgIsFc?si=FvxYtdHyus7DQTe7) for sharpening the guardrail-first mindset behind the project's threat-modeling, verification, and "no agentic shortcuts" posture.
-- The [oneNDA](https://www.onenda.org/) consortium for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow points users to. Licensed under [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/); the skill renders the canonical body verbatim and produces a separate cover artifact for company-specific fields — no derivative of the template is created or distributed by this repo.
+- John Carmack's [*Best programming setup and IDE*](https://youtu.be/tzr7hRXcwkw?si=SeeakVCVpqWatOUl) clip from the Lex Fridman Podcast for influencing the v4 runbook template's Carmack-style reliability controls — debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, and "make invalid states unrepresentable".
+- The [oneNDA](https://www.onenda.org/) consortium for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow points users to. Licensed under [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/); the canonical `.docx` is fetched manually by the user from onenda.org and is never copied, modified, rendered, or redistributed by this repo. The skill produces only a separate Markdown cover artifact for company-specific fields — assembly happens on the user's machine, against the user's locally-downloaded canonical `.docx`.
 - The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.
