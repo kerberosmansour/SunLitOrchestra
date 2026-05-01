@@ -196,6 +196,16 @@ What success looks like:
 
 For the canonical sprint sequence (ideate → ship), see [How it works](#how-it-works) above.
 
+### Install via Claude plugin (optional, additive)
+
+Claude Code organizational installs may prefer a one-zip distribution over cloning the repo. A `.claude-plugin/plugin.json` is published; tagged releases also produce a downloadable zip via the SHA-pinned [release-zip workflow](.github/workflows/release-zip.yml).
+
+**The Rust installer remains canonical.** `sldo-install` is the supported install path for both Claude Code and GitHub Copilot; the plugin distribution is additive and Claude-only. GitHub Copilot users continue to use `sldo-install --host github-copilot`. Choosing the plugin path on Claude Code does not bypass `sldo-install`'s manifest at `~/.sldo/install.toml` — both paths point at the same `skills/` tree.
+
+### Examples
+
+The [examples/](examples/) directory contains a synthetic, non-normative gallery showing what shipped SLO outputs look like — runbook excerpts, critique reports, verification reports, security findings, SAST manifests, and biz-public artifacts. Read these to calibrate quality before running a skill. Examples are deliberately small (≤ 10 KB each), deliberately synthetic (no real PII), and deliberately non-canonical — read the templates and SKILL.md files for the real contracts.
+
 ### Security-only quick path
 
 ```bash

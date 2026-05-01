@@ -506,6 +506,7 @@ dependencies = [
  "clap",
  "colored",
  "pulldown-cmark",
+ "regex",
  "serde",
  "serde_json",
  "serde_yaml_ng",

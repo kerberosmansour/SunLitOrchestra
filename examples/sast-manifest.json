@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "non-normative": true,
+  "abbreviates": "skills/slo-sast",
+  "manifest_version": "1.0",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "stack_detection": {
+    "languages": ["rust"],
+    "frameworks": ["axum", "sqlx"],
+    "strategy": "manifest-cargo-toml"
+  },
+  "selected_rules": [
+    {
+      "rule_id": "rust.axum.security.idor.owned-resource-ref",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "metadata_cwe": ["CWE-639"],
+      "metadata_owasp": ["A01:2021"],
+      "metadata_technology": ["axum", "rust"]
+    },
+    {
+      "rule_id": "rust.sqlx.security.injection.dynamic-query-string",
+      "source_sha": "1111111111111111111111111111111111111111",
+      "metadata_cwe": ["CWE-89"],
+      "metadata_owasp": ["A03:2021"],
+      "metadata_technology": ["sqlx", "rust"]
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "cwe": "CWE-918",
+      "rationale": "no SSRF surface in widget-index M1; defer until outbound HTTP is added"
+    }
+  ],
+  "selection_strategy": "threat-model-cwe"
+}

@@ -63,9 +63,9 @@ This is the single source of truth for progress. Update as each milestone comple
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
 | 1 | Shared security-reporting integration extended to `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-ship` | `done` | 2026-05-01 | 2026-05-01 | [sap-imp-m1.md](slo/lessons/sap-imp-m1.md) | [sap-imp-m1.md](slo/completion/sap-imp-m1.md) |
-| 2 | Example output gallery under `examples/` | `not_started` | | | | |
-| 3 | Standards traceability matrix (CWE / OWASP / ASVS / OpenCRE) wired into security outputs | `not_started` | | | | |
-| 4 | Optional Claude plugin packaging assessment + (if green-lit) `.claude-plugin/plugin.json` and SHA-pinned release-zip workflow | `not_started` | | | | |
+| 2 | Example output gallery under `examples/` | `done` | 2026-05-01 | 2026-05-01 | [sap-imp-m2.md](slo/lessons/sap-imp-m2.md) | [sap-imp-m2.md](slo/completion/sap-imp-m2.md) |
+| 3 | Standards traceability matrix (CWE / OWASP / ASVS / OpenCRE) wired into security outputs | `done` | 2026-05-01 | 2026-05-01 | [sap-imp-m3.md](slo/lessons/sap-imp-m3.md) | [sap-imp-m3.md](slo/completion/sap-imp-m3.md) |
+| 4 | Optional Claude plugin packaging assessment + (if green-lit) `.claude-plugin/plugin.json` and SHA-pinned release-zip workflow | `done` (green-lit) | 2026-05-01 | 2026-05-01 | [sap-imp-m4.md](slo/lessons/sap-imp-m4.md) | [sap-imp-m4.md](slo/completion/sap-imp-m4.md) |
 | 5 | Host-native agent-role experiment (gated on M4 host-capability matrix) | `not_started` | | | | |
 
 <!-- Status values: not_started | in_progress | blocked | done -->

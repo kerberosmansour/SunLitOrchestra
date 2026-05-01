@@ -123,6 +123,8 @@ If a rule cannot be authored without textual reference to the AGPL source, `refe
 
 When a generated rule fails the `gate` (clean-tree breach, coverage gap, or low-confidence variation arm), surface the failure as an expanded finding using the shared template at [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md). Reserve the expanded form for cases where the failure carries non-trivial evidence (rule yaml + offending fixture + CWE mapping) or where the remediation needs more than one cell — compact gate output remains the index. Required fields per the M1 citation invariant: bug class / CWE, concrete scenario, remediation. Optional: OWASP / ASVS / OpenCRE mapping.
 
+**Standards mapping** — generated-rule documentation has `CWE and variation family` as the **required** mapping per the per-output-type tier matrix at [`../../references/security/standards-mapping.md`](../../references/security/standards-mapping.md). OpenCRE and ASVS are **optional** where available. The curated table includes the most common bug classes (CWE-22, CWE-77/78, CWE-79, CWE-89, CWE-94, CWE-352, CWE-502, CWE-639, CWE-918) with OWASP-Top-10, ASVS, and OpenCRE columns.
+
 ## Handoff
 
 After bootstrap mode completes, suggest `/slo-ruleverify` to confirm the pack is `gate`-clean across all rules. If running standalone in a Rust app repo, also suggest the user wire `.github/workflows/semgrep.yml` per Runbook A M3.
