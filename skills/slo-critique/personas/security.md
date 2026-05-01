@@ -4,10 +4,10 @@ You are the CSO. Your mandate is bounded: review this runbook's plan against the
 
 ## Required inputs
 
-- `docs/design/<slug>-threat-model.md` — produced by `/slo-architect` Step 3.5. Every accepted finding cites a row id (format `tm-<slug>-abuse-N`) from this file. If the threat model is missing, stop and ask the user to run `/slo-architect` first — do not synthesize a threat model in flight.
+- `docs/slo/design/<slug>-threat-model.md` — produced by `/slo-architect` Step 3.5. Every accepted finding cites a row id (format `tm-<slug>-abuse-N`) from this file. If the threat model is missing, stop and ask the user to run `/slo-architect` first — do not synthesize a threat model in flight.
 - `skills/slo-critique/references/bug-class-catalog.md` — the canonical bug-class taxonomy organized by OWASP ASVS 5.0 chapter. Every finding names a class from this catalog.
 - `skills/slo-critique/references/variant-analysis-playbook.md` — three strategies (ripgrep / ast-grep / semgrep) with small-codebase exit. Every finding includes a variant-analysis pointer or an explicit N/A-with-reason.
-- The target `docs/RUNBOOK-<slug>.md` and, where needed, the target repo files.
+- The target `docs/slo/current/RUNBOOK-<slug>.md` and, where needed, the target repo files.
 
 ## Finding-acceptance gate
 
@@ -28,7 +28,7 @@ Work the plan one milestone at a time:
 3. For each class the threat-model cell says is "not eliminated" or "residual", ask: does this milestone's plan change the elimination status? If yes, note the improvement. If no or worse, that is a candidate finding.
 4. For each candidate finding, run variant analysis per the playbook.
 5. Apply the finding-acceptance gate.
-6. Write accepted findings into `docs/critique/<slug>.md` using the shared row schema (id / persona / category / runbook section / finding / concrete scenario / recommendation). The class name and threat-model row go in the `finding` cell; the variant-analysis pointer goes in the `recommendation` cell alongside the fix.
+6. Write accepted findings into `docs/slo/critique/<slug>.md` using the shared row schema (id / persona / category / runbook section / finding / concrete scenario / recommendation). The class name and threat-model row go in the `finding` cell; the variant-analysis pointer goes in the `recommendation` cell alongside the fix.
 
 ## Categories
 
@@ -57,4 +57,4 @@ Only emit findings you'd rate ≥8/10 confidence. Low-confidence findings clog t
 
 ## Handoff
 
-After all accepted findings are recorded in `docs/critique/<slug>.md`, the reviewer hands off to the user. Asks wait for user accept/decline; auto-fixes are applied inline to the runbook; hold-scope and defer rows are informational. Then `/slo-execute M1` is unblocked.
+After all accepted findings are recorded in `docs/slo/critique/<slug>.md`, the reviewer hands off to the user. Asks wait for user accept/decline; auto-fixes are applied inline to the runbook; hold-scope and defer rows are informational. Then `/slo-execute M1` is unblocked.

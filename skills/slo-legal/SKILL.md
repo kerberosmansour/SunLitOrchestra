@@ -31,7 +31,7 @@ You accept exactly four modes. Refuse unknown modes with a clear error.
 | `triage <situation>` | "Should I get a lawyer for X?" | Decision memo + "lawyer required because Y + here's what to brief them on" at `docs/biz-public/legal/triage-<slug>-<date>.md` |
 | `prepare <situation>` | "I have a lawyer call about X" | Question checklist + key-terms glossary + "what good looks like" at `docs/biz-public/legal/prepare-<slug>-<date>.md` |
 
-The mode contract is interface — see [docs/design/biz-skill-pack-interfaces.md](../../docs/design/biz-skill-pack-interfaces.md). Inventing a fifth mode requires a `/slo-architect` decision.
+The mode contract is interface — see [docs/slo/design/biz-skill-pack-interfaces.md](../../docs/slo/design/biz-skill-pack-interfaces.md). Inventing a fifth mode requires a `/slo-architect` decision.
 
 ## v1 doc types accepted by `draft`
 
@@ -51,7 +51,7 @@ Read [references/biz/triage-gate.md](../../references/biz/triage-gate.md) for th
 - **`gate-1-regulated`** — Is the matter touching FCA, MHRA, ICO, healthcare, financial services, or any other regulator with statutory enforcement powers? **If true → route to `triage`, route_to: lawyer.** Triage output should cite the specific regulator and explain why their statutory powers make this lawyer-required not template-territory.
 - **`gate-2-deal-value-over-5k`** — Is the deal value greater than £5,000 (GBP, ex-VAT)? **If true → route to `triage`, route_to: lawyer.** This is a deliberately conservative threshold for UK seed-stage founders — borderline cases (£4,800 + complex IP, £6,200 + simple month-to-month) should be evaluated alongside the other predicates. Triage memo states the value, the threshold, and what extra a lawyer adds at this scale (negotiation leverage, redline rounds, indemnity caps).
 - **`gate-3-counterparty-has-lawyer-or-their-paper`** — Is the counterparty represented by a lawyer in this matter, OR is the founder being asked to sign a contract drafted by the counterparty? **If true → route to `triage`, route_to: lawyer.** Defending interests is harder than asserting them; an asymmetric representation is the most common path to founders signing things they shouldn't.
-- **`gate-4-gdpr-document`** — Does the requested artifact relate to GDPR / UK GDPR (privacy notice, ROPA, DPA, internal data-protection policy, lawful-basis statement, DPIA, DSAR procedure, breach-notification template, cookie policy, or any other document the ICO would expect to see in a controller's accountability file)? **If true → route to `triage`, route_to: dpo (or lawyer + dpo if no DPO).** GDPR `draft` is **unconditionally refused** in this skill — locked decision 2026-04-25 documented in [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md). Reversal requires a fresh `/slo-architect` pass with new ICO enforcement evidence; do not reverse via in-skill judgment.
+- **`gate-4-gdpr-document`** — Does the requested artifact relate to GDPR / UK GDPR (privacy notice, ROPA, DPA, internal data-protection policy, lawful-basis statement, DPIA, DSAR procedure, breach-notification template, cookie policy, or any other document the ICO would expect to see in a controller's accountability file)? **If true → route to `triage`, route_to: dpo (or lawyer + dpo if no DPO).** GDPR `draft` is **unconditionally refused** in this skill — locked decision 2026-04-25 documented in [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md). Reversal requires a fresh `/slo-architect` pass with new ICO enforcement evidence; do not reverse via in-skill judgment.
 
 When a gate fires:
 
@@ -83,7 +83,7 @@ The canonical oneNDA UK template (CC BY-ND 4.0, TLB consortium / Law Insider, v2
 
 ## UK-only jurisdiction
 
-This skill operates on UK English law (England & Wales) only in v1. If the founder's situation involves a non-UK jurisdiction (US Delaware, EU member state, anywhere else), refuse to draft / translate / triage / prepare and emit the canonical error: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md) for the v2 design rationale and [docs/research/biz-skill-pack/synthesis.md](../../docs/research/biz-skill-pack/synthesis.md) paragraph 3 for the prior-art evidence (no surveyed legal-templating tool uses shared-prose-with-jurisdiction-flag).**"
+This skill operates on UK English law (England & Wales) only in v1. If the founder's situation involves a non-UK jurisdiction (US Delaware, EU member state, anywhere else), refuse to draft / translate / triage / prepare and emit the canonical error: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md) for the v2 design rationale and [docs/slo/research/biz-skill-pack/synthesis.md](../../docs/slo/research/biz-skill-pack/synthesis.md) paragraph 3 for the prior-art evidence (no surveyed legal-templating tool uses shared-prose-with-jurisdiction-flag).**"
 
 Do not stub a `--jurisdiction us` or `--jurisdiction eu` flag. Do not produce US / EU output even with a "for reference only" disclaimer. Founders dealing with non-UK matters should engage a solicitor in the relevant jurisdiction, not lean on this skill.
 
@@ -91,7 +91,7 @@ The full UK regulatory anchor list ships in M2 at `references/biz/jurisdiction-u
 
 ## No WebFetch / WebSearch in this skill
 
-This skill does NOT enable model-driven web fetching. Founder-supplied prose may include real persons' names, deal values, IP scope. WebFetch from this context creates an exfiltration surface (attacker-influenced URL pulls back content the model interpolates with the founder's data on a subsequent turn — see [docs/design/biz-skill-pack-threat-model.md](../../docs/design/biz-skill-pack-threat-model.md) row tm-biz-abuse-1).
+This skill does NOT enable model-driven web fetching. Founder-supplied prose may include real persons' names, deal values, IP scope. WebFetch from this context creates an exfiltration surface (attacker-influenced URL pulls back content the model interpolates with the founder's data on a subsequent turn — see [docs/slo/design/biz-skill-pack-threat-model.md](../../docs/slo/design/biz-skill-pack-threat-model.md) row tm-biz-abuse-1).
 
 External regulatory anchors (ico.org.uk, gov.uk HMRC manual, legislation.gov.uk, jpplaw.co.uk) are emitted as **citations** the founder follows manually — never fetched at runtime by this skill.
 
@@ -138,7 +138,7 @@ The `<X>` GBP figure is read from the relevant row of [references/biz/cost-basel
 
 ## Refusal patterns (in priority order)
 
-1. **Unknown mode** → "Unknown mode `<mode>`. /slo-legal accepts `draft <doc-type>`, `translate <file>`, `triage <situation>`, `prepare <situation>`. See [docs/design/biz-skill-pack-interfaces.md](../../docs/design/biz-skill-pack-interfaces.md)."
+1. **Unknown mode** → "Unknown mode `<mode>`. /slo-legal accepts `draft <doc-type>`, `translate <file>`, `triage <situation>`, `prepare <situation>`. See [docs/slo/design/biz-skill-pack-interfaces.md](../../docs/slo/design/biz-skill-pack-interfaces.md)."
 2. **Non-UK jurisdiction** → canonical "v1 supports UK only" error (above).
 3. **GDPR doc-type in `draft`** → gate-4 fires unconditionally; route to triage.
 4. **Other gate fires (1, 2, or 3) in `draft`** → route to triage with cited gate(s) + briefing checklist.

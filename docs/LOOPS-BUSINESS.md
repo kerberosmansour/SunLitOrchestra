@@ -228,7 +228,7 @@ Every loop here exists because it produces a user-visible outcome the static ski
 
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md) — static structure of the skill pack at HEAD.
 - [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — engineering-side loops (sprint, security-tuning, lessons, library-feedback).
-- [docs/design/biz-skill-pack-overview.md](design/biz-skill-pack-overview.md) — design doc for the biz skill pack.
+- [docs/slo/design/biz-skill-pack-overview.md](design/biz-skill-pack-overview.md) — design doc for the biz skill pack.
 - [references/biz/jurisdiction-uk.md](../references/biz/jurisdiction-uk.md) — UK-only jurisdiction discipline shared across biz skills.
 - [references/biz/triage-gate.md](../references/biz/triage-gate.md) — the four-gate hard-block (regulated / >£5,000 / counterparty / GDPR) used by the four advisor skills.
 - [references/biz/ir35-cest-factors.md](../references/biz/ir35-cest-factors.md) — IR35 / CEST factors used by `/slo-hire`'s mandatory triage gate.

@@ -1,6 +1,6 @@
 # Threat-model parser contract
 
-> The parse contract `/slo-sast` follows for extracting CWE references from `docs/design/<slug>-threat-model.md`. Locked in M1 of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). Reference document — read by humans and by the agent driving `/slo-sast`.
+> The parse contract `/slo-sast` follows for extracting CWE references from `docs/slo/design/<slug>-threat-model.md`. Locked in M1 of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). Reference document — read by humans and by the agent driving `/slo-sast`.
 
 ## Regex
 
@@ -62,13 +62,13 @@ content, not the project's claimed CWE list.
 ~~~
 ```
 
-This form is the [slo-security-embedding](../../docs/design/slo-security-embedding-threat-model.md) fence rule for user-provided strings. By convention, anything inside `~~~text ... ~~~` is verbatim user content — the threat-model author chose to include it, but the CWE references inside are the user's words, not the project's classification. **Exclude regardless of integer values inside the fence.**
+This form is the [slo-security-embedding](../../docs/slo/design/slo-security-embedding-threat-model.md) fence rule for user-provided strings. By convention, anything inside `~~~text ... ~~~` is verbatim user content — the threat-model author chose to include it, but the CWE references inside are the user's words, not the project's classification. **Exclude regardless of integer values inside the fence.**
 
 This is technically a subset of region #2 (any `~~~` fence excludes), but the explicit naming here defends the convention against future "let's preserve user-fence content" requests that would re-introduce the prompt-injection class.
 
 ## Rationale
 
-Treating only the rendered Markdown prose body as authoritative — and leaving HTML comments, code fences, and user-string fences inert — eliminates the bug class enumerated as **`tm-scanner-orchestration-abuse-1`** in [`docs/design/scanner-orchestration-threat-model.md`](../../docs/design/scanner-orchestration-threat-model.md):
+Treating only the rendered Markdown prose body as authoritative — and leaving HTML comments, code fences, and user-string fences inert — eliminates the bug class enumerated as **`tm-scanner-orchestration-abuse-1`** in [`docs/slo/design/scanner-orchestration-threat-model.md`](../../docs/slo/design/scanner-orchestration-threat-model.md):
 
 > A hostile or unwary contributor authoring (or editing) a threat-model file embeds CWE references inside HTML comments, fenced code blocks, or `~~~text` user-string fences hoping the skill picks them up — inflating the rule pack with irrelevant rules, or bypassing review by hiding CWE additions.
 
@@ -76,7 +76,7 @@ The scope rule defuses this **architecturally**, not via a runtime check. There 
 
 ## Stability
 
-This contract is `stable` per [`docs/design/scanner-orchestration-interfaces.md` §2](../../docs/design/scanner-orchestration-interfaces.md). Changing the regex or any of the three exclusion regions requires:
+This contract is `stable` per [`docs/slo/design/scanner-orchestration-interfaces.md` §2](../../docs/slo/design/scanner-orchestration-interfaces.md). Changing the regex or any of the three exclusion regions requires:
 
 1. Re-running `/slo-architect scanner-orchestration` to surface the design change.
 2. A new runbook milestone with explicit migration tests for any existing threat-model files whose interpretation would change.

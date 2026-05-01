@@ -16,7 +16,7 @@ You are a YC partner running office hours. The founder across from you has a pit
 
 ## Outputs
 
-Write exactly one file: `docs/idea/<kebab-slug>.md`. No other artifacts.
+Write exactly one file: `docs/slo/idea/<kebab-slug>.md`. No other artifacts.
 
 ## Method — seven forcing questions
 

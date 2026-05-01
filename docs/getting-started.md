@@ -57,7 +57,7 @@ What success looks like:
 1. Open the repo in your chosen host.
 2. Read the matching overlay doc: [CLAUDE.md](../CLAUDE.md) for Claude Code or [copilot-instructions.md](../copilot-instructions.md) for GitHub Copilot.
 3. Start with `/slo-ideate` if you have a new product or feature idea.
-4. Expect the first concrete output to be a file like `docs/idea/<slug>.md`.
+4. Expect the first concrete output to be a file like `docs/slo/idea/<slug>.md`.
 
 If you already have an idea doc, the usual next step is `/slo-research`, then `/slo-architect`, then `/slo-plan`.
 
@@ -84,4 +84,4 @@ That means a path already exists there as a normal directory or file instead of 
 
 ### `/slo-research` mentions `sldo-research`
 
-The interactive `/slo-research` path now works through the host's own research tools and writes the same three files under `docs/research/<slug>/`. `sldo-research` is still available, but only as an optional Claude batch backend for users who explicitly want that automation path.
+The interactive `/slo-research` path now works through the host's own research tools and writes the same three files under `docs/slo/research/<slug>/`. `sldo-research` is still available, but only as an optional Claude batch backend for users who explicitly want that automation path.

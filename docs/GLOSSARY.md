@@ -6,7 +6,7 @@ Terms and acronyms used across the SunLitOrchestrate skill pack, runbook templat
 
 - **Skill** — a Markdown file (`SKILL.md`) loaded into a host AI agent (Claude Code, GitHub Copilot) that defines a slash-command and the procedure the agent should follow. Skills live under `skills/<name>/` and are installed by [`sldo-install`](crates/sldo-install/).
 - **Host overlay** — the host-specific instruction file that points the agent at the skill pack. [CLAUDE.md](../CLAUDE.md) for Claude Code, [copilot-instructions.md](../copilot-instructions.md) for GitHub Copilot.
-- **Runbook** — a per-feature plan authored against the v4 template at [docs/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md). The output of `/slo-plan`. Lives at `docs/RUNBOOK-<FEATURE>.md`.
+- **Runbook** — a per-feature plan authored against the v4 template at [docs/slo/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md). The output of `/slo-plan`. Lives at `docs/RUNBOOK-<FEATURE>.md`.
 - **Milestone (M1, M2, …)** — one numbered phase inside a runbook. The unit of work for `/slo-execute`, `/slo-verify`, `/slo-retro`. Capped at five per runbook.
 - **Sprint flow** — the seven-step pipeline a feature passes through: Think → Plan → Build → Review → Test → Ship → Reflect, mapped to `/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` → `/slo-critique` → `/slo-execute` → `/slo-verify` → `/slo-retro` → `/slo-ship`.
 - **Allow-list** — a per-milestone whitelist of file paths the milestone is permitted to touch. Enforced by `/slo-execute`.
@@ -20,9 +20,9 @@ Terms and acronyms used across the SunLitOrchestrate skill pack, runbook templat
 - **TLC** — the model checker that executes TLA+ specs.
 - **SAST** — Static Application Security Testing; in this repo, Semgrep rules that run pre-merge against Rust code. See `.semgrep/rust/`.
 - **CWE** — [Common Weakness Enumeration](https://cwe.mitre.org/); the standard taxonomy for software weakness categories (e.g. CWE-89 SQL injection, CWE-787 out-of-bounds write).
-- **STRIDE** — Microsoft's threat-modeling categorization (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege). Used in `docs/design/<slug>-threat-model.md` artifacts.
+- **STRIDE** — Microsoft's threat-modeling categorization (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege). Used in `docs/slo/design/<slug>-threat-model.md` artifacts.
 - **MSRV** — Minimum Supported Rust Version.
-- **Carmack-style reliability controls** — the v4 template's debugger-first / mandatory static-analysis / assertion-driven invariants / bounded-resource / "make invalid states unrepresentable" practices. See [docs/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md) and the [influence clip](https://youtu.be/tzr7hRXcwkw) acknowledged in the README.
+- **Carmack-style reliability controls** — the v4 template's debugger-first / mandatory static-analysis / assertion-driven invariants / bounded-resource / "make invalid states unrepresentable" practices. See [docs/slo/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md) and the [influence clip](https://youtu.be/tzr7hRXcwkw) acknowledged in the README.
 
 ## Biz pack — UK legal, tax, equity, fundraise
 

@@ -9,7 +9,7 @@
 //! row schema.
 //!
 //! BDD scenarios and E2E validations are taken verbatim from
-//! `docs/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md` Milestone 3.
+//! `docs/slo/completed/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md` Milestone 3.
 
 use std::fs;
 use std::path::{Path, PathBuf};

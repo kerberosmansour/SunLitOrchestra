@@ -32,7 +32,7 @@ You accept exactly four modes. Refuse unknown modes with a clear error.
 | `triage <situation>` | "Should I get an accountant for X? Should I register for VAT now?" | Decision memo + "accountant required because Y + here's what to brief them on" at `docs/biz-public/accounting/triage-<slug>-<date>.md` |
 | `prepare <situation>` | "I have an accountant call about X" | Question checklist + key-terms glossary + "what good looks like" at `docs/biz-public/accounting/prepare-<slug>-<date>.md` |
 
-The mode contract is interface — see [docs/design/biz-skill-pack-interfaces.md](../../docs/design/biz-skill-pack-interfaces.md). Inventing a fifth mode requires a `/slo-architect` decision.
+The mode contract is interface — see [docs/slo/design/biz-skill-pack-interfaces.md](../../docs/slo/design/biz-skill-pack-interfaces.md). Inventing a fifth mode requires a `/slo-architect` decision.
 
 ## v1 doc types accepted by `draft`
 
@@ -71,7 +71,7 @@ If the founder asks about any of the above, the `triage` mode is the appropriate
 
 ## UK-only jurisdiction
 
-UK only in v1. Non-UK requests emit the canonical error from `references/biz/jurisdiction-uk.md`: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md) ...**"
+UK only in v1. Non-UK requests emit the canonical error from `references/biz/jurisdiction-uk.md`: "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md) ...**"
 
 Common non-UK accounting scenarios this skill rejects:
 
@@ -83,7 +83,7 @@ Founders dealing with non-UK matters should engage an accountant qualified in th
 
 ## No WebFetch / WebSearch
 
-Same as `/slo-legal` — this skill does NOT enable model-driven web fetching. Founder-supplied prose may include real revenue figures, tax positions, qualifying-activity narratives. WebFetch from this context creates an exfiltration surface — see [docs/design/biz-skill-pack-threat-model.md](../../docs/design/biz-skill-pack-threat-model.md) row tm-biz-abuse-1.
+Same as `/slo-legal` — this skill does NOT enable model-driven web fetching. Founder-supplied prose may include real revenue figures, tax positions, qualifying-activity narratives. WebFetch from this context creates an exfiltration surface — see [docs/slo/design/biz-skill-pack-threat-model.md](../../docs/slo/design/biz-skill-pack-threat-model.md) row tm-biz-abuse-1.
 
 External regulatory anchors (gov.uk HMRC pages, ICO DUAA pages, JPP Law fixed-fee pages) are emitted as **citations** the founder follows manually.
 
@@ -110,7 +110,7 @@ For accounting-specific fee work, the JPP Law baseline is best-effort — not al
 
 ## Refusal patterns (in priority order)
 
-1. **Unknown mode** → "Unknown mode `<mode>`. /slo-accounting accepts `draft <doc-type>`, `translate <file>`, `triage <situation>`, `prepare <situation>`. See [docs/design/biz-skill-pack-interfaces.md](../../docs/design/biz-skill-pack-interfaces.md)."
+1. **Unknown mode** → "Unknown mode `<mode>`. /slo-accounting accepts `draft <doc-type>`, `translate <file>`, `triage <situation>`, `prepare <situation>`. See [docs/slo/design/biz-skill-pack-interfaces.md](../../docs/slo/design/biz-skill-pack-interfaces.md)."
 2. **Non-UK jurisdiction** → canonical "v1 supports UK only" error.
 3. **GDPR doc-type in `draft`** → gate-4 fires unconditionally; route to triage with DPO + accountant routing.
 4. **Other gate fires** → route to triage with cited gate(s) + accountant briefing checklist.

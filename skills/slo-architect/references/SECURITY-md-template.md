@@ -106,7 +106,7 @@ Common legitimate escape hatches:
 
 ## Compliance
 
-Default column set rendered in the threat model: {{COMPLIANCE_DEFAULTS}}. Opt-in frameworks from the runbook `compliance:` frontmatter: {{COMPLIANCE_OPTINS}}. See `docs/design/{{SLUG}}-threat-model.md` for the mapping table.
+Default column set rendered in the threat model: {{COMPLIANCE_DEFAULTS}}. Opt-in frameworks from the runbook `compliance:` frontmatter: {{COMPLIANCE_OPTINS}}. See `docs/slo/design/{{SLUG}}-threat-model.md` for the mapping table.
 
 ## AI / LLM-specific rules
 

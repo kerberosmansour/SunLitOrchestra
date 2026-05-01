@@ -8,19 +8,19 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-// --- Fixture: FNV-1a 64-bit hash of docs/templates/runbook-template_v_3_template.md.
+// --- Fixture: FNV-1a 64-bit hash of docs/slo/templates/runbook-template_v_3_template.md.
 //
-// Re-pinned 2026-04-30 by the loops-and-lessons-closure runbook M4, which
-// explicitly authorizes adding the optional "Carry-forward from prior retros"
-// section to the template. Earlier value (M2-era, 2026-04-24) was
-// 0x5c2f04635249e0a2 / 29978 bytes. Future template edits must also be
+// Re-pinned 2026-05-01 by the docs/slo/ reorganization, which rewrites
+// internal `docs/<dir>/...` references in the template body to the new
+// `docs/slo/<dir>/...` layout. Prior value (loops-M4-era, 2026-04-30) was
+// 0xfe57e5c116c1542e / 32341 bytes. Future template edits must also be
 // authorized by a milestone contract; if a future runbook touches the
 // template without authorization, this test fails loudly.
 //
 // FNV-1a is non-cryptographic but stable, cheap to compute inline, and
 // avoids pulling in `sha2` as a dev-dependency.
-const EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64: u64 = 0xfe57e5c116c1542e;
-const EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN: usize = 32341;
+const EXPECTED_RUNBOOK_TEMPLATE_FNV1A_64: u64 = 0xe9ee05c51944d857;
+const EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN: usize = 32369;
 
 fn fnv1a_64(s: &[u8]) -> u64 {
     let mut h: u64 = 0xcbf29ce484222325;
@@ -244,9 +244,9 @@ fn existing_runbooks_have_milestone_tracker() {
     // (Earlier fixtures were removed in the 2026-04 cleanup; re-pointed
     // at the surviving biz + sast runbooks.)
     for rb in [
-        "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
-        "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
-        "docs/RUNBOOK-SLO-SEC-LIBS.md",
+        "docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md",
+        "docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-B1.md",
+        "docs/slo/future/RUNBOOK-SLO-SEC-LIBS.md",
     ] {
         let body = read(&repo_root().join(rb));
         assert!(
@@ -296,7 +296,7 @@ fn plan_skill_line_count_sane() {
 
 #[test]
 fn runbook_v3_template_fnv1a_unchanged() {
-    let path = repo_root().join("docs/templates/runbook-template_v_3_template.md");
+    let path = repo_root().join("docs/slo/templates/runbook-template_v_3_template.md");
     let body = fs::read(&path)
         .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
     assert_eq!(

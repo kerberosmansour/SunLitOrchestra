@@ -13,7 +13,7 @@ Per [SECURITY.md](../../../SECURITY.md) "SAST rule-gen skill pack — additional
 
 If you find yourself wanting to fetch external content, STOP. The information you need is already in `references/sast/`. The user's bug summary is already in your prompt context. The fix diff is already provided. Do not search for additional context.
 
-## Inputs (per `docs/design/sast-rulegen-skill-pack-interfaces.md` §4)
+## Inputs (per `docs/slo/design/sast-rulegen-skill-pack-interfaces.md` §4)
 
 ```
 /slo-rulegen --extend

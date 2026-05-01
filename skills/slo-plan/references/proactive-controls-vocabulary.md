@@ -39,7 +39,7 @@ When the target stack is Rust + axum and `security_libs_required: true`, the Pro
 | **Data protection** | C2 / C8 | `secure_data::{envelope::encrypt_for_storage,password::hash_password,SecretString}` | stores secrets, encrypts at rest, handles passwords, or routes data through a KMS |
 | **Errors** | C10 | `secure_errors::{http::into_response_parts,panic::catch_panic_to_safe_response,kind::AppError}` | introduces any error path crossing a trust boundary |
 | **Logging and monitoring** | C9 | `security_events::{SecurityEvent,DataClassification,Sink}` | records security-relevant state changes (auth, authz decisions, secret access) |
-| **Security requirements** | C1 | this file + `SECURITY.md` + `docs/design/<slug>-threat-model.md` | is structural (the requirement is recorded once; every milestone references it) |
+| **Security requirements** | C1 | this file + `SECURITY.md` + `docs/slo/design/<slug>-threat-model.md` | is structural (the requirement is recorded once; every milestone references it) |
 | **Frameworks and libraries** | C2 | any of the above crates — avoid hand-rolled crypto / input-validation / authz | always applies when the vocabulary above is available |
 | **Database access** | C3 | `sqlx` + parameterized queries only; never string-interpolate SQL | introduces database reads or writes |
 

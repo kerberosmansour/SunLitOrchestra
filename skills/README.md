@@ -55,4 +55,4 @@ Only removes symlinks the installer created for the selected host (recorded in `
 1. Create `skills/<name>/SKILL.md` with frontmatter declaring `name` and `description`.
 2. Re-run `sldo-install` — it picks up the new skill with zero code changes.
 3. Update the catalog at [../docs/skill-pack-catalog.md](../docs/skill-pack-catalog.md).
-4. If the skill replaces or follows another in the sprint, update the runbook at [../docs/RUNBOOK-SKILL-PACK.md](../docs/RUNBOOK-SKILL-PACK.md).
+4. If the skill replaces or follows another in the sprint, update the runbook at [../docs/slo/completed/RUNBOOK-SKILL-PACK.md](../docs/slo/completed/RUNBOOK-SKILL-PACK.md).
