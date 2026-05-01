@@ -54,6 +54,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 ### References subtrees
 
 - `references/biz/` holds shared business-pack scaffolding such as gates, jurisdiction notes, templates, and regulator indexes.
+- `references/security/` holds shared security finding and assessment summary templates used by review / verification skills.
 - `references/sast/` holds SAST-specific references consumed by the security tooling and rule-pack work.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
 

@@ -6,6 +6,20 @@ Three contributions make this pack distinct: **(1) a runbook artifact that bakes
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL. **Status:** active development. The skill pack and Rust CLIs are stable.
 
+## Table of contents
+
+- [The problem](#the-problem)
+- [What SunLitOrchestrate is](#what-sunlitorchestrate-is)
+- [What makes SunLitOrchestrate different](#what-makes-sunlitorchestrate-different)
+- [How it works](#how-it-works)
+- [What the output looks like](#what-the-output-looks-like)
+- [When NOT to use it](#when-not-to-use-it)
+- [Quick start](#quick-start)
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
+
 ## The problem
 
 LLM-assisted development is fast at producing code and slow at producing the things that make code useful afterwards: a clear scope, a recorded rationale, an honest threat model, an executable verification plan, and lessons that survive the next conversation. The default failure modes are easy to recognise:
@@ -92,6 +106,20 @@ Two re-entry paths matter:
 - **Security-only adoption** — `/slo-rulegen` and `/slo-ruleverify` can run standalone against any Rust codebase to maintain the CWE Semgrep rule pack, without running the rest of the sprint flow. See [Quick start → Security-only quick path](#security-only-quick-path).
 
 The artifacts produced by each stage live under `docs/slo/` (idea, research dossier, architecture, threat model, runbook, retro, completion summary). They are the project's institutional memory and the input to the *next* runbook's carry-forward.
+
+## What the output looks like
+
+A normal run leaves a reviewable paper trail rather than a chat-only rationale:
+
+| Stage | Primary artifact | What reviewers get |
+|---|---|---|
+| `/slo-ideate` | `docs/slo/idea/<slug>.md` | Problem framing, non-goals, and worst-day failure outcomes |
+| `/slo-research` | `docs/slo/research/<slug>/` | Sourced evidence, assumptions, and open questions |
+| `/slo-architect` | `docs/slo/design/<slug>-overview.md` + threat model | Stack decision, interfaces, STRIDE rows, abuse cases, security posture |
+| `/slo-tla` | TLA+ spec + TLC output when required | Model-check evidence for concurrency, ordering, or protocol risk |
+| `/slo-plan` | `docs/RUNBOOK-<feature>.md` | Milestone scope, allowed files, BDD scenarios, abuse cases, verification gates |
+| `/slo-execute` + `/slo-verify` | Code, tests, evidence log | Implementation constrained to the runbook, with proof that gates ran |
+| `/slo-retro` + `/slo-ship` | Lessons, completion summary, PR body | Carry-forward lessons and links reviewers can audit without reading the whole chat |
 
 ## When NOT to use it
 
@@ -194,6 +222,18 @@ CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-W
 - Headless runtime automation is still host-specific today.
 - `sldo-research` as a batch backend and the live business judgment runtime harness are still Claude-only today.
 - For exact boundaries, read [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md).
+
+## Architecture at a glance
+
+SunLitOrchestrate is intentionally split into artifacts that can be inspected independently:
+
+- **`skills/`** — the host-facing `/slo-*` procedures. These drive the workflow and define what each stage may read or write.
+- **`references/`** — shared policy, reporting templates, and scaffolding for the security, SAST, and biz-pack flows.
+- **`crates/`** — small Rust CLIs for installation, optional research batching, and deterministic Semgrep rule gating.
+- **`docs/`** — generated and hand-authored project memory: ideas, research, architecture, threat models, runbooks, completions, and lessons.
+- **`.semgrep/` + `xtasks/`** — the rule pack and local verification harness that keep SAST changes testable.
+
+Skills orchestrate the work, references keep policy consistent, Rust tools enforce the parts that should be deterministic, and docs carry the context forward.
 
 ## Full skill map
 
@@ -317,3 +357,4 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 - The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.
 - Garry Tan's [gstack](https://github.com/garrytan/gstack) for the skill-pack-as-workflow pattern that shaped the overall structure of SunLitOrchestrate's `/slo-*` skills — the idea that a stage-aware collection of opinionated skills can carry a project from ideation to ship more reliably than ad-hoc prompting.
 - OpenAI's [Symphony](https://github.com/openai/symphony) for influencing how SunLitOrchestrate thinks about multi-agent orchestration and the seams between specialist roles in a development workflow.
+- OWASP's [Secure Agent Playbook](https://github.com/OWASP/secure-agent-playbook) for clear README patterns around playbooks, skill catalogues, example outputs, and standards traceability. SunLitOrchestrate borrows those presentation ideas for a runbook-driven delivery workflow rather than a standalone security assessment playbook.
