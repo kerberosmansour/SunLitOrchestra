@@ -41,8 +41,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 // ---------------------------------------------------------------------------
@@ -144,7 +143,10 @@ fn catalog_cites_secure_libraries() {
         "SafeUrl",
         "SecureJson",
     ];
-    let found: Vec<&&str> = candidates.iter().filter(|c| catalog.contains(**c)).collect();
+    let found: Vec<&&str> = candidates
+        .iter()
+        .filter(|c| catalog.contains(**c))
+        .collect();
     assert!(
         found.len() >= 3,
         "bug-class catalog must cite ≥3 SunLitSecureLibraries crates/types as elimination patterns; found {found:?}"
@@ -157,9 +159,8 @@ fn catalog_cites_secure_libraries() {
 
 #[test]
 fn playbook_has_three_strategies() {
-    let playbook = read(
-        &repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"),
-    );
+    let playbook =
+        read(&repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"));
     let lower = playbook.to_lowercase();
     for tool in ["ripgrep", "ast-grep", "semgrep"] {
         assert!(
@@ -171,9 +172,8 @@ fn playbook_has_three_strategies() {
 
 #[test]
 fn playbook_has_small_codebase_exit() {
-    let playbook = read(
-        &repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"),
-    );
+    let playbook =
+        read(&repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"));
     let lower = playbook.to_lowercase();
     // The playbook should have an explicit N/A rule for very small repos.
     assert!(
@@ -191,7 +191,11 @@ fn playbook_has_small_codebase_exit() {
 fn ceo_persona_unchanged() {
     let path = repo_root().join("skills/slo-critique/personas/ceo.md");
     let body = fs::read(&path).unwrap();
-    assert_eq!(body.len(), EXPECTED_CEO_BYTE_LEN, "ceo.md byte length changed");
+    assert_eq!(
+        body.len(),
+        EXPECTED_CEO_BYTE_LEN,
+        "ceo.md byte length changed"
+    );
     assert_eq!(
         fnv1a_64(&body),
         EXPECTED_CEO_FNV1A_64,
@@ -203,7 +207,11 @@ fn ceo_persona_unchanged() {
 fn eng_persona_unchanged() {
     let path = repo_root().join("skills/slo-critique/personas/eng.md");
     let body = fs::read(&path).unwrap();
-    assert_eq!(body.len(), EXPECTED_ENG_BYTE_LEN, "eng.md byte length changed");
+    assert_eq!(
+        body.len(),
+        EXPECTED_ENG_BYTE_LEN,
+        "eng.md byte length changed"
+    );
     assert_eq!(
         fnv1a_64(&body),
         EXPECTED_ENG_FNV1A_64,
@@ -319,8 +327,10 @@ fn catalog_file_exists_and_sized() {
 
 #[test]
 fn playbook_file_exists_and_sized() {
-    let body = read(
-        &repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"),
+    let body =
+        read(&repo_root().join("skills/slo-critique/references/variant-analysis-playbook.md"));
+    assert!(
+        body.len() > 1000,
+        "variant-analysis playbook suspiciously short"
     );
-    assert!(body.len() > 1000, "variant-analysis playbook suspiciously short");
 }

@@ -30,7 +30,10 @@ fn xtask_help_lists_all_subcommands() {
     let bin_path = root.join("target").join("release").join("sast-verify");
     if !bin_path.exists() {
         // Build hasn't run; skip rather than fail the test suite during early dev.
-        eprintln!("skipping: {} not found; run `cargo build -p sast-verify --release` first", bin_path.display());
+        eprintln!(
+            "skipping: {} not found; run `cargo build -p sast-verify --release` first",
+            bin_path.display()
+        );
         return;
     }
     let output = Command::new(&bin_path)
@@ -72,7 +75,10 @@ fn gate_passes_for_all_authored_rules() {
 
     let rules_dir = root.join(".semgrep").join("rust");
     if !rules_dir.is_dir() {
-        eprintln!("skipping: {} not present (rule pack not yet authored)", rules_dir.display());
+        eprintln!(
+            "skipping: {} not present (rule pack not yet authored)",
+            rules_dir.display()
+        );
         return;
     }
 

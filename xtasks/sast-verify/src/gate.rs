@@ -69,7 +69,12 @@ pub fn run(
         return Ok(code);
     }
 
-    emit(opts, "pass", "all", "validate + test + check-coverage + check-clean all green");
+    emit(
+        opts,
+        "pass",
+        "all",
+        "validate + test + check-coverage + check-clean all green",
+    );
     Ok(0)
 }
 

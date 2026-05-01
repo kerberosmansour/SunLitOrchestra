@@ -4,7 +4,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -42,9 +47,18 @@ fn slo_sales_funnel_is_generator_archetype() {
 #[test]
 fn slo_sales_funnel_documents_seven_outbound_principles() {
     let skill = read(&repo_root().join("skills/slo-sales-funnel/SKILL.md"));
-    let principles = ["seven principles", "seven outbound", "Subject specific", "One clear ask", "Short — under 100 words"];
+    let principles = [
+        "seven principles",
+        "seven outbound",
+        "Subject specific",
+        "One clear ask",
+        "Short — under 100 words",
+    ];
     let count = principles.iter().filter(|p| skill.contains(**p)).count();
-    assert!(count >= 3, "/slo-sales-funnel must enumerate the seven outbound-email principles (found {count})");
+    assert!(
+        count >= 3,
+        "/slo-sales-funnel must enumerate the seven outbound-email principles (found {count})"
+    );
     // Check at least 5 of the 7 numbered principles appear.
     for n in 1..=7 {
         let pattern = format!("\n{n}. **");
@@ -59,7 +73,10 @@ fn slo_sales_funnel_documents_deal_structure() {
     let skill = read(&repo_root().join("skills/slo-sales-funnel/SKILL.md"));
     let stages = ["Paid trial", "recurring", "opt-out"];
     for s in &stages {
-        assert!(skill.contains(s), "/slo-sales-funnel must enumerate deal-structure stage `{s}`");
+        assert!(
+            skill.contains(s),
+            "/slo-sales-funnel must enumerate deal-structure stage `{s}`"
+        );
     }
 }
 

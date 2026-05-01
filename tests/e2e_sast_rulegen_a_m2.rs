@@ -142,7 +142,9 @@ fn skill_md_documents_extend_mode_contract() {
         "slo-rulegen SKILL.md must have an `Extend-mode contract` section"
     );
     assert!(
-        content.contains("--bug-summary") && content.contains("--fix-diff") && content.contains("--file-paths"),
+        content.contains("--bug-summary")
+            && content.contains("--fix-diff")
+            && content.contains("--file-paths"),
         "Extend-mode contract must document --bug-summary / --fix-diff / --file-paths flags"
     );
     assert!(

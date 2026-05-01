@@ -19,7 +19,9 @@ pub fn resolve_semgrep_bin(opts: &GlobalOpts) -> Result<PathBuf> {
         }
         return Ok(p.clone());
     }
-    which::which("semgrep").context("`semgrep` not found on PATH; install via `brew install semgrep` or `pip install semgrep`")
+    which::which("semgrep").context(
+        "`semgrep` not found on PATH; install via `brew install semgrep` or `pip install semgrep`",
+    )
 }
 
 #[derive(Debug)]

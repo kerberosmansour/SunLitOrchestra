@@ -13,7 +13,12 @@ use crate::{semgrep_runner, yaml_schema, GlobalOpts};
 
 pub fn run(rule_path: &Path, opts: &GlobalOpts) -> Result<i32> {
     if let Err(parse_err) = yaml_schema::parse_file(rule_path) {
-        emit(opts, "fail", "yaml_parse_or_unknown_field", &format!("{parse_err:#}"));
+        emit(
+            opts,
+            "fail",
+            "yaml_parse_or_unknown_field",
+            &format!("{parse_err:#}"),
+        );
         return Ok(2);
     }
 
@@ -46,7 +51,12 @@ pub fn run(rule_path: &Path, opts: &GlobalOpts) -> Result<i32> {
             Ok(3)
         }
         other => {
-            emit(opts, "fail", "unknown_semgrep_exit", &format!("exit {other}: {}", run.stderr));
+            emit(
+                opts,
+                "fail",
+                "unknown_semgrep_exit",
+                &format!("exit {other}: {}", run.stderr),
+            );
             Ok(2)
         }
     }

@@ -4,7 +4,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -58,7 +63,11 @@ fn slo_metrics_skill_md_has_required_frontmatter() {
 #[test]
 fn slo_metrics_is_generator_archetype() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
-    assert!(skill.contains("Generator with") || skill.contains("Generator pattern") || skill.contains("archetype: generator"));
+    assert!(
+        skill.contains("Generator with")
+            || skill.contains("Generator pattern")
+            || skill.contains("archetype: generator")
+    );
     for pid in FOUR_PREDICATE_IDS {
         let count = skill.matches(pid).count();
         assert!(count <= 1, "/slo-metrics cites `{pid}` {count} times; generator should reference advisor predicates ≤ 1");
@@ -78,30 +87,56 @@ fn slo_metrics_disambiguates_from_slo_product() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
     assert!(skill.contains("/slo-product metrics") || skill.contains("slo-product metrics"));
     // Must explicitly enumerate PM-side metrics that belong to /slo-product.
-    let pm_signals = ["DAU", "activation rate", "Retention curves", "feature-adoption"];
+    let pm_signals = [
+        "DAU",
+        "activation rate",
+        "Retention curves",
+        "feature-adoption",
+    ];
     let count = pm_signals.iter().filter(|s| skill.contains(**s)).count();
-    assert!(count >= 3, "/slo-metrics must enumerate PM-side metrics that belong to /slo-product (found {count})");
+    assert!(
+        count >= 3,
+        "/slo-metrics must enumerate PM-side metrics that belong to /slo-product (found {count})"
+    );
 }
 
 #[test]
 fn slo_metrics_documents_all_canonical_financial_kpis() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
-    let kpis = ["CAC", "LTV", "NDR", "burn multiple", "MoM revenue growth", "Gross margin", "Runway", "ARR"];
+    let kpis = [
+        "CAC",
+        "LTV",
+        "NDR",
+        "burn multiple",
+        "MoM revenue growth",
+        "Gross margin",
+        "Runway",
+        "ARR",
+    ];
     for kpi in &kpis {
-        assert!(skill.contains(kpi), "/slo-metrics must document financial KPI `{kpi}`");
+        assert!(
+            skill.contains(kpi),
+            "/slo-metrics must document financial KPI `{kpi}`"
+        );
     }
 }
 
 #[test]
 fn slo_metrics_b2b_target_ndr_110() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
-    assert!(skill.contains("110%"), "/slo-metrics b2b mode must cite NDR ≥ 110% target");
+    assert!(
+        skill.contains("110%"),
+        "/slo-metrics b2b mode must cite NDR ≥ 110% target"
+    );
 }
 
 #[test]
 fn slo_metrics_consumer_target_15_mom() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
-    assert!(skill.contains("15%"), "/slo-metrics consumer mode must cite ≥ 15% MoM target");
+    assert!(
+        skill.contains("15%"),
+        "/slo-metrics consumer mode must cite ≥ 15% MoM target"
+    );
 }
 
 #[test]
@@ -109,7 +144,10 @@ fn slo_metrics_burn_multiple_threshold_2() {
     let skill = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
     let signals = ["≤ 2", "<= 2"];
     let any = signals.iter().any(|s| skill.contains(s));
-    assert!(any, "/slo-metrics must cite burn multiple ≤ 2 healthy threshold (Bessemer convention)");
+    assert!(
+        any,
+        "/slo-metrics must cite burn multiple ≤ 2 healthy threshold (Bessemer convention)"
+    );
 }
 
 #[test]
@@ -125,10 +163,7 @@ fn cross_skill_financial_kpi_citation() {
     // fundraise-process surface (SEIS/EIS, SAFE math), NOT KPI-dashboard
     // surface — it's intentionally excluded.
     let canonical_kpis = ["CAC", "LTV", "NDR", "burn multiple", "ARR"];
-    let financial_skills = [
-        "skills/slo-pricing/SKILL.md",
-        "skills/slo-metrics/SKILL.md",
-    ];
+    let financial_skills = ["skills/slo-pricing/SKILL.md", "skills/slo-metrics/SKILL.md"];
     for skill_path in &financial_skills {
         let body = read(&repo_root().join(skill_path));
         let count = canonical_kpis.iter().filter(|k| body.contains(**k)).count();
@@ -144,7 +179,10 @@ fn claude_md_catalogs_all_b2_generators() {
     let claude_md = read(&repo_root().join("CLAUDE.md"));
     for skill_name in ALL_B2_GENERATORS {
         let verb = format!("/{skill_name}");
-        assert!(claude_md.contains(&verb), "CLAUDE.md must catalog B2 generator `{verb}`");
+        assert!(
+            claude_md.contains(&verb),
+            "CLAUDE.md must catalog B2 generator `{verb}`"
+        );
     }
 }
 
@@ -154,6 +192,9 @@ fn references_biz_dir_still_not_discovered_after_b2_m4() {
     assert!(skills_dir.is_dir());
     assert!(!skills_dir.join("biz").exists());
     for skill_name in ALL_PACK_SKILLS_THROUGH_B2 {
-        assert!(skills_dir.join(skill_name).join("SKILL.md").exists(), "skills/{skill_name}/SKILL.md must exist");
+        assert!(
+            skills_dir.join(skill_name).join("SKILL.md").exists(),
+            "skills/{skill_name}/SKILL.md must exist"
+        );
     }
 }

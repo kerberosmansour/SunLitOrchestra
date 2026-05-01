@@ -19,9 +19,7 @@ fn make_skill(skills_dir: &Path, name: &str) {
 
 fn sldo_install(home: &Path, skills_dir: &Path, extra: &[&str]) -> std::process::Output {
     let mut cmd = Command::new(binary_path());
-    cmd.env("HOME", home)
-        .arg("--skills-dir")
-        .arg(skills_dir);
+    cmd.env("HOME", home).arg("--skills-dir").arg(skills_dir);
     for arg in extra {
         cmd.arg(arg);
     }
@@ -70,16 +68,16 @@ fn test_uninstall_only_removes_selected_host_entries() {
     let src = TempDir::new().unwrap();
     make_skill(src.path(), "slo-ideate");
 
-    assert!(sldo_install(home.path(), src.path(), &["install"]).status.success());
-    assert!(
-        sldo_install(
-            home.path(),
-            src.path(),
-            &["--host", "github-copilot", "install"],
-        )
+    assert!(sldo_install(home.path(), src.path(), &["install"])
         .status
-        .success()
-    );
+        .success());
+    assert!(sldo_install(
+        home.path(),
+        src.path(),
+        &["--host", "github-copilot", "install"],
+    )
+    .status
+    .success());
 
     let uninstall = sldo_install(
         home.path(),
@@ -157,7 +155,10 @@ fn test_github_copilot_local_install_uses_repo_state() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    assert!(project.path().join(".copilot/skills/slo-local").is_symlink());
+    assert!(project
+        .path()
+        .join(".copilot/skills/slo-local")
+        .is_symlink());
     assert!(project.path().join(".copilot/slo-install.toml").exists());
     assert!(!home.path().join(".copilot/skills/slo-local").exists());
 }
@@ -168,7 +169,11 @@ fn test_unknown_host_fails_loud() {
     let src = TempDir::new().unwrap();
     make_skill(src.path(), "slo-ideate");
 
-    let out = sldo_install(home.path(), src.path(), &["--host", "not-a-host", "install"]);
+    let out = sldo_install(
+        home.path(),
+        src.path(),
+        &["--host", "not-a-host", "install"],
+    );
     assert!(!out.status.success(), "unknown host should fail");
 
     let stderr = String::from_utf8_lossy(&out.stderr);
@@ -223,7 +228,10 @@ fn test_install_root_escape_refused_on_verify() {
         src.path(),
         &["--host", "github-copilot", "verify"],
     );
-    assert!(!verify.status.success(), "verify should reject escaped roots");
+    assert!(
+        !verify.status.success(),
+        "verify should reject escaped roots"
+    );
 
     let stderr = String::from_utf8_lossy(&verify.stderr);
     assert!(stderr.contains("outside the selected host root"));

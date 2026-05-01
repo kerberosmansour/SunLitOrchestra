@@ -4,22 +4,30 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 fn read(path: &Path) -> String {
     fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
-    "gate-1-regulated", "gate-2-deal-value-over-5k",
-    "gate-3-counterparty-has-lawyer-or-their-paper", "gate-4-gdpr-document",
+    "gate-1-regulated",
+    "gate-2-deal-value-over-5k",
+    "gate-3-counterparty-has-lawyer-or-their-paper",
+    "gate-4-gdpr-document",
 ];
 
 #[test]
 fn slo_cofounder_skill_md_has_required_frontmatter() {
     let s = read(&repo_root().join("skills/slo-cofounder/SKILL.md"));
     assert!(s.starts_with("---\n"));
-    let after = &s[4..]; let close = after.find("\n---\n").unwrap();
+    let after = &s[4..];
+    let close = after.find("\n---\n").unwrap();
     let fm = &after[..close];
     assert!(fm.contains("name: slo-cofounder"));
 }
@@ -44,7 +52,11 @@ fn slo_cofounder_outputs_to_confidential_tier() {
 #[test]
 fn slo_cofounder_documents_stress_over_skills() {
     let s = read(&repo_root().join("skills/slo-cofounder/SKILL.md"));
-    assert!(s.contains("stress > skills") || s.contains("Stress > skills") || s.contains("stress-handling"));
+    assert!(
+        s.contains("stress > skills")
+            || s.contains("Stress > skills")
+            || s.contains("stress-handling")
+    );
 }
 
 #[test]

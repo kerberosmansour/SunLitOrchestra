@@ -32,12 +32,27 @@ fn critique_lists_four_personas_in_rotation_order() {
     // Look at the bold-marker list entries specifically, not any mention in prose.
     let body = read("SKILL.md");
     let ceo_idx = body.find("**CEO**").expect("rotation list missing **CEO**");
-    let eng_idx = body.find("**Eng lead**").expect("rotation list missing **Eng lead**");
-    let sec_idx = body.find("**Security**").expect("rotation list missing **Security**");
-    let des_idx = body.find("**Design**").expect("rotation list missing **Design**");
-    assert!(ceo_idx < eng_idx, "CEO must come before Eng in the rotation list");
-    assert!(eng_idx < sec_idx, "Eng must come before Security in the rotation list");
-    assert!(sec_idx < des_idx, "Security must come before Design in the rotation list");
+    let eng_idx = body
+        .find("**Eng lead**")
+        .expect("rotation list missing **Eng lead**");
+    let sec_idx = body
+        .find("**Security**")
+        .expect("rotation list missing **Security**");
+    let des_idx = body
+        .find("**Design**")
+        .expect("rotation list missing **Design**");
+    assert!(
+        ceo_idx < eng_idx,
+        "CEO must come before Eng in the rotation list"
+    );
+    assert!(
+        eng_idx < sec_idx,
+        "Eng must come before Security in the rotation list"
+    );
+    assert!(
+        sec_idx < des_idx,
+        "Security must come before Design in the rotation list"
+    );
 }
 
 #[test]
@@ -75,7 +90,9 @@ fn eng_persona_covers_failure_modes_and_assumptions() {
     let lower = body.to_lowercase();
     assert!(lower.contains("assumption"));
     assert!(lower.contains("failure mode"));
-    assert!(lower.contains("orthogonal") || lower.contains("scope creep") || lower.contains("test gap"));
+    assert!(
+        lower.contains("orthogonal") || lower.contains("scope creep") || lower.contains("test gap")
+    );
 }
 
 #[test]
@@ -85,7 +102,9 @@ fn security_persona_has_owasp_and_stride() {
     assert!(lower.contains("owasp"));
     assert!(lower.contains("stride"));
     // Every finding needs an exploit scenario.
-    assert!(lower.contains("exploit") && (lower.contains("attacker") || lower.contains("step-by-step")));
+    assert!(
+        lower.contains("exploit") && (lower.contains("attacker") || lower.contains("step-by-step"))
+    );
 }
 
 #[test]

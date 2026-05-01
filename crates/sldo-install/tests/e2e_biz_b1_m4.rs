@@ -5,7 +5,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -42,7 +47,11 @@ fn slo_marketing_skill_md_has_required_frontmatter() {
 #[test]
 fn slo_marketing_is_generator_archetype() {
     let skill = read(&repo_root().join("skills/slo-marketing/SKILL.md"));
-    assert!(skill.contains("Generator with") || skill.contains("Generator pattern") || skill.contains("archetype: generator"));
+    assert!(
+        skill.contains("Generator with")
+            || skill.contains("Generator pattern")
+            || skill.contains("archetype: generator")
+    );
     // Generator: max one mention per advisor predicate id (allowing the explicit
     // gate-4 routing reference to count).
     for pid in FOUR_PREDICATE_IDS {
@@ -55,11 +64,20 @@ fn slo_marketing_is_generator_archetype() {
 fn slo_marketing_documents_two_mode_args() {
     let skill = read(&repo_root().join("skills/slo-marketing/SKILL.md"));
     for m in TWO_MODES {
-        assert!(skill.contains(m), "/slo-marketing must enumerate mode `{m}`");
+        assert!(
+            skill.contains(m),
+            "/slo-marketing must enumerate mode `{m}`"
+        );
     }
-    let output_paths = ["docs/biz-public/marketing/b2b-plan.md", "docs/biz-public/marketing/b2c-plan.md"];
+    let output_paths = [
+        "docs/biz-public/marketing/b2b-plan.md",
+        "docs/biz-public/marketing/b2c-plan.md",
+    ];
     for p in &output_paths {
-        assert!(skill.contains(p), "/slo-marketing must declare output path `{p}`");
+        assert!(
+            skill.contains(p),
+            "/slo-marketing must declare output path `{p}`"
+        );
     }
 }
 
@@ -78,7 +96,10 @@ fn slo_marketing_documents_asa_disclosure() {
     let skill = read(&repo_root().join("skills/slo-marketing/SKILL.md"));
     let signals = ["ASA", "Advertising Standards", "#ad", "CAP Code"];
     let count = signals.iter().filter(|s| skill.contains(**s)).count();
-    assert!(count >= 2, "/slo-marketing b2c must reference ASA disclosure / CAP Code (found {count})");
+    assert!(
+        count >= 2,
+        "/slo-marketing b2c must reference ASA disclosure / CAP Code (found {count})"
+    );
 }
 
 #[test]
@@ -92,7 +113,10 @@ fn slo_marketing_unknown_mode_rejection() {
     let skill = read(&repo_root().join("skills/slo-marketing/SKILL.md"));
     let signals = ["Unknown mode_arg", "unknown mode_arg"];
     let any = signals.iter().any(|s| skill.contains(s));
-    assert!(any, "/slo-marketing must document rejection of unknown mode_arg");
+    assert!(
+        any,
+        "/slo-marketing must document rejection of unknown mode_arg"
+    );
 }
 
 #[test]
@@ -114,6 +138,9 @@ fn references_biz_dir_still_not_discovered_after_b1_m4() {
     assert!(!skills_dir.join("biz").exists());
     assert!(!skills_dir.join("_biz-shared").exists());
     for skill_name in ALL_B1_GENERATORS {
-        assert!(skills_dir.join(skill_name).join("SKILL.md").exists(), "skills/{skill_name}/SKILL.md must exist");
+        assert!(
+            skills_dir.join(skill_name).join("SKILL.md").exists(),
+            "skills/{skill_name}/SKILL.md must exist"
+        );
     }
 }

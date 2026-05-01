@@ -22,7 +22,10 @@ fn all_power_tools_present_and_valid() {
     for name in &["slo-second-opinion", "slo-freeze", "slo-resume", "slo-ship"] {
         let body = skill(name);
         assert!(body.starts_with("---\n"), "{name} frontmatter broken");
-        assert!(body.contains(&format!("name: {name}")), "{name} frontmatter missing name");
+        assert!(
+            body.contains(&format!("name: {name}")),
+            "{name} frontmatter missing name"
+        );
     }
 }
 
@@ -39,7 +42,8 @@ fn second_opinion_handles_missing_providers() {
     );
     // No silent fallback.
     assert!(
-        lower.contains("do not silently fall back") || lower.contains("not silently fall back")
+        lower.contains("do not silently fall back")
+            || lower.contains("not silently fall back")
             || lower.contains("defeats the purpose"),
         "must forbid silent fallback to Claude-pretending"
     );
@@ -54,7 +58,8 @@ fn second_opinion_is_disagreement_finder_not_arbitrator() {
         "skill must frame as disagreement surfacer, not arbitrator"
     );
     assert!(
-        lower.contains("not a vote") || lower.contains("not an arbitrator")
+        lower.contains("not a vote")
+            || lower.contains("not an arbitrator")
             || lower.contains("not a verdict"),
         "skill must explicitly reject vote/arbitration framing"
     );
@@ -84,7 +89,8 @@ fn resume_reads_tracker_but_doesnt_execute() {
     let lower = body.to_lowercase();
     assert!(lower.contains("milestone tracker"));
     assert!(
-        lower.contains("do not start") || lower.contains("does not") && lower.contains("execute")
+        lower.contains("do not start")
+            || lower.contains("does not") && lower.contains("execute")
             || lower.contains("orientation, not execution"),
         "resume must orient, not execute"
     );
@@ -117,13 +123,16 @@ fn ship_does_not_force_push_or_skip_hooks() {
     let body = skill("slo-ship");
     let lower = body.to_lowercase();
     assert!(
-        lower.contains("do not force-push") || lower.contains("never automatic")
+        lower.contains("do not force-push")
+            || lower.contains("never automatic")
             || lower.contains("never force")
             || lower.contains("do not `--force-push`"),
         "ship must prohibit automatic force-push"
     );
     assert!(
-        lower.contains("--no-verify") || lower.contains("skip hooks") || lower.contains("hooks exist"),
+        lower.contains("--no-verify")
+            || lower.contains("skip hooks")
+            || lower.contains("hooks exist"),
         "ship must address --no-verify / hook-skipping"
     );
 }
@@ -138,7 +147,8 @@ fn ship_composes_pr_body_from_completions() {
     );
     // Not a diff-stat PR description.
     assert!(
-        lower.contains("not a diff-stat") || lower.contains("not a diff stat")
+        lower.contains("not a diff-stat")
+            || lower.contains("not a diff stat")
             || lower.contains("diff-stat") && lower.contains("anti-pattern"),
         "ship must reject diff-stat PR descriptions"
     );
