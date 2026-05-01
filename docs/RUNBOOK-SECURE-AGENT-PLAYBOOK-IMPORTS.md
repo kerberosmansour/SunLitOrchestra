@@ -66,7 +66,7 @@ This is the single source of truth for progress. Update as each milestone comple
 | 2 | Example output gallery under `examples/` | `done` | 2026-05-01 | 2026-05-01 | [sap-imp-m2.md](slo/lessons/sap-imp-m2.md) | [sap-imp-m2.md](slo/completion/sap-imp-m2.md) |
 | 3 | Standards traceability matrix (CWE / OWASP / ASVS / OpenCRE) wired into security outputs | `done` | 2026-05-01 | 2026-05-01 | [sap-imp-m3.md](slo/lessons/sap-imp-m3.md) | [sap-imp-m3.md](slo/completion/sap-imp-m3.md) |
 | 4 | Optional Claude plugin packaging assessment + (if green-lit) `.claude-plugin/plugin.json` and SHA-pinned release-zip workflow | `done` (green-lit) | 2026-05-01 | 2026-05-01 | [sap-imp-m4.md](slo/lessons/sap-imp-m4.md) | [sap-imp-m4.md](slo/completion/sap-imp-m4.md) |
-| 5 | Host-native agent-role experiment (gated on M4 host-capability matrix) | `not_started` | | | | |
+| 5 | Host-native agent-role experiment (gated on M4 host-capability matrix) | `done` (green-lit, 4 agents) | 2026-05-01 | 2026-05-01 | [sap-imp-m5.md](slo/lessons/sap-imp-m5.md) | [sap-imp-m5.md](slo/completion/sap-imp-m5.md) |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/slo/lessons/sap-imp-m<N>.md -->
