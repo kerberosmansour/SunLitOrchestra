@@ -109,7 +109,8 @@ fn verify_does_not_fix_bugs_itself() {
     let body = skill("slo-verify");
     let lower = body.to_lowercase();
     assert!(
-        lower.contains("hand the bug back") || lower.contains("do not fix it yourself")
+        lower.contains("hand the bug back")
+            || lower.contains("do not fix it yourself")
             || lower.contains("separation of concerns"),
         "verify must not repair bugs itself — separation of concerns with /slo-execute"
     );

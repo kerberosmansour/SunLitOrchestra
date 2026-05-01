@@ -33,9 +33,7 @@ fn make_skill(skills_dir: &Path, name: &str) {
 
 fn sldo_install(home: &Path, skills_dir: &Path, extra: &[&str]) -> std::process::Output {
     let mut cmd = Command::new(binary_path());
-    cmd.env("HOME", home)
-        .arg("--skills-dir")
-        .arg(skills_dir);
+    cmd.env("HOME", home).arg("--skills-dir").arg(skills_dir);
     for a in extra {
         cmd.arg(a);
     }
@@ -80,7 +78,10 @@ fn test_full_install_uninstall_cycle() {
     // Then: symlinks and manifest are gone
     assert!(!target_root.join("slo-ideate").exists());
     assert!(!target_root.join("get-api-docs").exists());
-    assert!(!manifest_path.exists(), "manifest still present after uninstall");
+    assert!(
+        !manifest_path.exists(),
+        "manifest still present after uninstall"
+    );
 }
 
 #[test]
@@ -118,7 +119,10 @@ fn test_force_overwrites_existing_symlink() {
 
     // Second install from a different source — without --force, should fail.
     let out2 = sldo_install(home.path(), src2.path(), &["install"]);
-    assert!(!out2.status.success(), "expected non-zero exit without --force");
+    assert!(
+        !out2.status.success(),
+        "expected non-zero exit without --force"
+    );
 
     // With --force, should replace.
     let out3 = sldo_install(home.path(), src2.path(), &["install", "--force"]);
@@ -181,7 +185,10 @@ fn test_local_install_into_project() {
 
     // Global manifest should not exist.
     let global_manifest = home.path().join(".sldo").join("install.toml");
-    assert!(!global_manifest.exists(), "local install wrote global manifest");
+    assert!(
+        !global_manifest.exists(),
+        "local install wrote global manifest"
+    );
 
     let local_manifest = project.path().join(".claude").join("slo-install.toml");
     assert!(local_manifest.exists(), "local manifest not written");
@@ -209,7 +216,11 @@ fn test_empty_skills_dir_ok() {
     assert!(out.status.success(), "empty dir should succeed cleanly");
 
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("no changes") || stdout.contains("no skills") || stdout.contains("installed 0"));
+    assert!(
+        stdout.contains("no changes")
+            || stdout.contains("no skills")
+            || stdout.contains("installed 0")
+    );
 }
 
 #[test]

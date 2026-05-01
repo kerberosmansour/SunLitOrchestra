@@ -63,7 +63,12 @@ pub fn run(rule_path: &Path, clean_dir: Option<&Path>, opts: &GlobalOpts) -> Res
         .unwrap_or(0);
 
     if results == 0 {
-        emit(opts, "pass", "zero_fp", &format!("scanned {}", target.display()));
+        emit(
+            opts,
+            "pass",
+            "zero_fp",
+            &format!("scanned {}", target.display()),
+        );
         Ok(0)
     } else {
         // Build a short summary of FP locations for the operator.
@@ -74,10 +79,7 @@ pub fn run(rule_path: &Path, clean_dir: Option<&Path>, opts: &GlobalOpts) -> Res
                 arr.iter()
                     .take(5)
                     .map(|r| {
-                        let path = r
-                            .get("path")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("?");
+                        let path = r.get("path").and_then(|v| v.as_str()).unwrap_or("?");
                         let line = r
                             .get("start")
                             .and_then(|s| s.get("line"))

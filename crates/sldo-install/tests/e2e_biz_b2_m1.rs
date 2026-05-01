@@ -4,7 +4,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -53,7 +58,10 @@ fn slo_launch_documents_pitch_validator() {
     let skill = read(&repo_root().join("skills/slo-launch/SKILL.md"));
     let signals = ["one-sentence", "**For**", "we provide"];
     let count = signals.iter().filter(|s| skill.contains(**s)).count();
-    assert!(count >= 2, "/slo-launch must document the one-sentence pitch validator (found {count} of {signals:?})");
+    assert!(
+        count >= 2,
+        "/slo-launch must document the one-sentence pitch validator (found {count} of {signals:?})"
+    );
 }
 
 #[test]

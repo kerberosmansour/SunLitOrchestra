@@ -18,8 +18,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 fn skill_md() -> String {
@@ -165,17 +164,18 @@ fn manifest_schema_avoids_overpromising_strings() {
     let doc = manifest_schema_doc();
     // The forbidden strings: must NOT appear except in the prohibition list itself.
     // Detect by checking for occurrences and excluding lines that begin with `❌`.
-    let forbidden = [
-        "PCI-compliant",
-        "regulatory mandate",
-    ];
+    let forbidden = ["PCI-compliant", "regulatory mandate"];
     for f in forbidden {
         // Count lines containing the forbidden phrase that don't start with ❌
         // (which marks the prohibition list).
         let positive_uses: Vec<_> = doc
             .lines()
             .filter(|l| l.contains(f))
-            .filter(|l| !l.contains("❌") && !l.contains("not regulatory") && !l.contains("not a regulatory"))
+            .filter(|l| {
+                !l.contains("❌")
+                    && !l.contains("not regulatory")
+                    && !l.contains("not a regulatory")
+            })
             .collect();
         assert!(
             positive_uses.is_empty(),
@@ -262,9 +262,7 @@ fn skill_md_documents_symlink_defense_at_manifest_writes() {
 #[test]
 fn skill_md_documents_overpromise_anti_pattern() {
     let skill = skill_md();
-    let m4_section_start = skill
-        .find("Method (M4")
-        .expect("M4 section must exist");
+    let m4_section_start = skill.find("Method (M4").expect("M4 section must exist");
     let m4_through_end = &skill[m4_section_start..];
     assert!(
         m4_through_end.to_lowercase().contains("overpromising")
@@ -300,11 +298,23 @@ fn skill_md_m1_m2_m3_sections_still_present() {
 #[test]
 fn existing_references_sast_unmodified_by_m4() {
     let cases = [
-        ("references/sast/threat-model-parser-contract.md", "tm-scanner-orchestration-abuse-1"),
-        ("references/sast/scanner-orch-pinned-rules-sha.md", "40-character"),
+        (
+            "references/sast/threat-model-parser-contract.md",
+            "tm-scanner-orchestration-abuse-1",
+        ),
+        (
+            "references/sast/scanner-orch-pinned-rules-sha.md",
+            "40-character",
+        ),
         ("references/sast/stack-detection-contract.md", "polyglot"),
-        ("references/sast/scanner-orch-workflow-template.yml", "pull_request"),
-        ("references/sast/scanner-orch-action-shas.md", "actions/checkout"),
+        (
+            "references/sast/scanner-orch-workflow-template.yml",
+            "pull_request",
+        ),
+        (
+            "references/sast/scanner-orch-action-shas.md",
+            "actions/checkout",
+        ),
         ("references/sast/AUTHORING.md", "Trail of Bits"),
     ];
     for (path, sentinel) in cases {

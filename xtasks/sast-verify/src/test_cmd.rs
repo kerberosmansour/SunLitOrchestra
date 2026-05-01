@@ -33,7 +33,13 @@ pub fn run(rule_path: &Path, opts: &GlobalOpts) -> Result<i32> {
     }
 
     let path_str = rule_path.to_string_lossy();
-    let args = ["--test", "--json", "--config", path_str.as_ref(), path_str.as_ref()];
+    let args = [
+        "--test",
+        "--json",
+        "--config",
+        path_str.as_ref(),
+        path_str.as_ref(),
+    ];
     let run = match semgrep_runner::run(&args, opts) {
         Ok(r) => r,
         Err(e) => {
@@ -52,7 +58,12 @@ pub fn run(rule_path: &Path, opts: &GlobalOpts) -> Result<i32> {
             Ok(2)
         }
         other => {
-            emit(opts, "fail", "unexpected_test_exit", &format!("exit {other}: {}", run.stderr));
+            emit(
+                opts,
+                "fail",
+                "unexpected_test_exit",
+                &format!("exit {other}: {}", run.stderr),
+            );
             Ok(2)
         }
     }

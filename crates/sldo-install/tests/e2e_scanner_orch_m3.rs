@@ -19,8 +19,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 fn skill_md() -> String {
@@ -241,8 +240,7 @@ fn action_shas_doc_documents_sha_only_enforcement() {
 fn action_shas_doc_documents_refresh_cadence() {
     let doc = action_shas_doc();
     assert!(
-        doc.to_lowercase().contains("refresh cadence")
-            || doc.to_lowercase().contains("90 days"),
+        doc.to_lowercase().contains("refresh cadence") || doc.to_lowercase().contains("90 days"),
         "action-SHAs doc must document a refresh cadence"
     );
 }
@@ -285,10 +283,10 @@ fn skill_md_documents_emission_method() {
 fn skill_md_documents_workflow_safety_contract() {
     let skill = skill_md();
     let safety_signals = [
-        "pull_request_target",  // explicitly named as forbidden
-        "permissions:",          // permissions discipline mentioned
-        "fetch-depth: 0",        // checkout depth mandate
-        "SEMGREP_RULES",         // env var instead of --config
+        "pull_request_target", // explicitly named as forbidden
+        "permissions:",        // permissions discipline mentioned
+        "fetch-depth: 0",      // checkout depth mandate
+        "SEMGREP_RULES",       // env var instead of --config
     ];
     for sig in safety_signals {
         assert!(
@@ -351,8 +349,14 @@ fn skill_md_m1_m2_sections_still_present() {
 #[test]
 fn existing_references_sast_unmodified_by_m3() {
     let cases = [
-        ("references/sast/threat-model-parser-contract.md", "tm-scanner-orchestration-abuse-1"),
-        ("references/sast/scanner-orch-pinned-rules-sha.md", "40-character"),
+        (
+            "references/sast/threat-model-parser-contract.md",
+            "tm-scanner-orchestration-abuse-1",
+        ),
+        (
+            "references/sast/scanner-orch-pinned-rules-sha.md",
+            "40-character",
+        ),
         ("references/sast/stack-detection-contract.md", "polyglot"),
         ("references/sast/AUTHORING.md", "Trail of Bits"),
         ("references/sast/MIN-SEMGREP-VERSION.md", "Semgrep"),

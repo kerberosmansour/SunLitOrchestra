@@ -30,8 +30,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
@@ -141,7 +140,14 @@ fn triage_gate_md_defines_four_predicate_ids() {
 
     // The file must include the canonical predicate-table columns somewhere
     // (we look for the column headers in any order, all in one row).
-    let columns = ["id", "name", "predicate", "if_true", "route_to", "rationale_doc"];
+    let columns = [
+        "id",
+        "name",
+        "predicate",
+        "if_true",
+        "route_to",
+        "rationale_doc",
+    ];
     let mut header_row: Option<&str> = None;
     for line in gate.lines() {
         if columns.iter().all(|col| line.contains(col)) {
@@ -196,15 +202,27 @@ fn cost_baseline_md_carries_retrieval_date() {
         .find(|l| l.trim_start().starts_with("retrieved:"))
         .expect("cost-baseline frontmatter must include `retrieved:` field");
 
-    let date_str = retrieved_line.trim_start().strip_prefix("retrieved:").unwrap().trim();
+    let date_str = retrieved_line
+        .trim_start()
+        .strip_prefix("retrieved:")
+        .unwrap()
+        .trim();
     // YYYY-MM-DD shape check: 10 chars, two `-` at positions 4 and 7.
     assert_eq!(
         date_str.len(),
         10,
         "retrieved: value must be YYYY-MM-DD (got `{date_str}`)"
     );
-    assert_eq!(&date_str[4..5], "-", "retrieved: value must have `-` at position 4 (got `{date_str}`)");
-    assert_eq!(&date_str[7..8], "-", "retrieved: value must have `-` at position 7 (got `{date_str}`)");
+    assert_eq!(
+        &date_str[4..5],
+        "-",
+        "retrieved: value must have `-` at position 4 (got `{date_str}`)"
+    );
+    assert_eq!(
+        &date_str[7..8],
+        "-",
+        "retrieved: value must have `-` at position 7 (got `{date_str}`)"
+    );
 
     // The body must cite jpplaw.co.uk explicitly.
     assert!(
@@ -318,7 +336,11 @@ fn gdpr_doc_draft_routes_to_triage() {
         );
     }
     // Must contain the unconditional-refusal language.
-    let refusal_signals = ["unconditionally refused", "unconditional refusal", "never draft"];
+    let refusal_signals = [
+        "unconditionally refused",
+        "unconditional refusal",
+        "never draft",
+    ];
     let any_refusal = refusal_signals.iter().any(|s| skill.contains(s));
     assert!(
         any_refusal,

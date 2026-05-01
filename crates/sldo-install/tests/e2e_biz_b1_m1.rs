@@ -19,8 +19,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
@@ -197,7 +196,10 @@ fn references_biz_dir_still_not_discovered_after_b1_m1() {
     assert!(!skills_dir.join("biz").exists());
     assert!(!skills_dir.join("_biz-shared").exists());
     assert!(
-        skills_dir.join("slo-talk-to-users").join("SKILL.md").exists(),
+        skills_dir
+            .join("slo-talk-to-users")
+            .join("SKILL.md")
+            .exists(),
         "skills/slo-talk-to-users/SKILL.md must exist"
     );
 }

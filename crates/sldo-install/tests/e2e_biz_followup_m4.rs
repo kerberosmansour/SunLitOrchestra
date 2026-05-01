@@ -17,7 +17,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -40,14 +45,26 @@ const REQUIRED_FIXTURE_FRONTMATTER_KEYS: &[&str] = &[
 ];
 
 const ALLOWED_FIXTURE_CLASSES: &[&str] = &[
-    "gdpr", "ir35", "tax-efficiency-pushback", "deal-value",
-    "counterparty-paper", "seis-eis", "preferential-rights", "control-fixture", "other",
+    "gdpr",
+    "ir35",
+    "tax-efficiency-pushback",
+    "deal-value",
+    "counterparty-paper",
+    "seis-eis",
+    "preferential-rights",
+    "control-fixture",
+    "other",
 ];
 
 const ALLOWED_ROUTING: &[&str] = &[
-    "lawyer", "accountant", "dpo",
-    "lawyer_and_accountant", "accountant_and_dpo", "lawyer_and_dpo",
-    "none", "none-permit",
+    "lawyer",
+    "accountant",
+    "dpo",
+    "lawyer_and_accountant",
+    "accountant_and_dpo",
+    "lawyer_and_dpo",
+    "none",
+    "none-permit",
 ];
 
 // ---------------------------------------------------------------------------
@@ -57,8 +74,14 @@ const ALLOWED_ROUTING: &[&str] = &[
 #[test]
 fn judgment_fixtures_directory_layout_correct() {
     let fixtures = repo_root().join("references/biz/judgment-fixtures");
-    assert!(fixtures.is_dir(), "references/biz/judgment-fixtures/ must exist");
-    assert!(fixtures.join("README.md").exists(), "judgment-fixtures/README.md must exist");
+    assert!(
+        fixtures.is_dir(),
+        "references/biz/judgment-fixtures/ must exist"
+    );
+    assert!(
+        fixtures.join("README.md").exists(),
+        "judgment-fixtures/README.md must exist"
+    );
     for skill in ADVISOR_SKILLS {
         let subdir = fixtures.join(skill);
         assert!(subdir.is_dir(), "judgment-fixtures/{skill}/ must exist");
@@ -74,7 +97,8 @@ fn all_fixtures_have_required_frontmatter() {
     let fixtures = repo_root().join("references/biz/judgment-fixtures");
     for skill in ADVISOR_SKILLS {
         let dir = fixtures.join(skill);
-        let entries = fs::read_dir(&dir).unwrap_or_else(|e| panic!("cannot read {}: {e}", dir.display()));
+        let entries =
+            fs::read_dir(&dir).unwrap_or_else(|e| panic!("cannot read {}: {e}", dir.display()));
         for entry in entries {
             let entry = entry.unwrap();
             let path = entry.path();
@@ -103,17 +127,38 @@ fn all_fixtures_have_valid_enum_values() {
         let dir = fixtures.join(skill);
         for entry in fs::read_dir(&dir).unwrap() {
             let path = entry.unwrap().path();
-            if !path.extension().map(|e| e == "md").unwrap_or(false) { continue; }
+            if !path.extension().map(|e| e == "md").unwrap_or(false) {
+                continue;
+            }
             let body = read(&path);
 
             // target_skill must equal the directory name.
-            let target_line = body.lines().find(|l| l.trim_start().starts_with("target_skill:")).unwrap_or("");
-            let target_skill = target_line.split("target_skill:").nth(1).unwrap_or("").trim();
-            assert_eq!(target_skill, *skill, "fixture `{}` declares target_skill `{target_skill}` but lives in `{skill}/`", path.display());
+            let target_line = body
+                .lines()
+                .find(|l| l.trim_start().starts_with("target_skill:"))
+                .unwrap_or("");
+            let target_skill = target_line
+                .split("target_skill:")
+                .nth(1)
+                .unwrap_or("")
+                .trim();
+            assert_eq!(
+                target_skill,
+                *skill,
+                "fixture `{}` declares target_skill `{target_skill}` but lives in `{skill}/`",
+                path.display()
+            );
 
             // fixture_class must be in allowed set.
-            let class_line = body.lines().find(|l| l.trim_start().starts_with("fixture_class:")).unwrap_or("");
-            let class_value = class_line.split("fixture_class:").nth(1).unwrap_or("").trim();
+            let class_line = body
+                .lines()
+                .find(|l| l.trim_start().starts_with("fixture_class:"))
+                .unwrap_or("");
+            let class_value = class_line
+                .split("fixture_class:")
+                .nth(1)
+                .unwrap_or("")
+                .trim();
             assert!(
                 ALLOWED_FIXTURE_CLASSES.contains(&class_value),
                 "fixture `{}` has fixture_class `{class_value}` not in {ALLOWED_FIXTURE_CLASSES:?}",
@@ -121,8 +166,15 @@ fn all_fixtures_have_valid_enum_values() {
             );
 
             // must_route_to must be in allowed routing set.
-            let route_line = body.lines().find(|l| l.trim_start().starts_with("must_route_to:")).unwrap_or("");
-            let route_value = route_line.split("must_route_to:").nth(1).unwrap_or("").trim();
+            let route_line = body
+                .lines()
+                .find(|l| l.trim_start().starts_with("must_route_to:"))
+                .unwrap_or("");
+            let route_value = route_line
+                .split("must_route_to:")
+                .nth(1)
+                .unwrap_or("")
+                .trim();
             assert!(
                 ALLOWED_ROUTING.contains(&route_value),
                 "fixture `{}` has must_route_to `{route_value}` not in {ALLOWED_ROUTING:?}",
@@ -144,16 +196,32 @@ fn critical_fixture_classes_seeded_in_v1_set() {
         let dir = fixtures.join(skill);
         for entry in fs::read_dir(&dir).unwrap() {
             let path = entry.unwrap().path();
-            if !path.extension().map(|e| e == "md").unwrap_or(false) { continue; }
+            if !path.extension().map(|e| e == "md").unwrap_or(false) {
+                continue;
+            }
             let body = read(&path);
-            let class_line = body.lines().find(|l| l.trim_start().starts_with("fixture_class:")).unwrap_or("");
-            let class_value = class_line.split("fixture_class:").nth(1).unwrap_or("").trim().to_string();
+            let class_line = body
+                .lines()
+                .find(|l| l.trim_start().starts_with("fixture_class:"))
+                .unwrap_or("");
+            let class_value = class_line
+                .split("fixture_class:")
+                .nth(1)
+                .unwrap_or("")
+                .trim()
+                .to_string();
             classes_seen.insert(class_value);
         }
     }
 
     // The v1 fixture set must cover at minimum these critical classes.
-    let critical = ["gdpr", "ir35", "tax-efficiency-pushback", "seis-eis", "preferential-rights"];
+    let critical = [
+        "gdpr",
+        "ir35",
+        "tax-efficiency-pushback",
+        "seis-eis",
+        "preferential-rights",
+    ];
     for c in &critical {
         assert!(
             classes_seen.contains(*c),
@@ -168,11 +236,18 @@ fn critical_fixture_classes_seeded_in_v1_set() {
 
 #[test]
 fn tax_efficiency_pushback_fixture_present() {
-    let path = repo_root().join("references/biz/judgment-fixtures/slo-legal/tax-efficiency-pushback.md");
+    let path =
+        repo_root().join("references/biz/judgment-fixtures/slo-legal/tax-efficiency-pushback.md");
     assert!(path.exists(), "tax-efficiency-pushback.md fixture must exist (combined critique B1+B2+C f5 explicitly cited this scenario)");
     let body = read(&path);
-    assert!(body.contains("adversarial: true"), "tax-efficiency-pushback.md must be marked adversarial: true");
-    assert!(body.contains("must_refuse: true"), "tax-efficiency-pushback.md expected behavior is must_refuse: true");
+    assert!(
+        body.contains("adversarial: true"),
+        "tax-efficiency-pushback.md must be marked adversarial: true"
+    );
+    assert!(
+        body.contains("must_refuse: true"),
+        "tax-efficiency-pushback.md expected behavior is must_refuse: true"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -187,9 +262,7 @@ fn tax_efficiency_pushback_fixture_present() {
 #[ignore]
 fn runtime_harness_invokes_claude_cli_per_fixture() {
     eprintln!("Runtime harness moved. Run instead:");
-    eprintln!(
-        "  BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \\"
-    );
+    eprintln!("  BIZ_JUDGMENT_RUNTIME_LIVE=1 cargo test -p sldo-install \\");
     eprintln!("      --test e2e_biz_judgment_runtime_m2 -- --ignored");
     eprintln!("(or _m1 for the single-fixture proof). See docs/slo/completed/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md.");
 }

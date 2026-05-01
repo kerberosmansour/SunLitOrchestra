@@ -22,8 +22,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const LOOP_SECTIONS: &[&str] = &[
@@ -134,9 +133,7 @@ fn library_feedback_loop_has_unshipped_footnote() {
     let doc = read(&repo_root().join("docs/LOOPS-ENGINEERING.md"));
     let lower = doc.to_lowercase();
     assert!(
-        lower.contains("runbook 4")
-            || lower.contains("r4")
-            || lower.contains("slo-sec-libs"),
+        lower.contains("runbook 4") || lower.contains("r4") || lower.contains("slo-sec-libs"),
         "Library-feedback loop section must footnote that /slo-sec-libs ships in Runbook 4"
     );
 }

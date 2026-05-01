@@ -101,7 +101,8 @@ fn test_architecture_doc_matches_surviving_workspace_members() {
         "ARCHITECTURE.md must describe the surviving workspace members"
     );
     assert!(
-        !readme.contains("CLI tools -- `sldo-plan`") && !architecture.contains("CLI tools -- `sldo-plan`"),
+        !readme.contains("CLI tools -- `sldo-plan`")
+            && !architecture.contains("CLI tools -- `sldo-plan`"),
         "living docs must not describe removed CLI tools as active interfaces"
     );
 }

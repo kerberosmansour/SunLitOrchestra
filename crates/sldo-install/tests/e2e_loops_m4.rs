@@ -24,8 +24,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 #[test]
@@ -120,9 +119,8 @@ fn runbook_template_carry_forward_section_is_optional() {
 fn this_runbook_has_carry_forward_section() {
     // Dogfood: the loops runbook itself must include a "Carry-forward
     // from prior retros" section after M4 closes — even if empty.
-    let runbook = read(
-        &repo_root().join("docs/slo/completed/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md"),
-    );
+    let runbook =
+        read(&repo_root().join("docs/slo/completed/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md"));
     assert!(
         runbook.contains("Carry-forward from prior retros"),
         "this runbook must include a dogfood 'Carry-forward from prior retros' section"
@@ -133,9 +131,8 @@ fn this_runbook_has_carry_forward_section() {
 // remain valid. M4 must not silently drift the marker.
 #[test]
 fn m3_marker_unchanged_at_m4() {
-    let ref_file = read(
-        &repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"),
-    );
+    let ref_file =
+        read(&repo_root().join("skills/slo-retro/references/issue-filing-discipline.md"));
     assert!(
         ref_file.contains("retro-derived"),
         "M4 must not drift M3's locked marker (`retro-derived`)"

@@ -37,10 +37,18 @@ pub struct PathVerdict {
 
 impl PathVerdict {
     pub fn ok(input: String, canonical: PathBuf) -> Self {
-        Self { input, canonical: Some(canonical), reason: None }
+        Self {
+            input,
+            canonical: Some(canonical),
+            reason: None,
+        }
     }
     pub fn reject(input: String, reason: String) -> Self {
-        Self { input, canonical: None, reason: Some(reason) }
+        Self {
+            input,
+            canonical: None,
+            reason: Some(reason),
+        }
     }
     pub fn is_ok(&self) -> bool {
         self.reason.is_none()

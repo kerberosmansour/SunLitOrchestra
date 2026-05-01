@@ -118,8 +118,13 @@ fn tools_toml_has_required_fields() {
 
 #[test]
 fn tla_template_file_exists() {
-    let tmpl = skill_dir().join("templates").join("basic-state-machine.tla.tmpl");
-    assert!(tmpl.exists(), "basic-state-machine template must be present");
+    let tmpl = skill_dir()
+        .join("templates")
+        .join("basic-state-machine.tla.tmpl");
+    assert!(
+        tmpl.exists(),
+        "basic-state-machine template must be present"
+    );
     let body = fs::read_to_string(&tmpl).unwrap();
     assert!(body.contains("MODULE"));
     assert!(body.contains("VARIABLES"));
@@ -146,8 +151,8 @@ fn tla_refuses_verified_without_bounds() {
     // The gate section must include this exact failure case.
     let lower = body.to_lowercase();
     assert!(
-        lower.contains("bound is not stated") || lower.contains("bounds")
-            && lower.contains("refuse"),
+        lower.contains("bound is not stated")
+            || lower.contains("bounds") && lower.contains("refuse"),
         "skill must refuse to mark verified when bounds are missing"
     );
 }
