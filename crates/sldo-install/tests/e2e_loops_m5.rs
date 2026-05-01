@@ -142,7 +142,7 @@ fn slo_resume_no_new_skill_minted() {
 // Compatibility guard: M4's runbook template change must remain.
 #[test]
 fn m4_template_carry_forward_section_unchanged() {
-    let template = read(&repo_root().join("docs/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
     assert!(
         template.contains("Carry-forward from prior retros"),
         "M5 must not silently remove M4's runbook template carry-forward section"
