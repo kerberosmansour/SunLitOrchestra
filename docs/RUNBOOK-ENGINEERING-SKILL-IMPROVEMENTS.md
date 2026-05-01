@@ -131,7 +131,7 @@ No concurrent actors, no distributed state, no ordering guarantees. Decompositio
 
 ## Global Execution Rules
 
-See [docs/runbook-template_v_3_template.md §"Global Execution Rules"](runbook-template_v_3_template.md). Project-specific overrides:
+See [docs/templates/runbook-template_v_3_template.md §"Global Execution Rules"](templates/runbook-template_v_3_template.md). Project-specific overrides:
 
 - The four hard-block predicate IDs in `references/biz/triage-gate.md` are **immutable** by structural-contract test; this runbook does not touch them.
 - Every claim in modified SKILL.md prose touching security-engineering content (Pass 4, ZAP / Dastardly / `cargo audit`, semgrep rule provenance, SAST workflow safety contract) must follow `references/templates/citation-discipline.md`'s source hierarchy. Unverifiable claims removed, not weakened.
