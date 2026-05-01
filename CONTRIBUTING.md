@@ -37,7 +37,7 @@ Thanks for your interest. SunLitOrchestrate is a workflow tool that values expli
 `runbook-template_v_4_template.md` (and v3) lives in **two** places by design:
 
 - `skills/slo-plan/references/runbook-template_v_4_template.md` — the skill-local copy that travels with the skill via `sldo-install`'s symlink. This is what `/slo-plan` reads at runtime, in any project.
-- `docs/templates/runbook-template_v_4_template.md` — the human-browsable mirror visible in this repo on GitHub.
+- `docs/slo/templates/runbook-template_v_4_template.md` — the human-browsable mirror visible in this repo on GitHub.
 
 These two files **must be byte-identical**. A CI test (`crates/sldo-install/tests/e2e_v4_template.rs::v4_skill_local_copy_matches_docs_mirror`) fails loudly if they drift. If you intentionally edit one, copy it over the other and re-run.
 

@@ -18,7 +18,7 @@ Every advisor skill in the biz pack operates on **UK English law** (England & Wa
 
 When an advisor skill detects a non-UK jurisdiction (counterparty in non-UK, work performed in non-UK, governing law specified as non-UK, founder explicitly requests non-UK), the skill MUST emit:
 
-> **v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md) for the v2 design rationale and [docs/research/biz-skill-pack/synthesis.md](../../docs/research/biz-skill-pack/synthesis.md) paragraph 3 for the prior-art evidence (no surveyed legal-templating tool uses shared-prose-with-jurisdiction-flag — Stripe Atlas and Clerky are Delaware-only by design; SeedLegals took six months to localise France). Engage a solicitor / accountant qualified in the relevant jurisdiction.**
+> **v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md) for the v2 design rationale and [docs/slo/research/biz-skill-pack/synthesis.md](../../docs/slo/research/biz-skill-pack/synthesis.md) paragraph 3 for the prior-art evidence (no surveyed legal-templating tool uses shared-prose-with-jurisdiction-flag — Stripe Atlas and Clerky are Delaware-only by design; SeedLegals took six months to localise France). Engage a solicitor / accountant qualified in the relevant jurisdiction.**
 
 The string `v1 supports UK only` and `v2 architectural pivot` are interface — present in the test `non_uk_jurisdiction_arg_rejected`. Skill prose MAY paraphrase the surrounding context but MUST preserve those two phrases.
 

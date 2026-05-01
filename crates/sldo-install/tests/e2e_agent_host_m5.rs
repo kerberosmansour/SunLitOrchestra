@@ -8,7 +8,7 @@
 //!    that is host-neutral; their copy must use neutral wording where the
 //!    behavior does not actually require Claude.
 //! 2. **Explicit Claude-only surfaces remain marked as Claude-only.** The
-//!    capability matrix at `docs/design/agent-host-capabilities.md` must
+//!    capability matrix at `docs/slo/design/agent-host-capabilities.md` must
 //!    keep its honest "Not supported yet" / Claude-only rows. M5 is not a
 //!    repo-wide "replace Claude everywhere" pass.
 
@@ -30,7 +30,7 @@ fn skill(name: &str) -> String {
 }
 
 fn capability_matrix() -> String {
-    fs::read_to_string(repo_root().join("docs/design/agent-host-capabilities.md"))
+    fs::read_to_string(repo_root().join("docs/slo/design/agent-host-capabilities.md"))
         .expect("agent-host-capabilities.md present")
 }
 

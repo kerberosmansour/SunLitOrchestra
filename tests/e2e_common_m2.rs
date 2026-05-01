@@ -9,9 +9,9 @@ use std::path::Path;
 fn parse_v3_template_tracker() {
     // Given: The v3 runbook template (the canonical contract /slo-plan emits)
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    let template_path = Path::new(manifest_dir).join("docs/templates/runbook-template_v_3_template.md");
+    let template_path = Path::new(manifest_dir).join("docs/slo/templates/runbook-template_v_3_template.md");
     let content = std::fs::read_to_string(&template_path)
-        .expect("Failed to read docs/templates/runbook-template_v_3_template.md");
+        .expect("Failed to read docs/slo/templates/runbook-template_v_3_template.md");
 
     // When: parse_tracker is called on the template content
     let rows = sldo_common::runbook::parse_tracker(&content);
@@ -27,9 +27,9 @@ fn parse_v3_template_tracker() {
 fn parse_actual_runbook_tracker() {
     // Given: A real shipped runbook (biz-pack Runbook A — 4 advisor skills, 4 milestones)
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    let runbook_path = Path::new(manifest_dir).join("docs/RUNBOOK-BIZ-SKILL-PACK-A.md");
+    let runbook_path = Path::new(manifest_dir).join("docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md");
     let content = std::fs::read_to_string(&runbook_path)
-        .expect("Failed to read docs/RUNBOOK-BIZ-SKILL-PACK-A.md");
+        .expect("Failed to read docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md");
 
     // When: parse_tracker is called on the actual runbook
     let rows = sldo_common::runbook::parse_tracker(&content);

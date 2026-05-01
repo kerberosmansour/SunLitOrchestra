@@ -28,11 +28,11 @@ If this is your first time here, start with [docs/getting-started.md](docs/getti
 
 The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md).
 
-The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/templates/runbook-template_v_4_template.md](docs/templates/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/templates/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
+The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/slo/templates/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
 
 ## Pick a starting point
 
-- **New feature or product idea**: run `/slo-ideate` and expect `docs/idea/<slug>.md` as the first artifact.
+- **New feature or product idea**: run `/slo-ideate` and expect `docs/slo/idea/<slug>.md` as the first artifact.
 - **Existing idea doc or known problem**: start at `/slo-research` or `/slo-architect`, depending on whether you still need external evidence.
 - **Interrupted runbook**: run `/slo-resume`. It reads the tracker and suggests the next move without starting work for you.
 - **Security-only adoption**: jump straight to `/slo-rulegen` or `/slo-sast`.
@@ -123,7 +123,7 @@ CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-W
 - Claude Code remains the default host if you omit `--host`.
 - Headless runtime automation is still host-specific today.
 - `sldo-research` as a batch backend and the live business judgment runtime harness are still Claude-only today.
-- For exact boundaries, read [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md).
+- For exact boundaries, read [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md).
 
 ## Full skill map
 
@@ -131,7 +131,7 @@ The README is the orientation page. For the full host-neutral skill list, output
 
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
 - [docs/getting-started.md](docs/getting-started.md) — first-run path with exact commands and expected results
-- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — what works in Claude Code, GitHub Copilot, or both
+- [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — what works in Claude Code, GitHub Copilot, or both
 - [CLAUDE.md](CLAUDE.md) — Claude Code overlay
 - [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — design philosophy: more internal discipline, less user-visible ceremony
@@ -169,11 +169,11 @@ Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
-- [docs/templates/runbook-template_v_4_template.md](docs/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
-- [docs/templates/runbook-template_v_3_template.md](docs/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
+- [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
+- [docs/slo/templates/runbook-template_v_3_template.md](docs/slo/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
 - [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
 - [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
-- [docs/design/agent-host-capabilities.md](docs/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
+- [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — why the pack prefers more internal discipline with less user-visible ceremony
 - [SECURITY.md](SECURITY.md) — project-wide security defaults
 - [CLAUDE.md](CLAUDE.md) — Claude Code overlay
@@ -181,17 +181,17 @@ Start here:
 
 Skill-pack design:
 
-- [docs/idea/biz-skill-pack.md](docs/idea/biz-skill-pack.md) — biz-pack idea doc + locked decisions
-- [docs/design/biz-skill-pack-overview.md](docs/design/biz-skill-pack-overview.md) — biz-pack design overview
-- [docs/design/biz-skill-pack-threat-model.md](docs/design/biz-skill-pack-threat-model.md) — STRIDE × abuse cases × compliance
-- [docs/design/sast-rulegen-skill-pack-overview.md](docs/design/sast-rulegen-skill-pack-overview.md) — SAST rule pack design
+- [docs/slo/idea/biz-skill-pack.md](docs/slo/idea/biz-skill-pack.md) — biz-pack idea doc + locked decisions
+- [docs/slo/design/biz-skill-pack-overview.md](docs/slo/design/biz-skill-pack-overview.md) — biz-pack design overview
+- [docs/slo/design/biz-skill-pack-threat-model.md](docs/slo/design/biz-skill-pack-threat-model.md) — STRIDE × abuse cases × compliance
+- [docs/slo/design/sast-rulegen-skill-pack-overview.md](docs/slo/design/sast-rulegen-skill-pack-overview.md) — SAST rule pack design
 
 Per-runbook detail:
 
-- [docs/RUNBOOK-BIZ-SKILL-PACK-A.md](docs/RUNBOOK-BIZ-SKILL-PACK-A.md) — biz-pack 4 advisor skills
-- [docs/RUNBOOK-BIZ-SKILL-PACK-B1.md](docs/RUNBOOK-BIZ-SKILL-PACK-B1.md), [B2](docs/RUNBOOK-BIZ-SKILL-PACK-B2.md), [C](docs/RUNBOOK-BIZ-SKILL-PACK-C.md) — biz-pack 11 generator skills
-- [docs/RUNBOOK-SAST-RULEGEN-A.md](docs/RUNBOOK-SAST-RULEGEN-A.md) — SAST rule pack 10/10
-- [docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md](docs/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md) — judgment-runtime test harness
+- [docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md](docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md) — biz-pack 4 advisor skills
+- [docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-B1.md](docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-B1.md), [B2](docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-B2.md), [C](docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-C.md) — biz-pack 11 generator skills
+- [docs/slo/completed/RUNBOOK-SAST-RULEGEN-A.md](docs/slo/completed/RUNBOOK-SAST-RULEGEN-A.md) — SAST rule pack 10/10
+- [docs/slo/completed/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md](docs/slo/completed/RUNBOOK-BIZ-PACK-JUDGMENT-RUNTIME.md) — judgment-runtime test harness
 
 ## Contributing
 

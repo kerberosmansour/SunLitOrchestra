@@ -7,7 +7,7 @@
 //! real target repo); they assert the documented shape is correct so M2-M5 can
 //! rely on it and so smoke tests can validate runtime behavior.
 //!
-//! BDD scenarios from `docs/RUNBOOK-SCANNER-ORCHESTRATION.md` Milestone 1 are
+//! BDD scenarios from `docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md` Milestone 1 are
 //! mapped to structural assertions here. Smoke tests (in the runbook's
 //! Smoke Tests section) cover end-to-end runtime invocation.
 

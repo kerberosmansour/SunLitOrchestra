@@ -80,7 +80,7 @@ These skills generate exactly one primary artifact each.
 
 ## Shared invariants
 
-- Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
+- Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
 - `README.md` is the orientation doc, `docs/getting-started.md` is the first-run guide, and this file is the host-neutral skill catalog.
 - Host overlays must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
 - `references/biz/` and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.

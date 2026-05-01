@@ -1,6 +1,6 @@
 # SunLitOrchestrate Architecture
 
-> **Reality-first orientation doc**: this file describes what is implemented at HEAD. Planned work belongs in `docs/design/*.md` and in feature runbooks.
+> **Reality-first orientation doc**: this file describes what is implemented at HEAD. Planned work belongs in `docs/slo/design/*.md` and in feature runbooks.
 
 ## Overview
 
@@ -21,7 +21,7 @@ The repo no longer ships `sldo-plan`, `sldo-run`, or `sldo-tauri` as active work
 | `docs/skill-pack-catalog.md` | Canonical living catalog of shipped skills |
 | `CLAUDE.md` | Claude Code overlay for the catalog |
 | `copilot-instructions.md` | GitHub Copilot overlay for the catalog |
-| `docs/design/agent-host-capabilities.md` | Capability matrix for install, interactive use, and runtime boundaries |
+| `docs/slo/design/agent-host-capabilities.md` | Capability matrix for install, interactive use, and runtime boundaries |
 
 ## Skill pack
 
@@ -44,7 +44,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
 - **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md` and `copilot-instructions.md` are overlays, not competing sources of truth.
-- **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
+- **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`. Local installs land in `./.claude/skills/` or `./.copilot/skills/`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
@@ -134,7 +134,7 @@ The skill pack improves itself through cyclic feedback structures that are not v
 - [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — sprint loop, security-tuning loop, lessons loop, library-feedback loop.
 - [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — user-interview loop, GTM loop, pricing loop, founder-check loop.
 
-The lessons loop is the canonical example: `/slo-retro` writes `docs/lessons/<prefix>-m<N>.md` at every milestone close, classifies each lesson, dedupes via `gh search`, and files tracked issues with explicit user confirmation (rules locked in [`skills/slo-retro/references/issue-filing-discipline.md`](../skills/slo-retro/references/issue-filing-discipline.md)); `/slo-execute` pre-flight Step 1.5 then queries open `retro-derived` issues for the runbook's prefix and surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); `/slo-resume` compresses the result back to one screen.
+The lessons loop is the canonical example: `/slo-retro` writes `docs/slo/lessons/<prefix>-m<N>.md` at every milestone close, classifies each lesson, dedupes via `gh search`, and files tracked issues with explicit user confirmation (rules locked in [`skills/slo-retro/references/issue-filing-discipline.md`](../skills/slo-retro/references/issue-filing-discipline.md)); `/slo-execute` pre-flight Step 1.5 then queries open `retro-derived` issues for the runbook's prefix and surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); `/slo-resume` compresses the result back to one screen.
 
 ## Current host boundaries
 
@@ -149,4 +149,4 @@ The current host line is simple:
 - `/slo-rulegen` and `/slo-sast` are host-neutral; their subprocess discipline targets `git`, `gh`, and `semgrep` rather than any agent CLI.
 - The live business judgment runtime harness remains a Claude-only path. The helper module (`crates/sldo-install/tests/common/claude_runtime.rs`) and its env vars (`BIZ_JUDGMENT_RUNTIME_*`) are explicitly Claude-named.
 
-Read `docs/design/agent-host-capabilities.md` before making any stronger host-compatibility promise than that.
+Read `docs/slo/design/agent-host-capabilities.md` before making any stronger host-compatibility promise than that.

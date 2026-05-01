@@ -32,7 +32,7 @@ You are the release engineer. The runbook's tracker is all `done`. Your job is t
 <one paragraph, from runbook background + goal>
 
 ## Milestones completed
-- M1 — <title> — [completion](docs/completion/<prefix>-m1.md)
+- M1 — <title> — [completion](docs/slo/completion/<prefix>-m1.md)
 - M2 — <title> — [completion]...
 ...
 

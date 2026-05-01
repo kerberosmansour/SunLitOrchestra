@@ -8,7 +8,7 @@
 //! rely on it.
 //!
 //! BDD scenarios and E2E validations are taken verbatim from
-//! `docs/RUNBOOK-SLO-SECURITY-EMBEDDING.md` Milestone 1.
+//! `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` Milestone 1.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -202,7 +202,7 @@ fn ideate_existing_idea_doc_still_reads() {
     // valid Markdown with frontmatter. We use the biz-skill-pack idea doc
     // as a fixture — it predates the security-embedding milestone's Q7
     // additions and so represents the pre-update shape.
-    let doc = read(&repo_root().join("docs/idea/biz-skill-pack.md"));
+    let doc = read(&repo_root().join("docs/slo/idea/biz-skill-pack.md"));
     assert!(
         doc.starts_with("---\n"),
         "existing idea doc must retain YAML frontmatter shape"
@@ -485,9 +485,9 @@ fn existing_runbooks_still_parse() {
     // / RUNBOOK-TLA-SHA-AUTOPOP — were removed in the 2026-04 cleanup;
     // re-pointed at the surviving biz + sast runbooks.)
     let runbook_files = [
-        "docs/RUNBOOK-BIZ-SKILL-PACK-A.md",
-        "docs/RUNBOOK-BIZ-SKILL-PACK-B1.md",
-        "docs/RUNBOOK-SLO-SEC-LIBS.md",
+        "docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md",
+        "docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-B1.md",
+        "docs/slo/future/RUNBOOK-SLO-SEC-LIBS.md",
     ];
     for rb in runbook_files {
         let body = read(&repo_root().join(rb));
@@ -499,12 +499,12 @@ fn existing_runbooks_still_parse() {
 }
 
 // ---------------------------------------------------------------------------
-// E2E invariant: docs/templates/runbook-template_v_3_template.md has not been touched.
+// E2E invariant: docs/slo/templates/runbook-template_v_3_template.md has not been touched.
 // ---------------------------------------------------------------------------
 
 #[test]
 fn v3_template_not_modified() {
-    let template = read(&repo_root().join("docs/templates/runbook-template_v_3_template.md"));
+    let template = read(&repo_root().join("docs/slo/templates/runbook-template_v_3_template.md"));
     // A few stable sections that should remain present and unchanged in wording.
     assert!(template.contains("## Runbook Metadata"));
     assert!(template.contains("## Milestone Tracker"));

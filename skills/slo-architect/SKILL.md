@@ -15,8 +15,8 @@ You are a staff engineer who must decide now, not later. You have an idea doc, a
 
 ## Inputs
 
-- `docs/idea/<slug>.md`
-- `docs/research/<slug>/dossier.md` and `synthesis.md`
+- `docs/slo/idea/<slug>.md`
+- `docs/slo/research/<slug>/dossier.md` and `synthesis.md`
 - The target repo (run `git ls-files` or inspect `package.json` / `Cargo.toml` / `go.mod` to detect stack if brownfield).
 
 ## Outputs
@@ -24,12 +24,12 @@ You are a staff engineer who must decide now, not later. You have an idea doc, a
 Five files (creating or updating as appropriate):
 
 1. `ARCHITECTURE.md` at the target repo root (or `docs/ARCHITECTURE.md` per repo convention) — component diagram + data flow + trust boundaries + legend.
-2. `docs/design/<slug>-stack-decision.md` — chosen stack, rejected alternatives with reasons.
-3. `docs/design/<slug>-interfaces.md` — public APIs, commands, events, persisted-state shapes that downstream milestones must keep stable.
+2. `docs/slo/design/<slug>-stack-decision.md` — chosen stack, rejected alternatives with reasons.
+3. `docs/slo/design/<slug>-interfaces.md` — public APIs, commands, events, persisted-state shapes that downstream milestones must keep stable.
 4. `SECURITY.md` at the target repo root — project-wide security rules, generated from `references/SECURITY-md-template.md`. Emitted when `security_libs_required: true` OR the idea doc's `## Top risks` block is non-trivial. This file is read by every downstream agent before generating code (the "project-wide security defaults" contract).
-5. `docs/design/<slug>-threat-model.md` — STRIDE per component + abuse cases + compliance mapping, generated from `references/threat-model-template.md`. Always emitted (even for small systems — `N/A — <reason>` rows are valid).
+5. `docs/slo/design/<slug>-threat-model.md` — STRIDE per component + abuse cases + compliance mapping, generated from `references/threat-model-template.md`. Always emitted (even for small systems — `N/A — <reason>` rows are valid).
 
-Set three frontmatter keys in `docs/design/<slug>-overview.md`:
+Set three frontmatter keys in `docs/slo/design/<slug>-overview.md`:
 
 - `tla_required: <bool>` — how `/slo-tla` knows whether to run (see Step 5).
 - `security_libs_required: <bool>` — how `/slo-sec-libs` (Phase 4 of the security-embedding work) knows whether to recommend Hulumi / SunLitSecureLibraries components. Default when absent: `false`.
@@ -77,7 +77,7 @@ Before locking interfaces, produce the security artifacts. This is the 80/20 bur
    For each cell, write one of: `eliminated by <control>`, `mitigated by <control>`, `N/A — <reason>`, or `residual risk — <path>`. Class-elimination framing (not bug-instance) is the standard `/slo-critique` consumes downstream.
 3. **Generate three abuse cases per new surface** (endpoint, IPC handler, file path written, outbound request, subprocess invocation). Each abuse case has an attacker, an attack step, a desired outcome, a control, and a stable id (`tm-<slug>-abuse-N`) that `/slo-plan` M2+ cites in milestone BDD scenarios.
 4. **Emit `SECURITY.md`** at the target repo root using `references/SECURITY-md-template.md`. Fill every `{{PLACEHOLDER}}` — never leave blank; use `N/A — <reason>` when a section does not apply. **User-provided strings from the idea doc (Top risks, etc.) are always wrapped in a `~~~text` fence** so Markdown / HTML / YAML metacharacters are literal, not interpretable. This rule is non-negotiable — it is the defense against template-placeholder injection.
-5. **Emit `docs/design/<slug>-threat-model.md`** using `references/threat-model-template.md`. Same `~~~text` fence rule for user strings. Populate the AI-specific section only when `ai_component: true`. GDPR gets both a column and a section when `gdpr` is in the `compliance:` list.
+5. **Emit `docs/slo/design/<slug>-threat-model.md`** using `references/threat-model-template.md`. Same `~~~text` fence rule for user strings. Populate the AI-specific section only when `ai_component: true`. GDPR gets both a column and a section when `gdpr` is in the `compliance:` list.
 6. **Set the frontmatter keys** in `<slug>-overview.md`: `security_libs_required`, `ai_component`, `compliance`. Types: bool, bool, list-of-allowed-strings. Values outside the allowed set are a user error — surface the problem, do not coerce.
 7. **Re-run behavior (idempotency).** If `SECURITY.md` or `<slug>-threat-model.md` already exists (i.e., `/slo-architect` has run before), do NOT silently clobber. Detect the existing file, diff against what would be regenerated, surface the diff to the user, and prompt: **overwrite** (apply regeneration), **merge** (preserve user edits where possible; regenerate only untouched sections), or **skip** (leave the file alone). Default on missing user input: prompt again; never overwrite by default.
 
@@ -85,7 +85,7 @@ After Step 3.5, the threat model is the artifact `/slo-plan`, `/slo-critique`, a
 
 ### 4. Lock down interfaces
 
-Write `docs/design/interfaces.md`. List every interface downstream milestones must not rename or reshape without explicit migration work:
+Write `docs/slo/design/interfaces.md`. List every interface downstream milestones must not rename or reshape without explicit migration work:
 
 - Public APIs / routes
 - IPC commands / events

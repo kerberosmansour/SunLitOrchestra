@@ -16,17 +16,17 @@ You are a formal-methods engineer who has seen a lot of "this looks fine on a wh
 
 ## Inputs
 
-- A design doc, usually at `docs/design/<slug>-overview.md` from `/slo-architect`, or a hand-written design.
+- A design doc, usually at `docs/slo/design/<slug>-overview.md` from `/slo-architect`, or a hand-written design.
 - Optionally, an existing spec at `specs/<name>.tla` to extend.
 
 ## Outputs
 
-Four artifacts under `specs/` and `docs/design/`:
+Four artifacts under `specs/` and `docs/slo/design/`:
 
 1. `specs/<name>.tla` — the TLA+ spec.
 2. `specs/<name>.cfg` — TLC config (constants, invariants, temporal properties, bounds).
 3. `specs/<name>.trace.md` — counterexamples TLC produced, translated to plain-English sequences.
-4. `docs/design/<name>-verified.md` — the validated design writeup.
+4. `docs/slo/design/<name>-verified.md` — the validated design writeup.
 
 If a v3 runbook exists for this slug, patch its "High-Level Design for Formal Verification" section.
 
