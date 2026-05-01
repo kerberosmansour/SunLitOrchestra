@@ -3,6 +3,7 @@
 > **Purpose**: Capture reusable project-level ideas from OWASP Secure Agent Playbook and adapt them to SunLitOrchestrate without turning SLO into a generic security-assessment playbook.
 > **Status**: not_started. The small shared security-reporting template layer has landed in `references/security/`; the remaining items below need normal `/slo-ideate -> /slo-plan` treatment before implementation.
 > **Source reviewed**: `/Users/sherifmansour/Dev/GitHub/secure-agent-playbook` project layout, agents, skills, plays, templates, examples, plugin metadata, and release workflow.
+> **Design write-up**: [docs/slo/design/secure-agent-playbook-imports-overview.md](../design/secure-agent-playbook-imports-overview.md).
 
 ## What is worth borrowing
 
@@ -32,4 +33,3 @@
 - Keep SLO's primary identity: runbook-driven software delivery. Security assessment remains a woven-in discipline, not the whole product.
 - Any GitHub Actions workflow added for packaging must pin third-party actions by SHA, matching `SECURITY.md` and SAST workflow discipline.
 - Examples must be synthetic and must not include personal data, real secrets, or confidential `docs/biz/` content.
-
