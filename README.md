@@ -221,14 +221,20 @@ This project adopts the [Contributor Covenant 2.1](https://www.contributor-coven
 
 ## License
 
+Copyright 2026 Sherif Mansour. An open-source project by Sherif Mansour.
+
 Dual-licensed under either of:
 
 - [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - [MIT license](https://opensource.org/licenses/MIT)
 
-at your option (see [LICENSE](LICENSE) for both texts). Pick whichever fits your project; you do not need to comply with both.
+at your option (see [LICENSE](LICENSE) for both texts, and [NOTICE](NOTICE) for the project-level copyright notice). Pick whichever fits your project; you do not need to comply with both.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions. Contributions require a Developer Certificate of Origin sign-off — see [CONTRIBUTING.md](CONTRIBUTING.md#sign-off--developer-certificate-of-origin).
+
+## Trade-marks
+
+**SunLitOrchestrate** and the associated logo are unregistered trade-marks of Sherif Mansour. The Apache-2.0 / MIT licences grant rights in the code, not in the name or logo — see [TRADEMARKS.md](TRADEMARKS.md) for what permission you do and do not need.
 
 ## Acknowledgements
 
