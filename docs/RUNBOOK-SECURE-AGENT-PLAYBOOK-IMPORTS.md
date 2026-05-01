@@ -357,6 +357,16 @@ Do this after every milestone.
 
 ## 9. Background Context
 
+### Threat-model artifact decision (per F-SEC-1 critique resolution)
+
+This runbook does **not** ship a separate `docs/slo/design/secure-agent-playbook-imports-threat-model.md` produced by `/slo-architect` Step 3.5. Abuse cases are intentionally embedded inline in each milestone's Contract Block as `tm-sap-imp-abuse-<N>` rows (currently 1–15) for the following reasons:
+
+1. **No runtime trust boundary.** Every milestone changes Markdown skill prose, structural-contract Rust tests, an example gallery, an optional GitHub Actions workflow, and optional agent files. There is no new application endpoint, IPC handler, persisted state, or outbound network surface that warrants a STRIDE-shaped threat model.
+2. **Embedded rows are exhaustive for the new surfaces.** The 15 inline `tm-sap-imp-abuse-*` rows cover every new surface introduced (SKILL.md citation pattern, examples PII leakage, standards mapping freshness, plugin.json path traversal, release workflow supply chain, agent output paths). A separate STRIDE pass would re-state the same rows in a different shape without surfacing additional classes.
+3. **Compatible with downstream tooling.** Future critique passes consult the embedded rows directly via the runbook line numbers; `/slo-execute` Step 1.5 carry-forward query and `/slo-retro` issue filing both reference `tm-<slug>-abuse-<N>` ids by string match without requiring a separate file.
+
+If a future runbook in this series introduces a runtime trust boundary (e.g., a new IPC handler, a new persisted-state surface, or a new outbound HTTP call), the threat-model file MUST be authored separately at that point — the inline-rows precedent applies only to Markdown / configuration / structural-contract test work.
+
 ### Current State
 
 - `references/security/security-finding-template.md` and `references/security/security-assessment-summary-template.md` exist and are cited by `/slo-critique` and `/slo-verify` (verified by grep at runbook authoring).
@@ -1481,6 +1491,9 @@ Note: M1 cites `/slo-rulegen` for the *finding template*; M3 additionally cites 
 | Deferred path: no agents, test passes vacuously | happy path | M4 matrix decision = not-supported; `agents/` directory absent | structural-contract test runs | Test passes (vacuous); lessons file contains deferred-note + fresh-runbook handoff |
 | 5th agent caught | resource bound (`tm-sap-imp-abuse-12`) | A test fixture with 5 agent files | structural-contract test runs | Test fails with "expected ≤ 4 agents, found 5" |
 | Out-of-allowed-set output path caught | invalid input (`tm-sap-imp-abuse-13`) | A test fixture agent with `output-paths: [docs/slo/agent-only/]` | structural-contract test runs | Test fails citing the agent + offending path |
+| Path-traversal in output path caught | invalid input (F-SEC-6) | A test fixture agent with `output-paths: [docs/slo/critique/../../../etc/passwd]` | structural-contract test runs | Test fails with "output-path contains `..` traversal segment — canonicalized path escapes allowed prefix" |
+| Absolute output path caught | invalid input (F-SEC-6) | A test fixture agent with `output-paths: [/etc/passwd]` | structural-contract test runs | Test fails with "output-path is absolute — relative paths only" |
+| Agent-output format mismatch caught | invalid input (F-ENG-7) | M5 manual invocation produces `docs/slo/critique/test-runbook.md` missing the findings-table header | schema-validation step runs as part of smoke test | Test fails citing the artifact + missing required section; runbook compatibility commitment ("agents and persona rotation produce the same shape") preserved |
 | Missing copilot-fallback caught | invalid input (`tm-sap-imp-abuse-14`) | A test fixture agent without the field | structural-contract test runs | Test fails with "missing copilot-fallback field" |
 | Agent file > 200 lines | resource bound | A test fixture agent at 240 lines | structural-contract test runs | Test fails with line count + cap |
 | `/slo-critique` SKILL.md modified | invalid input | A diff that modifies `/slo-critique` SKILL.md alongside agent additions | structural-contract test runs (with M5 invariant on canonical-path preservation) | Test fails with "M5 must not modify /slo-critique SKILL.md" |

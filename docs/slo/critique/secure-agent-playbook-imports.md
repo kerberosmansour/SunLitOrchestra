@@ -5,6 +5,7 @@
 > **Personas run**: CEO, eng-lead, security; design = N/A (no UI surface)
 > **Skill**: `/slo-critique` (executed manually — skill not registered with the Skill tool)
 > **Confidence gate**: every accepted finding rated ≥8/10. Lower-confidence concerns dropped per skill anti-pattern "Writing findings the user will immediately waive."
+> **Resolution status (2026-05-01)**: User decision was "accept SEC + ENG, defer F-CEO-1". 13 findings applied inline to the runbook; 1 deferred. See Resolution Log below.
 
 ## Threat-model gap (process)
 
@@ -174,28 +175,34 @@ Local-only secrets, build artifacts, or misconfigured files leak into a public a
 
 ---
 
-## Decisions requested from you
+## Resolution Log
 
-Per the skill's discipline (auto-fixes applied inline; everything else is `ask`), no auto-fixes were applied. Please decide each `ask`:
+User decision (2026-05-01): "accept SEC + ENG, defer F-CEO-1". 13 findings applied; 1 deferred.
 
-| id | accept (apply edit) / decline (skip) / defer (track-not-now) |
-|---|---|
-| F-CEO-1 | drop M5 — accept / decline / defer |
-| F-ENG-1 | pin parser strategy in M1 — accept / decline / defer |
-| F-ENG-2 | M2 `abbreviates:` resolution rule — accept / decline / defer |
-| F-ENG-3 | M2 no-skill-references-examples assertion — accept / decline / defer |
-| F-ENG-4 | M3 walk-live-critique-outputs — accept / decline / defer |
-| F-ENG-5 | M4 SHA-pin glob + trigger-set — accept / decline / defer |
-| F-ENG-6 | M5 stable hash baseline — accept / decline / defer |
-| F-ENG-7 | M5 agent-output-format BDD row — accept / decline / defer |
-| F-SEC-1 | author canonical threat-model file (or runbook note) — accept / decline / defer |
-| F-SEC-2 | extend M2 PII regex to non-UK locales — accept / decline / defer |
-| F-SEC-3 | M4 plugin.json `..` rejection — accept / decline / defer |
-| F-SEC-4 | M4 explicit `permissions:` block requirement — accept / decline / defer |
-| F-SEC-5 | M4 `git archive` mandate + content smoke test — accept / decline / defer |
-| F-SEC-6 | M5 path-component canonicalization — accept / decline / defer |
+| id | decision | applied at runbook section |
+|---|---|---|
+| F-CEO-1 | **deferred** — M5 stays in this runbook; user may revisit after M4 closes and the host capability matrix publishes | — |
+| F-ENG-1 | **applied** — M1 Contract Block: pulldown-cmark AST parser pinned in Invariants row (e); regex-based citation counting added to Forbidden shortcuts | M1 Contract Block (line ~588, ~591) |
+| F-ENG-2 | **applied** — M2 Invariants row (d): `abbreviates:` resolves via either skill-name walk OR filesystem path check; new BDD scenarios for both happy paths | M2 Contract Block + BDD (line ~783, ~852) |
+| F-ENG-3 | **applied** — M2 Invariants row (f): no shipped SKILL.md links to `examples/` (enforced via M1's pulldown-cmark walk); new E2E test `no_skill_links_to_examples`; new BDD scenario | M2 Contract Block + BDD + E2E (line ~783, ~847, ~888) |
+| F-ENG-4 | **applied** — M3 Invariants row (f): threshold-rule walks live `docs/slo/critique/*.md` AND `docs/slo/verify/*.md` (vacuous-pass when empty); new E2E test `live_critique_and_verify_findings_have_cwe` | M3 Contract Block + E2E (line ~986, ~1090) |
+| F-ENG-5 | **applied** — M4 Invariants row (a) + (h): glob extended to `.github/{workflows,actions}/**/*.{yml,yaml}`; trigger-acceptable-set enumerated `{tags, release, workflow_dispatch, schedule}`; forbidden `{push to default, pull_request}`. E2E test `release_workflow_trigger_in_acceptable_set` replaces `release_workflow_is_tag_triggered` | M4 Contract Block + E2E (line ~1190, ~1296) |
+| F-ENG-6 | **applied** — M5 Invariants row (f): SHA-256 hash pinned as const in test file (replaces fragile `git show HEAD:` baseline); E2E test `slo_critique_skill_md_unchanged` rewritten | M5 Contract Block + E2E (line ~1413, ~1528) |
+| F-ENG-7 | **applied** — M5 Invariants row (g): agent-output schema validation against `/slo-critique` artifact contract; new E2E test `agent_output_artifact_schema_valid`; new BDD scenario "Agent-output format mismatch caught" | M5 Contract Block + E2E + BDD (line ~1413, ~1530, ~1485) |
+| F-SEC-1 | **applied (option b)** — runbook §9 gains a "Threat-model artifact decision" subsection documenting the inline-abuse-cases choice with three reasons + a rule for when a separate threat-model file becomes mandatory | Section 9 (line ~360) |
+| F-SEC-2 | **applied** — M2 Invariants row (c): PII regex set extended to include US SSN + EU IBAN (alongside existing email + UK NI + UK sort code); new BDD scenarios for US SSN and EU IBAN match-detection; E2E test `examples_pii_pattern_scan_clean` updated | M2 Contract Block + BDD + E2E (line ~783, ~847, ~886) |
+| F-SEC-3 | **applied** — M4 Invariants row (b): plugin.json path-valued fields canonicalized via `Path::components()`; rejects `Component::ParentDir` and absolute paths; new E2E test `plugin_json_paths_are_safe`; new Forbidden shortcut + Files Allowed To Change row update | M4 Contract Block + E2E (line ~1190, ~1224, ~1300) |
+| F-SEC-4 | **applied (≥9/10 confidence)** — M4 Invariants row (f): every `.github/workflows/*.yml` MUST have a top-level explicit `permissions:` block; release workflow scoped to `contents: write` only; new E2E test `every_workflow_has_explicit_permissions_block`; new Forbidden shortcut + Files Allowed To Change row update | M4 Contract Block + E2E (line ~1190, ~1224, ~1297) |
+| F-SEC-5 | **applied** — M4 Invariants row (g): release zip MUST be generated via `git archive --format=zip --prefix=sunlit-orchestrate-${TAG}/ HEAD -o release.zip` (not `tar`/`cp`/`zip` of working dir); new E2E tests `release_workflow_uses_git_archive` + `release_zip_content_subset_of_git_ls_files`; new Forbidden shortcut + Files Allowed To Change row update | M4 Contract Block + E2E (line ~1190, ~1224, ~1303) |
+| F-SEC-6 | **applied** — M5 Invariants row (c): output-path entries canonicalized via `Path::components()`; rejects `Component::ParentDir` and absolute paths; new BDD scenarios "Path-traversal in output path caught" + "Absolute output path caught"; E2E test `every_output_path_in_allowed_set` rewritten | M5 Contract Block + BDD + E2E (line ~1413, ~1485, ~1525) |
 
-Once decisions land, the runbook is unblocked for `/slo-execute M1`.
+Each `applied` finding is linked to the runbook line where the change landed. The runbook's pre-flight (Section 7) and Carmack reliability rules (Section 4) are unchanged — only milestone-scoped Contract Blocks, BDD scenarios, and E2E test entries received edits.
+
+The runbook is now unblocked for `/slo-execute M1`.
+
+### F-CEO-1 deferral note
+
+F-CEO-1 was deferred — M5 remains in this runbook. The user may revisit the scope question after M4 closes and the host capability matrix publishes. If the matrix says agents are not supported on GitHub Copilot and the deferred branch fires, M5 will close with only a lessons file, and a follow-up runbook decision can be made at that point.
 
 ## Notes
 
