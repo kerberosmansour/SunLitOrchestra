@@ -1,22 +1,108 @@
 # SunLitOrchestrate
 
-> An AI-first workflow that turns "build this" into scoped, reviewable, testable work. SunLitOrchestrate adds durable guardrails around LLM execution: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
+> A contract-driven workflow for AI-assisted software delivery. SunLitOrchestrate turns "build this" into scoped, reviewable, testable work, with security considerations and durable guardrails wired in at every stage: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
 
-## Why SunLitOrchestrate
+Three contributions make this pack distinct: **(1) a runbook artifact that bakes best practices into every milestone**, **(2) security wired into every step rather than bolted on at the end**, and **(3) an opt-in TLA+ formal-specification stage for designs that need it**. See [What makes SunLitOrchestrate different](#what-makes-sunlitorchestrate-different) for what each one actually buys you.
 
-SunLitOrchestrate is for teams who like fast LLM output but dislike silent scope drift, missing rationale, and lessons that die in chat history.
+**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL. **Status:** active development. The skill pack and Rust CLIs are stable.
 
-- **Stop silent scope widening**: every feature lives in a `docs/RUNBOOK-<feature>.md` with allowed files, forbidden shortcuts, BDD scenarios, abuse cases, and regression tests.
-- **Preserve the why**: research dossiers, threat models, runbooks, lessons, and completion summaries survive across sessions and reviewers.
-- **Add formal rigor where it matters**: `/slo-tla` gives the workflow an explicit TLA+ step for designs with real concurrency, ordering, or protocol risk, so the system can be challenged as a spec before it is implemented as code.
-- **Keep follow-ups alive**: `/slo-retro` captures what was learned, and `/slo-resume` is the "what next?" entrypoint when work gets interrupted.
-- **Default to reviewability**: the pack prefers explicit contracts, adversarial critique, and verification over "the model will probably remember".
+## The problem
+
+LLM-assisted development is fast at producing code and slow at producing the things that make code useful afterwards: a clear scope, a recorded rationale, an honest threat model, an executable verification plan, and lessons that survive the next conversation. The default failure modes are easy to recognise:
+
+- **Silent scope drift** — the model "helpfully" rewrites adjacent files; the diff balloons; review becomes a coin flip.
+- **Lost rationale** — the *why* lives in a chat transcript that no one reads three weeks later.
+- **Verification theatre** — "the tests pass" without a written contract for what the tests are supposed to prove.
+- **Security as an afterthought** — threat modelling, SAST, and abuse cases happen (if at all) after the code is already merged.
+- **Lessons that die in chat** — the same mistake gets re-made next sprint because nothing was captured outside the session.
+
+The bet behind SunLitOrchestrate is that these failures are not LLM limitations — they are *workflow* limitations. The model can produce strong work when the surrounding workflow forces it to commit to scope, rationale, and verification before code is written.
+
+## What SunLitOrchestrate is
+
+A **skill pack** — a set of `/slo-*` slash commands installed into a host AI coding agent (Claude Code by default, GitHub Copilot also supported) — plus a small Rust toolchain that installs the pack, provides an optional batch backend for `/slo-research`, and runs a Semgrep rule gate (`cargo xtask sast-verify`) wired to the SAST skills.
+
+The pack is organised around three workflows that compose:
+
+1. **Core sprint flow** — `/slo-ideate → /slo-research → /slo-architect → /slo-plan → /slo-critique → /slo-execute → /slo-verify → /slo-retro → /slo-ship`. Each stage produces a versioned artifact under `docs/` that the next stage (and the next reviewer) can rely on. Optional `/slo-tla` adds a TLA+ model-check step for designs with real concurrency, ordering, or protocol risk.
+2. **Security + SAST** — `/slo-rulegen`, `/slo-ruleverify`, `/slo-sast`. A 10/10 CWE Semgrep rule pack is included, gated by CI.
+3. **UK biz pack (v1)** — 15 founder, GTM, pricing, legal, accounting, equity, and hiring artifact skills, with mandatory hard-block gates (regulated work, large counterparties, GDPR, IR35) and confidential-vs-public output tiers.
+
+The raw `SKILL.md` contract is agent-neutral, so the pack is portable between hosts. Canonical list: [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md).
+
+## What makes SunLitOrchestrate different
+
+Three contributions distinguish this pack from other AI-coding workflows. Everything else in the project exists to support them.
+
+### 1. The runbook artifact — a template that bakes in best practices
+
+Every feature is bound to a `docs/RUNBOOK-<feature>.md` produced by `/slo-plan` against the canonical [v4 runbook template](docs/slo/templates/runbook-template_v_4_template.md). The template *is* the contribution — it forces every milestone, before any code is written, to declare:
+
+- **Scope** — exactly which files are allowed and which shortcuts are forbidden, so out-of-scope edits become contract violations rather than judgment calls the model gets to make on its own.
+- **Behaviour** — BDD scenarios for the golden path, *plus* explicit abuse cases for the failure modes an attacker or careless caller would hit.
+- **Verification** — the regression tests that close the loop, the interface contracts the milestone must respect, and the gates `/slo-verify` will run.
+- **Reliability** — Carmack-style controls layered on top of v3: debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable".
+- **Carry-forward** — lessons and threat-model deltas pulled from prior retros, so each runbook *learns* from the last one rather than starting blank.
+
+The runbook outlives the LLM session that produced it. It is what the next reviewer reads, what the next runbook inherits from, and what the project's institutional memory is recorded in. Best practices stop being something you have to remember to apply — they are baked into the artifact you cannot avoid producing.
+
+### 2. Security on every step, not a separate phase
+
+Most AI-coding workflows treat security as a closing checklist or a separate audit pass. SunLitOrchestrate wires it into the sprint flow from the very first stage, and threads it forward through every subsequent one:
+
+- **`/slo-ideate`** — before any architecture exists, ideation asks: *"what is the worst day this system causes?"* The output must name three concrete failure outcomes — a breach (which data leaves the trust boundary, to whom), a compliance fine (which regulation, what scale), or a prolonged outage (who notices, how long until the user defects). Vague answers like "security matters" or "downtime is bad" are explicitly rejected. Those named risks are what `/slo-architect` builds the threat model from — security is on the table before code exists as a concept.
+- **`/slo-architect`** — produces a STRIDE threat model and an abuse-case set on *every* pass, not optionally and not later. The threat-model rows become the seed for the abuse cases the next stage carries forward, and the architecture doc records the security best practices the build is committed to (proactive-controls vocabulary, named secure libraries, data-classification posture).
+- **`/slo-plan`** — the v4 runbook template has three mandatory security rows in the Contract Block of every milestone: **data classification** (`Public | Internal | Confidential | Restricted`), **proactive controls in play** (OWASP C1–C10 and named libraries from the SunLitSecureLibraries / Hulumi vocabularies), and **abuse acceptance scenarios** (concrete attacker-role + step + outcome, each citing a threat-model row). Silent omission is forbidden — the only acceptable empty answer is `N/A — no new surface introduced` with a reason. BDD Acceptance Scenarios additionally require abuse-case rows whenever a new surface is introduced. The plan template *bakes in* secure coding and testing — you cannot ship a runbook that doesn't account for them.
+- **`/slo-execute`** — writes BDD tests first, *including the abuse-case rows*. Security tests are part of the red-green TDD cycle from the start, not bolted on after the feature works. The skill is also bound to the runbook's allow-list, so it cannot silently widen scope into adjacent files — closing one of the most common attack surfaces against the workflow itself. Each security consideration declared in the plan becomes a concrete test the milestone has to pass.
+- **`/slo-verify`** — runs a PII-pattern scan over public output paths (Pass 4), so confidential drafts cannot accidentally leak through the public tier; runtime QA closes the loop on the abuse-case scenarios.
+- **`/slo-rulegen` + `/slo-ruleverify` + `/slo-sast`** — maintain and CI-gate a 10/10 CWE-class Semgrep rule pack against the codebase, so the static-analysis layer is also kept honest as the project evolves.
+- **The UK biz pack** — adds hard-block gates (regulated work, counterparties >£5,000, GDPR-scoped documents, IR35-triggering hires) that refuse to draft until the right human is in the loop.
+
+The consequence: there is no "security review" stage at the end, because there is no stage *without* security in it. From the first ideation question — *"what's the worst that can happen?"* — through threat model, plan template, BDD test scaffolding, runtime verification, and CI rule gate, security is something the workflow *forces* you to commit to and execute on, not something you might remember to do.
+
+### 3. TLA+ formal specification for designs that earn it
+
+Almost no AI-coding workflow offers a formal-methods step at all. SunLitOrchestrate adds `/slo-tla` as an explicit stage between architecture and plan, for designs where concurrency, ordering, or protocol risk is real. The skill drives a TLC model-check of the design *as a specification* before any code is written — so the class of bug that would only surface under contention, partial failure, or unusual interleavings in production gets caught while the design is still text.
+
+The decision of whether a runbook needs TLA+ is set during `/slo-architect` via the `tla_required: true | false` field, so it is visible, recorded, and reviewable rather than implicit. When the flag is true, the runbook cannot proceed past plan without a passing model-check; when false, the reasoning for skipping it is recorded in the architecture doc. Either way, the choice is on the record.
+
+The result: well-designed solutions are the default, not an artifact of "the engineer happened to think about it carefully this time".
+
+## How it works
+
+A normal sprint runs the sprint-flow skills in order. Each stage produces a checked-in artifact under `docs/` that the next stage (and the next reviewer) can rely on — the workflow is the chain of artifacts, not a chain of prompts.
+
+```text
+/slo-ideate          # interrogate the problem; Q7 forces "what's the worst day this system causes?"
+/slo-research        # produce a sourced dossier with named adversaries, named regulations, named UX failures
+/slo-architect       # commit to a stack, build a STRIDE threat model, record security best practices
+/slo-tla             # optional: model-check the design when concurrency / ordering / protocol risk is real
+/slo-plan            # write the v4 runbook one milestone at a time (data classification + proactive controls + abuse cases mandatory)
+/slo-critique        # four-persona adversarial review (CEO, eng, security, design) before any code is written
+/slo-execute M1      # drive one milestone within the allow-list — BDD tests first, including abuse-case rows
+/slo-verify M1       # runtime QA + Playwright (if UI) + PII scan over public outputs
+/slo-retro M1        # lessons + completion summary + tracker update
+# ... repeat /slo-execute / /slo-verify / /slo-retro per milestone ...
+/slo-ship            # open a runbook-aware PR linking to the artifacts above
+```
+
+Two re-entry paths matter:
+
+- **`/slo-resume`** — the pack's read-only orientation path. If you step away mid-runbook, it reads the tracker and suggests the next action without starting work for you.
+- **Security-only adoption** — `/slo-rulegen` and `/slo-ruleverify` can run standalone against any Rust codebase to maintain the CWE Semgrep rule pack, without running the rest of the sprint flow. See [Quick start → Security-only quick path](#security-only-quick-path).
+
+The artifacts produced by each stage live under `docs/slo/` (idea, research dossier, architecture, threat model, runbook, retro, completion summary). They are the project's institutional memory and the input to the *next* runbook's carry-forward.
+
+## When NOT to use it
+
+- **Throwaway scripts and one-shot prototypes.** The runbook discipline doesn't pay back if the artifact won't be read twice.
+- **Teams that want a low-friction "vibe-code with the LLM" loop.** SunLitOrchestrate is intentionally heavier on contracts than on autonomy. If you don't want the contracts, the rest of the pack will feel like ceremony.
+- **Non-UK jurisdictions for the biz pack.** v1 is UK-only by design; non-UK is a fresh `/slo-architect` pass, not a flag.
+- **Headless / CI-only automation as the primary path.** Most skills are interactive today. See [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) for the exact boundary.
+
+## Where to go next
 
 If this is your first time here, start with [docs/getting-started.md](docs/getting-started.md). Unfamiliar acronyms (TLA+, BDD, CWE, SEIS, IR35, CAC, NDR, …) are defined in [docs/GLOSSARY.md](docs/GLOSSARY.md).
-
-**License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL.
-
-**Status:** active development. The skill pack and Rust CLIs are stable.
 
 ## What ships here
 
@@ -80,23 +166,7 @@ What success looks like:
 
 `/slo-research` now uses host-native research first in both Claude Code and GitHub Copilot. `sldo-research` remains an optional Claude batch backend when you explicitly want that automation path.
 
-### Typical flow
-
-```text
-/slo-ideate          # interrogate the problem before code exists
-/slo-research        # produce a sourced dossier
-/slo-architect       # commit to a stack + threat model
-/slo-tla             # optional: model-check the design when concurrency or ordering risk is real
-/slo-plan            # write the v3 runbook one milestone at a time
-/slo-critique        # run the adversarial review pass
-/slo-execute M1      # drive one milestone within the allow-list
-/slo-verify M1       # runtime QA + Playwright if UI
-/slo-retro M1        # lessons + completion + tracker update
-# ... repeat /slo-execute / /slo-verify / /slo-retro per milestone ...
-/slo-ship            # open a runbook-aware PR
-```
-
-If you step away mid-runbook, use `/slo-resume`. It is the pack's read-only orientation path: it reads the tracker and suggests the next action.
+For the canonical sprint sequence (ideate → ship), see [How it works](#how-it-works) above.
 
 ### Security-only quick path
 
@@ -221,14 +291,20 @@ This project adopts the [Contributor Covenant 2.1](https://www.contributor-coven
 
 ## License
 
+Copyright 2026 Sherif Mansour. An open-source project by Sherif Mansour.
+
 Dual-licensed under either of:
 
 - [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - [MIT license](https://opensource.org/licenses/MIT)
 
-at your option (see [LICENSE](LICENSE) for both texts). Pick whichever fits your project; you do not need to comply with both.
+at your option (see [LICENSE](LICENSE) for both texts, and [NOTICE](NOTICE) for the project-level copyright notice). Pick whichever fits your project; you do not need to comply with both.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual-licensed as above, without any additional terms or conditions. Contributions require a Developer Certificate of Origin sign-off — see [CONTRIBUTING.md](CONTRIBUTING.md#sign-off--developer-certificate-of-origin).
+
+## Trade-marks
+
+**SunLitOrchestrate** and the associated logo are unregistered trade-marks of Sherif Mansour. The Apache-2.0 / MIT licences grant rights in the code, not in the name or logo — see [TRADEMARKS.md](TRADEMARKS.md) for what permission you do and do not need.
 
 ## Acknowledgements
 
@@ -239,3 +315,5 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 - John Carmack's [*Best programming setup and IDE*](https://youtu.be/tzr7hRXcwkw?si=SeeakVCVpqWatOUl) clip from the Lex Fridman Podcast for influencing the v4 runbook template's Carmack-style reliability controls — debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, and "make invalid states unrepresentable".
 - The [oneNDA](https://www.onenda.org/) consortium for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow points users to. Licensed under [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/); the canonical `.docx` is fetched manually by the user from onenda.org and is never copied, modified, rendered, or redistributed by this repo. The skill produces only a separate Markdown cover artifact for company-specific fields — assembly happens on the user's machine, against the user's locally-downloaded canonical `.docx`.
 - The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.
+- Garry Tan's [gstack](https://github.com/garrytan/gstack) for the skill-pack-as-workflow pattern that shaped the overall structure of SunLitOrchestrate's `/slo-*` skills — the idea that a stage-aware collection of opinionated skills can carry a project from ideation to ship more reliably than ad-hoc prompting.
+- OpenAI's [Symphony](https://github.com/openai/symphony) for influencing how SunLitOrchestrate thinks about multi-agent orchestration and the seams between specialist roles in a development workflow.
