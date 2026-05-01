@@ -41,8 +41,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 // ---------------------------------------------------------------------------
@@ -126,9 +125,8 @@ fn plan_skill_adds_abuse_case_bdd_category() {
 
 #[test]
 fn vocabulary_file_has_data_classifications() {
-    let vocab = read(
-        &repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"),
-    );
+    let vocab =
+        read(&repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     for v in ["Public", "Internal", "Confidential", "Restricted"] {
         assert!(
             vocab.contains(v),
@@ -139,9 +137,8 @@ fn vocabulary_file_has_data_classifications() {
 
 #[test]
 fn vocabulary_file_has_rust_axum_crate_names() {
-    let vocab = read(
-        &repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"),
-    );
+    let vocab =
+        read(&repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     let candidates = [
         "secure_boundary",
         "secure_data",
@@ -159,9 +156,8 @@ fn vocabulary_file_has_rust_axum_crate_names() {
 
 #[test]
 fn vocabulary_file_has_hulumi_references() {
-    let vocab = read(
-        &repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"),
-    );
+    let vocab =
+        read(&repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     // At least one Hulumi component name should appear for Pulumi/AWS targets.
     let candidates = [
         "SecureBucket",
@@ -205,10 +201,19 @@ fn abuse_case_examples_cover_six_surface_classes() {
     let classes = [
         ("HTTP endpoint", &["http", "endpoint", "ssrf"][..]),
         ("IPC command", &["ipc", "command"][..]),
-        ("file write", &["file write", "path traversal", "zip-slip", "symlink"][..]),
+        (
+            "file write",
+            &["file write", "path traversal", "zip-slip", "symlink"][..],
+        ),
         ("subprocess", &["subprocess", "command injection"][..]),
-        ("outbound request", &["outbound", "metadata service", "ssrf"][..]),
-        ("persisted state", &["persisted", "deserialization", "state"][..]),
+        (
+            "outbound request",
+            &["outbound", "metadata service", "ssrf"][..],
+        ),
+        (
+            "persisted state",
+            &["persisted", "deserialization", "state"][..],
+        ),
     ];
     let ex_lower = ex.to_lowercase();
     for (class, keywords) in classes {
@@ -263,9 +268,8 @@ fn existing_runbooks_have_milestone_tracker() {
 
 #[test]
 fn vocabulary_file_documents_no_shell_interpolation() {
-    let vocab = read(
-        &repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"),
-    );
+    let vocab =
+        read(&repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     let lower = vocab.to_lowercase();
     let documents_safety = lower.contains("markdown")
         && (lower.contains("never") || lower.contains("not"))
@@ -297,8 +301,7 @@ fn plan_skill_line_count_sane() {
 #[test]
 fn runbook_v3_template_fnv1a_unchanged() {
     let path = repo_root().join("docs/slo/templates/runbook-template_v_3_template.md");
-    let body = fs::read(&path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
+    let body = fs::read(&path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
     assert_eq!(
         body.len(),
         EXPECTED_RUNBOOK_TEMPLATE_BYTE_LEN,
@@ -327,5 +330,8 @@ fn vocabulary_file_exists_and_nonempty() {
 fn abuse_case_examples_file_exists_and_nonempty() {
     let path = repo_root().join("skills/slo-plan/references/abuse-case-examples.md");
     let body = read(&path);
-    assert!(body.len() > 500, "abuse-case examples file suspiciously short");
+    assert!(
+        body.len() > 500,
+        "abuse-case examples file suspiciously short"
+    );
 }

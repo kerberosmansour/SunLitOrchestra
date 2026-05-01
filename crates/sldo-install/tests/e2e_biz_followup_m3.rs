@@ -21,7 +21,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -44,21 +49,34 @@ fn onenda_placeholder_documents_pinned_sha256_field() {
     // there.
     let yaml_start = body
         .find("```yaml\ncanonical_source:")
-        .or_else(|| body.find("```yaml\n").map(|i| {
-            // Find the first yaml block that contains pinned_canonical_sha256:.
-            let after = &body[i..];
-            if after.contains("pinned_canonical_sha256:") { i } else { body.len() }
-        }))
+        .or_else(|| {
+            body.find("```yaml\n").map(|i| {
+                // Find the first yaml block that contains pinned_canonical_sha256:.
+                let after = &body[i..];
+                if after.contains("pinned_canonical_sha256:") {
+                    i
+                } else {
+                    body.len()
+                }
+            })
+        })
         .expect("frontmatter yaml block not found");
     let after_yaml_start = &body[yaml_start..];
-    let yaml_end = after_yaml_start[8..].find("```").map(|i| i + 8).unwrap_or(after_yaml_start.len());
+    let yaml_end = after_yaml_start[8..]
+        .find("```")
+        .map(|i| i + 8)
+        .unwrap_or(after_yaml_start.len());
     let yaml_block = &after_yaml_start[..yaml_end];
 
     let line = yaml_block
         .lines()
         .find(|l| l.trim_start().starts_with("pinned_canonical_sha256:"))
         .expect("pinned_canonical_sha256 line not found in yaml block");
-    let value = line.split("pinned_canonical_sha256:").nth(1).unwrap_or("").trim();
+    let value = line
+        .split("pinned_canonical_sha256:")
+        .nth(1)
+        .unwrap_or("")
+        .trim();
     let is_pending = value == "pending-user-fetch";
     let is_hex = value.len() == 64 && value.chars().all(|c| c.is_ascii_hexdigit());
     assert!(
@@ -116,13 +134,19 @@ fn onenda_placeholder_marker_or_canonical_pinned_marker_present() {
     // Find the frontmatter yaml block (same logic as the field-format test).
     let yaml_start = body.find("```yaml\n").unwrap_or(body.len());
     let after_yaml_start = &body[yaml_start..];
-    let yaml_end = after_yaml_start.find("\n```").unwrap_or(after_yaml_start.len());
+    let yaml_end = after_yaml_start
+        .find("\n```")
+        .unwrap_or(after_yaml_start.len());
     let yaml_block = &after_yaml_start[..yaml_end];
     let line = yaml_block
         .lines()
         .find(|l| l.trim_start().starts_with("pinned_canonical_sha256:"))
         .unwrap_or("");
-    let value = line.split("pinned_canonical_sha256:").nth(1).unwrap_or("").trim();
+    let value = line
+        .split("pinned_canonical_sha256:")
+        .nth(1)
+        .unwrap_or("")
+        .trim();
     let is_pending = value == "pending-user-fetch";
 
     if is_pending && !placeholder {
@@ -142,7 +166,12 @@ fn slo_legal_skill_md_documents_cover_only_flow() {
     let skill = read(&repo_root().join("skills/slo-legal/SKILL.md"));
 
     // The cover-only flow must be documented.
-    let signals = ["cover-only", "Cover-only", "cover artifact", "Cover artifact"];
+    let signals = [
+        "cover-only",
+        "Cover-only",
+        "cover artifact",
+        "Cover artifact",
+    ];
     let count = signals.iter().filter(|s| skill.contains(**s)).count();
     assert!(
         count >= 2,
@@ -162,7 +191,10 @@ fn slo_legal_skill_md_documents_cover_only_flow() {
     // Hash-verification step must be documented.
     let hash_signals = ["shasum", "SHA-256", "pinned_canonical_sha256"];
     let any = hash_signals.iter().any(|s| skill.contains(s));
-    assert!(any, "slo-legal SKILL.md must document the SHA-256 verification step");
+    assert!(
+        any,
+        "slo-legal SKILL.md must document the SHA-256 verification step"
+    );
 }
 
 #[test]
@@ -173,7 +205,12 @@ fn slo_legal_no_longer_inlines_canonical_body() {
     // updated flow is cover-only with the founder fetching the .docx
     // separately. We approximate the negative check by asserting the skill
     // EXPLICITLY says it never modifies the .docx body.
-    let explicit_signals = ["never modifies the .docx", "NEVER modifies the .docx", "skill NEVER modifies", "do not edit the body"];
+    let explicit_signals = [
+        "never modifies the .docx",
+        "NEVER modifies the .docx",
+        "skill NEVER modifies",
+        "do not edit the body",
+    ];
     let any = explicit_signals.iter().any(|s| skill.contains(s));
     assert!(
         any,

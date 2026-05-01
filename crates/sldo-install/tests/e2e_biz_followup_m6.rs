@@ -19,7 +19,12 @@ use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 // ---------------------------------------------------------------------------
@@ -41,17 +46,19 @@ const DIRECT_MARKETING_KEYWORDS: &[&str] = &[
 
 #[derive(Debug, Clone)]
 enum PecrCheckOutcome {
-    NotApplicable,                    // Artifact doesn't reference direct marketing.
-    TriageCompleted(String),          // pecr_triage_completed: true; doc path provenance.
-    TriagePending(String),            // pecr_triage_completed: false; blocker reason.
-    MissingTriageField,               // Artifact references direct marketing but lacks the field.
-    InconsistentField(String),        // pecr_triage_completed: true but no pecr_triage_doc; or false with no blocker.
+    NotApplicable,             // Artifact doesn't reference direct marketing.
+    TriageCompleted(String),   // pecr_triage_completed: true; doc path provenance.
+    TriagePending(String),     // pecr_triage_completed: false; blocker reason.
+    MissingTriageField,        // Artifact references direct marketing but lacks the field.
+    InconsistentField(String), // pecr_triage_completed: true but no pecr_triage_doc; or false with no blocker.
 }
 
 /// Check a single artifact for PECR-triage compliance. The artifact qualifies
 /// for the check if its body contains any direct-marketing keyword.
 fn check_pecr_triage(content: &str) -> PecrCheckOutcome {
-    let mentions_direct_marketing = DIRECT_MARKETING_KEYWORDS.iter().any(|kw| content.contains(kw));
+    let mentions_direct_marketing = DIRECT_MARKETING_KEYWORDS
+        .iter()
+        .any(|kw| content.contains(kw));
     if !mentions_direct_marketing {
         return PecrCheckOutcome::NotApplicable;
     }
@@ -59,17 +66,35 @@ fn check_pecr_triage(content: &str) -> PecrCheckOutcome {
     let line_completed = content
         .lines()
         .find(|l| l.trim_start().starts_with("pecr_triage_completed:"))
-        .map(|l| l.split("pecr_triage_completed:").nth(1).unwrap_or("").trim().to_string());
+        .map(|l| {
+            l.split("pecr_triage_completed:")
+                .nth(1)
+                .unwrap_or("")
+                .trim()
+                .to_string()
+        });
 
     let line_doc = content
         .lines()
         .find(|l| l.trim_start().starts_with("pecr_triage_doc:"))
-        .map(|l| l.split("pecr_triage_doc:").nth(1).unwrap_or("").trim().to_string());
+        .map(|l| {
+            l.split("pecr_triage_doc:")
+                .nth(1)
+                .unwrap_or("")
+                .trim()
+                .to_string()
+        });
 
     let line_blocker = content
         .lines()
         .find(|l| l.trim_start().starts_with("pecr_triage_blocker:"))
-        .map(|l| l.split("pecr_triage_blocker:").nth(1).unwrap_or("").trim().to_string());
+        .map(|l| {
+            l.split("pecr_triage_blocker:")
+                .nth(1)
+                .unwrap_or("")
+                .trim()
+                .to_string()
+        });
 
     let Some(completed_value) = line_completed else {
         return PecrCheckOutcome::MissingTriageField;
@@ -82,7 +107,9 @@ fn check_pecr_triage(content: &str) -> PecrCheckOutcome {
             );
         };
         if doc.is_empty() || doc.starts_with('<') {
-            return PecrCheckOutcome::InconsistentField(format!("pecr_triage_doc value `{doc}` is placeholder — must be a real path"));
+            return PecrCheckOutcome::InconsistentField(format!(
+                "pecr_triage_doc value `{doc}` is placeholder — must be a real path"
+            ));
         }
         PecrCheckOutcome::TriageCompleted(doc)
     } else if completed_value == "false" {
@@ -92,11 +119,15 @@ fn check_pecr_triage(content: &str) -> PecrCheckOutcome {
             );
         };
         if blocker.is_empty() || blocker.starts_with('<') {
-            return PecrCheckOutcome::InconsistentField(format!("pecr_triage_blocker value `{blocker}` is placeholder — must be a real reason"));
+            return PecrCheckOutcome::InconsistentField(format!(
+                "pecr_triage_blocker value `{blocker}` is placeholder — must be a real reason"
+            ));
         }
         PecrCheckOutcome::TriagePending(blocker)
     } else {
-        PecrCheckOutcome::InconsistentField(format!("pecr_triage_completed value `{completed_value}` must be `true` or `false`"))
+        PecrCheckOutcome::InconsistentField(format!(
+            "pecr_triage_completed value `{completed_value}` must be `true` or `false`"
+        ))
     }
 }
 
@@ -107,7 +138,9 @@ fn walk_pecr_check(root: &Path) -> Vec<(PathBuf, PecrCheckOutcome)> {
     let target_subdirs = ["marketing", "sales"];
     for sub in &target_subdirs {
         let dir = root.join("docs").join("biz-public").join(sub);
-        if !dir.exists() { continue; }
+        if !dir.exists() {
+            continue;
+        }
         for entry in walk(&dir) {
             if entry.extension().map(|e| e == "md").unwrap_or(false) {
                 let content = fs::read_to_string(&entry).unwrap();
@@ -141,7 +174,10 @@ fn walk(dir: &Path) -> Vec<PathBuf> {
 fn pecr_check_skips_non_direct_marketing_artifact() {
     let content = "---\nname: gtm-strategy\ntier: public\n---\n\n# GTM strategy\n\nFocus on community-led distribution. No outbound channels.\n";
     let outcome = check_pecr_triage(content);
-    assert!(matches!(outcome, PecrCheckOutcome::NotApplicable), "expected NotApplicable; got {outcome:?}");
+    assert!(
+        matches!(outcome, PecrCheckOutcome::NotApplicable),
+        "expected NotApplicable; got {outcome:?}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -164,7 +200,10 @@ Channels include cold email outbound.
     let outcome = check_pecr_triage(content);
     match outcome {
         PecrCheckOutcome::TriageCompleted(doc) => {
-            assert!(doc.contains("triage-pecr"), "expected triage doc reference; got {doc}");
+            assert!(
+                doc.contains("triage-pecr"),
+                "expected triage doc reference; got {doc}"
+            );
         }
         other => panic!("expected TriageCompleted; got {other:?}"),
     }
@@ -190,7 +229,10 @@ Cold email channel for prospect outreach.
     let outcome = check_pecr_triage(content);
     match outcome {
         PecrCheckOutcome::TriagePending(blocker) => {
-            assert!(blocker.contains("BLOCKED"), "expected blocker reason; got {blocker}");
+            assert!(
+                blocker.contains("BLOCKED"),
+                "expected blocker reason; got {blocker}"
+            );
         }
         other => panic!("expected TriagePending; got {other:?}"),
     }
@@ -204,7 +246,10 @@ Cold email channel for prospect outreach.
 fn pecr_check_fails_missing_triage_field() {
     let content = "---\nname: bad-artifact\ntier: public\n---\n\n# B2B marketing plan\n\nWe will run cold email at scale.\n";
     let outcome = check_pecr_triage(content);
-    assert!(matches!(outcome, PecrCheckOutcome::MissingTriageField), "expected MissingTriageField; got {outcome:?}");
+    assert!(
+        matches!(outcome, PecrCheckOutcome::MissingTriageField),
+        "expected MissingTriageField; got {outcome:?}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -217,7 +262,10 @@ fn pecr_check_fails_inconsistent_completed_without_doc() {
     let outcome = check_pecr_triage(content);
     match outcome {
         PecrCheckOutcome::InconsistentField(reason) => {
-            assert!(reason.contains("pecr_triage_doc"), "expected reason mentions missing doc; got {reason}");
+            assert!(
+                reason.contains("pecr_triage_doc"),
+                "expected reason mentions missing doc; got {reason}"
+            );
         }
         other => panic!("expected InconsistentField; got {other:?}"),
     }
@@ -233,7 +281,10 @@ fn pecr_check_fails_inconsistent_pending_without_blocker() {
     let outcome = check_pecr_triage(content);
     match outcome {
         PecrCheckOutcome::InconsistentField(reason) => {
-            assert!(reason.contains("blocker"), "expected reason mentions missing blocker; got {reason}");
+            assert!(
+                reason.contains("blocker"),
+                "expected reason mentions missing blocker; got {reason}"
+            );
         }
         other => panic!("expected InconsistentField; got {other:?}"),
     }
@@ -261,10 +312,19 @@ fn pecr_check_walks_tempdir_classifies_artifacts() {
     fs::write(sales.join("funnel-enterprise.md"), "---\nname: funnel-enterprise\ntier: public\npecr_triage_completed: false\npecr_triage_blocker: cold email proposed; triage pending\n---\n\nCold email at scale to enterprise prospects.\n").unwrap();
 
     // Artifact 4: violator (cold email + missing field).
-    fs::write(sales.join("funnel-bad.md"), "---\nname: funnel-bad\ntier: public\n---\n\nCold email channel.\n").unwrap();
+    fs::write(
+        sales.join("funnel-bad.md"),
+        "---\nname: funnel-bad\ntier: public\n---\n\nCold email channel.\n",
+    )
+    .unwrap();
 
     let results = walk_pecr_check(dir.path());
-    assert_eq!(results.len(), 4, "should find 4 artifacts; got {}", results.len());
+    assert_eq!(
+        results.len(),
+        4,
+        "should find 4 artifacts; got {}",
+        results.len()
+    );
 
     // Tally by outcome.
     let mut na = 0;
@@ -284,8 +344,14 @@ fn pecr_check_walks_tempdir_classifies_artifacts() {
     assert_eq!(na, 1, "expected 1 NotApplicable; got {na}");
     assert_eq!(completed, 1, "expected 1 TriageCompleted; got {completed}");
     assert_eq!(pending, 1, "expected 1 TriagePending; got {pending}");
-    assert_eq!(missing, 1, "expected 1 MissingTriageField (the violator); got {missing}");
-    assert_eq!(inconsistent, 0, "expected 0 InconsistentField; got {inconsistent}");
+    assert_eq!(
+        missing, 1,
+        "expected 1 MissingTriageField (the violator); got {missing}"
+    );
+    assert_eq!(
+        inconsistent, 0,
+        "expected 0 InconsistentField; got {inconsistent}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -295,8 +361,15 @@ fn pecr_check_walks_tempdir_classifies_artifacts() {
 #[test]
 fn artifact_schema_documents_pecr_triage_fields() {
     let body = fs::read_to_string(repo_root().join("references/biz/artifact-schema.md")).unwrap();
-    let required = ["pecr_triage_completed", "pecr_triage_doc", "pecr_triage_blocker"];
+    let required = [
+        "pecr_triage_completed",
+        "pecr_triage_doc",
+        "pecr_triage_blocker",
+    ];
     for key in &required {
-        assert!(body.contains(key), "artifact-schema.md must document PECR field `{key}`");
+        assert!(
+            body.contains(key),
+            "artifact-schema.md must document PECR field `{key}`"
+        );
     }
 }

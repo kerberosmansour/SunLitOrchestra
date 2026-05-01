@@ -28,8 +28,8 @@ fn binary_path() -> PathBuf {
 /// Minimal frontmatter + body check. We don't pull in a YAML parser — we just
 /// validate the shape so a malformed SKILL.md doesn't slip through.
 fn assert_valid_skill_md(path: &Path) {
-    let body = fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
+    let body =
+        fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
     assert!(
         body.starts_with("---\n"),
         "SKILL.md must start with `---\\n`: {}",
@@ -62,14 +62,20 @@ fn assert_valid_skill_md(path: &Path) {
 
 #[test]
 fn test_slo_ideate_skill_is_valid() {
-    let path = repo_root().join("skills").join("slo-ideate").join("SKILL.md");
+    let path = repo_root()
+        .join("skills")
+        .join("slo-ideate")
+        .join("SKILL.md");
     assert!(path.exists(), "slo-ideate SKILL.md missing");
     assert_valid_skill_md(&path);
 }
 
 #[test]
 fn test_slo_retro_skill_is_valid() {
-    let path = repo_root().join("skills").join("slo-retro").join("SKILL.md");
+    let path = repo_root()
+        .join("skills")
+        .join("slo-retro")
+        .join("SKILL.md");
     assert!(path.exists(), "slo-retro SKILL.md missing");
     assert_valid_skill_md(&path);
 }
@@ -104,10 +110,6 @@ fn test_installer_picks_up_ideate_and_retro() {
     let skills_root = home.path().join(".claude").join("skills");
     for name in ["slo-ideate", "slo-retro"] {
         let link = skills_root.join(name);
-        assert!(
-            link.is_symlink(),
-            "expected symlink at {}",
-            link.display()
-        );
+        assert!(link.is_symlink(), "expected symlink at {}", link.display());
     }
 }

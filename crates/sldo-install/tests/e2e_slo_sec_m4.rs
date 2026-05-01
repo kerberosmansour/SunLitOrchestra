@@ -36,8 +36,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 /// Split `slo-verify/SKILL.md` into named subsection bytes keyed by heading.
@@ -157,8 +156,9 @@ fn pass_4_documents_stack_detection() {
 fn pass_4_documents_polyglot_rule() {
     let body = read(&repo_root().join("skills/slo-verify/SKILL.md"));
     let lower = body.to_lowercase();
-    let mentions_polyglot =
-        lower.contains("polyglot") || lower.contains("multiple stack") || lower.contains("multi-stack");
+    let mentions_polyglot = lower.contains("polyglot")
+        || lower.contains("multiple stack")
+        || lower.contains("multi-stack");
     let mentions_all_sets = lower.contains("all applicable")
         || lower.contains("each stack gets")
         || lower.contains("both")
@@ -182,8 +182,8 @@ fn pass_4_documents_tool_optional_rule() {
         || lower.contains("unreachable")
         || lower.contains("tool error")
         || lower.contains("network");
-    let mentions_not_finding = lower.contains("not a finding")
-        || lower.contains("never") && lower.contains("finding");
+    let mentions_not_finding =
+        lower.contains("not a finding") || lower.contains("never") && lower.contains("finding");
     assert!(
         mentions_skipped && mentions_reason && mentions_not_finding,
         "Pass 4 must document that tool-error / unreachable-tool exits map to `skipped` rows, never to findings"
@@ -198,10 +198,7 @@ fn pass_4_documents_tool_optional_rule() {
 fn pass_4_documents_dast_conditional() {
     let body = read(&repo_root().join("skills/slo-verify/SKILL.md"));
     let lower = body.to_lowercase();
-    assert!(
-        lower.contains("dast"),
-        "Pass 4 must reference DAST"
-    );
+    assert!(lower.contains("dast"), "Pass 4 must reference DAST");
     let mentions_conditional = lower.contains("smoke service")
         || lower.contains("smoke/reference")
         || lower.contains("openapi")
@@ -232,18 +229,17 @@ fn pass_4_documents_markdown_only_na() {
 
 #[test]
 fn reference_file_exists_and_sized() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
     assert!(body.len() > 1000, "reference file suspiciously short");
 }
 
 #[test]
 fn reference_file_documents_cargo_audit() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
+    assert!(
+        body.contains("cargo audit"),
+        "reference file must name `cargo audit`"
     );
-    assert!(body.contains("cargo audit"), "reference file must name `cargo audit`");
     // Exit-code contract documented.
     assert!(
         body.contains("exit")
@@ -255,9 +251,7 @@ fn reference_file_documents_cargo_audit() {
 
 #[test]
 fn reference_file_documents_cargo_deny() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
     assert!(
         body.contains("cargo deny"),
         "reference file must name `cargo deny`"
@@ -266,10 +260,11 @@ fn reference_file_documents_cargo_deny() {
 
 #[test]
 fn reference_file_documents_semgrep() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
+    assert!(
+        body.contains("semgrep"),
+        "reference file must name `semgrep`"
     );
-    assert!(body.contains("semgrep"), "reference file must name `semgrep`");
     assert!(
         body.contains("--sarif") || body.contains("sarif-output"),
         "reference file must show Semgrep SARIF output flag"
@@ -278,17 +273,16 @@ fn reference_file_documents_semgrep() {
 
 #[test]
 fn reference_file_documents_ast_grep() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
+    assert!(
+        body.contains("ast-grep"),
+        "reference file must name `ast-grep`"
     );
-    assert!(body.contains("ast-grep"), "reference file must name `ast-grep`");
 }
 
 #[test]
 fn reference_file_documents_dast_command_conditional() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
     let mentions_zap = body.contains("ZAP") || body.contains("zap") || body.contains("zaproxy");
     let mentions_dastardly = body.contains("Dastardly") || body.contains("dastardly");
     assert!(
@@ -299,12 +293,11 @@ fn reference_file_documents_dast_command_conditional() {
 
 #[test]
 fn reference_file_documents_polyglot_rule() {
-    let body = read(
-        &repo_root().join("skills/slo-verify/references/security-pass-commands.md"),
-    );
+    let body = read(&repo_root().join("skills/slo-verify/references/security-pass-commands.md"));
     let lower = body.to_lowercase();
-    let mentions_polyglot =
-        lower.contains("polyglot") || lower.contains("multiple stack") || lower.contains("multi-stack");
+    let mentions_polyglot = lower.contains("polyglot")
+        || lower.contains("multiple stack")
+        || lower.contains("multi-stack");
     assert!(
         mentions_polyglot,
         "reference file must document polyglot rule"
@@ -336,5 +329,8 @@ fn three_pass_ordering_preserved() {
     let p2 = body.find("### Pass 2.").unwrap();
     let p3 = body.find("### Pass 3.").unwrap();
     let p4 = body.find("### Pass 4").unwrap();
-    assert!(p1 < p2 && p2 < p3 && p3 < p4, "Passes must appear in order 1 → 2 → 3 → 4");
+    assert!(
+        p1 < p2 && p2 < p3 && p3 < p4,
+        "Passes must appear in order 1 → 2 → 3 → 4"
+    );
 }

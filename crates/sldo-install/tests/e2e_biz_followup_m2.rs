@@ -24,7 +24,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -41,9 +46,17 @@ const FOUR_PREDICATE_IDS: &[&str] = &[
 const ADVISOR_SKILLS: &[&str] = &["slo-legal", "slo-accounting", "slo-equity", "slo-fundraise"];
 
 const GENERATOR_SKILLS: &[&str] = &[
-    "slo-talk-to-users", "slo-gtm", "slo-product", "slo-marketing",
-    "slo-launch", "slo-sales-funnel", "slo-pricing", "slo-metrics",
-    "slo-cofounder", "slo-hire", "slo-founder-check",
+    "slo-talk-to-users",
+    "slo-gtm",
+    "slo-product",
+    "slo-marketing",
+    "slo-launch",
+    "slo-sales-funnel",
+    "slo-pricing",
+    "slo-metrics",
+    "slo-cofounder",
+    "slo-hire",
+    "slo-founder-check",
 ];
 
 // ---------------------------------------------------------------------------
@@ -56,7 +69,9 @@ fn advisor_predicate_citations_in_hard_block_section() {
         let body = read(&repo_root().join("skills").join(skill_name).join("SKILL.md"));
 
         // Find the "Hard-block gates" section start.
-        let section_start = body.find("Hard-block gates").or_else(|| body.find("hard-block gates"));
+        let section_start = body
+            .find("Hard-block gates")
+            .or_else(|| body.find("hard-block gates"));
         assert!(
             section_start.is_some(),
             "advisor `{skill_name}` SKILL.md must have a `Hard-block gates` heading"
@@ -65,7 +80,10 @@ fn advisor_predicate_citations_in_hard_block_section() {
 
         // The section ends at the next H2 heading.
         let after_start = &body[section_start..];
-        let section_end_offset = after_start[10..].find("\n## ").map(|i| i + 10).unwrap_or(after_start.len());
+        let section_end_offset = after_start[10..]
+            .find("\n## ")
+            .map(|i| i + 10)
+            .unwrap_or(after_start.len());
         let section = &after_start[..section_end_offset];
 
         // Every predicate ID must appear inside this section.
@@ -105,13 +123,22 @@ fn generator_citation_bound_uniform_at_2() {
 
 #[test]
 fn pm_kpis_primary_only_in_slo_product() {
-    let pm_kpis = ["DAU", "activation funnel", "Activation funnel", "feature-adoption", "feature adoption"];
+    let pm_kpis = [
+        "DAU",
+        "activation funnel",
+        "Activation funnel",
+        "feature-adoption",
+        "feature adoption",
+    ];
 
     let product_body = read(&repo_root().join("skills/slo-product/SKILL.md"));
     let metrics_body = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
 
     // /slo-product should own these PM concepts (≥ 3 mentions across the set).
-    let product_count: usize = pm_kpis.iter().map(|k| product_body.matches(k).count()).sum();
+    let product_count: usize = pm_kpis
+        .iter()
+        .map(|k| product_body.matches(k).count())
+        .sum();
     assert!(
         product_count >= 3,
         "/slo-product must own PM-side KPI vocabulary (DAU / activation funnel / feature-adoption) — found {product_count} total mentions across the set"
@@ -123,7 +150,14 @@ fn pm_kpis_primary_only_in_slo_product() {
     // discriminator: if /slo-metrics mentions DAU, the surrounding ±50 chars
     // must include a routing signal.
     if metrics_body.contains("DAU") {
-        let routing_signals = ["run `/slo-product", "run /slo-product", "PM-side", "PM side", "redirect", "Redirect"];
+        let routing_signals = [
+            "run `/slo-product",
+            "run /slo-product",
+            "PM-side",
+            "PM side",
+            "redirect",
+            "Redirect",
+        ];
         let any_routing = routing_signals.iter().any(|r| metrics_body.contains(r));
         assert!(
             any_routing,
@@ -138,13 +172,23 @@ fn pm_kpis_primary_only_in_slo_product() {
 
 #[test]
 fn financial_kpis_primary_only_in_slo_metrics() {
-    let financial_kpis = ["CAC", "LTV", "NDR", "burn multiple", "MoM revenue growth", "Gross margin"];
+    let financial_kpis = [
+        "CAC",
+        "LTV",
+        "NDR",
+        "burn multiple",
+        "MoM revenue growth",
+        "Gross margin",
+    ];
 
     let product_body = read(&repo_root().join("skills/slo-product/SKILL.md"));
     let metrics_body = read(&repo_root().join("skills/slo-metrics/SKILL.md"));
 
     // /slo-metrics should own the financial-KPI vocabulary (≥ 4 of the 6).
-    let metrics_count = financial_kpis.iter().filter(|k| metrics_body.contains(**k)).count();
+    let metrics_count = financial_kpis
+        .iter()
+        .filter(|k| metrics_body.contains(**k))
+        .count();
     assert!(
         metrics_count >= 4,
         "/slo-metrics must own financial-KPI vocabulary — found {metrics_count} of {financial_kpis:?}"
@@ -153,9 +197,20 @@ fn financial_kpis_primary_only_in_slo_metrics() {
     // /slo-product may MENTION CAC / LTV / NDR / burn-multiple in the redirect
     // context ("for CAC / LTV / NDR / burn multiple use /slo-metrics") but
     // must do so with a routing signal.
-    let mentioned: Vec<&&str> = financial_kpis.iter().filter(|k| product_body.contains(**k)).collect();
+    let mentioned: Vec<&&str> = financial_kpis
+        .iter()
+        .filter(|k| product_body.contains(**k))
+        .collect();
     if !mentioned.is_empty() {
-        let routing_signals = ["use `/slo-metrics", "use /slo-metrics", "Runbook B2", "redirect to `/slo-metrics", "redirects financial KPIs to `/slo-metrics", "redirect to /slo-metrics", "redirects financial KPIs to /slo-metrics"];
+        let routing_signals = [
+            "use `/slo-metrics",
+            "use /slo-metrics",
+            "Runbook B2",
+            "redirect to `/slo-metrics",
+            "redirects financial KPIs to `/slo-metrics",
+            "redirect to /slo-metrics",
+            "redirects financial KPIs to /slo-metrics",
+        ];
         let any_routing = routing_signals.iter().any(|r| product_body.contains(r));
         assert!(
             any_routing,
@@ -200,7 +255,11 @@ fn onenda_canonical_pinned_state_locked() {
                 && !t.contains("`pinned_canonical_sha256:")
         })
         .unwrap_or("");
-    let value = line.split("pinned_canonical_sha256:").nth(1).unwrap_or("").trim();
+    let value = line
+        .split("pinned_canonical_sha256:")
+        .nth(1)
+        .unwrap_or("")
+        .trim();
     let is_hex = value.len() == 64 && value.chars().all(|c| c.is_ascii_hexdigit());
     assert!(
         is_hex,

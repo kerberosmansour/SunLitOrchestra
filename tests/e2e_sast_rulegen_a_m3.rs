@@ -54,7 +54,8 @@ fn workflow_yaml_invokes_gate_for_admission_control() {
         .join("semgrep.yml");
     let content = fs::read_to_string(&p).expect("read .github/workflows/semgrep.yml");
     assert!(
-        content.contains("sast-verify gate") || content.contains("sast-verify\" gate")
+        content.contains("sast-verify gate")
+            || content.contains("sast-verify\" gate")
             || content.contains("cargo xtask sast-verify"),
         "workflow MUST invoke `cargo xtask sast-verify gate` for admission control \
          per /slo-critique sec-4 reframe; this catches direct-edit bypasses of the \
@@ -80,7 +81,8 @@ fn workflow_yaml_pins_actions_by_sha() {
         if let Some(uses) = line.strip_prefix("uses: ") {
             if let Some(at_idx) = uses.find('@') {
                 let ref_part = &uses[at_idx + 1..];
-                let is_40_hex = ref_part.len() == 40 && ref_part.chars().all(|c| c.is_ascii_hexdigit());
+                let is_40_hex =
+                    ref_part.len() == 40 && ref_part.chars().all(|c| c.is_ascii_hexdigit());
                 if is_40_hex {
                     found_at_least_one_pinned_action = true;
                 }

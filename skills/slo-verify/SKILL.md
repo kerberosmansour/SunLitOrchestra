@@ -65,6 +65,12 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 
 **Command reference** — the full command catalog (Rust, Node, Python, Go, DAST) lives in [`references/security-pass-commands.md`](references/security-pass-commands.md). Each command documents its exit-code contract, install hint, and interactive-budget expectation. Pass 4 targets ≤ 2 min total on a small milestone; commands that exceed that budget are deferred to a nightly cadence.
 
+**Finding format** — Pass 4 findings use the shared security template at [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) whenever a scanner row needs evidence, CWE / OWASP / ASVS / OpenCRE mapping, or a remediation note longer than one table cell. The compact "Bugs found" table remains the index; expanded findings are appended below it.
+
+**Standards mapping** — consult [`../../references/security/standards-mapping.md`](../../references/security/standards-mapping.md) for the curated CWE × OWASP × ASVS × OpenCRE table and the per-output-type tier matrix. Pass 4 scanner findings have `tool finding id / package / rule id` and `evidence` as **required** fields; CWE, CVE, GHSA, OWASP, OpenCRE are **optional**.
+
+**Threshold rule**: Pass 4 findings with `severity: high` or `severity: critical` MUST use the expanded template AND cite a CWE within 400 characters of the severity marker. Enforced by the structural-contract test `live_critique_and_verify_findings_have_cwe` in `xtasks/sast-verify/tests/sap_imp_m3_standards.rs` (per F-ENG-4 critique resolution).
+
 **Bug-found flow — reuse the existing one.** When Pass 4 surfaces a finding (not a tool-error), apply the same flow Passes 1–3 use: STOP; write the regression test first; hand the fix back to `/slo-execute`; re-run Pass 4 to confirm green; re-run Passes 1–3 to confirm no regression. Pass 4 does not invent a new flow.
 
 **Anti-pattern** — running DAST on a markdown-only or library-only target. DAST needs a service to scan; running it against a docs repo produces noise. The smoke-service-presence gate is the whole defense.

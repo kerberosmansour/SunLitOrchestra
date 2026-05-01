@@ -78,12 +78,35 @@ These skills generate exactly one primary artifact each.
 |---|---|---|
 | `/get-api-docs` | Fetch current third-party API docs via `chub` before coding against an external API | `npm install -g @aisuite/chub` |
 
+## Specialist agents (optional, host-native — Claude Code only)
+
+Additive Claude-only enhancements that mirror `/slo-critique`'s four-persona rotation. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` — same artifact paths the canonical portable path writes. GitHub Copilot users continue to use `/slo-critique` directly (canonical portable path; no second-class treatment).
+
+| Agent | Role | Output paths | Copilot fallback |
+|---|---|---|---|
+| `agents/slo-runbook-review-lead.md` | Lead — scopes a runbook, dispatches specialists, dedupes, writes consolidated critique | `docs/slo/critique/` | `/slo-critique` persona rotation |
+| `agents/slo-security-reviewer.md` | Security specialist — class elimination + variant analysis | `docs/slo/critique/` | `/slo-critique` security persona |
+| `agents/slo-design-reviewer.md` | Design specialist — UI-only; N/A on non-UI runbooks | `docs/slo/critique/` | `/slo-critique` design persona |
+| `agents/slo-verification-lead.md` | Verification specialist — review-time + runtime modes | `docs/slo/critique/`, `docs/slo/verify/` | `/slo-verify` |
+
+See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md) for the green-lit decision and host capability rationale.
+
+## Examples gallery
+
+Synthetic, non-normative gallery at [`examples/`](../examples/) shows what shipped SLO outputs look like — runbook excerpts, critique reports, verification reports, security findings, SAST manifests, and biz-public artifacts. Read these to calibrate quality before running a skill. Examples are not installable; not consumed by any skill.
+
+## Distribution channels
+
+- `sldo-install` (canonical, multi-host: Claude Code + GitHub Copilot).
+- `.claude-plugin/plugin.json` (optional, additive, Claude-only) — for organizational installs that prefer a one-zip distribution.
+- Tagged releases: SHA-pinned [`release-zip workflow`](../.github/workflows/release-zip.yml) generates a `git archive`-based release zip on `v*` tag push.
+
 ## Shared invariants
 
 - Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
 - `README.md` is the orientation doc, `docs/getting-started.md` is the first-run guide, and this file is the host-neutral skill catalog.
 - Host overlays must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
-- `references/biz/` and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.
+- `references/biz/`, `references/security/`, and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.
 
 ## Current host boundaries
 

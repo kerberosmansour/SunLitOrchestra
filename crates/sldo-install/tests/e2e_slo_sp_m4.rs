@@ -56,7 +56,8 @@ fn plan_refuses_one_shot_generation() {
     let body = skill("slo-plan");
     // The core discipline of this skill.
     assert!(
-        body.to_lowercase().contains("one-shot") || body.to_lowercase().contains("one shot")
+        body.to_lowercase().contains("one-shot")
+            || body.to_lowercase().contains("one shot")
             || body.to_lowercase().contains("in one go"),
         "plan skill must explicitly refuse one-shot runbook generation"
     );
@@ -70,7 +71,9 @@ fn plan_refuses_one_shot_generation() {
 fn plan_caps_milestones_at_five() {
     let body = skill("slo-plan");
     assert!(
-        body.contains("5 milestones") || body.contains("five milestones") || body.contains("2\u{2013}5"),
+        body.contains("5 milestones")
+            || body.contains("five milestones")
+            || body.contains("2\u{2013}5"),
         "plan skill must cap milestones per runbook"
     );
 }

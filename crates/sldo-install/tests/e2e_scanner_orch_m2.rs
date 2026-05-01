@@ -18,8 +18,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 fn skill_md() -> String {
@@ -78,8 +77,7 @@ fn pinned_sha_doc_cites_abuse_case() {
 fn pinned_sha_doc_documents_bump_procedure() {
     let doc = pinned_sha_doc();
     assert!(
-        doc.to_lowercase().contains("bump procedure")
-            || doc.to_lowercase().contains("bumping"),
+        doc.to_lowercase().contains("bump procedure") || doc.to_lowercase().contains("bumping"),
         "pinned-SHA doc must document a bump procedure"
     );
     // PR-based review is the human-review surface.
@@ -324,11 +322,7 @@ fn skill_md_m1_parser_scope_still_enforced() {
     let skill = skill_md();
     // M1's parser scope rule (HTML comments, fenced code, ~~~text fences)
     // remains documented after M2 additions.
-    let scope_signals = [
-        "HTML comments",
-        "fenced code",
-        "~~~text",
-    ];
+    let scope_signals = ["HTML comments", "fenced code", "~~~text"];
     for sig in scope_signals {
         assert!(
             skill.contains(sig),
@@ -346,7 +340,10 @@ fn existing_references_sast_unmodified_by_m2() {
     // The M1 reference doc + sast-rulegen pre-existing files must be
     // byte-identical post-M2. M2 only adds 2 new files.
     let cases = [
-        ("references/sast/threat-model-parser-contract.md", "tm-scanner-orchestration-abuse-1"),
+        (
+            "references/sast/threat-model-parser-contract.md",
+            "tm-scanner-orchestration-abuse-1",
+        ),
         ("references/sast/AUTHORING.md", "Trail of Bits"),
         ("references/sast/MIN-SEMGREP-VERSION.md", "Semgrep"),
         ("references/sast/cwe-map-rust.md", "CWE"),

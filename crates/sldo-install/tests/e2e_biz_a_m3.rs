@@ -22,8 +22,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 const FOUR_PREDICATE_IDS: &[&str] = &[
@@ -97,10 +96,16 @@ fn hmrc_vcm_index_carries_three_manual_sections() {
     let vcm = read(&repo_root().join("references/biz/hmrc-vcm-index.md"));
     let sections = ["VCM34080", "VCM3000", "VCM31000"];
     for section in &sections {
-        assert!(vcm.contains(section), "missing HMRC manual section `{section}`");
+        assert!(
+            vcm.contains(section),
+            "missing HMRC manual section `{section}`"
+        );
     }
     assert!(vcm.contains("gov.uk"), "must cite gov.uk URLs");
-    assert!(vcm.contains("retrieved"), "must include retrieval-date frontmatter or body line");
+    assert!(
+        vcm.contains("retrieved"),
+        "must include retrieval-date frontmatter or body line"
+    );
 }
 
 #[test]
@@ -127,7 +132,12 @@ fn hmrc_vcm_index_cites_abingdon_health_case() {
 fn slo_equity_runs_seis_eis_pre_check() {
     let skill = read(&repo_root().join("skills/slo-equity/SKILL.md"));
     // The skill must reference the four pre-check questions or the HMRC manual paragraphs.
-    let signals = ["VCM34080", "VCM3000", "Advance Assurance", "Abingdon Health"];
+    let signals = [
+        "VCM34080",
+        "VCM3000",
+        "Advance Assurance",
+        "Abingdon Health",
+    ];
     for s in &signals {
         assert!(
             skill.contains(s),

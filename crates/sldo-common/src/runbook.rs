@@ -216,7 +216,10 @@ mod tests {
         // Then: Started and completed dates are present
         assert_eq!(row1.started.as_deref(), Some("2026-01-01"));
         assert_eq!(row1.completed.as_deref(), Some("2026-01-02"));
-        assert_eq!(row1.lessons_file.as_deref(), Some("`docs/slo/lessons/m1.md`"));
+        assert_eq!(
+            row1.lessons_file.as_deref(),
+            Some("`docs/slo/lessons/m1.md`")
+        );
     }
 
     #[test]

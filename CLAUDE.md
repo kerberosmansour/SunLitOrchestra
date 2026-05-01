@@ -63,6 +63,21 @@ PII discipline: every biz skill writing to `docs/biz/` issues a write-time warni
 
 See [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) for attribution.
 
+## Specialist agents (optional, Claude-only — sap-imp M5)
+
+Four host-native specialist agents under [agents/](agents/) provide an additive Claude-Code-only critique flow: `slo-runbook-review-lead`, `slo-security-reviewer`, `slo-design-reviewer`, `slo-verification-lead`. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` (same paths `/slo-critique` and `/slo-verify` write to). The structural-contract test in `xtasks/sast-verify/tests/sap_imp_m5_agents.rs` enforces frontmatter, output-path safety, and `/slo-critique` SKILL.md SHA-256 byte-identical baseline.
+
+`/slo-critique` persona rotation remains the canonical portable critique path. Agents are an optional enhancement; the canonical flow is preserved on every host.
+
+## Examples gallery
+
+Synthetic, non-normative gallery at [examples/](examples/). Read these to see what shipped SLO outputs look like before running a skill.
+
+## Distribution channels
+
+- `sldo-install` (canonical) — installs into `~/.claude/skills/` (or `--local`).
+- `.claude-plugin/plugin.json` (optional, additive) — Claude Code organizational installs may prefer a one-zip distribution. Tagged releases produce a downloadable zip via the SHA-pinned [release-zip workflow](.github/workflows/release-zip.yml).
+
 ## Canonical planning artifact
 
 Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md). This is the v4 template — the output contract of `/slo-plan` — which adds Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable") on top of v3's SunLit-specific structure (carry-forward from prior retros, abuse-acceptance scenarios, threat-model integration). Do not bypass it for batch CLI shortcuts when interactive planning is an option. [docs/slo/templates/runbook-template_v_3_template.md](docs/slo/templates/runbook-template_v_3_template.md) remains in place as the historical artifact for runbooks already authored against v3.

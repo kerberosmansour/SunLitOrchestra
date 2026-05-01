@@ -18,8 +18,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 fn skill_md() -> String {
@@ -175,10 +174,7 @@ fn skill_md_documents_re_derivation_flow() {
         "PR creation",
     ];
     for sig in flow_signals {
-        assert!(
-            skill.contains(sig),
-            "SKILL.md M5 must document `{sig}`"
-        );
+        assert!(skill.contains(sig), "SKILL.md M5 must document `{sig}`");
     }
 }
 
@@ -298,12 +294,27 @@ fn skill_md_m1_through_m4_sections_still_present() {
 #[test]
 fn existing_references_sast_unmodified_by_m5() {
     let cases = [
-        ("references/sast/threat-model-parser-contract.md", "tm-scanner-orchestration-abuse-1"),
-        ("references/sast/scanner-orch-pinned-rules-sha.md", "40-character"),
+        (
+            "references/sast/threat-model-parser-contract.md",
+            "tm-scanner-orchestration-abuse-1",
+        ),
+        (
+            "references/sast/scanner-orch-pinned-rules-sha.md",
+            "40-character",
+        ),
         ("references/sast/stack-detection-contract.md", "polyglot"),
-        ("references/sast/scanner-orch-workflow-template.yml", "pull_request"),
-        ("references/sast/scanner-orch-action-shas.md", "actions/checkout"),
-        ("references/sast/scanner-orch-manifest-schema.md", "defensive design"),
+        (
+            "references/sast/scanner-orch-workflow-template.yml",
+            "pull_request",
+        ),
+        (
+            "references/sast/scanner-orch-action-shas.md",
+            "actions/checkout",
+        ),
+        (
+            "references/sast/scanner-orch-manifest-schema.md",
+            "defensive design",
+        ),
         ("references/sast/AUTHORING.md", "Trail of Bits"),
     ];
     for (path, sentinel) in cases {

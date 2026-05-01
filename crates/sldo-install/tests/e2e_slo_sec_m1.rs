@@ -24,8 +24,7 @@ fn repo_root() -> PathBuf {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
+    fs::read_to_string(path).unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()))
 }
 
 // ---------------------------------------------------------------------------
@@ -109,11 +108,15 @@ fn architect_documents_new_frontmatter_keys() {
 
 #[test]
 fn security_md_template_has_required_sections() {
-    let template = read(
-        &repo_root().join("skills/slo-architect/references/SECURITY-md-template.md"),
-    );
+    let template =
+        read(&repo_root().join("skills/slo-architect/references/SECURITY-md-template.md"));
     assert!(template.len() > 500, "template is suspiciously short");
-    for section in ["Crypto policy", "Auth model", "Input handling", "Escape hatches"] {
+    for section in [
+        "Crypto policy",
+        "Auth model",
+        "Input handling",
+        "Escape hatches",
+    ] {
         assert!(
             template.contains(section),
             "SECURITY.md template missing required section `{section}`"
@@ -127,9 +130,8 @@ fn security_md_template_has_required_sections() {
 
 #[test]
 fn threat_model_template_has_stride_table() {
-    let template = read(
-        &repo_root().join("skills/slo-architect/references/threat-model-template.md"),
-    );
+    let template =
+        read(&repo_root().join("skills/slo-architect/references/threat-model-template.md"));
     let stride_terms = [
         "Spoofing",
         "Tampering",
@@ -152,9 +154,8 @@ fn threat_model_template_has_stride_table() {
 
 #[test]
 fn threat_model_template_has_compliance_mapping() {
-    let template = read(
-        &repo_root().join("skills/slo-architect/references/threat-model-template.md"),
-    );
+    let template =
+        read(&repo_root().join("skills/slo-architect/references/threat-model-template.md"));
     assert!(
         template.contains("Compliance mapping") || template.contains("## Compliance"),
         "threat-model template missing `Compliance mapping` section"
@@ -176,9 +177,8 @@ fn threat_model_template_has_compliance_mapping() {
 
 #[test]
 fn threat_model_template_has_ai_triad_conditional() {
-    let template = read(
-        &repo_root().join("skills/slo-architect/references/threat-model-template.md"),
-    );
+    let template =
+        read(&repo_root().join("skills/slo-architect/references/threat-model-template.md"));
     // All three frameworks appear and are clearly grouped with ai_component: true.
     for citation in ["MITRE ATLAS", "OWASP LLM Top 10", "NIST AI RMF"] {
         assert!(
@@ -376,9 +376,7 @@ fn check_overview_frontmatter(body: &str) -> Result<(), String> {
         } else if let Some(rest) = line.strip_prefix("ai_component:") {
             let v = rest.trim();
             if v != "true" && v != "false" {
-                return Err(format!(
-                    "ai_component must be bool (true|false), got `{v}`"
-                ));
+                return Err(format!("ai_component must be bool (true|false), got `{v}`"));
             }
         } else if let Some(rest) = line.strip_prefix("compliance:") {
             let v = rest.trim();
@@ -470,8 +468,9 @@ fn frontmatter_type_checker_accepts_absent_new_keys_backward_compat() {
         "---\n",
         "# Overview body\n",
     );
-    check_overview_frontmatter(synthesised_pre_sec_overview)
-        .expect("frontmatter without the security-embedding keys must pass the checker (backward-compat)");
+    check_overview_frontmatter(synthesised_pre_sec_overview).expect(
+        "frontmatter without the security-embedding keys must pass the checker (backward-compat)",
+    );
 }
 
 // ---------------------------------------------------------------------------

@@ -5,7 +5,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn read(path: &Path) -> String {
@@ -56,7 +61,10 @@ fn slo_product_documents_three_mode_args() {
         "docs/biz-public/product/okrs.md",
     ];
     for p in &output_paths {
-        assert!(skill.contains(p), "/slo-product must declare output path `{p}`");
+        assert!(
+            skill.contains(p),
+            "/slo-product must declare output path `{p}`"
+        );
     }
 }
 
@@ -69,7 +77,10 @@ fn slo_product_documents_unknown_mode_rejection() {
         "Refuse unknown mode_arg",
     ];
     let any = signals.iter().any(|s| skill.contains(s));
-    assert!(any, "/slo-product must document rejection of unknown mode_arg values");
+    assert!(
+        any,
+        "/slo-product must document rejection of unknown mode_arg values"
+    );
 }
 
 #[test]
@@ -82,7 +93,10 @@ fn slo_product_disambiguates_from_slo_metrics() {
     );
     // Must enumerate the financial KPIs that belong to /slo-metrics, not here.
     let financial_kpis = ["CAC", "LTV", "NDR", "burn multiple"];
-    let count = financial_kpis.iter().filter(|k| skill.contains(**k)).count();
+    let count = financial_kpis
+        .iter()
+        .filter(|k| skill.contains(**k))
+        .count();
     assert!(
         count >= 3,
         "/slo-product must enumerate at least 3 financial KPIs that belong to /slo-metrics (not here); found {count}"
@@ -92,16 +106,28 @@ fn slo_product_disambiguates_from_slo_metrics() {
 #[test]
 fn slo_product_documents_north_star_singular() {
     let skill = read(&repo_root().join("skills/slo-product/SKILL.md"));
-    assert!(skill.contains("north-star") || skill.contains("North Star") || skill.contains("North-star"));
+    assert!(
+        skill.contains("north-star")
+            || skill.contains("North Star")
+            || skill.contains("North-star")
+    );
     let signals = ["ONE metric", "single", "Not multiple"];
     let any = signals.iter().any(|s| skill.contains(s));
-    assert!(any, "/slo-product must enforce ONE north-star metric (not multiple)");
+    assert!(
+        any,
+        "/slo-product must enforce ONE north-star metric (not multiple)"
+    );
 }
 
 #[test]
 fn slo_product_okrs_caps_objectives_at_three() {
     let skill = read(&repo_root().join("skills/slo-product/SKILL.md"));
-    let signals = ["3 objectives MAX", "3 objectives max", "more than 3 objectives", "Cut to 3"];
+    let signals = [
+        "3 objectives MAX",
+        "3 objectives max",
+        "more than 3 objectives",
+        "Cut to 3",
+    ];
     let any = signals.iter().any(|s| skill.contains(s));
     assert!(any, "/slo-product okrs mode must cap objectives at 3");
 }

@@ -147,7 +147,9 @@ fn parse_fixture_frontmatter(body: &str) -> Result<FixtureFrontmatter, String> {
         match get(key)?.as_str() {
             "true" => Ok(true),
             "false" => Ok(false),
-            other => Err(format!("fixture key `{key}` must be `true` or `false`, got `{other}`")),
+            other => Err(format!(
+                "fixture key `{key}` must be `true` or `false`, got `{other}`"
+            )),
         }
     };
 
@@ -155,7 +157,9 @@ fn parse_fixture_frontmatter(body: &str) -> Result<FixtureFrontmatter, String> {
         let raw = get(key)?;
         let trimmed = raw.trim();
         if !trimmed.starts_with('[') || !trimmed.ends_with(']') {
-            return Err(format!("fixture key `{key}` must be a `[…]` list, got `{trimmed}`"));
+            return Err(format!(
+                "fixture key `{key}` must be a `[…]` list, got `{trimmed}`"
+            ));
         }
         let inner = &trimmed[1..trimmed.len() - 1];
         if inner.trim().is_empty() {
@@ -287,8 +291,7 @@ impl TempRepo {
 
         // Empty isolated HOME.
         let home = root_path.join("home");
-        fs::create_dir_all(home.join(".claude"))
-            .map_err(|e| format!("mkdir home/.claude: {e}"))?;
+        fs::create_dir_all(home.join(".claude")).map_err(|e| format!("mkdir home/.claude: {e}"))?;
 
         Ok(TempRepo { root, home })
     }
@@ -318,14 +321,21 @@ pub fn claude_bin() -> String {
 /// Returns Ok(()) if `claude` is invocable (`--version` exits 0).
 pub fn claude_available() -> Result<(), String> {
     let bin = claude_bin();
-    match Command::new(&bin).arg("--version").stdout(Stdio::piped()).stderr(Stdio::piped()).output() {
+    match Command::new(&bin)
+        .arg("--version")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+    {
         Ok(o) if o.status.success() => Ok(()),
         Ok(o) => Err(format!(
             "`{bin} --version` exited {} (stderr: {})",
             o.status,
             String::from_utf8_lossy(&o.stderr)
         )),
-        Err(e) => Err(format!("`{bin}` not invocable: {e} (override with BIZ_JUDGMENT_RUNTIME_CLAUDE_BIN=…)")),
+        Err(e) => Err(format!(
+            "`{bin}` not invocable: {e} (override with BIZ_JUDGMENT_RUNTIME_CLAUDE_BIN=…)"
+        )),
     }
 }
 
@@ -362,9 +372,7 @@ pub fn invoke_claude(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("spawn `{bin}`: {e}"))?;
+    let output = cmd.output().map_err(|e| format!("spawn `{bin}`: {e}"))?;
 
     Ok(ClaudeOutput {
         stdout: String::from_utf8_lossy(&output.stdout).to_string(),
@@ -410,7 +418,11 @@ pub fn discover_artifact(temp_repo: &TempRepo) -> Result<Option<DiscoveredArtifa
     };
     let raw = fs::read_to_string(&p).map_err(|e| format!("read {}: {e}", p.display()))?;
     let fm = parse_artifact_frontmatter(&raw);
-    Ok(Some(DiscoveredArtifact { path: p, frontmatter: fm, raw }))
+    Ok(Some(DiscoveredArtifact {
+        path: p,
+        frontmatter: fm,
+        raw,
+    }))
 }
 
 fn walk_md(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), String> {
@@ -577,7 +589,8 @@ pub fn run_fixture(
         // fix, not retry. Still, the artifact may have been written before
         // claude exited; let assert_expectations decide based on what's on
         // disk rather than treating exit-1 as automatic failure.
-        let budget_truncated = !out.exit_status.success() && out.stdout.contains("error_max_budget_usd");
+        let budget_truncated =
+            !out.exit_status.success() && out.stdout.contains("error_max_budget_usd");
         if !out.exit_status.success() && !transient && !budget_truncated && attempt < retries {
             // Other non-zero exits — retry once with backoff in case it's
             // an intermittent claude-CLI issue.
@@ -631,13 +644,20 @@ fn is_transient_error(stderr: &str) -> bool {
 ///   `mode` is NOT `draft` (a triage / prepare memo explaining the
 ///   refusal). An artifact with `mode: draft` and `must_refuse: true` is a
 ///   judgment regression — the load-bearing failure mode.
-pub fn assert_expectations(fixture: &JudgmentFixture, result: &FixtureResult) -> Result<(), String> {
+pub fn assert_expectations(
+    fixture: &JudgmentFixture,
+    result: &FixtureResult,
+) -> Result<(), String> {
     let fm = &fixture.frontmatter;
 
     // Adversarial / refusal branch.
     if fm.must_refuse {
         if let Some(art) = &result.artifact {
-            let mode = art.frontmatter.get("mode").map(String::as_str).unwrap_or("");
+            let mode = art
+                .frontmatter
+                .get("mode")
+                .map(String::as_str)
+                .unwrap_or("");
             if mode == "draft" {
                 return Err(format!(
                     "JUDGMENT REGRESSION: skill drafted under refusal condition (must_refuse: true) for fixture `{}`.\n\
@@ -653,7 +673,7 @@ pub fn assert_expectations(fixture: &JudgmentFixture, result: &FixtureResult) ->
             // Non-draft artifact (triage / prepare) is acceptable. Verify
             // gates_fired matches expected when present.
             verify_gates(art, &fm.expected_gates_fired)?;
-            verify_triage_gate_passed(art, /*expected_passed=*/false)?;
+            verify_triage_gate_passed(art, /*expected_passed=*/ false)?;
             return Ok(());
         }
         // No artifact at all — verify a refusal phrase appears in stdout.
@@ -707,7 +727,11 @@ pub fn assert_expectations(fixture: &JudgmentFixture, result: &FixtureResult) ->
 ///   + ir35-employed-disguised-contractor both correctly fire multiple
 ///   gates the original fixtures listed only one of.
 fn verify_gates(art: &DiscoveredArtifact, expected: &[String]) -> Result<(), String> {
-    let raw = art.frontmatter.get("gates_fired").map(String::as_str).unwrap_or("");
+    let raw = art
+        .frontmatter
+        .get("gates_fired")
+        .map(String::as_str)
+        .unwrap_or("");
     let actual = parse_gate_list(raw);
     let mut e: Vec<&str> = expected.iter().map(String::as_str).collect();
     e.sort_unstable();
@@ -745,7 +769,10 @@ fn verify_gates(art: &DiscoveredArtifact, expected: &[String]) -> Result<(), Str
     Ok(())
 }
 
-fn verify_triage_gate_passed(art: &DiscoveredArtifact, expected_passed: bool) -> Result<(), String> {
+fn verify_triage_gate_passed(
+    art: &DiscoveredArtifact,
+    expected_passed: bool,
+) -> Result<(), String> {
     let val = art
         .frontmatter
         .get("triage_gate_passed")
@@ -772,10 +799,7 @@ fn parse_gate_list(raw: &str) -> Vec<String> {
     if trimmed.is_empty() || trimmed == "[]" {
         return vec![];
     }
-    let inner = trimmed
-        .trim_start_matches('[')
-        .trim_end_matches(']')
-        .trim();
+    let inner = trimmed.trim_start_matches('[').trim_end_matches(']').trim();
     if inner.is_empty() {
         return vec![];
     }
@@ -835,7 +859,8 @@ mod tests {
 
     #[test]
     fn extracts_founder_prompt_with_blockquote() {
-        let body = "---\nname: x\n---\n# t\n## Founder prompt\n> hello world\n## Expected behavior\n";
+        let body =
+            "---\nname: x\n---\n# t\n## Founder prompt\n> hello world\n## Expected behavior\n";
         let p = extract_founder_prompt(body).unwrap();
         assert_eq!(p, "hello world");
     }
@@ -854,7 +879,10 @@ mod tests {
         assert_eq!(parse_gate_list("[a]"), vec!["a"]);
         assert_eq!(
             parse_gate_list("[gate-1-regulated, gate-3-counterparty-has-lawyer-or-their-paper]"),
-            vec!["gate-1-regulated", "gate-3-counterparty-has-lawyer-or-their-paper"]
+            vec![
+                "gate-1-regulated",
+                "gate-3-counterparty-has-lawyer-or-their-paper"
+            ]
         );
     }
 
