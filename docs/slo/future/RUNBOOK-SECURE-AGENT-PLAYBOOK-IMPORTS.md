@@ -1,7 +1,7 @@
 # Secure Agent Playbook Imports - SunLitOrchestrate (future runbook)
 
 > **Purpose**: Capture reusable project-level ideas from OWASP Secure Agent Playbook and adapt them to SunLitOrchestrate without turning SLO into a generic security-assessment playbook.
-> **Status**: not_started. The small shared security-reporting template layer has landed in `references/security/`; the remaining items below need normal `/slo-ideate -> /slo-plan` treatment before implementation.
+> **Status**: planned. `/slo-plan` produced the v4 runbook at [docs/RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md](../../RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md) on 2026-05-01 — five milestones authored (M1: shared security-reporting integration; M2: example output gallery; M3: standards traceability matrix; M4: optional plugin packaging assessment with SHA-pin gate; M5: gated agent-role experiment). This document remains as the precursor planning record; the canonical execution contract is the v4 runbook.
 > **Source reviewed**: `/Users/sherifmansour/Dev/GitHub/secure-agent-playbook` project layout, agents, skills, plays, templates, examples, plugin metadata, and release workflow.
 > **Design write-up**: [docs/slo/design/secure-agent-playbook-imports-overview.md](../design/secure-agent-playbook-imports-overview.md).
 
