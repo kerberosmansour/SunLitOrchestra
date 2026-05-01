@@ -1,8 +1,8 @@
-# SunLitOrchestrate
+# SunLit Orchestrate
 
-> A contract-driven workflow for AI-assisted software delivery. SunLitOrchestrate turns "build this" into scoped, reviewable, testable work, with security considerations and durable guardrails wired in at every stage: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
+> A contract-driven workflow for AI-assisted software delivery. SunLit Orchestrate turns "build this" into scoped, reviewable, testable work, with security considerations and durable guardrails wired in at every stage: idea → research → architecture → plan → critique → execute → verify → ship → reflect.
 
-Three contributions make this pack distinct: **(1) a runbook artifact that bakes best practices into every milestone**, **(2) security wired into every step rather than bolted on at the end**, and **(3) an opt-in TLA+ formal-specification stage for designs that need it**. See [What makes SunLitOrchestrate different](#what-makes-sunlitorchestrate-different) for what each one actually buys you.
+Three contributions make this pack distinct: **(1) a runbook artifact that bakes best practices into every milestone**, **(2) security wired into every step rather than bolted on at the end**, and **(3) an opt-in TLA+ formal-specification stage for designs that need it**. See [What makes SunLit Orchestrate different](#what-makes-sunlit-orchestrate-different) for what each one actually buys you.
 
 **License:** [Apache-2.0 OR MIT](LICENSE) (dual; pick either) — explicitly NOT AGPL. **Status:** active development. The skill pack and Rust CLIs are stable.
 
@@ -16,9 +16,9 @@ LLM-assisted development is fast at producing code and slow at producing the thi
 - **Security as an afterthought** — threat modelling, SAST, and abuse cases happen (if at all) after the code is already merged.
 - **Lessons that die in chat** — the same mistake gets re-made next sprint because nothing was captured outside the session.
 
-The bet behind SunLitOrchestrate is that these failures are not LLM limitations — they are *workflow* limitations. The model can produce strong work when the surrounding workflow forces it to commit to scope, rationale, and verification before code is written.
+The bet behind SunLit Orchestrate is that these failures are not LLM limitations — they are *workflow* limitations. The model can produce strong work when the surrounding workflow forces it to commit to scope, rationale, and verification before code is written.
 
-## What SunLitOrchestrate is
+## What SunLit Orchestrate is
 
 A **skill pack** — a set of `/slo-*` slash commands installed into a host AI coding agent (Claude Code by default, GitHub Copilot also supported) — plus a small Rust toolchain that installs the pack, provides an optional batch backend for `/slo-research`, and runs a Semgrep rule gate (`cargo xtask sast-verify`) wired to the SAST skills.
 
@@ -30,7 +30,7 @@ The pack is organised around three workflows that compose:
 
 The raw `SKILL.md` contract is agent-neutral, so the pack is portable between hosts. Canonical list: [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md).
 
-## What makes SunLitOrchestrate different
+## What makes SunLit Orchestrate different
 
 Three contributions distinguish this pack from other AI-coding workflows. Everything else in the project exists to support them.
 
@@ -48,7 +48,7 @@ The runbook outlives the LLM session that produced it. It is what the next revie
 
 ### 2. Security on every step, not a separate phase
 
-Most AI-coding workflows treat security as a closing checklist or a separate audit pass. SunLitOrchestrate wires it into the sprint flow from the very first stage, and threads it forward through every subsequent one:
+Most AI-coding workflows treat security as a closing checklist or a separate audit pass. SunLit Orchestrate wires it into the sprint flow from the very first stage, and threads it forward through every subsequent one:
 
 - **`/slo-ideate`** — before any architecture exists, ideation asks: *"what is the worst day this system causes?"* The output must name three concrete failure outcomes — a breach (which data leaves the trust boundary, to whom), a compliance fine (which regulation, what scale), or a prolonged outage (who notices, how long until the user defects). Vague answers like "security matters" or "downtime is bad" are explicitly rejected. Those named risks are what `/slo-architect` builds the threat model from — security is on the table before code exists as a concept.
 - **`/slo-architect`** — produces a STRIDE threat model and an abuse-case set on *every* pass, not optionally and not later. The threat-model rows become the seed for the abuse cases the next stage carries forward, and the architecture doc records the security best practices the build is committed to (proactive-controls vocabulary, named secure libraries, data-classification posture).
@@ -62,7 +62,7 @@ The consequence: there is no "security review" stage at the end, because there i
 
 ### 3. TLA+ formal specification for designs that earn it
 
-Almost no AI-coding workflow offers a formal-methods step at all. SunLitOrchestrate adds `/slo-tla` as an explicit stage between architecture and plan, for designs where concurrency, ordering, or protocol risk is real. The skill drives a TLC model-check of the design *as a specification* before any code is written — so the class of bug that would only surface under contention, partial failure, or unusual interleavings in production gets caught while the design is still text.
+Almost no AI-coding workflow offers a formal-methods step at all. SunLit Orchestrate adds `/slo-tla` as an explicit stage between architecture and plan, for designs where concurrency, ordering, or protocol risk is real. The skill drives a TLC model-check of the design *as a specification* before any code is written — so the class of bug that would only surface under contention, partial failure, or unusual interleavings in production gets caught while the design is still text.
 
 The decision of whether a runbook needs TLA+ is set during `/slo-architect` via the `tla_required: true | false` field, so it is visible, recorded, and reviewable rather than implicit. When the flag is true, the runbook cannot proceed past plan without a passing model-check; when false, the reasoning for skipping it is recorded in the architecture doc. Either way, the choice is on the record.
 
@@ -96,7 +96,7 @@ The artifacts produced by each stage live under `docs/slo/` (idea, research doss
 ## When NOT to use it
 
 - **Throwaway scripts and one-shot prototypes.** The runbook discipline doesn't pay back if the artifact won't be read twice.
-- **Teams that want a low-friction "vibe-code with the LLM" loop.** SunLitOrchestrate is intentionally heavier on contracts than on autonomy. If you don't want the contracts, the rest of the pack will feel like ceremony.
+- **Teams that want a low-friction "vibe-code with the LLM" loop.** SunLit Orchestrate is intentionally heavier on contracts than on autonomy. If you don't want the contracts, the rest of the pack will feel like ceremony.
 - **Non-UK jurisdictions for the biz pack.** v1 is UK-only by design; non-UK is a fresh `/slo-architect` pass, not a flag.
 - **Headless / CI-only automation as the primary path.** Most skills are interactive today. See [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) for the exact boundary.
 
@@ -308,12 +308,12 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ## Acknowledgements
 
-- Trail of Bits' [`semgrep-rules`](https://github.com/trailofbits/semgrep-rules) (AGPL) for the structural shape inspiration on the panic-DoS / CWE-755 rule. The SunLitOrchestrate rule pack is independently re-authored from variation templates per the AGPL clean-room policy in [references/sast/AUTHORING.md](references/sast/AUTHORING.md).
-- The [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) for helping popularize structured, lifecycle-aware AI-assisted development. SunLitOrchestrate arrives at a more contract-heavy, security-first shape, but it shares the belief that better outcomes come from explicit workflow rather than one-shot prompting.
+- Trail of Bits' [`semgrep-rules`](https://github.com/trailofbits/semgrep-rules) (AGPL) for the structural shape inspiration on the panic-DoS / CWE-755 rule. The SunLit Orchestrate rule pack is independently re-authored from variation templates per the AGPL clean-room policy in [references/sast/AUTHORING.md](references/sast/AUTHORING.md).
+- The [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) for helping popularize structured, lifecycle-aware AI-assisted development. SunLit Orchestrate arrives at a more contract-heavy, security-first shape, but it shares the belief that better outcomes come from explicit workflow rather than one-shot prompting.
 - [TLA+](https://github.com/tlaplus/tlaplus), and the broader formal-methods tradition around it, for reinforcing the idea that some designs should be challenged as specifications before they are implemented as code. SunLit carries that idea through `/slo-tla` when concurrency, ordering, or protocol risk is real.
 - Jim Manico's talk [*Securing Claude Code: Guardrails for AI-Assisted Development*](https://youtu.be/thsdAsgIsFc?si=FvxYtdHyus7DQTe7) for sharpening the guardrail-first mindset behind the project's threat-modeling, verification, and "no agentic shortcuts" posture.
 - John Carmack's [*Best programming setup and IDE*](https://youtu.be/tzr7hRXcwkw?si=SeeakVCVpqWatOUl) clip from the Lex Fridman Podcast for influencing the v4 runbook template's Carmack-style reliability controls — debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, and "make invalid states unrepresentable".
 - The [oneNDA](https://www.onenda.org/) consortium for the canonical UK NDA template the biz-pack `/slo-legal draft nda` flow points users to. Licensed under [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/); the canonical `.docx` is fetched manually by the user from onenda.org and is never copied, modified, rendered, or redistributed by this repo. The skill produces only a separate Markdown cover artifact for company-specific fields — assembly happens on the user's machine, against the user's locally-downloaded canonical `.docx`.
 - The [SeedLegals](https://seedlegals.com/) public pricing page as the v1 cost baseline anchor for biz-pack ROI claims, alongside JPP Law's fixed-fee public pricing.
-- Garry Tan's [gstack](https://github.com/garrytan/gstack) for the skill-pack-as-workflow pattern that shaped the overall structure of SunLitOrchestrate's `/slo-*` skills — the idea that a stage-aware collection of opinionated skills can carry a project from ideation to ship more reliably than ad-hoc prompting.
-- OpenAI's [Symphony](https://github.com/openai/symphony) for influencing how SunLitOrchestrate thinks about multi-agent orchestration and the seams between specialist roles in a development workflow.
+- Garry Tan's [gstack](https://github.com/garrytan/gstack) for the skill-pack-as-workflow pattern that shaped the overall structure of SunLit Orchestrate's `/slo-*` skills — the idea that a stage-aware collection of opinionated skills can carry a project from ideation to ship more reliably than ad-hoc prompting.
+- OpenAI's [Symphony](https://github.com/openai/symphony) for influencing how SunLit Orchestrate thinks about multi-agent orchestration and the seams between specialist roles in a development workflow.
