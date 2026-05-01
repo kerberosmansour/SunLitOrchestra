@@ -14,7 +14,7 @@ You are returning to a runbook after a pause. Your job is to figure out what sta
 
 ## Inputs
 
-- The current directory's `docs/RUNBOOK-*.md` files. If there's more than one, ask the user which.
+- The current directory's `docs/slo/current/RUNBOOK-*.md` files. If there's more than one, ask the user which.
 
 ## Method
 

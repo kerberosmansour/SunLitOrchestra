@@ -1,6 +1,6 @@
 # `semgrep-rules` pinned SHA
 
-> The 40-character commit SHA of `github.com/semgrep/semgrep-rules` that `/slo-sast` clones into `~/.cache/sldo/semgrep-rules/<SHA>/`. Locked in M2 of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). Bumping this value requires a PR with reviewer attention to the upstream diff.
+> The 40-character commit SHA of `github.com/semgrep/semgrep-rules` that `/slo-sast` clones into `~/.cache/sldo/semgrep-rules/<SHA>/`. Locked in M2 of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). Bumping this value requires a PR with reviewer attention to the upstream diff.
 
 ## Pinned SHA
 
@@ -51,4 +51,4 @@ Each pinned SHA gets its own directory; bumping the pin writes a sibling. **Old 
 
 ## Stability
 
-This pin file is `evolving` per the cadence above. The 40-char-SHA-only constraint and the `~/.cache/sldo/semgrep-rules/<SHA>/` layout are `stable` per [`docs/design/scanner-orchestration-interfaces.md` §7](../../docs/design/scanner-orchestration-interfaces.md).
+This pin file is `evolving` per the cadence above. The 40-char-SHA-only constraint and the `~/.cache/sldo/semgrep-rules/<SHA>/` layout are `stable` per [`docs/slo/design/scanner-orchestration-interfaces.md` §7](../../docs/slo/design/scanner-orchestration-interfaces.md).

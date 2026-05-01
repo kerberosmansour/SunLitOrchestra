@@ -45,4 +45,4 @@ Less frequent bumps are acceptable when:
 
 ## Stability
 
-This file is `evolving` per the cadence above. The 40-char-SHA-only constraint and the closed-enumeration of two actions are `stable` per [`docs/design/scanner-orchestration-interfaces.md` §6](../../docs/design/scanner-orchestration-interfaces.md).
+This file is `evolving` per the cadence above. The 40-char-SHA-only constraint and the closed-enumeration of two actions are `stable` per [`docs/slo/design/scanner-orchestration-interfaces.md` §6](../../docs/slo/design/scanner-orchestration-interfaces.md).

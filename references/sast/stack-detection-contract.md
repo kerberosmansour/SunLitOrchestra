@@ -1,6 +1,6 @@
 # Stack detection contract
 
-> The contract `/slo-sast` follows for detecting target-repo stack from manifest files. Locked in M2 of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). The detected stack tags feed the rule-filter intersection (`metadata.cwe ∋ CWE-N ∧ metadata.technology ∋ <stack>`).
+> The contract `/slo-sast` follows for detecting target-repo stack from manifest files. Locked in M2 of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md). The detected stack tags feed the rule-filter intersection (`metadata.cwe ∋ CWE-N ∧ metadata.technology ∋ <stack>`).
 
 ## Manifest priority order
 
@@ -56,4 +56,4 @@ The rule filter then matches against ANY of the detected tags (`metadata.technol
 
 ## Stability
 
-This contract is `stable` per [`docs/design/scanner-orchestration-interfaces.md` §3](../../docs/design/scanner-orchestration-interfaces.md). Adding a manifest type to the priority order is `evolving` (additive, non-breaking — existing detections keep working). Removing or renaming a tag requires a fresh `/slo-architect` decision and a migration milestone.
+This contract is `stable` per [`docs/slo/design/scanner-orchestration-interfaces.md` §3](../../docs/slo/design/scanner-orchestration-interfaces.md). Adding a manifest type to the priority order is `evolving` (additive, non-breaking — existing detections keep working). Removing or renaming a tag requires a fresh `/slo-architect` decision and a migration milestone.

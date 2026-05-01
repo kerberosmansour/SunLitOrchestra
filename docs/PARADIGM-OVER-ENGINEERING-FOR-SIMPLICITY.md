@@ -136,11 +136,11 @@ The paradigm does NOT mean:
 
 ## Cross-references
 
-- [`docs/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md`](RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md) — the lessons loop is itself an example of the paradigm: humans skip post-mortems, LLMs file them as tracked work.
-- [`docs/RUNBOOK-ENGINEERING-SKILL-IMPROVEMENTS.md`](RUNBOOK-ENGINEERING-SKILL-IMPROVEMENTS.md) — `references/templates/` shared library + per-skill evals + research-validation discipline embody the paradigm at engineering scale.
-- [`docs/RUNBOOK-BUSINESS-SKILL-IMPROVEMENTS.md`](RUNBOOK-BUSINESS-SKILL-IMPROVEMENTS.md) — conversational intake contracts + verbatim statute citations + KPI baseline source-verification embody the paradigm at biz-pack scale.
-- [`docs/RUNBOOK-SLO-SEC-LIBS.md`](RUNBOOK-SLO-SEC-LIBS.md) — capability-gap filing turns library-feedback from "lessons file commentary" into structured upstream work, exactly because the LLM doesn't tire of filing.
-- [`docs/runbook-template_v_4_template.md`](runbook-template_v_4_template.md) — the v4 template's per-milestone Contract Block (Data classification + Proactive controls + Abuse acceptance scenarios + Resource bounds + Invariants/assertions required + Debugger expectation + Static-analysis gates + extended BDD coverage categories) is the structural anchor of the paradigm. The earlier [v3 template](runbook-template_v_3_template.md) remains in place as the historical artifact for runbooks already authored against it.
+- [`docs/slo/completed/RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md`](RUNBOOK-LOOPS-AND-LESSONS-CLOSURE.md) — the lessons loop is itself an example of the paradigm: humans skip post-mortems, LLMs file them as tracked work.
+- [`docs/slo/future/RUNBOOK-ENGINEERING-SKILL-IMPROVEMENTS.md`](RUNBOOK-ENGINEERING-SKILL-IMPROVEMENTS.md) — `references/templates/` shared library + per-skill evals + research-validation discipline embody the paradigm at engineering scale.
+- [`docs/slo/future/RUNBOOK-BUSINESS-SKILL-IMPROVEMENTS.md`](RUNBOOK-BUSINESS-SKILL-IMPROVEMENTS.md) — conversational intake contracts + verbatim statute citations + KPI baseline source-verification embody the paradigm at biz-pack scale.
+- [`docs/slo/future/RUNBOOK-SLO-SEC-LIBS.md`](RUNBOOK-SLO-SEC-LIBS.md) — capability-gap filing turns library-feedback from "lessons file commentary" into structured upstream work, exactly because the LLM doesn't tire of filing.
+- [`docs/slo/templates/runbook-template_v_4_template.md`](runbook-template_v_4_template.md) — the v4 template's per-milestone Contract Block (Data classification + Proactive controls + Abuse acceptance scenarios + Resource bounds + Invariants/assertions required + Debugger expectation + Static-analysis gates + extended BDD coverage categories) is the structural anchor of the paradigm. The earlier [v3 template](runbook-template_v_3_template.md) remains in place as the historical artifact for runbooks already authored against it.
 - [`SECURITY.md`](../SECURITY.md) — project-wide security defaults that the LLM applies to every milestone.
 
 ## When to update this doc

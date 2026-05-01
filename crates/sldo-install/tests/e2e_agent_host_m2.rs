@@ -42,7 +42,7 @@ fn test_living_docs_distinguish_catalog_from_overlays() {
 
 #[test]
 fn test_capability_matrix_marks_headless_copilot_as_unsupported() {
-    let capability = read("docs/design/agent-host-capabilities.md");
+    let capability = read("docs/slo/design/agent-host-capabilities.md");
 
     assert!(
         capability.contains("Headless runtime automation"),

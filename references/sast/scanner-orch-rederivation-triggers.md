@@ -1,12 +1,12 @@
 # Scanner-orchestration re-derivation triggers
 
-> The four trigger predicates `/slo-sast` evaluates at every invocation to detect drift between the recorded manifest state and the current target-repo state. When any trigger fires, the skill surfaces the change as a `gh pr create` with a structured diff body. Locked in M5 of the [scanner-orchestration runbook](../../docs/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md).
+> The four trigger predicates `/slo-sast` evaluates at every invocation to detect drift between the recorded manifest state and the current target-repo state. When any trigger fires, the skill surfaces the change as a `gh pr create` with a structured diff body. Locked in M5 of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md). Cited by [`skills/slo-sast/SKILL.md`](../../skills/slo-sast/SKILL.md).
 
 ## Predicates
 
 | # | Trigger | What it compares | Fires when |
 |---|---|---|---|
-| 1 | **Threat-model SHA changed** | `git ls-files -s docs/design/<slug>-threat-model.md` (current blob SHA) vs `manifest.threat_model_sha` (recorded) | The threat-model file's content has been edited since the manifest was written. |
+| 1 | **Threat-model SHA changed** | `git ls-files -s docs/slo/design/<slug>-threat-model.md` (current blob SHA) vs `manifest.threat_model_sha` (recorded) | The threat-model file's content has been edited since the manifest was written. |
 | 2 | **`semgrep_rules_sha` pin bumped** | `references/sast/scanner-orch-pinned-rules-sha.md` (current pinned value) vs `manifest.semgrep_rules_sha` (recorded) | A bump-PR landed that updates the pinned upstream-rules SHA. |
 | 3 | **Stack added** | Manifest files present in target repo (`Cargo.toml`, `package.json`, etc.) vs `manifest.detected_stack` (recorded) | A new stack appeared (e.g., new `package.json` alongside existing `Cargo.toml`) that wasn't present at last manifest write. |
 | 4 | **CWEs claimed changed** | Deduplicated `\bCWE-(\d+)\b` parse output vs `manifest.cwes_claimed` (recorded) | The threat model's CWE list has changed (additions, removals, or both) since manifest was written. |
@@ -95,4 +95,4 @@ Auto-merge is NOT enabled. Review the rule-set delta and merge when ready.
 
 ## Stability
 
-This contract is `stable` per [`docs/design/scanner-orchestration-interfaces.md` §8](../../docs/design/scanner-orchestration-interfaces.md). The four trigger predicates form a closed enumeration; adding a fifth requires fresh `/slo-architect`. The PR title format and rate-limit cap are also `stable`.
+This contract is `stable` per [`docs/slo/design/scanner-orchestration-interfaces.md` §8](../../docs/slo/design/scanner-orchestration-interfaces.md). The four trigger predicates form a closed enumeration; adding a fifth requires fresh `/slo-architect`. The PR title format and rate-limit cap are also `stable`.

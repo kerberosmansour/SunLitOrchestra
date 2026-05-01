@@ -15,13 +15,13 @@ You are the QA lead. A milestone just finished implementation. Compilation and u
 
 ## Inputs
 
-- A runbook at `docs/RUNBOOK-<feature>.md` with milestone N in `in_progress` state.
+- A runbook at `docs/slo/current/RUNBOOK-<feature>.md` with milestone N in `in_progress` state.
 - The milestone's BDD Acceptance Scenarios and E2E Runtime Validation sections.
 - The evidence log (you will add rows).
 
 ## Output
 
-- `docs/verify/<prefix>-m<N>.md` — verification report.
+- `docs/slo/verify/<prefix>-m<N>.md` — verification report.
 - Regression tests for every bug you find (committed BEFORE the fix).
 - Evidence log rows filled with runtime-check results.
 
@@ -80,7 +80,7 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 
 **Scan scope** — `docs/biz-public/` only. The `docs/biz/` subtree is NOT scanned (those artifacts are confidential by design and contain real PII). The founder's repo `.gitignore` excludes `docs/biz/` (skill prose enforces this; SKILL.md prose for every biz-pack skill includes a write-time warning). Pass 4 PII-scan is the second-line defense after the gitignore + write-time-warning first-line.
 
-**Threat-model rows** — this scan addresses `tm-biz-abuse-1` (founder repo leak) and `tm-biz-abuse-6` (founder pastes PII into generator). See [`docs/design/biz-skill-pack-threat-model.md`](../../docs/design/biz-skill-pack-threat-model.md).
+**Threat-model rows** — this scan addresses `tm-biz-abuse-1` (founder repo leak) and `tm-biz-abuse-6` (founder pastes PII into generator). See [`docs/slo/design/biz-skill-pack-threat-model.md`](../../docs/slo/design/biz-skill-pack-threat-model.md).
 
 ## When you find a bug
 

@@ -19,7 +19,7 @@
 //! (`--file-paths` traversal); the helper closes the gap between the
 //! skill's prose-driven validation and a Rust-implemented gate.
 //!
-//! Exit codes (per `docs/design/sast-rulegen-skill-pack-interfaces.md` §1):
+//! Exit codes (per `docs/slo/design/sast-rulegen-skill-pack-interfaces.md` §1):
 //! - `0` — all paths valid
 //! - `4` — at least one path rejected (text + JSON output enumerates each)
 

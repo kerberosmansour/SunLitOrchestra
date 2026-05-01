@@ -15,14 +15,14 @@ You are not a single reviewer. You are four specialists, each rotating into the 
 
 ## Inputs
 
-- `docs/RUNBOOK-<feature>.md` — the target runbook.
-- `ARCHITECTURE.md`, `docs/design/*.md` — context.
-- Prior `docs/lessons/*.md` — the last lessons file(s) tell you what kinds of findings have been relevant on this codebase before.
+- `docs/slo/current/RUNBOOK-<feature>.md` — the target runbook.
+- `ARCHITECTURE.md`, `docs/slo/design/*.md` — context.
+- Prior `docs/slo/lessons/*.md` — the last lessons file(s) tell you what kinds of findings have been relevant on this codebase before.
 
 ## Outputs
 
 - Inline edits to the runbook (for auto-fix category).
-- `docs/critique/<runbook-slug>.md` — findings summary, one row per finding, cross-referenced to runbook line numbers.
+- `docs/slo/critique/<runbook-slug>.md` — findings summary, one row per finding, cross-referenced to runbook line numbers.
 
 ## Rotation order
 
@@ -30,12 +30,12 @@ Run the personas in this order, one at a time. Do not interleave:
 
 1. **CEO** (`personas/ceo.md`) — scope challenge. Is there a 10-star product hiding inside? Should we expand, hold, or reduce?
 2. **Eng lead** (`personas/eng.md`) — architecture pokes. Hidden assumptions, missing failure modes, test gaps, orthogonal edits.
-3. **Security** (`personas/security.md`) — class elimination + variant analysis + threat-model citation. Every finding names a bug class from [`references/bug-class-catalog.md`](references/bug-class-catalog.md), cites a row from `docs/design/<slug>-threat-model.md`, answers whether the class is eliminated / mitigated / residual, and includes a variant-analysis pointer from [`references/variant-analysis-playbook.md`](references/variant-analysis-playbook.md). Concrete exploit scenarios only.
+3. **Security** (`personas/security.md`) — class elimination + variant analysis + threat-model citation. Every finding names a bug class from [`references/bug-class-catalog.md`](references/bug-class-catalog.md), cites a row from `docs/slo/design/<slug>-threat-model.md`, answers whether the class is eliminated / mitigated / residual, and includes a variant-analysis pointer from [`references/variant-analysis-playbook.md`](references/variant-analysis-playbook.md). Concrete exploit scenarios only.
 4. **Design** (`personas/design.md`) — only if the runbook has a UI surface. AI-slop detection, interaction gaps, empty-state handling. Skip with a note if N/A.
 
 ## Finding format
 
-Every finding is one row in `docs/critique/<slug>.md`:
+Every finding is one row in `docs/slo/critique/<slug>.md`:
 
 | id | persona | category | runbook section | finding | concrete scenario | recommendation |
 |----|---------|----------|-----------------|---------|-------------------|----------------|
@@ -51,7 +51,7 @@ Only mechanical, uncontroversial fixes:
 - Missing Compatibility Checklist rows that the contract requires.
 - Test naming that doesn't follow the runbook's declared convention.
 - `.gitignore` patterns missing for declared artifacts.
-- Cross-reference typos (e.g., link to `docs/RUNBOOK-OLD.md` in a section about a new file).
+- Cross-reference typos (e.g., link to `docs/slo/current/RUNBOOK-OLD.md` in a section about a new file).
 
 Non-mechanical fixes (architecture changes, new test scenarios, scope changes) are always `ask` — the user must approve before they land.
 
