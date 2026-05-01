@@ -147,7 +147,7 @@ For each hypothesis from the pre-interview grid:
 
 ## UK-only jurisdiction
 
-UK only in v1. Same canonical error from [`references/biz/jurisdiction-uk.md`](../../references/biz/jurisdiction-uk.md): "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/design/biz-skill-pack-overview.md](../../docs/design/biz-skill-pack-overview.md) for the v2 design rationale.**"
+UK only in v1. Same canonical error from [`references/biz/jurisdiction-uk.md`](../../references/biz/jurisdiction-uk.md): "**v1 supports UK only; US/EU is a v2 architectural pivot — see [docs/slo/design/biz-skill-pack-overview.md](../../docs/slo/design/biz-skill-pack-overview.md) for the v2 design rationale.**"
 
 Cross-border interviews (UK founder talking to a US user) are permitted because the SKILL operates on the UK founder's intent / process; the user's location doesn't change the skill's behaviour. Non-UK FOUNDER context is what triggers the rejection.
 

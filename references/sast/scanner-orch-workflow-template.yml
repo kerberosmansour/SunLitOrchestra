@@ -11,7 +11,7 @@
 # pull_request_target into emitted YAML). Template-skeleton with parameter-only
 # substitution is the architectural defense, not a runtime check.
 #
-# Stability: stable per docs/design/scanner-orchestration-interfaces.md §6.
+# Stability: stable per docs/slo/design/scanner-orchestration-interfaces.md §6.
 # Safety properties asserted by crates/sldo-install/tests/e2e_scanner_orch_m3.rs.
 
 name: SAST (Semgrep)

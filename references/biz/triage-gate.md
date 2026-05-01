@@ -52,10 +52,10 @@ When a predicate fires, the skill MUST:
 Adding a fifth predicate, removing a predicate, or renaming a predicate ID requires:
 
 1. A fresh `/slo-architect` pass against new evidence (typically a research dossier or an incident retrospective).
-2. Update of `docs/design/biz-skill-pack-{overview,interfaces,threat-model}.md`.
+2. Update of `docs/slo/design/biz-skill-pack-{overview,interfaces,threat-model}.md`.
 3. Update of every advisor skill's SKILL.md to cite the new / renamed predicate.
 4. Update of `crates/sldo-install/tests/e2e_biz_a_m2.rs` (cross-skill citation test) to expect the new predicate-id set.
-5. Migration entry in `docs/RUNBOOK-BIZ-SKILL-PACK-A.md` (or the runbook performing the change).
+5. Migration entry in `docs/slo/completed/RUNBOOK-BIZ-SKILL-PACK-A.md` (or the runbook performing the change).
 6. `/slo-critique` security persona review of the change before it merges.
 
 The structural-contract test `triage_gate_predicate_set_unchanged_from_m1` in `e2e_biz_a_m2.rs` is the immutability enforcement mechanism. It asserts the predicate-id set is exactly `{gate-1-regulated, gate-2-deal-value-over-5k, gate-3-counterparty-has-lawyer-or-their-paper, gate-4-gdpr-document}`.

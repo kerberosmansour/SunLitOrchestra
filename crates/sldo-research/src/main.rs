@@ -217,7 +217,7 @@ fn run() -> Result<()> {
         success("Research dossier is ready for planning.");
         info("Next step — generate a runbook:");
         info(&format!(
-            "  sldo-plan {} <repo-dir> [-o docs/RUNBOOK.md]",
+            "  sldo-plan {} <repo-dir> [-o docs/slo/current/RUNBOOK.md]",
             cli.output.display()
         ));
     } else {

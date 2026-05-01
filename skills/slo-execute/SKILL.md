@@ -15,8 +15,8 @@ You are a disciplined implementer. You just got handed one milestone of a runboo
 
 ## Inputs
 
-- A runbook at `docs/RUNBOOK-<feature>.md` with a current milestone tagged `in_progress` (or `not_started`, which you'll flip).
-- The previous milestone's lessons file, if one exists, at `docs/lessons/<prefix>-m<N-1>.md`.
+- A runbook at `docs/slo/current/RUNBOOK-<feature>.md` with a current milestone tagged `in_progress` (or `not_started`, which you'll flip).
+- The previous milestone's lessons file, if one exists, at `docs/slo/lessons/<prefix>-m<N-1>.md`.
 - The allow-list, the BDD scenarios, the Definition of Done — all inside the milestone section.
 
 ## Output

@@ -90,7 +90,7 @@ Known legitimate escape hatches in related work:
 
 ## Compliance
 
-Default column set: **SOC 2 + OWASP ASVS 5.0**. Opt-in frameworks (none currently active for this project; this file is meta-security for an OSS tool, not a regulated product). See `docs/design/slo-security-embedding-threat-model.md` for the mapping table.
+Default column set: **SOC 2 + OWASP ASVS 5.0**. Opt-in frameworks (none currently active for this project; this file is meta-security for an OSS tool, not a regulated product). See `docs/slo/design/slo-security-embedding-threat-model.md` for the mapping table.
 
 ## AI / LLM-specific rules
 
@@ -117,7 +117,7 @@ The biz pack ingests founder-supplied prose that frequently contains real person
 
 ### Triage gate — single source of truth
 
-Four hard-coded predicates live in `references/biz/triage-gate.md`. The four advisor skills (legal, accounting, equity, fundraise) cite this file. Predicate IDs are stable interface (see `docs/design/biz-skill-pack-interfaces.md`):
+Four hard-coded predicates live in `references/biz/triage-gate.md`. The four advisor skills (legal, accounting, equity, fundraise) cite this file. Predicate IDs are stable interface (see `docs/slo/design/biz-skill-pack-interfaces.md`):
 
 - `gate-1-regulated` — FCA / MHRA / ICO / healthcare / financial services. Routes to lawyer.
 - `gate-2-deal-value-over-5k` — deal value > £5,000. Routes to lawyer.
@@ -136,7 +136,7 @@ Four hard-coded predicates live in `references/biz/triage-gate.md`. The four adv
 
 ### Advisor mode contract — what `draft` outputs MUST carry
 
-Every artifact emitted by an advisor skill in `draft` mode (post-gate) carries this frontmatter (full schema in `references/biz/artifact-schema.md` and `docs/design/biz-skill-pack-interfaces.md`):
+Every artifact emitted by an advisor skill in `draft` mode (post-gate) carries this frontmatter (full schema in `references/biz/artifact-schema.md` and `docs/slo/design/biz-skill-pack-interfaces.md`):
 
 - `tier: confidential` (forces `docs/biz/` placement)
 - `triage_gate_passed: true` (verified by `/slo-verify`)
@@ -218,7 +218,7 @@ A Phase-3 hardening runbook should extend `sldo-install`'s walker to include `re
 
 ## Scanner orchestration skill — additional rules
 
-> Added 2026-04-26 by `/slo-architect scanner-orchestration`. Apply when authoring or executing `/slo-sast`. The full design lives at [docs/design/scanner-orchestration-overview.md](docs/design/scanner-orchestration-overview.md); the load-bearing safety properties below are restated here so any agent reading SECURITY.md as the source of truth sees them before generating code.
+> Added 2026-04-26 by `/slo-architect scanner-orchestration`. Apply when authoring or executing `/slo-sast`. The full design lives at [docs/slo/design/scanner-orchestration-overview.md](docs/slo/design/scanner-orchestration-overview.md); the load-bearing safety properties below are restated here so any agent reading SECURITY.md as the source of truth sees them before generating code.
 
 ### Emitted-workflow safety contract (non-negotiable)
 
@@ -235,7 +235,7 @@ A structural-contract test fixture (`emitted_workflow_has_safe_defaults`) assert
 
 ### Threat-model parser scope (defuses prompt-injection)
 
-The skill extracts CWE references from `docs/design/<slug>-threat-model.md` using regex `\bCWE-(\d+)\b` against the rendered Markdown body **only**. The parser MUST exclude:
+The skill extracts CWE references from `docs/slo/design/<slug>-threat-model.md` using regex `\bCWE-(\d+)\b` against the rendered Markdown body **only**. The parser MUST exclude:
 
 - HTML comments (`<!-- ... -->`).
 - Fenced code blocks (` ``` ` or `~~~`).

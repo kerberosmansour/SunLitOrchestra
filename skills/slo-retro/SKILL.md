@@ -15,17 +15,17 @@ You are the engineering manager running the post-mortem. The milestone just fini
 
 ## Inputs
 
-- A runbook at `docs/RUNBOOK-<feature>.md` with a current milestone in `in_progress` state.
+- A runbook at `docs/slo/current/RUNBOOK-<feature>.md` with a current milestone in `in_progress` state.
 - That milestone's Evidence Log (inside the runbook).
-- Optional: a verification report at `docs/verify/<prefix>-m<N>.md` if `/slo-verify` ran.
+- Optional: a verification report at `docs/slo/verify/<prefix>-m<N>.md` if `/slo-verify` ran.
 - Optional: the previous milestone's lessons file, for comparison.
 
 ## Outputs
 
 Write exactly three things, then run the additive issue-filing flow (see "Issue filing" below):
 
-1. `docs/lessons/<prefix>-m<N>.md` — lessons-learned file (use the matching runbook template — v4 by default for new runbooks; v3 when the runbook was authored against v3). **Always written first**, even when `gh` is unavailable.
-2. `docs/completion/<prefix>-m<N>.md` — completion summary (same template version as the runbook).
+1. `docs/slo/lessons/<prefix>-m<N>.md` — lessons-learned file (use the matching runbook template — v4 by default for new runbooks; v3 when the runbook was authored against v3). **Always written first**, even when `gh` is unavailable.
+2. `docs/slo/completion/<prefix>-m<N>.md` — completion summary (same template version as the runbook).
 3. Inline edits to the runbook: Milestone Tracker row updated to `done`, with Completed date and paths.
 
 After those three are on disk, run the issue-filing flow as described under "Issue filing". If issue filing fails for any reason, the three artifacts above are still safely written — issue filing is strictly additive.
@@ -131,7 +131,7 @@ Read [`references/issue-filing-discipline.md`](references/issue-filing-disciplin
 
 ### Step 1 — classify each lesson
 
-For every flagged lesson in `docs/lessons/<prefix>-m<N>.md`, decide one of:
+For every flagged lesson in `docs/slo/lessons/<prefix>-m<N>.md`, decide one of:
 
 - **`product`** — lesson applies to the current target product / repo. Filed against the current repo (resolved via `git config remote.origin.url`).
 - **`upstream-OSS`** — lesson applies to a third-party tool (Semgrep, Playwright, `cargo audit`, etc.). Filed against the resolved upstream repo via `.sldo/upstream-mapping.toml` (with crates.io / npm fallback).
@@ -171,7 +171,7 @@ gh issue create --title "<title>" --body "<body>" --label retro-derived
 
 ### Step 5 — record in lessons file frontmatter
 
-Append a `filed_issues:` frontmatter block to `docs/lessons/<prefix>-m<N>.md` listing each filing's URL, classification, disposition (`filed` / `skipped-dupe` / `skipped-user` / `spilled-cap`), and `body_sha256` (first 12 hex chars).
+Append a `filed_issues:` frontmatter block to `docs/slo/lessons/<prefix>-m<N>.md` listing each filing's URL, classification, disposition (`filed` / `skipped-dupe` / `skipped-user` / `spilled-cap`), and `body_sha256` (first 12 hex chars).
 
 ### Fallback — `gh` unavailable
 
