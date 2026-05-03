@@ -1,9 +1,9 @@
 //! `sldo-install` — install, update, and uninstall the SunLitOrchestrate skill pack.
 //!
-//! Symlinks the skill directories under `skills/` in this repo into the
-//! selected host agent's skills directory (default: `~/.claude/skills/`), or
-//! into a project-local host directory such as `./.claude/skills/` or
-//! `./.copilot/skills/` when `--local` is passed.
+//! Links the skill directories under `skills/` in this repo into the selected
+//! host agent's skills directory (default: `~/.claude/skills/`), or into a
+//! project-local host directory such as `./.claude/skills/`,
+//! `./.copilot/skills/`, or `./.codex/skills/` when `--local` is passed.
 //!
 //! The installer is idempotent: running it twice leaves the same state as
 //! running it once. Uninstall reverses every change recorded in the manifest.
@@ -42,7 +42,7 @@ struct Cli {
     #[arg(long, value_enum, default_value_t = Host::ClaudeCode, global = true)]
     host: Host,
 
-    /// Overwrite existing symlinks.
+    /// Overwrite existing managed links.
     #[arg(long, global = true)]
     force: bool,
 
@@ -59,7 +59,7 @@ enum Command {
     Uninstall,
     /// Print what's currently installed according to the manifest.
     Status,
-    /// Verify that installed symlinks match the manifest and source skills.
+    /// Verify that installed managed links match the manifest and source skills.
     Verify,
 }
 

@@ -278,7 +278,7 @@ fn canonical_pointers_now_target_v4() {
 // ---------------------------------------------------------------------------
 // Drift guards — the v4 / v3 templates exist in two places by design:
 //   - skills/slo-plan/references/...  (skill-local copy that travels with
-//     `sldo-install`'s symlink, used at runtime in any project)
+//     `sldo-install`'s managed link, used at runtime in any project)
 //   - docs/slo/templates/...              (human-browsable mirror in this repo)
 // They MUST be byte-identical. The drift guard fails loudly the moment
 // someone edits one without the other.

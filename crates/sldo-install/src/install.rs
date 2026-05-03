@@ -2,12 +2,12 @@
 //!
 //! Idempotency contract: calling `install` repeatedly with the same inputs
 //! yields the same filesystem state. Calling `uninstall` reverses every
-//! symlink and removes the manifest.
+//! managed link and removes the manifest.
 //!
-//! Symlink safety: we never overwrite a non-symlink target. Overwriting an
-//! existing symlink requires `--force`. Uninstall only removes symlinks that
-//! point at the source recorded in the manifest — if a user has replaced a
-//! symlink manually, we leave it alone and warn.
+//! Managed-link safety: we never overwrite a non-link target. Overwriting an
+//! existing managed link requires `--force`. Uninstall only removes managed
+//! links that point at the source recorded in the manifest — if a user has
+//! replaced a link manually, we leave it alone and warn.
 
 use anyhow::{bail, Context, Result};
 use colored::Colorize;
@@ -30,9 +30,9 @@ pub struct Options {
 #[derive(Debug, Default)]
 struct Plan {
     to_create: Vec<PlanItem>,
-    to_update: Vec<PlanItem>, // existing symlink pointing elsewhere, needs --force
+    to_update: Vec<PlanItem>, // existing managed link pointing elsewhere, needs --force
     up_to_date: Vec<PlanItem>,
-    conflicts: Vec<PlanItem>, // non-symlink target, cannot overwrite
+    conflicts: Vec<PlanItem>, // non-link target, cannot overwrite
 }
 
 #[derive(Debug, Clone)]
@@ -103,29 +103,11 @@ fn plan(opts: &Options) -> Result<(Plan, PathBuf, PathBuf)> {
             target: target.clone(),
         };
 
-        if target.exists() || target.is_symlink() {
-            // is_symlink works even when the symlink is dangling.
-            if target.is_symlink() {
-                match fs::read_link(&target) {
-                    Ok(link) => {
-                        // Resolve relative symlinks against their parent to compare.
-                        let resolved = if link.is_absolute() {
-                            link
-                        } else {
-                            target
-                                .parent()
-                                .map(|p| p.join(&link))
-                                .unwrap_or(link.clone())
-                        };
-                        let resolved_canon = fs::canonicalize(&resolved).unwrap_or(resolved);
-                        if resolved_canon == source_abs {
-                            plan.up_to_date.push(item);
-                        } else {
-                            plan.to_update.push(item);
-                        }
-                    }
-                    Err(_) => plan.to_update.push(item),
-                }
+        if target.exists() || is_managed_link_path(&target) {
+            if managed_link_points_to(&target, &source_abs) {
+                plan.up_to_date.push(item);
+            } else if is_managed_link_path(&target) {
+                plan.to_update.push(item);
             } else {
                 // Real file or directory where we'd install — conflict.
                 plan.conflicts.push(item);
@@ -142,12 +124,12 @@ pub fn install(opts: &Options) -> Result<()> {
     let (plan, root, manifest_path) = plan(opts)?;
 
     if !plan.conflicts.is_empty() {
-        eprintln!("{}", "conflicts (existing non-symlink paths):".red().bold());
+        eprintln!("{}", "conflicts (existing non-link paths):".red().bold());
         for item in &plan.conflicts {
             eprintln!("  {} -> {}", item.target.display(), item.source.display());
         }
         bail!(
-            "{} skill(s) have non-symlink paths at their install targets. \
+            "{} skill(s) have non-link paths at their install targets. \
              Remove or relocate them and re-run.",
             plan.conflicts.len()
         );
@@ -156,7 +138,7 @@ pub fn install(opts: &Options) -> Result<()> {
     if !plan.to_update.is_empty() && !opts.force {
         eprintln!(
             "{}",
-            "the following symlinks point elsewhere and would be replaced by --force:"
+            "the following managed links point elsewhere and would be replaced by --force:"
                 .yellow()
                 .bold()
         );
@@ -164,7 +146,7 @@ pub fn install(opts: &Options) -> Result<()> {
             eprintln!("  {}", item.target.display());
         }
         bail!(
-            "{} symlink(s) already exist. Pass --force to overwrite.",
+            "{} managed link(s) already exist. Pass --force to overwrite.",
             plan.to_update.len()
         );
     }
@@ -180,15 +162,18 @@ pub fn install(opts: &Options) -> Result<()> {
     let mut manifest = Manifest::load(&manifest_path)?;
 
     for item in plan.to_create.iter().chain(plan.to_update.iter()) {
-        // Remove pre-existing symlink (only symlinks reach this branch).
-        if item.target.is_symlink() {
-            fs::remove_file(&item.target).with_context(|| {
-                format!("Failed to remove old symlink: {}", item.target.display())
+        // Remove pre-existing managed link (only managed links reach this branch).
+        if is_managed_link_path(&item.target) {
+            remove_managed_link_path(&item.target).with_context(|| {
+                format!(
+                    "Failed to remove old managed link: {}",
+                    item.target.display()
+                )
             })?;
         }
-        create_symlink(&item.source, &item.target).with_context(|| {
+        create_managed_link(&item.source, &item.target).with_context(|| {
             format!(
-                "Failed to symlink {} -> {}",
+                "Failed to link {} -> {}",
                 item.target.display(),
                 item.source.display()
             )
@@ -266,7 +251,7 @@ pub fn uninstall(opts: &Options) -> Result<()> {
             bad += 1;
             continue;
         }
-        match remove_managed_symlink(&entry) {
+        match remove_managed_link(&entry) {
             Ok(true) => {
                 println!("  {} {}", "-".yellow().bold(), entry.name);
                 manifest.remove(&entry.name, opts.host);
@@ -345,35 +330,29 @@ pub fn verify(opts: &Options) -> Result<()> {
             bad += 1;
             continue;
         }
-        if !entry.target.is_symlink() {
-            eprintln!("  {} {}: target is not a symlink", "x".red(), entry.name);
+        if !is_managed_link_path(&entry.target) {
+            eprintln!(
+                "  {} {}: target is not a managed link",
+                "x".red(),
+                entry.name
+            );
             bad += 1;
             continue;
         }
-        let link = match fs::read_link(&entry.target) {
+        let actual = match managed_link_target(&entry.target) {
             Ok(p) => p,
             Err(e) => {
-                eprintln!("  {} {}: read_link failed: {}", "x".red(), entry.name, e);
+                eprintln!("  {} {}: link target failed: {}", "x".red(), entry.name, e);
                 bad += 1;
                 continue;
             }
         };
-        let resolved = if link.is_absolute() {
-            link
-        } else {
-            entry
-                .target
-                .parent()
-                .map(|p| p.join(&link))
-                .unwrap_or(link.clone())
-        };
-        let canon = fs::canonicalize(&resolved).unwrap_or(resolved);
-        if canon != entry.source {
+        if actual != entry.source {
             eprintln!(
                 "  {} {}: points to {} (expected {})",
                 "x".red(),
                 entry.name,
-                canon.display(),
+                actual.display(),
                 entry.source.display()
             );
             bad += 1;
@@ -388,42 +367,119 @@ pub fn verify(opts: &Options) -> Result<()> {
 }
 
 #[cfg(unix)]
-fn create_symlink(source: &Path, target: &Path) -> std::io::Result<()> {
-    std::os::unix::fs::symlink(source, target)
+fn create_managed_link(source: &Path, target: &Path) -> Result<()> {
+    std::os::unix::fs::symlink(source, target)?;
+    Ok(())
 }
 
 #[cfg(windows)]
-fn create_symlink(source: &Path, target: &Path) -> std::io::Result<()> {
-    std::os::windows::fs::symlink_dir(source, target)
+fn create_managed_link(source: &Path, target: &Path) -> Result<()> {
+    match std::os::windows::fs::symlink_dir(source, target) {
+        Ok(()) => Ok(()),
+        Err(symlink_error) => create_windows_junction(source, target).with_context(|| {
+            format!("Windows directory symlink failed ({symlink_error}); junction fallback failed")
+        }),
+    }
 }
 
-/// Remove a symlink only if it still points at the source recorded in the
+#[cfg(windows)]
+fn create_windows_junction(source: &Path, target: &Path) -> Result<()> {
+    use std::process::Command;
+
+    let output = Command::new("cmd")
+        .args(["/C", "mklink", "/J"])
+        .arg(target)
+        .arg(source)
+        .output()
+        .context("failed to invoke Windows mklink junction fallback")?;
+
+    if output.status.success() {
+        return Ok(());
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    bail!(
+        "mklink /J failed with status {}. stdout: {} stderr: {}",
+        output.status,
+        stdout.trim(),
+        stderr.trim()
+    )
+}
+
+/// Remove a managed link only if it still points at the source recorded in the
 /// manifest. Returns Ok(true) if removed, Ok(false) if preserved (modified by
 /// the user), Err on I/O failure.
-fn remove_managed_symlink(entry: &Entry) -> Result<bool> {
-    if !entry.target.is_symlink() {
+fn remove_managed_link(entry: &Entry) -> Result<bool> {
+    if !is_managed_link_path(&entry.target) {
         // Either user replaced it with a real file, or it was already removed.
         if !entry.target.exists() {
             return Ok(true); // already gone — count as removed
         }
         return Ok(false);
     }
-    let link = fs::read_link(&entry.target)?;
+    let actual = managed_link_target(&entry.target)?;
+    if actual != entry.source {
+        return Ok(false);
+    }
+    remove_managed_link_path(&entry.target)?;
+    Ok(true)
+}
+
+fn managed_link_points_to(target: &Path, source: &Path) -> bool {
+    managed_link_target(target)
+        .map(|actual| actual == source)
+        .unwrap_or(false)
+}
+
+fn managed_link_target(target: &Path) -> Result<PathBuf> {
+    if !is_managed_link_path(target) {
+        bail!("target is not a managed link");
+    }
+
+    if let Ok(canon) = fs::canonicalize(target) {
+        return Ok(canon);
+    }
+
+    let link = fs::read_link(target)?;
     let resolved = if link.is_absolute() {
         link
     } else {
-        entry
-            .target
+        target
             .parent()
             .map(|p| p.join(&link))
             .unwrap_or(link.clone())
     };
-    let canon = fs::canonicalize(&resolved).unwrap_or(resolved);
-    if canon != entry.source {
-        return Ok(false);
-    }
-    fs::remove_file(&entry.target)?;
-    Ok(true)
+    Ok(fs::canonicalize(&resolved).unwrap_or(resolved))
+}
+
+fn is_managed_link_path(path: &Path) -> bool {
+    path.is_symlink() || is_windows_reparse_point(path)
+}
+
+#[cfg(windows)]
+fn is_windows_reparse_point(path: &Path) -> bool {
+    use std::os::windows::fs::MetadataExt;
+
+    const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x400;
+    fs::symlink_metadata(path)
+        .map(|metadata| metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0)
+        .unwrap_or(false)
+}
+
+#[cfg(not(windows))]
+fn is_windows_reparse_point(_path: &Path) -> bool {
+    false
+}
+
+#[cfg(unix)]
+fn remove_managed_link_path(target: &Path) -> std::io::Result<()> {
+    fs::remove_file(target)
+}
+
+#[cfg(windows)]
+fn remove_managed_link_path(target: &Path) -> std::io::Result<()> {
+    fs::remove_dir(target).or_else(|_| fs::remove_file(target))
 }
 
 fn validate_entry_target_in_host_root(entry: &Entry, root: &Path) -> Result<()> {
@@ -459,7 +515,7 @@ fn print_plan(plan: &Plan, root: &Path) {
         }
     }
     if !plan.conflicts.is_empty() {
-        println!("conflicts (non-symlink paths):");
+        println!("conflicts (non-link paths):");
         for i in &plan.conflicts {
             println!("  ! {}", i.target.display());
         }

@@ -21,6 +21,7 @@ The repo no longer ships `sldo-plan`, `sldo-run`, or `sldo-tauri` as active work
 | `docs/skill-pack-catalog.md` | Canonical living catalog of shipped skills |
 | `CLAUDE.md` | Claude Code overlay for the catalog |
 | `copilot-instructions.md` | GitHub Copilot overlay for the catalog |
+| `AGENTS.md` | Codex overlay for the catalog |
 | `docs/slo/design/agent-host-capabilities.md` | Capability matrix for install, interactive use, and runtime boundaries |
 
 ## Skill pack
@@ -39,7 +40,7 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 | Utilities | `skills/slo-{freeze,resume,second-opinion}` | Session control, resumption, and disagreement surfacing |
 | Vendored helper | `skills/get-api-docs` | Third-party API doc fetches via `chub` |
 | Examples gallery | `examples/` | Synthetic, non-normative gallery (7 files) showing what shipped SLO outputs look like — read [`examples/README.md`](../examples/README.md). Not installable; not consumed by any skill. |
-| Specialist agents (optional, Claude-only) | `agents/slo-{runbook-review-lead,security-reviewer,design-reviewer,verification-lead}.md` | Host-native agent files for Claude Code that mirror `/slo-critique` persona rotation. Output paths constrained to `docs/slo/critique/` and `docs/slo/verify/`. GitHub Copilot users use `/slo-critique` directly (canonical portable path). See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md). |
+| Specialist agents (optional, Claude-only) | `agents/slo-{runbook-review-lead,security-reviewer,design-reviewer,verification-lead}.md` | Host-native agent files for Claude Code that mirror `/slo-critique` persona rotation. Output paths constrained to `docs/slo/critique/` and `docs/slo/verify/`. GitHub Copilot and Codex users use `/slo-critique` directly (canonical portable path). See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md). |
 | Distribution channels | `sldo-install` (canonical, multi-host) + optional `.claude-plugin/plugin.json` (Claude-only, additive) | Tagged releases produce a downloadable zip via the SHA-pinned [`release-zip workflow`](../.github/workflows/release-zip.yml). |
 
 For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
@@ -47,14 +48,15 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 ## Skill pack invariants (reality at HEAD)
 
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
-- **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md` and `copilot-instructions.md` are overlays, not competing sources of truth.
+- **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md`, `copilot-instructions.md`, and `AGENTS.md` are overlays, not competing sources of truth.
 - **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
 - **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`.
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
-- **Host-aware installer roots.** Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`. Local installs land in `./.claude/skills/` or `./.copilot/skills/`.
+- **Host-aware installer roots.** Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`. Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/`.
+- **Cross-platform installer behavior.** Linux and macOS use directory symlinks. Windows tries directory symlinks first and falls back to directory junctions when symlink privileges are unavailable. Home resolution supports `HOME`, `USERPROFILE`, and `HOMEDRIVE` + `HOMEPATH`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
 - **Baseline test command.** `cargo test -p sldo-common -p sldo-install -p sldo-research`.
-- **Current runtime boundary.** GitHub Copilot is an interactive host today, not a headless runtime target.
+- **Current runtime boundary.** GitHub Copilot and Codex are interactive hosts today, not headless runtime targets.
 
 ### References subtrees
 
@@ -111,7 +113,7 @@ The installed skill is host-neutral for interactive use. `sldo-research` is the 
 | File | Responsibility |
 |---|---|
 | `main.rs` | CLI parsing and command dispatch |
-| `host.rs` | Host descriptor table (`claude-code`, `github-copilot`) |
+| `host.rs` | Host descriptor table (`claude-code`, `github-copilot`, `codex`) |
 | `paths.rs` | Host-specific global and local path resolution |
 | `manifest.rs` | Shared install manifest with per-host ownership |
 | `install.rs` | Install, verify, status, and uninstall behavior |
@@ -160,7 +162,7 @@ The current host line is simple:
 
 - Install support is multi-host.
 - The catalog and the `SKILL.md` contract are host-neutral.
-- Interactive skill use is supported in Claude Code and GitHub Copilot.
+- Interactive skill use is supported in Claude Code, GitHub Copilot, and Codex.
 - Headless runtime automation is still Claude-specific where it exists today.
 - `/slo-research` interactive use is multi-host today; `sldo-research` remains an optional Claude batch backend.
 - `/slo-second-opinion` is host-neutral: it compares the current host against an external provider CLI (Codex or Gemini), and never silently falls back to asking the current host to imitate the other provider.
