@@ -53,6 +53,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`.
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`. Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/`.
+- **Cross-platform installer behavior.** Linux and macOS use directory symlinks. Windows tries directory symlinks first and falls back to directory junctions when symlink privileges are unavailable. Home resolution supports `HOME`, `USERPROFILE`, and `HOMEDRIVE` + `HOMEPATH`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
 - **Baseline test command.** `cargo test -p sldo-common -p sldo-install -p sldo-research`.
 - **Current runtime boundary.** GitHub Copilot and Codex are interactive hosts today, not headless runtime targets.

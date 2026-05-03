@@ -31,6 +31,54 @@ fn make_skill(skills_dir: &Path, name: &str) {
     .unwrap();
 }
 
+fn assert_managed_link_to(link: &Path, source: &Path) {
+    assert!(
+        link.exists() || link.is_symlink(),
+        "expected managed link at {}",
+        link.display()
+    );
+    let resolved = fs::canonicalize(link).unwrap();
+    let expected = fs::canonicalize(source).unwrap();
+    assert_eq!(resolved, expected);
+}
+
+#[cfg(unix)]
+fn create_test_dir_link(source: &Path, target: &Path) {
+    std::os::unix::fs::symlink(source, target).unwrap();
+}
+
+#[cfg(windows)]
+fn create_test_dir_link(source: &Path, target: &Path) {
+    if std::os::windows::fs::symlink_dir(source, target).is_ok() {
+        return;
+    }
+
+    let output = Command::new("cmd")
+        .args(["/C", "mklink", "/J"])
+        .arg(target)
+        .arg(source)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "failed to create Windows test junction: stdout={} stderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[cfg(unix)]
+fn remove_test_link(target: &Path) {
+    fs::remove_file(target).unwrap();
+}
+
+#[cfg(windows)]
+fn remove_test_link(target: &Path) {
+    fs::remove_dir(target)
+        .or_else(|_| fs::remove_file(target))
+        .unwrap();
+}
+
 fn sldo_install(home: &Path, skills_dir: &Path, extra: &[&str]) -> std::process::Output {
     let mut cmd = Command::new(binary_path());
     cmd.env("HOME", home).arg("--skills-dir").arg(skills_dir);
@@ -58,8 +106,14 @@ fn test_full_install_uninstall_cycle() {
 
     // Then: symlinks exist and manifest records them
     let target_root = home.path().join(".claude").join("skills");
-    assert!(target_root.join("slo-ideate").is_symlink());
-    assert!(target_root.join("get-api-docs").is_symlink());
+    assert_managed_link_to(
+        &target_root.join("slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
+    assert_managed_link_to(
+        &target_root.join("get-api-docs"),
+        &src.path().join("get-api-docs"),
+    );
 
     let manifest_path = home.path().join(".sldo").join("install.toml");
     assert!(manifest_path.exists(), "manifest not written");
@@ -181,7 +235,7 @@ fn test_local_install_into_project() {
         .join(".claude")
         .join("skills")
         .join("slo-local");
-    assert!(link.is_symlink());
+    assert_managed_link_to(&link, &src.path().join("slo-local"));
 
     // Global manifest should not exist.
     let global_manifest = home.path().join(".sldo").join("install.toml");
@@ -234,7 +288,7 @@ fn test_skill_without_skill_md_is_skipped() {
     assert!(out.status.success());
 
     let target_root = home.path().join(".claude").join("skills");
-    assert!(target_root.join("slo-real").is_symlink());
+    assert_managed_link_to(&target_root.join("slo-real"), &src.path().join("slo-real"));
     assert!(!target_root.join("not-a-skill").exists());
 }
 
@@ -266,15 +320,12 @@ fn test_uninstall_preserves_user_modified_symlink() {
     let other_target = other.path().join("whatever");
     fs::create_dir_all(&other_target).unwrap();
     let link = home.path().join(".claude").join("skills").join("slo-keep");
-    fs::remove_file(&link).unwrap();
-    std::os::unix::fs::symlink(&other_target, &link).unwrap();
+    remove_test_link(&link);
+    create_test_dir_link(&other_target, &link);
 
     let out = sldo_install(home.path(), src.path(), &["uninstall"]);
     assert!(out.status.success());
 
     // Link should still exist (user's customization preserved).
-    assert!(link.is_symlink());
-    let resolved = fs::canonicalize(&link).unwrap();
-    let expected = fs::canonicalize(&other_target).unwrap();
-    assert_eq!(resolved, expected);
+    assert_managed_link_to(&link, &other_target);
 }

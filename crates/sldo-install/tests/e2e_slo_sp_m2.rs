@@ -4,7 +4,7 @@
 //! These tests do not exercise the runtime behavior of the skills (that
 //! happens when Claude Code actually runs them). They verify the static
 //! contract: the SKILL.md file has valid YAML frontmatter with the required
-//! fields, and the installer picks both up and installs them as symlinks.
+//! fields, and the installer picks both up and installs them as managed links.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -110,6 +110,14 @@ fn test_installer_picks_up_ideate_and_retro() {
     let skills_root = home.path().join(".claude").join("skills");
     for name in ["slo-ideate", "slo-retro"] {
         let link = skills_root.join(name);
-        assert!(link.is_symlink(), "expected symlink at {}", link.display());
+        assert!(
+            link.exists() || link.is_symlink(),
+            "expected managed link at {}",
+            link.display()
+        );
+        assert_eq!(
+            fs::canonicalize(&link).unwrap(),
+            fs::canonicalize(src.path().join(name)).unwrap()
+        );
     }
 }
