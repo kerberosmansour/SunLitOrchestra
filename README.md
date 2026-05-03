@@ -232,6 +232,8 @@ What success looks like:
 - `status` lists the installed skills for the host you chose.
 - Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`.
 - Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/` if you add `--local`.
+- On Windows PowerShell, use `.\target\release\sldo-install.exe` with the same flags. Native Windows shells can rely on `%USERPROFILE%` when `HOME` is not set.
+- Linux and macOS installs use directory symlinks. Windows tries directory symlinks first, then falls back to directory junctions if symlink privileges are unavailable.
 
 `/slo-research` now uses host-native research first in Claude Code, GitHub Copilot, and Codex. `sldo-research` remains an optional Claude batch backend when you explicitly want that automation path.
 
@@ -307,7 +309,7 @@ The README is the orientation page. For the full host-neutral skill list, output
 ├── crates/
 │   ├── sldo-common/              # Shared library (used by the remaining Rust tooling)
 │   ├── sldo-research/            # Optional Claude batch backend for /slo-research
-│   └── sldo-install/             # Skill installer (symlinks skills/* into the selected host root)
+│   └── sldo-install/             # Skill installer (managed-links skills/* into the selected host root)
 ├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate; driven by /slo-rulegen + /slo-ruleverify)
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
 ├── references/                   # Shared scaffolding read by skills (biz/, sast/)
