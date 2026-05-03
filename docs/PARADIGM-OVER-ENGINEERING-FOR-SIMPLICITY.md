@@ -47,7 +47,7 @@ A human pipeline would pick one and move on; the LLM pipeline runs all four. The
 
 Where a human-designed form might ask 3 questions and infer the rest, an LLM-designed conversational intake asks 12 questions because the marginal cost of the 9 extra questions is "the conversation lasts 30 seconds longer, and the LLM needs no extra training to ask them well". The data quality at the gate-evaluation step is dramatically better.
 
-Example: [the legal-intake-contract](../references/biz/legal-intake-form.md)'s F1-F6 fields with explicit-comprehension follow-ups (per critique S-1). A human template would skip half; an LLM contract preserves them all because the conversational delivery makes them feel natural.
+Example: [the legal-intake-contract](../references/biz/legal-intake-contract.md)'s F1-F6 fields with explicit-comprehension follow-ups (per critique S-1). A human template would skip half; an LLM contract preserves them all because the conversational delivery makes them feel natural.
 
 ### 3. Exhaustive citation discipline
 

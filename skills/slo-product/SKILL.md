@@ -44,9 +44,19 @@ archetype: generator
 skill: slo-product
 mode_arg: roadmap | metrics | okrs
 jurisdiction: uk
+baseline_ref: references/biz/product-prioritization-frameworks.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days for roadmap and okrs; +180 for metrics>
 ---
 ```
+
+## M4 baseline provenance
+
+Roadmap prioritization frameworks come from
+[`references/biz/product-prioritization-frameworks.md`](../../references/biz/product-prioritization-frameworks.md).
+Generated artifacts that use RICE or Kano MUST include `baseline_ref:` with the
+retrieval stamp. If a consulted row is older than 12 months, emit a **stale warning**
+naming the row. If a consulted row is older than 24 months, **refuse at +24 months**
+and ask for a baseline refresh before producing framework-scored roadmaps.
 
 ## `mode_arg: roadmap` body
 
@@ -67,6 +77,7 @@ The roadmap is 90 days, broken into three 30-day sprints. Each item has a row:
 **RICE** = Reach × Impact × Confidence / Effort. Reach: users / week affected. Impact: 0.25 / 0.5 / 1 / 2 / 3. Confidence: 50% / 80% / 100%. Effort: person-weeks.
 
 **Kano**: must-have / performance / delighter / indifferent / reverse.
+Both definitions cite `references/biz/product-prioritization-frameworks.md@2026-05-03`.
 
 ### 3. "What we're NOT doing this quarter"
 

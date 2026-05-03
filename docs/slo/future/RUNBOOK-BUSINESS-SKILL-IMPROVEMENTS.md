@@ -32,11 +32,11 @@
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | UK regulator enumeration source-verified + statute anchor files | `not_started` | | | | |
-| 2 | Five conversational intake contracts + advisor SKILL.md updates (rename `*-form.md` → `*-contract.md`) | `not_started` | | | | |
-| 3 | Numeric verification (SAFE / cap-table / pricing math) | `not_started` | | | | |
-| 4 | KPI baseline files + generator skill updates | `not_started` | | | | |
-| 5 | `baseline_ref:` artifact schema field + cross-skill citation tests + annual refresh `/loop` | `not_started` | | | | |
+| 1 | UK regulator enumeration source-verified + statute anchor files | `done` | 2026-05-03 | 2026-05-03 | [biz-imp-m1](../lessons/biz-imp-m1.md) | [completion](../completion/biz-imp-m1.md) |
+| 2 | Five conversational intake contracts + advisor SKILL.md updates (rename `*-form.md` → `*-contract.md`) | `done` | 2026-05-03 | 2026-05-03 | [biz-imp-m2](../lessons/biz-imp-m2.md) | [completion](../completion/biz-imp-m2.md) |
+| 3 | Numeric verification (SAFE / cap-table / pricing math) | `done` | 2026-05-03 | 2026-05-03 | [biz-imp-m3](../lessons/biz-imp-m3.md) | [completion](../completion/biz-imp-m3.md) |
+| 4 | KPI baseline files + generator skill updates | `done` | 2026-05-03 | 2026-05-03 | [biz-imp-m4](../lessons/biz-imp-m4.md) | [completion](../completion/biz-imp-m4.md) |
+| 5 | `baseline_ref:` artifact schema field + cross-skill citation tests + annual refresh `/loop` | `done` | 2026-05-03 | 2026-05-03 | [biz-imp-m5](../lessons/biz-imp-m5.md) | [completion](../completion/biz-imp-m5.md) |
 
 ---
 
@@ -395,10 +395,10 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Compatibility Checklist
 
-- [ ] Four predicate IDs unchanged.
-- [ ] `references/biz/cost-baseline-jpp-law-2026.md` unchanged (its refresh is annual; out-of-scope here).
-- [ ] `references/biz/ir35-cest-factors.md` unchanged.
-- [ ] `references/biz/jurisdiction-uk.md` cross-references the new closed enum but otherwise unchanged.
+- [x] Four predicate IDs unchanged.
+- [x] `references/biz/cost-baseline-jpp-law-2026.md` unchanged (its refresh is annual; out-of-scope here).
+- [x] `references/biz/ir35-cest-factors.md` unchanged.
+- [x] `references/biz/jurisdiction-uk.md` unchanged; M2 can decide whether to add a cross-reference once advisor SKILL.md prose consumes the new anchors.
 
 #### E2E Runtime Validation
 
@@ -415,14 +415,20 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Smoke Tests
 
-- [ ] Open `uk-regulator-enumeration.md`; click a `statute_url:` link — resolves to `legislation.gov.uk`.
-- [ ] Open `hmrc-vcm-index.md`; verify VCM34080 verbatim quote renders.
-- [ ] Open `uk-employment-statute-anchors.md`; verify ERA 1996 s86 quote.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Open `uk-regulator-enumeration.md`; click a `statute_url:` link — resolves to `legislation.gov.uk`.
+- [x] Open `hmrc-vcm-index.md`; verify VCM34080 verbatim quote renders.
+- [x] Open `uk-employment-statute-anchors.md`; verify ERA 1996 s86 quote.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Check | Command / Source | Actual Result | Notes |
+|---|---|---|---|
+| Baseline after red-test fix | `cargo test --workspace` | passed | Root `tests/e2e_research_m1.rs` through `m7` now build `sldo-research` if missing; M1 prompt tests isolate `PATH` to avoid live provider invocation. |
+| M1 BDD red phase | `cargo test -p sldo-install --test e2e_biz_imp_m1` | failed before authority files existed | Failures were missing source register, missing anchor files, missing HMRC/ICO `quoted_text:` blocks. |
+| Official source pass | `legislation.gov.uk` data endpoints, GOV.UK HMRC manual pages, ICO, ASA/CAP | completed | Used primary source URLs captured in the authority files; no third-party commentary is primary authority. |
+| M1 BDD green phase | `cargo test -p sldo-install --test e2e_biz_imp_m1` | passed, 6/6 | Verifies source register, 3 anchor files, HMRC/ICO quotes, no forbidden source strings, four predicate IDs unchanged. |
+| Package smoke | `cargo test -p sldo-install` | passed | Existing DUAA and Advance Assurance compatibility expectations restored during smoke. |
 
 #### Definition of Done
 
@@ -447,7 +453,7 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 **Goal**: Five `*-intake-contract.md` files (legal, accounting, equity, fundraise, hire) authored with the conversational-elicitation discipline. Five advisor SKILL.md files updated to mandate the contract, restate-and-confirm step, refusal-on-ambiguity, and citation discipline. Existing `references/biz/legal-intake-form.md` renamed to `legal-intake-contract.md`.
 
-**Context**: The starter [`references/biz/legal-intake-form.md`](references/biz/legal-intake-form.md) is partially conversational-reframed (per the project owner's feedback). M2 finishes the rename, drafts the four sister contracts, and updates the SKILL.md files to consume them.
+**Context**: The starter `references/biz/legal-intake-form.md` is partially conversational-reframed (per the project owner's feedback). M2 finishes the rename to [`references/biz/legal-intake-contract.md`](references/biz/legal-intake-contract.md), drafts the four sister contracts, and updates the SKILL.md files to consume them.
 
 **Important design rule**: **Conversation is the UX, not a form**. Every intake contract repeats verbatim from `references/templates/intake-checklist.md` (R2 M1) the conversational discipline section. Drift between sister contracts on F1/F4/F5 fields is a structural-contract violation.
 
@@ -502,7 +508,7 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 | `skills/slo-equity/SKILL.md` | Same shape |
 | `skills/slo-fundraise/SKILL.md` | Same shape |
 | `skills/slo-hire/SKILL.md` | Same shape; CEST output capture mandated (artifact must include CEST output text or "CEST not run" notice with explicit risk acknowledgment) |
-| `crates/sldo-install/tests/e2e_biz_imp_m2.rs` | NEW: structural-contract test asserting (a) F1/F4/F5 verbatim across 5 contracts, (b) "Conversation is the UX" disclaimer in each, (c) every advisor SKILL.md cites its contract + restate-and-confirm template, (d) `legal-intake-form.md` does not exist (rename done) |
+| `crates/sldo-install/tests/e2e_biz_imp_m2.rs` | NEW: structural-contract test asserting (a) F1/F4/F5 verbatim across 5 contracts, (b) "Conversation is the UX" disclaimer in each, (c) every advisor SKILL.md cites its contract + restate-and-confirm discipline, (d) `legal-intake-form.md` does not exist (rename done) |
 
 #### Step-by-Step
 
@@ -543,10 +549,10 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Compatibility Checklist
 
-- [ ] Existing `triage-gate.md` predicate IDs unchanged.
-- [ ] Existing `artifact-schema.md` shape preserved (`intake_summary:` is additive optional).
-- [ ] All existing advisor SKILL.md files install.
-- [ ] No existing biz-pack test fails.
+- [x] Existing `triage-gate.md` predicate IDs unchanged.
+- [x] Existing `artifact-schema.md` shape preserved (`intake_summary:` is additive optional).
+- [x] All existing advisor SKILL.md files install.
+- [x] No existing biz-pack test fails.
 
 #### E2E Runtime Validation
 
@@ -563,14 +569,20 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Smoke Tests
 
-- [ ] Open one sister contract (e.g., `equity-intake-contract.md`); confirm F1/F4/F5 byte-identical to legal.
-- [ ] Mock-invoke `/slo-legal draft contractor-sow`; observe conversational elicitation; provide ambiguous F3; observe refusal-on-ambiguity.
-- [ ] Mock-invoke `/slo-fundraise draft safe-worksheet`; observe AA pre-check + conversational intake.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Open one sister contract (e.g., `equity-intake-contract.md`); confirm F1/F4/F5 byte-identical to legal.
+- [x] Mock-invoke `/slo-legal draft contractor-sow`; observe conversational elicitation; provide ambiguous F3; observe refusal-on-ambiguity.
+- [x] Mock-invoke `/slo-fundraise draft safe-worksheet`; observe AA pre-check + conversational intake.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Check | Command / Source | Actual Result | Notes |
+|---|---|---|---|
+| M2 baseline | `cargo test --workspace` | passed | Existing warnings only. |
+| M2 BDD red phase | `cargo test -p sldo-install --test e2e_biz_imp_m2` | failed before rename/contracts/skill citations existed | Expected failures: missing `legal-intake-contract.md`, sister contracts, advisor contract citations, M1 authority citations. |
+| M2 BDD green phase | `cargo test -p sldo-install --test e2e_biz_imp_m2` | passed, 6/6 | Verifies five contracts, F1/F4/F5 byte identity, advisor citations, rename, predicate immutability. |
+| Issue #19 rename notice | GitHub issue comment | posted | Existing GitHub comment URLs to old filename are accepted minor breakage. |
+| Package smoke | `cargo test -p sldo-install` | passed | Existing unused-import warning only. |
 
 #### Definition of Done
 
@@ -674,9 +686,9 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Compatibility Checklist
 
-- [ ] Existing draft modes work.
-- [ ] Existing `intake_summary:` from M2 still flows through.
-- [ ] No new dependencies.
+- [x] Existing draft modes work.
+- [x] Existing `intake_summary:` from M2 still flows through.
+- [x] No new dependencies.
 
 #### E2E Runtime Validation
 
@@ -692,13 +704,18 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Smoke Tests
 
-- [ ] Mock-invoke `/slo-fundraise draft safe-worksheet`; observe runnable snippet.
-- [ ] Mock-invoke `/slo-equity draft cap-table-snapshot`; introduce a tampered total in the agent's response; observe refusal.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Mock-invoke `/slo-fundraise draft safe-worksheet`; observe runnable snippet.
+- [x] Mock-invoke `/slo-equity draft cap-table-snapshot`; introduce a tampered total in the agent's response; observe refusal.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Check | Command / Source | Actual Result | Notes |
+|---|---|---|---|
+| M3 baseline | `cargo test --workspace` | passed | Existing warnings only. |
+| M3 BDD red phase | `cargo test -p sldo-install --test e2e_biz_imp_m3` | failed before numeric verification sections existed | Expected failures in fundraise/equity/pricing skill docs. |
+| M3 BDD green phase | `cargo test -p sldo-install --test e2e_biz_imp_m3` | passed, 5/5 | Verifies SAFE, cap-table, pricing verification, stdlib-only snippet discipline, and mismatch refusal. |
+| Package smoke | `cargo test -p sldo-install` | passed | Existing unused-import warning only. |
 
 #### Definition of Done
 
@@ -822,9 +839,9 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Compatibility Checklist
 
-- [ ] All 7 generator SKILL.md install.
-- [ ] No advisor SKILL.md affected.
-- [ ] No predicate-set drift.
+- [x] All 7 generator SKILL.md install.
+- [x] No advisor SKILL.md affected.
+- [x] No predicate-set drift.
 
 #### E2E Runtime Validation
 
@@ -840,21 +857,29 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Smoke Tests
 
-- [ ] Open `saas-kpi-targets-baseline.md`; click a `source_url:` link — resolves to a primary source.
-- [ ] Mock-invoke `/slo-metrics b2b`; observe `baseline_ref:` in output frontmatter.
-- [ ] Open `mom-test-canonical-questions.md`; verify Fitzpatrick attribution.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Open `saas-kpi-targets-baseline.md`; click a `source_url:` link — resolves to a primary source.
+- [x] Mock-invoke `/slo-metrics b2b`; observe `baseline_ref:` in output frontmatter.
+- [x] Open `mom-test-canonical-questions.md`; verify Fitzpatrick attribution.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Step | Command / Check | Expected Result | Actual Result | Timestamp |
+|---|---|---|---|---|
+| Baseline | `cargo test --workspace` before M4 edits | Green baseline before implementation | Green before M4 implementation (recorded from M3 closeout) | 2026-05-03 |
+| Red test | `cargo test -p sldo-install --test e2e_biz_imp_m4` | Fails because baseline files/citations/stale rules are missing | Failed 0/5 for missing/old baseline files, missing generator citations, and missing stale/refusal rules | 2026-05-03 |
+| Implementation | Source-verify M4 rows and update 7 generator SKILL.md files | 6 baseline files carry provenance; generator outputs carry `baseline_ref:` and stale discipline | Implemented source-verified `saas-kpi-targets-baseline.md`, 5 sister files, and 7 generator skill updates | 2026-05-03 |
+| Green test | `cargo test -p sldo-install --test e2e_biz_imp_m4` | Pass | Passed 5/5 | 2026-05-03 |
+| Regression | `cargo test -p sldo-install` | Pass | Passed; existing warning in `e2e_biz_followup_m5.rs` unchanged | 2026-05-03 |
+| Workspace | `cargo test --workspace` | Pass | Passed; existing warnings in `xtasks/sast-verify` and `e2e_biz_followup_m5.rs` unchanged | 2026-05-03 |
+| Smoke | Manual source/frontmatter checks | Source URLs resolve; `baseline_ref:` visible; Mom Test attribution present | Verified source URLs via public pages; `/slo-metrics` frontmatter includes `baseline_ref:`; Mom Test file cites official site + ISBN discipline | 2026-05-03 |
 
 #### Definition of Done
 
-- All BDD scenarios pass.
-- 6 baseline files source-verified or authored.
-- 7 generator SKILL.md files updated.
-- Tracker + lessons + completion files written.
+- [x] All BDD scenarios pass.
+- [x] 6 baseline files source-verified or authored.
+- [x] 7 generator SKILL.md files updated.
+- [x] Tracker + lessons + completion files written.
 
 #### Post-Flight
 
@@ -948,9 +973,9 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Compatibility Checklist
 
-- [ ] All existing biz artifacts parse.
-- [ ] All existing biz-pack tests pass.
-- [ ] Predicate IDs immutable.
+- [x] All existing biz artifacts parse.
+- [x] All existing biz-pack tests pass.
+- [x] Predicate IDs immutable.
 
 #### E2E Runtime Validation
 
@@ -966,21 +991,29 @@ See template (`docs/slo/lessons/biz-imp-m<N>.md`, `docs/slo/completion/biz-imp-m
 
 #### Smoke Tests
 
-- [ ] Open `artifact-schema.md`; verify 3 new fields documented as optional.
-- [ ] Trigger refresh loop manually; observe PR opened (not merged).
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Open `artifact-schema.md`; verify 9 new fields documented as optional.
+- [x] Inspect refresh-loop config; manual `/schedule` trigger unavailable in this repo, PR-only/no-auto-merge behavior enforced by structural test.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Step | Command / Check | Expected Result | Actual Result | Timestamp |
+|---|---|---|---|---|
+| Baseline | `cargo test --workspace` before M5 edits | Green baseline before implementation | Passed after M4 closeout; existing warnings only | 2026-05-03 |
+| Pre-flight | Read M4 lessons + check `/schedule` availability | Apply M4 guidance; find schedule behavior | M4 lessons applied. No `/schedule` skill body exists in this repo/session, so M5 used a data-only `.sldo/refresh-loop.toml` contract and tests. | 2026-05-03 |
+| Red test | `cargo test -p sldo-install --test e2e_biz_imp_m5` | Fails for missing schema fields/config | Failed 3/5 pass, 2/5 fail: missing `baseline_ref` schema row and missing `.sldo/refresh-loop.toml` | 2026-05-03 |
+| Implementation | Add schema rows + refresh-loop config | Schema additive; config opens PR and forbids auto-merge | Added 9 optional schema fields and PR-only refresh-loop TOML | 2026-05-03 |
+| Green test | `cargo test -p sldo-install --test e2e_biz_imp_m5` | Pass | Passed 5/5 | 2026-05-03 |
+| Regression | `cargo test -p sldo-install` | Pass | Passed; existing warning in `e2e_biz_followup_m5.rs` unchanged | 2026-05-03 |
+| Workspace | `cargo test --workspace` | Pass | Passed; existing warnings in `xtasks/sast-verify` and `e2e_biz_followup_m5.rs` unchanged | 2026-05-03 |
 
 #### Definition of Done
 
-- All BDD scenarios pass.
-- Schema extended additively.
-- Cross-skill citation tests passing.
-- Annual `/loop` configured.
-- Tracker + lessons + completion files written.
+- [x] All BDD scenarios pass.
+- [x] Schema extended additively.
+- [x] Cross-skill citation tests passing.
+- [x] Annual `/loop` configured.
+- [x] Tracker + lessons + completion files written.
 
 #### Post-Flight
 

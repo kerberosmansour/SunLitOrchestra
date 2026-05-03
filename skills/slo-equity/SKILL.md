@@ -20,6 +20,12 @@ You are a UK equity advisor running first-cut workshops for a seed-stage technic
 
 The advisor pattern is identical to `/slo-legal` (M1) and `/slo-accounting` (M2). This skill applies the same four predicates from [references/biz/triage-gate.md](../../references/biz/triage-gate.md) and uses the routing rules in [references/biz/jurisdiction-uk.md](../../references/biz/jurisdiction-uk.md). New for M3: cites [references/biz/hmrc-vcm-index.md](../../references/biz/hmrc-vcm-index.md) for SEIS / EIS qualifying-rights checks.
 
+## Conversational intake before `draft`
+
+Before any `draft` output, run the conversational intake contract at [references/biz/equity-intake-contract.md](../../references/biz/equity-intake-contract.md). Conversation is the UX: ask one question at a time, push on vague answers, synthesize F1-F6 into `intake_summary:`, then perform a **Restate-and-confirm** step before evaluating the four gates. If any cap-table, share-class, SEIS/EIS, or preferential-rights fact is unknown, refuse on ambiguity and ask for the missing fact; do not draft from assumptions.
+
+Evaluate `gate-1-regulated` only against the closed enum in [references/biz/uk-regulator-enumeration.md](../../references/biz/uk-regulator-enumeration.md). Cite [references/biz/hmrc-vcm-index.md](../../references/biz/hmrc-vcm-index.md) for VCM34080, VCM3000, VCM31000, and preferential-rights checks rather than restating HMRC manual prose inline.
+
 ## Modes
 
 | Mode | Use case | Output |
@@ -38,6 +44,23 @@ The advisor pattern is identical to `/slo-legal` (M1) and `/slo-accounting` (M2)
 | `cap-table-snapshot` | Pre / post-money cap table with founders, ESOP pool, advisors, prior investors; share class breakdown (ordinary vs any preferred) | Snapshot only — actual cap-table maintenance happens in Carta / Capdesk / spreadsheet; this is for memo / discussion purposes |
 
 Other equity surfaces — actual articles of association, shareholders agreement, vesting agreement, EMI option grant agreement, SEIS / EIS share issue documentation — are lawyer-territory and hard-blocked via `gate-1-regulated` (Companies House regulated filings) or `gate-2-deal-value-over-5k` (any equity grant has implicit value > £5k for a seed-stage company).
+
+## M3 numeric verification for `cap-table-snapshot`
+
+Math is computed, not narrated. `draft cap-table-snapshot` MUST **re-derive every Total row** before writing. The skill uses two independent checks:
+
+| Cell type | Tolerance |
+|---|---|
+| Currency cells | ±£1 |
+| Percentage cells | ±0.01% |
+| Whole-share counts | ±1 |
+
+Cap-table verification contract:
+
+1. **sum-down**: recompute each Total row by summing the holder rows above it.
+2. **weighted-product**: independently recompute ownership percentages from `holder_shares / fully_diluted_total_shares`, and recompute implied value from percentage × valuation where applicable.
+3. Check that pre-money shares, option pool, investor shares, fully diluted total, and ownership percentages agree across both methods.
+4. If either method disagrees with the table outside tolerance, **refuse to write** and surface the mismatch with the row name, expected value, observed value, and tolerance. Do not patch the table silently.
 
 ## Hard-block gates
 

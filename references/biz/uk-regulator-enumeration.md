@@ -1,7 +1,9 @@
 ---
 name: uk-regulator-enumeration
 created: 2026-04-27
-status: starter — runbook from issue #19 to harden + extend
+retrieved: 2026-05-03
+refresh_recommended_by: 2027-05-03
+status: source-verified — M1 business-skill-improvements
 audience: every advisor skill in the biz pack (`/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`, `/slo-hire`)
 purpose: |
   Closed enumeration of UK regulators with statutory enforcement powers. The
@@ -18,7 +20,7 @@ The advisor skills MUST consult this file when evaluating `gate-1-regulated`. Na
 
 ## Schema
 
-Each row is a `regulator_id` (kebab-slug, stable interface — referenced by intake forms in `references/biz/legal-intake-form.md` etc.) plus structured metadata.
+Each row is a `regulator_id` (kebab-slug, stable interface — referenced by intake forms in `references/biz/legal-intake-contract.md` etc.) plus structured metadata.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -29,6 +31,38 @@ Each row is a `regulator_id` (kebab-slug, stable interface — referenced by int
 | `default_route_to` | enum | `lawyer-specialist` / `lawyer` / `accountant` / `dpo` / `combined` |
 | `cited_by` | list | Which advisor skills typically cite this regulator |
 | `last_reviewed` | date (YYYY-MM-DD) | Annual cadence; stale > 12 months → refresh PR |
+
+## Source verification register
+
+Each row below is the authority audit surface for the closed enum. `last_checked` is the SLO verification date; `next_review_due` is the annual refresh date. `last_amended` records the revised-source position seen at retrieval time, not a legal opinion about every downstream amendment.
+
+| id | primary_authority | statute_url | commenced_date | last_amended | last_checked | next_review_due | confidence |
+|---|---|---|---|---|---|---|---|
+| `hmrc` | Taxes Management Act 1970; Income Tax Act 2007; ITEPA 2003 Chapter 10 | https://www.legislation.gov.uk/ukpga/1970/9/contents; https://www.legislation.gov.uk/ukpga/2007/3/contents; https://www.legislation.gov.uk/ukpga/2003/1/part/2/chapter/10 | 1970-03-12 / 2007-03-20 / 2003-03-06 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `companies-house` | Companies Act 2006; Economic Crime and Corporate Transparency Act 2023 | https://www.legislation.gov.uk/ukpga/2006/46/contents; https://www.legislation.gov.uk/ukpga/2023/56/contents | 2006-11-08 / 2023-10-26 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `pensions-regulator` | Pensions Act 2008 | https://www.legislation.gov.uk/ukpga/2008/30/contents | 2008-11-26 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ico` | Data Protection Act 2018; PECR 2003; Data (Use and Access) Act 2025 | https://www.legislation.gov.uk/ukpga/2018/12/contents; https://www.legislation.gov.uk/uksi/2003/2426/contents; https://www.legislation.gov.uk/ukpga/2025/18/contents | 2018-05-23 / 2003-12-11 / 2025-06-19 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ofcom` | Communications Act 2003; Online Safety Act 2023 | https://www.legislation.gov.uk/ukpga/2003/21/contents; https://www.legislation.gov.uk/ukpga/2023/50/contents | 2003-07-17 / 2023-10-26 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `fca` | Financial Services and Markets Act 2000 | https://www.legislation.gov.uk/ukpga/2000/8/contents | 2000-06-14 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `pra` | Financial Services and Markets Act 2000; Bank of England Act 1998 | https://www.legislation.gov.uk/ukpga/2000/8/contents; https://www.legislation.gov.uk/ukpga/1998/11/contents | 2000-06-14 / 1998-04-23 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `cma` | Competition Act 1998; Enterprise Act 2002; Digital Markets, Competition and Consumers Act 2024 | https://www.legislation.gov.uk/ukpga/1998/41/contents; https://www.legislation.gov.uk/ukpga/2002/40/contents; https://www.legislation.gov.uk/ukpga/2024/13/contents | 1998-11-09 / 2002-11-07 / 2024-05-24 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `asa` | CAP Code and ASA self-regulatory remit; Ofcom statutory backstop for broadcast | https://www.asa.org.uk/codes-and-rulings/advertising-codes/non-broadcast-code.html; https://www.legislation.gov.uk/ukpga/2003/21/contents | self-regulatory code / 2003-07-17 | code page current at source check | 2026-05-03 | 2027-05-03 | medium |
+| `tsi` | Consumer Rights Act 2015; Consumer Protection from Unfair Trading Regulations 2008 | https://www.legislation.gov.uk/ukpga/2015/15/contents; https://www.legislation.gov.uk/uksi/2008/1277/contents | 2015-03-26 / 2008-05-26 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `mhra` | Medicines Act 1968; Human Medicines Regulations 2012; Medical Devices Regulations 2002 | https://www.legislation.gov.uk/ukpga/1968/67/contents; https://www.legislation.gov.uk/uksi/2012/1916/contents; https://www.legislation.gov.uk/uksi/2002/618/contents | 1968-10-25 / 2012-08-14 / 2002-03-08 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `cqc` | Health and Social Care Act 2008 | https://www.legislation.gov.uk/ukpga/2008/14/contents | 2008-07-21 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `gmc` | Medical Act 1983 | https://www.legislation.gov.uk/ukpga/1983/54/contents | 1983-10-26 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `nmc` | Nursing and Midwifery Order 2001 | https://www.legislation.gov.uk/uksi/2002/253/contents | 2002-02-12 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `hcpc` | Health Professions Order 2001 | https://www.legislation.gov.uk/uksi/2002/254/contents | 2002-02-12 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `hse` | Health and Safety at Work etc. Act 1974 | https://www.legislation.gov.uk/ukpga/1974/37/contents | 1974-07-31 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ehrc` | Equality Act 2006; Equality Act 2010 | https://www.legislation.gov.uk/ukpga/2006/3/contents; https://www.legislation.gov.uk/ukpga/2010/15/contents | 2006-02-16 / 2010-04-08 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ofgem` | Gas Act 1986; Electricity Act 1989; Utilities Act 2000 | https://www.legislation.gov.uk/ukpga/1986/44/contents; https://www.legislation.gov.uk/ukpga/1989/29/contents; https://www.legislation.gov.uk/ukpga/2000/27/contents | 1986-07-25 / 1989-07-27 / 2000-07-28 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ofwat` | Water Industry Act 1991 | https://www.legislation.gov.uk/ukpga/1991/56/contents | 1991-07-25 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `ofsted` | Education and Inspections Act 2006; Care Standards Act 2000 | https://www.legislation.gov.uk/ukpga/2006/40/contents; https://www.legislation.gov.uk/ukpga/2000/14/contents | 2006-11-08 / 2000-07-20 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `caa` | Civil Aviation Act 2012; Air Navigation Order 2016 | https://www.legislation.gov.uk/ukpga/2012/19/contents; https://www.legislation.gov.uk/uksi/2016/765/contents | 2012-12-19 / 2016-07-19 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `environment-agency` | Environment Act 2021; Environmental Permitting Regulations 2016 | https://www.legislation.gov.uk/ukpga/2021/30/contents; https://www.legislation.gov.uk/uksi/2016/1154/contents | 2021-11-09 / 2016-12-06 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `charity-commission` | Charities Act 2011 | https://www.legislation.gov.uk/ukpga/2011/25/contents | 2011-12-14 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `oisc` | Immigration and Asylum Act 1999 Part V | https://www.legislation.gov.uk/ukpga/1999/33/part/V | 1999-11-11 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
+| `solicitors-regulation-authority` | Legal Services Act 2007; Solicitors Act 1974 | https://www.legislation.gov.uk/ukpga/2007/29/contents; https://www.legislation.gov.uk/ukpga/1974/47/contents | 2007-10-30 / 1974-07-31 | revised source current at source check | 2026-05-03 | 2027-05-03 | high |
 
 ## The enumeration (last-reviewed: 2026-04-27)
 
@@ -137,7 +171,7 @@ The file's `last_reviewed:` triggers a refresh PR when stale > 12 months. The sk
 
 - `references/biz/triage-gate.md` — the predicate this file resolves.
 - `references/biz/jurisdiction-uk.md` — narrative version of UK regulator scope.
-- `references/biz/legal-intake-form.md` — F5 field uses `id` values from this file as the closed enum.
+- `references/biz/legal-intake-contract.md` — F5 field uses `id` values from this file as the closed enum.
 - `references/biz/hmrc-vcm-index.md` — HMRC VCM-specific anchors for SEIS/EIS firings.
 - `references/biz/ico-duaa-index.md` — ICO DUAA 2025 anchors for ICO firings.
 - `references/biz/ir35-cest-factors.md` — HMRC IR35 specifics for `slo-hire`.
