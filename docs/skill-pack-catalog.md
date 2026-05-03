@@ -3,7 +3,7 @@
 > **Status**: canonical living catalog of shipped SunLitOrchestrate skills at HEAD.
 > **Audience**: contributors, host-overlay authors, and users deciding which skill to run.
 
-Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [getting-started.md](getting-started.md) for the first-run path, and [design/agent-host-capabilities.md](design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, …) are defined in [GLOSSARY.md](GLOSSARY.md).
+Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
 **Shipped skills at HEAD: 37** (10 sprint flow + 5 ticket flow + 6 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 37 entries.
 
@@ -12,7 +12,7 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 - The portable unit is the Markdown `SKILL.md` contract under `skills/<name>/SKILL.md`.
 - The active Rust workspace members are `sldo-common`, `sldo-research`, `sldo-install`, and `xtasks/sast-verify`.
 - The legacy `sldo-plan`, `sldo-run`, and `sldo-tauri` surfaces are not current workspace members and should not be treated as active interfaces.
-- `sldo-install` can install the same skill pack into Claude Code or GitHub Copilot.
+- `sldo-install` can install the same skill pack into Claude Code, GitHub Copilot, or Codex.
 - Headless runtime automation is still host-specific today. Check [design/agent-host-capabilities.md](design/agent-host-capabilities.md) before promising a runtime surface.
 
 ## Sprint flow
@@ -90,9 +90,9 @@ These skills generate exactly one primary artifact each.
 |---|---|---|
 | `/get-api-docs` | Fetch current third-party API docs via `chub` before coding against an external API | `npm install -g @aisuite/chub` |
 
-## Specialist agents (optional, host-native — Claude Code only)
+## Specialist agents (optional, host-native - Claude Code only)
 
-Additive Claude-only enhancements that mirror `/slo-critique`'s four-persona rotation. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` — same artifact paths the canonical portable path writes. GitHub Copilot users continue to use `/slo-critique` directly (canonical portable path; no second-class treatment).
+Additive Claude-only enhancements that mirror `/slo-critique`'s four-persona rotation. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` - same artifact paths the canonical portable path writes. GitHub Copilot and Codex users continue to use `/slo-critique` directly (canonical portable path; no second-class treatment).
 
 | Agent | Role | Output paths | Copilot fallback |
 |---|---|---|---|
@@ -109,7 +109,7 @@ Synthetic, non-normative gallery at [`examples/`](../examples/) shows what shipp
 
 ## Distribution channels
 
-- `sldo-install` (canonical, multi-host: Claude Code + GitHub Copilot).
+- `sldo-install` (canonical, multi-host: Claude Code + GitHub Copilot + Codex).
 - `.claude-plugin/plugin.json` (optional, additive, Claude-only) — for organizational installs that prefer a one-zip distribution.
 - Tagged releases: SHA-pinned [`release-zip workflow`](../.github/workflows/release-zip.yml) generates a `git archive`-based release zip on `v*` tag push.
 
@@ -118,12 +118,12 @@ Synthetic, non-normative gallery at [`examples/`](../examples/) shows what shipp
 - Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
 - Every ticket-sized issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`, which preserves the v4 Contract Block, BDD, evidence, static-analysis, assertion, and resource-bound gates in compact form.
 - `README.md` is the orientation doc, `docs/getting-started.md` is the first-run guide, and this file is the host-neutral skill catalog.
-- Host overlays must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
+- Host overlays (`CLAUDE.md`, `copilot-instructions.md`, `AGENTS.md`) must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
 - `references/biz/`, `references/security/`, and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.
 
 ## Current host boundaries
 
-- Claude Code and GitHub Copilot can both consume the installed `SKILL.md` files.
-- GitHub Copilot should be treated as an interactive host today, not a headless runtime target.
+- Claude Code, GitHub Copilot, and Codex can consume the installed `SKILL.md` files.
+- GitHub Copilot and Codex should be treated as interactive hosts today, not headless runtime targets.
 - `/slo-research` interactive use is host-neutral today; `sldo-research` remains an optional Claude batch backend.
 - The live business judgment runtime harness is still Claude-only today.

@@ -42,6 +42,7 @@ fn test_batch_backend_is_marked_optional_and_claude_specific() {
     let readme = read("README.md");
     let claude = read("CLAUDE.md");
     let copilot = read("copilot-instructions.md");
+    let codex = read("AGENTS.md");
     let catalog = read("docs/skill-pack-catalog.md");
     let architecture = read("docs/ARCHITECTURE.md");
 
@@ -49,6 +50,7 @@ fn test_batch_backend_is_marked_optional_and_claude_specific() {
         ("README", readme.as_str()),
         ("CLAUDE", claude.as_str()),
         ("Copilot overlay", copilot.as_str()),
+        ("Codex overlay", codex.as_str()),
         ("catalog", catalog.as_str()),
         ("architecture", architecture.as_str()),
     ] {
@@ -71,5 +73,9 @@ fn test_batch_backend_is_marked_optional_and_claude_specific() {
     assert!(
         copilot.contains("without installing Claude"),
         "Copilot overlay must make the no-hidden-Claude interactive path explicit"
+    );
+    assert!(
+        codex.contains("host-native interactive research"),
+        "Codex overlay must make the host-native interactive path explicit"
     );
 }

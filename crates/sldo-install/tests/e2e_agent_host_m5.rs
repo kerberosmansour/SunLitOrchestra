@@ -83,7 +83,7 @@ fn test_explicit_claude_only_skills_are_marked_in_capability_matrix() {
     // batch backend; the live business-judgment runtime harness).
     // When: the capability matrix is read.
     // Then: it still names those surfaces explicitly as Claude-only, and
-    // calls out the GitHub Copilot side as "Not supported yet" rather than
+    // calls out the non-Claude side as "Not supported yet" rather than
     // pretending parity.
     let matrix = capability_matrix();
 
@@ -102,7 +102,7 @@ fn test_explicit_claude_only_skills_are_marked_in_capability_matrix() {
     assert!(
         lower.contains("not supported yet"),
         "capability matrix must keep at least one explicit 'Not supported yet' row so the \
-         host story stays honest about Copilot-side automation gaps"
+         host story stays honest about non-Claude automation gaps"
     );
 
     // The matrix must also note `/slo-second-opinion` in the per-skill
