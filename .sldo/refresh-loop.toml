@@ -1,0 +1,62 @@
+[loop]
+name = "biz-kpi-baseline-refresh"
+cadence = "annual"
+timezone = "Europe/London"
+open_pr = true
+auto_merge = false
+max_prs_per_run = 1
+review_required = true
+branch_prefix = "slo/biz-kpi-baseline-refresh"
+
+[scope]
+runbook_prefix = "biz-imp"
+data_classification = "internal"
+files = [
+  "references/biz/saas-kpi-targets-baseline.md",
+  "references/biz/outbound-conversion-baselines.md",
+  "references/biz/product-prioritization-frameworks.md",
+  "references/biz/value-equation-pricing.md",
+  "references/biz/mom-test-canonical-questions.md",
+  "references/biz/launch-success-thresholds.md",
+  "references/biz/uk-marketing-statute-anchors.md",
+]
+
+[refresh]
+stale_warning_after_months = 12
+refuse_after_months = 24
+update_fields = [
+  "retrieved",
+  "refresh_recommended_by",
+  "source_url",
+  "last_checked",
+  "confidence",
+  "methodology_note",
+  "sample_size",
+  "vintage",
+  "applicability_caveat",
+]
+
+[github]
+gh_pr_create = true
+argv = [
+  "gh",
+  "pr",
+  "create",
+  "--title",
+  "[biz] refresh KPI and heuristic baselines",
+  "--body-file",
+  ".sldo/refresh-loop-pr-body.md",
+]
+pr_body_template = """
+## Biz baseline refresh
+
+Refreshed public baseline rows and updated retrieval stamps.
+
+Review checklist:
+- Source URLs resolve.
+- Methodology notes still match the cited source.
+- Confidence levels and caveats are still honest.
+- Generated skill `baseline_ref:` stamps remain compatible.
+
+Human review required before landing.
+"""

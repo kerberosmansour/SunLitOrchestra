@@ -57,9 +57,22 @@ archetype: generator
 skill: slo-metrics
 mode_arg: consumer | b2b
 jurisdiction: uk
+baseline_ref: references/biz/saas-kpi-targets-baseline.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days>
 ---
 ```
+
+## M4 baseline provenance
+
+Financial KPI targets come from
+[`references/biz/saas-kpi-targets-baseline.md`](../../references/biz/saas-kpi-targets-baseline.md).
+Generated artifacts MUST include `baseline_ref:` with the retrieval stamp. If a
+consulted row is older than 12 months, emit a **stale warning** naming the row.
+If a consulted row is older than 24 months, **refuse at +24 months** and ask for
+a baseline refresh before producing target numbers.
+
+The target values below are readability mirrors of the cited baseline. If this
+SKILL.md and the baseline disagree, the baseline file wins.
 
 ## `mode_arg: b2b` body
 
