@@ -35,9 +35,20 @@ archetype: generator
 skill: slo-marketing
 mode_arg: b2b | b2c
 jurisdiction: uk
+baseline_ref: references/biz/uk-marketing-statute-anchors.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days>
 ---
 ```
+
+## M4 baseline provenance
+
+Marketing legal/routing anchors come from
+[`references/biz/uk-marketing-statute-anchors.md`](../../references/biz/uk-marketing-statute-anchors.md).
+Generated artifacts MUST include `baseline_ref:` when they cite ASA, CAP, PECR,
+DUAA, direct-marketing, or influencer-disclosure constraints. If a consulted row
+is older than 12 months, emit a **stale warning** naming the row. If a consulted
+row is older than 24 months, **refuse at +24 months** and ask for a source
+refresh before producing legal-risk routing guidance.
 
 ## `mode_arg: b2b` body
 

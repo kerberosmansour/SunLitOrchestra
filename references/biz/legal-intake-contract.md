@@ -1,7 +1,7 @@
 ---
 name: legal-intake-contract
 created: 2026-04-27
-status: starter — runbook from issue #19 to harden
+status: active — hardened by biz-imp M2 on 2026-05-03
 audience: /slo-legal advisor skill
 purpose: |
   Structured-data CONTRACT that the skill MUST gather **conversationally** before
@@ -21,6 +21,11 @@ purpose: |
 ---
 
 # /slo-legal — pre-draft conversational intake contract
+
+**Conversation is the UX.** This file is a structured destination contract for
+the skill, not a founder-facing form. The founder experiences one question at a
+time, with pushback on vague answers and an explicit restate-and-confirm loop
+before the skill evaluates any hard-block gate.
 
 The skill MUST gather every field below **through conversation** before entering `draft` mode. "Skill emits a form" is the wrong UX. "Skill asks one question, pushes if the answer is vague, moves on when the answer is concrete enough to evaluate the gate" is the right UX — same pattern as [`/slo-ideate`'s seven forcing questions](../../skills/slo-ideate/SKILL.md).
 

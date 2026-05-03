@@ -21,7 +21,28 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn binary() -> String {
-    env!("CARGO_MANIFEST_DIR").to_string() + "/target/debug/sldo-research"
+    static RESEARCH_BIN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+    RESEARCH_BIN
+        .get_or_init(|| {
+            let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let bin = manifest_dir
+                .join("target")
+                .join("debug")
+                .join(format!("sldo-research{}", std::env::consts::EXE_SUFFIX));
+
+            if !bin.exists() {
+                let status = Command::new("cargo")
+                    .args(["build", "-p", "sldo-research"])
+                    .current_dir(&manifest_dir)
+                    .status()
+                    .expect("failed to build sldo-research");
+                assert!(status.success(), "cargo build -p sldo-research failed");
+            }
+
+            bin.to_string_lossy().into_owned()
+        })
+        .clone()
 }
 
 fn fixture_path(rel: &str) -> PathBuf {
