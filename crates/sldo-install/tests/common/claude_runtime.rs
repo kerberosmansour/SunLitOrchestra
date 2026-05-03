@@ -38,7 +38,6 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
 use std::time::Duration;
@@ -56,6 +55,54 @@ pub fn repo_root() -> PathBuf {
         .parent()
         .expect("workspace root reachable")
         .to_path_buf()
+}
+
+#[cfg(unix)]
+fn link_dir(source: &Path, target: &Path) -> Result<(), String> {
+    std::os::unix::fs::symlink(source, target)
+        .map_err(|e| format!("symlink {} -> {}: {e}", target.display(), source.display()))
+}
+
+#[cfg(windows)]
+fn link_dir(source: &Path, target: &Path) -> Result<(), String> {
+    if std::os::windows::fs::symlink_dir(source, target).is_ok() {
+        return Ok(());
+    }
+
+    let output = Command::new("cmd")
+        .args(["/C", "mklink", "/J"])
+        .arg(target)
+        .arg(source)
+        .output()
+        .map_err(|e| format!("invoke mklink /J: {e}"))?;
+    if output.status.success() {
+        return Ok(());
+    }
+
+    Err(format!(
+        "mklink /J {} -> {} failed: stdout={} stderr={}",
+        target.display(),
+        source.display(),
+        String::from_utf8_lossy(&output.stdout).trim(),
+        String::from_utf8_lossy(&output.stderr).trim()
+    ))
+}
+
+#[cfg(unix)]
+fn link_file(source: &Path, target: &Path) -> Result<(), String> {
+    std::os::unix::fs::symlink(source, target)
+        .map_err(|e| format!("symlink {} -> {}: {e}", target.display(), source.display()))
+}
+
+#[cfg(windows)]
+fn link_file(source: &Path, target: &Path) -> Result<(), String> {
+    if std::os::windows::fs::symlink_file(source, target).is_ok() {
+        return Ok(());
+    }
+
+    fs::copy(source, target)
+        .map(|_| ())
+        .map_err(|e| format!("copy {} -> {}: {e}", source.display(), target.display()))
 }
 
 // ---------------------------------------------------------------------------
@@ -241,9 +288,9 @@ pub struct TempRepo {
 
 impl TempRepo {
     /// Build a tempdir layout:
-    ///   <root>/.claude/skills/<each>  -> symlink to <repo>/skills/<each>
-    ///   <root>/references/biz         -> symlink to <repo>/references/biz
-    ///   <root>/CLAUDE.md              -> symlink to <repo>/CLAUDE.md
+    ///   <root>/.claude/skills/<each>  -> managed link to <repo>/skills/<each>
+    ///   <root>/references/biz         -> managed link to <repo>/references/biz
+    ///   <root>/CLAUDE.md              -> managed link/copy to <repo>/CLAUDE.md
     ///   <root>/home/.claude/          (empty; HOME redirect target)
     pub fn build(repo_root: &Path) -> Result<Self, String> {
         let root = tempfile::Builder::new()
@@ -252,7 +299,7 @@ impl TempRepo {
             .map_err(|e| format!("cannot create tempdir: {e}"))?;
         let root_path = root.path().to_path_buf();
 
-        // Skills dir + symlinks for each skill (skip non-skill entries like README.md).
+        // Skills dir + managed links for each skill (skip non-skill entries like README.md).
         let claude_skills = root_path.join(".claude").join("skills");
         fs::create_dir_all(&claude_skills)
             .map_err(|e| format!("mkdir {}: {e}", claude_skills.display()))?;
@@ -273,21 +320,18 @@ impl TempRepo {
                 continue;
             }
             let target = claude_skills.join(name);
-            symlink(&p, &target)
-                .map_err(|e| format!("symlink {} -> {}: {e}", target.display(), p.display()))?;
+            link_dir(&p, &target)?;
         }
 
-        // references/biz symlink.
+        // references/biz managed link.
         fs::create_dir_all(root_path.join("references"))
             .map_err(|e| format!("mkdir references: {e}"))?;
         let biz_target = root_path.join("references").join("biz");
-        symlink(repo_root.join("references/biz"), &biz_target)
-            .map_err(|e| format!("symlink references/biz: {e}"))?;
+        link_dir(&repo_root.join("references/biz"), &biz_target)?;
 
-        // CLAUDE.md symlink.
+        // CLAUDE.md managed link/copy.
         let claude_md_target = root_path.join("CLAUDE.md");
-        symlink(repo_root.join("CLAUDE.md"), &claude_md_target)
-            .map_err(|e| format!("symlink CLAUDE.md: {e}"))?;
+        link_file(&repo_root.join("CLAUDE.md"), &claude_md_target)?;
 
         // Empty isolated HOME.
         let home = root_path.join("home");

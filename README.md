@@ -8,6 +8,7 @@ Three contributions make this pack distinct: **(1) a runbook artifact that bakes
 
 ## Table of contents
 
+- [At a glance](#at-a-glance)
 - [The problem](#the-problem)
 - [What SunLitOrchestrate is](#what-sunlitorchestrate-is)
 - [What makes SunLitOrchestrate different](#what-makes-sunlitorchestrate-different)
@@ -19,6 +20,26 @@ Three contributions make this pack distinct: **(1) a runbook artifact that bakes
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
+
+## At a glance
+
+SunLitOrchestrate is a portable `/slo-*` skill pack for disciplined AI-assisted delivery. It gives a host agent a sequence of reviewable contracts instead of one loose prompt.
+
+| If you have... | Start with... | You get... |
+|---|---|---|
+| A new product or feature idea | `/slo-ideate` | Problem framing, risks, and a path into research/design |
+| A scoped GitHub issue | `/slo-ticket-pick #<issue>` | A compact ticket contract, evidence log, and PR handoff |
+| A full feature that needs planning | `/slo-plan` after ideate/research/architecture | A v4 runbook with milestones, BDD, abuse cases, and gates |
+| A security-only need | `/slo-rulegen` or `/slo-sast` | Semgrep rules and a deterministic verification gate |
+| A UK founder/business artifact | The relevant `/slo-*` biz skill | Drafts or decision artifacts with hard-block gates |
+
+Supported interactive hosts:
+
+| Host | Install target | Overlay |
+|---|---|---|
+| Claude Code | `~/.claude/skills/` | [CLAUDE.md](CLAUDE.md) |
+| GitHub Copilot | `~/.copilot/skills/` | [copilot-instructions.md](copilot-instructions.md) |
+| Codex | `~/.codex/skills/` | [AGENTS.md](AGENTS.md) |
 
 ## The problem
 
@@ -34,7 +55,7 @@ The bet behind SunLitOrchestrate is that these failures are not LLM limitations 
 
 ## What SunLitOrchestrate is
 
-A **skill pack** — a set of `/slo-*` slash commands installed into a host AI coding agent (Claude Code by default, GitHub Copilot also supported) — plus a small Rust toolchain that installs the pack, provides an optional batch backend for `/slo-research`, and runs a Semgrep rule gate (`cargo xtask sast-verify`) wired to the SAST skills.
+A **skill pack** - a set of `/slo-*` slash commands installed into a host AI coding agent (Claude Code by default; GitHub Copilot and Codex also supported) - plus a small Rust toolchain that installs the pack, provides an optional batch backend for `/slo-research`, and runs a Semgrep rule gate (`cargo xtask sast-verify`) wired to the SAST skills.
 
 The pack is organised around four workflows that compose:
 
@@ -153,7 +174,7 @@ If this is your first time here, start with [docs/getting-started.md](docs/getti
 | Security + SAST | Threat-model-by-default design and Semgrep rule-pack generation | `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify` |
 | UK biz pack (v1) | Founder, GTM, pricing, legal, accounting, equity, and hiring artifacts for UK-only workflows | `/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`, `/slo-talk-to-users`, `/slo-gtm`, `/slo-product`, `/slo-marketing`, `/slo-launch`, `/slo-sales-funnel`, `/slo-pricing`, `/slo-metrics`, `/slo-cofounder`, `/slo-hire`, `/slo-founder-check` |
 
-The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md) and [copilot-instructions.md](copilot-instructions.md).
+The raw `SKILL.md` contract is agent-neutral. The canonical skill list lives in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Host-specific overlays live in [CLAUDE.md](CLAUDE.md), [copilot-instructions.md](copilot-instructions.md), and [AGENTS.md](AGENTS.md).
 
 The workflow is intentionally more technical-contract-driven than a typical prompt stack. The v4 runbook contract at [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) gives every milestone explicit scope, interfaces, abuse cases, compatibility expectations, verification gates, plus Carmack-style reliability controls (debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, "make invalid states unrepresentable"). For designs with real protocol complexity, `/slo-tla` adds a formal-spec step so the design can be checked with TLA+ before implementation. The earlier [v3 template](docs/slo/templates/runbook-template_v_3_template.md) remains in place as a historical artifact for runbooks already authored against it.
 
@@ -173,7 +194,7 @@ If you want the step-by-step first-run path, read [docs/getting-started.md](docs
 ### Prerequisites
 
 - **Rust toolchain** (stable). `rustup install stable` if you don't have one.
-- **A supported host agent**: Claude Code or GitHub Copilot. Claude Code remains the default target if you do not pass `--host`.
+- **A supported host agent**: Claude Code, GitHub Copilot, or Codex. Claude Code remains the default target if you do not pass `--host`.
 - **Semgrep** (`brew install semgrep` or `pip install semgrep`). Required only for the SAST rule-pack path.
 
 ### Install the skill pack
@@ -194,19 +215,27 @@ cargo build -p sldo-install --release
 ./target/release/sldo-install --host github-copilot status
 ./target/release/sldo-install --host github-copilot verify
 
+# Codex
+./target/release/sldo-install --host codex
+./target/release/sldo-install --host codex status
+./target/release/sldo-install --host codex verify
+
 # Project-local installs
 ./target/release/sldo-install --local
 ./target/release/sldo-install --host github-copilot --local
+./target/release/sldo-install --host codex --local
 ```
 
 What success looks like:
 
 - `sldo-install` prints the selected target root.
 - `status` lists the installed skills for the host you chose.
-- Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`.
-- Local installs land in `./.claude/skills/` or `./.copilot/skills/` if you add `--local`.
+- Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`.
+- Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/` if you add `--local`.
+- On Windows PowerShell, use `.\target\release\sldo-install.exe` with the same flags. Native Windows shells can rely on `%USERPROFILE%` when `HOME` is not set.
+- Linux and macOS installs use directory symlinks. Windows tries directory symlinks first, then falls back to directory junctions if symlink privileges are unavailable.
 
-`/slo-research` now uses host-native research first in both Claude Code and GitHub Copilot. `sldo-research` remains an optional Claude batch backend when you explicitly want that automation path.
+`/slo-research` now uses host-native research first in Claude Code, GitHub Copilot, and Codex. `sldo-research` remains an optional Claude batch backend when you explicitly want that automation path.
 
 For the canonical sprint sequence (ideate → ship), see [How it works](#how-it-works) above.
 
@@ -214,7 +243,7 @@ For the canonical sprint sequence (ideate → ship), see [How it works](#how-it-
 
 Claude Code organizational installs may prefer a one-zip distribution over cloning the repo. A `.claude-plugin/plugin.json` is published; tagged releases also produce a downloadable zip via the SHA-pinned [release-zip workflow](.github/workflows/release-zip.yml).
 
-**The Rust installer remains canonical.** `sldo-install` is the supported install path for both Claude Code and GitHub Copilot; the plugin distribution is additive and Claude-only. GitHub Copilot users continue to use `sldo-install --host github-copilot`. Choosing the plugin path on Claude Code does not bypass `sldo-install`'s manifest at `~/.sldo/install.toml` — both paths point at the same `skills/` tree.
+**The Rust installer remains canonical.** `sldo-install` is the supported install path for Claude Code, GitHub Copilot, and Codex; the plugin distribution is additive and Claude-only. GitHub Copilot users continue to use `sldo-install --host github-copilot`; Codex users use `sldo-install --host codex`. Choosing the plugin path on Claude Code does not bypass `sldo-install`'s manifest at `~/.sldo/install.toml` - both paths point at the same `skills/` tree.
 
 ### Examples
 
@@ -241,7 +270,7 @@ CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-W
 
 ## Host reality
 
-- Claude Code and GitHub Copilot can both install and use the `SKILL.md` pack interactively.
+- Claude Code, GitHub Copilot, and Codex can install and use the `SKILL.md` pack interactively.
 - Claude Code remains the default host if you omit `--host`.
 - Headless runtime automation is still host-specific today.
 - `sldo-research` as a batch backend and the live business judgment runtime harness are still Claude-only today.
@@ -265,9 +294,10 @@ The README is the orientation page. For the full host-neutral skill list, output
 
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
 - [docs/getting-started.md](docs/getting-started.md) — first-run path with exact commands and expected results
-- [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — what works in Claude Code, GitHub Copilot, or both
+- [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — what works in Claude Code, GitHub Copilot, Codex, or host-specific automation
 - [CLAUDE.md](CLAUDE.md) — Claude Code overlay
 - [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay
+- [AGENTS.md](AGENTS.md) — Codex overlay
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — design philosophy: more internal discipline, less user-visible ceremony
 - [skills/get-api-docs/UPSTREAM.md](skills/get-api-docs/UPSTREAM.md) — attribution for the vendored `/get-api-docs` helper
 
@@ -279,13 +309,14 @@ The README is the orientation page. For the full host-neutral skill list, output
 ├── crates/
 │   ├── sldo-common/              # Shared library (used by the remaining Rust tooling)
 │   ├── sldo-research/            # Optional Claude batch backend for /slo-research
-│   └── sldo-install/             # Skill installer (symlinks skills/* into the selected host root)
+│   └── sldo-install/             # Skill installer (managed-links skills/* into the selected host root)
 ├── xtasks/sast-verify/           # cargo xtask sast-verify (Semgrep rule gate; driven by /slo-rulegen + /slo-ruleverify)
 ├── .semgrep/rust/                # 10/10 CWE rule pack (M1 + M1.5 + M1.6)
 ├── references/                   # Shared scaffolding read by skills (biz/, sast/)
 ├── docs/                         # Runbooks, design docs, lessons, completions
 ├── CLAUDE.md                     # Claude Code overlay for the canonical skill catalog
 ├── copilot-instructions.md       # GitHub Copilot overlay for the same skill pack
+├── AGENTS.md                     # Codex overlay for the same skill pack
 └── SECURITY.md                   # Project-wide security defaults
 ```
 
@@ -313,6 +344,7 @@ Start here:
 - [SECURITY.md](SECURITY.md) — project-wide security defaults
 - [CLAUDE.md](CLAUDE.md) — Claude Code overlay
 - [copilot-instructions.md](copilot-instructions.md) — GitHub Copilot overlay
+- [AGENTS.md](AGENTS.md) — Codex overlay
 
 Skill-pack design:
 
@@ -333,8 +365,8 @@ Per-runbook detail:
 Contributions are welcome. The recommended workflow:
 
 1. **Fork + clone.** `git clone <your-fork>` and `cd SunLitOrchestrate`.
-2. **Open an issue first** for non-trivial work — the v3 runbook discipline only pays off when the work is scoped before code is written.
-3. **Use the skills on yourself.** `/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` produces a runbook the maintainers can review without any code yet. This is the lowest-friction path to merging.
+2. **Open an issue first** for non-trivial work. Use the ticket-sized SLO flow for small changes and the full v4 runbook flow for larger ones.
+3. **Use the skills on yourself.** `/slo-ideate` -> `/slo-research` -> `/slo-architect` -> `/slo-plan` produces a runbook the maintainers can review without any code yet. For a small issue, use `/slo-ticket-pick` -> `/slo-ticket-plan`.
 4. **Pass the baseline.** `cargo test -p sldo-common -p sldo-install -p sldo-research` must be green.
 5. **Open a PR.** The PR description should link to the runbook + the closed milestone's completion summary.
 

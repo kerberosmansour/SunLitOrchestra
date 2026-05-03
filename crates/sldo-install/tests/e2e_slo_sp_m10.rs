@@ -76,8 +76,12 @@ fn get_api_docs_installs_through_generic_pickup() {
         .join("skills")
         .join("get-api-docs");
     assert!(
-        link.is_symlink(),
-        "get-api-docs should install via the generic symlink path — no special case"
+        link.exists() || link.is_symlink(),
+        "get-api-docs should install via the generic managed-link path — no special case"
+    );
+    assert_eq!(
+        fs::canonicalize(&link).unwrap(),
+        fs::canonicalize(&skill_src).unwrap()
     );
 }
 

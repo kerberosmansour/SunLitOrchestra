@@ -1,6 +1,6 @@
 # SunLitOrchestrate — Claude Code overlay
 
-This file is the Claude Code overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in Claude Code and need Claude-specific session notes. For the host-neutral list of shipped skills, read the catalog first. For GitHub Copilot-specific notes, read [copilot-instructions.md](copilot-instructions.md).
+This file is the Claude Code overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in Claude Code and need Claude-specific session notes. For the host-neutral list of shipped skills, read the catalog first. For GitHub Copilot-specific notes, read [copilot-instructions.md](copilot-instructions.md). For Codex-specific notes, read [AGENTS.md](AGENTS.md).
 
 ## Skill pack — first-party `/slo-*` skills
 
@@ -75,8 +75,8 @@ Synthetic, non-normative gallery at [examples/](examples/). Read these to see wh
 
 ## Distribution channels
 
-- `sldo-install` (canonical) — installs into `~/.claude/skills/` (or `--local`).
-- `.claude-plugin/plugin.json` (optional, additive) — Claude Code organizational installs may prefer a one-zip distribution. Tagged releases produce a downloadable zip via the SHA-pinned [release-zip workflow](.github/workflows/release-zip.yml).
+- `sldo-install` (canonical, multi-host) - installs into the selected host root.
+- `.claude-plugin/plugin.json` (optional, additive) - Claude Code organizational installs may prefer a one-zip distribution. Tagged releases produce a downloadable zip via the SHA-pinned [release-zip workflow](.github/workflows/release-zip.yml).
 
 ## Canonical planning artifact
 
@@ -103,6 +103,6 @@ cargo build -p sldo-install --release
 
 Manifest: `~/.sldo/install.toml`.
 
-If you are using GitHub Copilot instead of Claude Code, use [copilot-instructions.md](copilot-instructions.md) for the matching host overlay.
+If you are using GitHub Copilot instead of Claude Code, use [copilot-instructions.md](copilot-instructions.md) for the matching host overlay. If you are using Codex, use [AGENTS.md](AGENTS.md).
 
 If you are completely new to the repo, start with [docs/getting-started.md](docs/getting-started.md) before using this overlay.

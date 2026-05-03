@@ -1,5 +1,5 @@
 //! Install manifest: records which skills are installed and where their
-//! symlinks point, so `uninstall` can reverse exactly what `install` did.
+//! managed links point, so `uninstall` can reverse exactly what `install` did.
 
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -17,9 +17,9 @@ pub struct Entry {
     /// Host id that owns this install (for example `claude-code`).
     #[serde(default = "default_host_id")]
     pub host: String,
-    /// Absolute path to the symlink we created.
+    /// Absolute path to the managed link we created.
     pub target: PathBuf,
-    /// Absolute path to the source skill directory the symlink points at.
+    /// Absolute path to the source skill directory the managed link points at.
     pub source: PathBuf,
     /// ISO-8601 UTC timestamp of the install.
     pub installed_at: String,
@@ -184,13 +184,19 @@ mod tests {
             PathBuf::from("/s2"),
         );
         m.upsert(
+            Host::Codex,
+            "a".into(),
+            PathBuf::from("/t4"),
+            PathBuf::from("/s4"),
+        );
+        m.upsert(
             Host::ClaudeCode,
             "a".into(),
             PathBuf::from("/t3"),
             PathBuf::from("/s3"),
         );
 
-        assert_eq!(m.entries.len(), 2);
+        assert_eq!(m.entries.len(), 3);
         assert_eq!(
             m.find("a", Host::ClaudeCode).unwrap().target,
             PathBuf::from("/t3")
@@ -198,6 +204,10 @@ mod tests {
         assert_eq!(
             m.find("a", Host::GithubCopilot).unwrap().target,
             PathBuf::from("/t2")
+        );
+        assert_eq!(
+            m.find("a", Host::Codex).unwrap().target,
+            PathBuf::from("/t4")
         );
     }
 
@@ -216,11 +226,18 @@ mod tests {
             PathBuf::from("/copilot"),
             PathBuf::from("/s2"),
         );
+        m.upsert(
+            Host::Codex,
+            "a".into(),
+            PathBuf::from("/codex"),
+            PathBuf::from("/s3"),
+        );
 
         let removed = m.remove("a", Host::GithubCopilot);
         assert!(removed.is_some());
-        assert_eq!(m.entries.len(), 1);
+        assert_eq!(m.entries.len(), 2);
         assert!(m.find("a", Host::ClaudeCode).is_some());
+        assert!(m.find("a", Host::Codex).is_some());
         assert!(m.remove("a", Host::GithubCopilot).is_none());
     }
 

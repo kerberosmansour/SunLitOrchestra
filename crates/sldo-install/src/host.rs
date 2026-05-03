@@ -4,6 +4,7 @@ use clap::ValueEnum;
 pub enum Host {
     ClaudeCode,
     GithubCopilot,
+    Codex,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -25,11 +26,18 @@ const GITHUB_COPILOT: HostDescriptor = HostDescriptor {
     config_dir: ".copilot",
 };
 
+const CODEX: HostDescriptor = HostDescriptor {
+    id: "codex",
+    display_name: "Codex",
+    config_dir: ".codex",
+};
+
 impl Host {
     pub fn descriptor(self) -> &'static HostDescriptor {
         match self {
             Self::ClaudeCode => &CLAUDE_CODE,
             Self::GithubCopilot => &GITHUB_COPILOT,
+            Self::Codex => &CODEX,
         }
     }
 
@@ -54,5 +62,12 @@ mod tests {
         let descriptor = Host::GithubCopilot.descriptor();
         assert_eq!(descriptor.id, "github-copilot");
         assert_eq!(descriptor.config_dir, ".copilot");
+    }
+
+    #[test]
+    fn codex_descriptor_matches_expected_paths() {
+        let descriptor = Host::Codex.descriptor();
+        assert_eq!(descriptor.id, "codex");
+        assert_eq!(descriptor.config_dir, ".codex");
     }
 }
