@@ -10,6 +10,7 @@ Everything under this directory is **work / task information** produced by the `
 | [`completed/`](completed/) | Runbooks whose every milestone is `done`. Move a runbook here once `/slo-retro` closes the last milestone. |
 | [`future/`](future/) | Runbooks queued up but not yet started (every milestone `not_started`). Drop them into `current/` when work begins. |
 | [`templates/`](templates/) | Runbook templates (v3, v4) and supporting reference templates. |
+| [`tickets/`](tickets/) | Ticket-sized SLO contracts created from GitHub Issues by `/slo-ticket-plan`. |
 | [`idea/`](idea/) | `/slo-ideate` outputs — the YC-style interrogation that precedes every runbook. |
 | [`research/`](research/) | `/slo-research` dossiers (one subdirectory per slug). |
 | [`design/`](design/) | `/slo-architect` outputs — overview, interfaces, threat model, stack decision per slug. |
@@ -33,3 +34,5 @@ critique/
 A runbook moves between `future/`, `current/`, `completed/` based on its **Milestone Tracker**: the moment the first milestone flips from `not_started` to `in_progress`, move the file from `future/` → `current/`; the moment the last milestone flips to `done`, move it from `current/` → `completed/`.
 
 The supporting subdirectories (`design/`, `idea/`, `research/`, etc.) stay flat — they are indexed by slug, not by lifecycle phase.
+
+Ticket-sized issue work does not move through `future/` → `current/` → `completed/`. It lands in `tickets/` as `ticket-<issue>-<slug>.md` and carries its own validation and closure summary. If a ticket fails the sizing gate, promote it to the normal runbook lifecycle.

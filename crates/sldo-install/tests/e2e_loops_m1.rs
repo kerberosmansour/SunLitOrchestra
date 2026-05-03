@@ -27,6 +27,7 @@ fn read(path: &Path) -> String {
 
 const LOOP_SECTIONS: &[&str] = &[
     "Sprint loop",
+    "Ticket loop",
     "Security-tuning loop",
     "Lessons loop",
     "Library-feedback loop",
@@ -46,6 +47,11 @@ const CITED_ENGINEERING_SKILLS: &[&str] = &[
     "slo-verify",
     "slo-retro",
     "slo-ship",
+    "slo-ticket-pick",
+    "slo-ticket-plan",
+    "slo-ticket-execute",
+    "slo-ticket-verify",
+    "slo-ticket-close",
     "slo-sast",
     "slo-rulegen",
     "slo-ruleverify",

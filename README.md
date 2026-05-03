@@ -36,11 +36,12 @@ The bet behind SunLitOrchestrate is that these failures are not LLM limitations 
 
 A **skill pack** — a set of `/slo-*` slash commands installed into a host AI coding agent (Claude Code by default, GitHub Copilot also supported) — plus a small Rust toolchain that installs the pack, provides an optional batch backend for `/slo-research`, and runs a Semgrep rule gate (`cargo xtask sast-verify`) wired to the SAST skills.
 
-The pack is organised around three workflows that compose:
+The pack is organised around four workflows that compose:
 
 1. **Core sprint flow** — `/slo-ideate → /slo-research → /slo-architect → /slo-plan → /slo-critique → /slo-execute → /slo-verify → /slo-retro → /slo-ship`. Each stage produces a versioned artifact under `docs/` that the next stage (and the next reviewer) can rely on. Optional `/slo-tla` adds a TLA+ model-check step for designs with real concurrency, ordering, or protocol risk.
-2. **Security + SAST** — `/slo-rulegen`, `/slo-ruleverify`, `/slo-sast`. A 10/10 CWE Semgrep rule pack is included, gated by CI.
-3. **UK biz pack (v1)** — 15 founder, GTM, pricing, legal, accounting, equity, and hiring artifact skills, with mandatory hard-block gates (regulated work, large counterparties, GDPR, IR35) and confidential-vs-public output tiers.
+2. **Ticket-sized SLO flow** — `/slo-ticket-pick → /slo-ticket-plan → /slo-ticket-execute → /slo-ticket-verify → /slo-ticket-close`. This is the GitHub Issues-first path for bite-sized work: one issue, one compact v4-derived ticket contract, one branch, one PR, and one evidence trail.
+3. **Security + SAST** — `/slo-rulegen`, `/slo-ruleverify`, `/slo-sast`. A 10/10 CWE Semgrep rule pack is included, gated by CI.
+4. **UK biz pack (v1)** — 15 founder, GTM, pricing, legal, accounting, equity, and hiring artifact skills, with mandatory hard-block gates (regulated work, large counterparties, GDPR, IR35) and confidential-vs-public output tiers.
 
 The raw `SKILL.md` contract is agent-neutral, so the pack is portable between hosts. Canonical list: [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md).
 
@@ -105,6 +106,16 @@ Two re-entry paths matter:
 - **`/slo-resume`** — the pack's read-only orientation path. If you step away mid-runbook, it reads the tracker and suggests the next action without starting work for you.
 - **Security-only adoption** — `/slo-rulegen` and `/slo-ruleverify` can run standalone against any Rust codebase to maintain the CWE Semgrep rule pack, without running the rest of the sprint flow. See [Quick start → Security-only quick path](#security-only-quick-path).
 
+For small tracker-driven work, use the ticket-sized flow instead of minting a full runbook:
+
+```text
+/slo-ticket-pick #123       # claim/normalize one GitHub issue and create the issue workpad
+/slo-ticket-plan #123       # write docs/slo/tickets/ticket-123-<slug>.md from the compact v4-derived template
+/slo-ticket-execute ...     # BDD-first implementation inside the ticket allow-list
+/slo-ticket-verify ...      # runtime/static/security evidence against the ticket contract
+/slo-ticket-close ...       # PR handoff; no auto-merge or silent issue close
+```
+
 The artifacts produced by each stage live under `docs/slo/` (idea, research dossier, architecture, threat model, runbook, retro, completion summary). They are the project's institutional memory and the input to the *next* runbook's carry-forward.
 
 ## What the output looks like
@@ -120,6 +131,7 @@ A normal run leaves a reviewable paper trail rather than a chat-only rationale:
 | `/slo-plan` | `docs/RUNBOOK-<feature>.md` | Milestone scope, allowed files, BDD scenarios, abuse cases, verification gates |
 | `/slo-execute` + `/slo-verify` | Code, tests, evidence log | Implementation constrained to the runbook, with proof that gates ran |
 | `/slo-retro` + `/slo-ship` | Lessons, completion summary, PR body | Carry-forward lessons and links reviewers can audit without reading the whole chat |
+| `/slo-ticket-*` | `docs/slo/tickets/ticket-<issue>-<slug>.md`, issue workpad, PR body | GitHub issue execution with a compact v4-derived contract and evidence trail |
 
 ## When NOT to use it
 
@@ -137,6 +149,7 @@ If this is your first time here, start with [docs/getting-started.md](docs/getti
 | Pack | What it is for | Main entrypoints |
 |---|---|---|
 | Core sprint flow | Turning an idea or change request into a runbook-driven delivery loop | `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-plan`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship` |
+| Ticket-sized SLO flow | Turning a GitHub issue into one bounded, reviewable PR with v4-style evidence | `/slo-ticket-pick`, `/slo-ticket-plan`, `/slo-ticket-execute`, `/slo-ticket-verify`, `/slo-ticket-close` |
 | Security + SAST | Threat-model-by-default design and Semgrep rule-pack generation | `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify` |
 | UK biz pack (v1) | Founder, GTM, pricing, legal, accounting, equity, and hiring artifacts for UK-only workflows | `/slo-legal`, `/slo-accounting`, `/slo-equity`, `/slo-fundraise`, `/slo-talk-to-users`, `/slo-gtm`, `/slo-product`, `/slo-marketing`, `/slo-launch`, `/slo-sales-funnel`, `/slo-pricing`, `/slo-metrics`, `/slo-cofounder`, `/slo-hire`, `/slo-founder-check` |
 
@@ -147,6 +160,7 @@ The workflow is intentionally more technical-contract-driven than a typical prom
 ## Pick a starting point
 
 - **New feature or product idea**: run `/slo-ideate` and expect `docs/slo/idea/<slug>.md` as the first artifact.
+- **Small GitHub issue or ticket**: run `/slo-ticket-pick #<issue>` and expect `docs/slo/tickets/ticket-<issue>-<slug>.md` after `/slo-ticket-plan`.
 - **Existing idea doc or known problem**: start at `/slo-research` or `/slo-architect`, depending on whether you still need external evidence.
 - **Interrupted runbook**: run `/slo-resume`. It reads the tracker and suggests the next move without starting work for you.
 - **Security-only adoption**: jump straight to `/slo-rulegen` or `/slo-sast`.
@@ -290,8 +304,9 @@ Start here:
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
 - [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
+- [docs/slo/templates/ticket-contract-template_v_1.md](docs/slo/templates/ticket-contract-template_v_1.md) — compact v4-derived contract for bite-sized GitHub issue work
 - [docs/slo/templates/runbook-template_v_3_template.md](docs/slo/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
-- [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, security-tuning, lessons, library-feedback)
+- [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, ticket, security-tuning, lessons, library-feedback)
 - [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
 - [docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md](docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md) — why the pack prefers more internal discipline with less user-visible ceremony

@@ -5,7 +5,7 @@
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [getting-started.md](getting-started.md) for the first-run path, and [design/agent-host-capabilities.md](design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, …) are defined in [GLOSSARY.md](GLOSSARY.md).
 
-**Shipped skills at HEAD: 32** (10 sprint flow + 6 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 32 entries.
+**Shipped skills at HEAD: 37** (10 sprint flow + 5 ticket flow + 6 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 37 entries.
 
 ## Repo reality at HEAD
 
@@ -29,6 +29,18 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 | Verify | `/slo-verify M<N>` | Runtime QA with Playwright for UI surfaces |
 | Close | `/slo-retro M<N>` | Lessons + completion + tracker update |
 | Ship | `/slo-ship` | Open a runbook-aware PR |
+
+## Ticket-sized SLO flow
+
+GitHub Issues-first path for small, reviewable work that should keep v4 rigor without a full multi-milestone runbook. The proposal and operating model live in [slo/design/ticket-sized-slo-workflow.md](slo/design/ticket-sized-slo-workflow.md). The contract template lives at [slo/templates/ticket-contract-template_v_1.md](slo/templates/ticket-contract-template_v_1.md).
+
+| Stage | Skill | Purpose |
+|---|---|---|
+| Pick | `/slo-ticket-pick` | Pull or claim one GitHub issue, normalize context, and create/update the issue workpad |
+| Plan | `/slo-ticket-plan` | Write `docs/slo/tickets/ticket-<issue>-<slug>.md` from the v4-derived ticket contract template |
+| Execute | `/slo-ticket-execute` | Implement the ticket contract BDD-first inside the exact file allow-list |
+| Verify | `/slo-ticket-verify` | Run ticket-sized runtime QA, static/security checks, and regression-test-first bug handling |
+| Close | `/slo-ticket-close` | Fill closure summary, open/update the PR, and move the issue to review without auto-merge |
 
 ## Power tools
 
@@ -104,6 +116,7 @@ Synthetic, non-normative gallery at [`examples/`](../examples/) shows what shipp
 ## Shared invariants
 
 - Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
+- Every ticket-sized issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`, which preserves the v4 Contract Block, BDD, evidence, static-analysis, assertion, and resource-bound gates in compact form.
 - `README.md` is the orientation doc, `docs/getting-started.md` is the first-run guide, and this file is the host-neutral skill catalog.
 - Host overlays must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
 - `references/biz/`, `references/security/`, and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.
