@@ -26,9 +26,22 @@ tier: public
 archetype: generator
 skill: slo-sales-funnel
 jurisdiction: uk
+baseline_ref: references/biz/outbound-conversion-baselines.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days>
 ---
 ```
+
+## M4 baseline provenance
+
+Outbound funnel conversion priors come from
+[`references/biz/outbound-conversion-baselines.md`](../../references/biz/outbound-conversion-baselines.md).
+Generated artifacts MUST include `baseline_ref:` with the retrieval stamp. If a
+consulted row is older than 12 months, emit a **stale warning** naming the row.
+If a consulted row is older than 24 months, **refuse at +24 months** and ask for
+a baseline refresh before producing starter conversion rates.
+
+The rates below are starter priors from the baseline file. Replace them with the
+founder's observed funnel rates once there are 20+ opportunities in a stage.
 
 ## Body shape
 
@@ -46,6 +59,7 @@ Force a top-down calculation. The skill demands:
 | **Cold outreach → qualified meetings** | 1-3% on cold; 10-20% on warm referrals | <N / 0.001125 to N / 0.0225> | — |
 
 The 90-day required outreach volume falls out of the math. If it's > 200 cold contacts/week, the founder is signalling either (a) wrong segment (too narrow), (b) wrong channel (cold isn't the right channel — try community-led from `/slo-gtm`), or (c) wrong funnel stage (warm-referral is structurally needed).
+These stage rates cite `references/biz/outbound-conversion-baselines.md@2026-05-03`; do not quote them without the artifact `baseline_ref:`.
 
 ### 2. Cold-email template — seven principles
 

@@ -25,9 +25,24 @@ tier: public
 archetype: generator
 skill: slo-launch
 jurisdiction: uk
+baseline_ref: references/biz/launch-success-thresholds.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 60 days>
 ---
 ```
+
+## M4 baseline provenance
+
+Launch stage thresholds come from
+[`references/biz/launch-success-thresholds.md`](../../references/biz/launch-success-thresholds.md).
+Generated artifacts MUST include `baseline_ref:` with the retrieval stamp and
+`threshold_owner: founder`. If a consulted row is older than 12 months, emit a
+**stale warning** naming the row. If a consulted row is older than 24 months,
+**refuse at +24 months** and ask for a baseline refresh before producing launch
+threshold guidance.
+
+The launch rule is **set your own threshold** before each stage. Do not present
+Product Hunt rank, Hacker News position, signup count, or friend-conversion
+figures as universal success numbers.
 
 ## Body shape
 

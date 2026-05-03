@@ -6,7 +6,28 @@
 use std::process::Command;
 
 fn binary() -> String {
-    env!("CARGO_MANIFEST_DIR").to_string() + "/target/debug/sldo-research"
+    static RESEARCH_BIN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+    RESEARCH_BIN
+        .get_or_init(|| {
+            let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let bin = manifest_dir
+                .join("target")
+                .join("debug")
+                .join(format!("sldo-research{}", std::env::consts::EXE_SUFFIX));
+
+            if !bin.exists() {
+                let status = Command::new("cargo")
+                    .args(["build", "-p", "sldo-research"])
+                    .current_dir(&manifest_dir)
+                    .status()
+                    .expect("failed to build sldo-research");
+                assert!(status.success(), "cargo build -p sldo-research failed");
+            }
+
+            bin.to_string_lossy().into_owned()
+        })
+        .clone()
 }
 
 #[test]
@@ -90,6 +111,7 @@ fn test_prompt_file_accepted() {
 
     let output = Command::new(binary())
         .arg(prompt_file.to_str().unwrap())
+        .env("PATH", "/sldo_research_nonexistent_path_for_m1")
         .output()
         .expect("failed to execute sldo-research");
 
@@ -114,6 +136,7 @@ fn test_inline_prompt_accepted() {
     let output = Command::new(binary())
         .arg("--prompt")
         .arg("test topic for inline research")
+        .env("PATH", "/sldo_research_nonexistent_path_for_m1")
         .output()
         .expect("failed to execute sldo-research");
 

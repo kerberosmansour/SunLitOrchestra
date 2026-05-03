@@ -25,20 +25,56 @@ tier: public
 archetype: generator
 skill: slo-pricing
 jurisdiction: uk
+baseline_ref: references/biz/value-equation-pricing.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days>
 ---
 ```
+
+## M4 baseline provenance
+
+Pricing heuristics come from
+[`references/biz/value-equation-pricing.md`](../../references/biz/value-equation-pricing.md).
+Generated artifacts MUST include `baseline_ref:` with the retrieval stamp. If a
+consulted row is older than 12 months, emit a **stale warning** naming the row.
+If a consulted row is older than 24 months, **refuse at +24 months** and ask for
+a baseline refresh before producing heuristic price bands.
 
 ## Body shape
 
 ### 1. Value-equation calculator
 
 Force the founder to estimate value delivered to the customer in £ per month or per year. Then anchor price as 25-33% of that.
+This 25-33% operating band is cited from `references/biz/value-equation-pricing.md@2026-05-03`; the artifact records the same `baseline_ref:`.
 
 | Customer outcome | Estimated £ value to customer | Confidence (low/med/high) | Price floor (25%) | Price ceiling (33%) | Recommended starting price |
 |---|---|---|---|---|---|
 
 If the founder can't estimate value within an order of magnitude, the skill REDIRECTS to `/slo-talk-to-users post-interview` for value-extraction questions BEFORE pricing.
+
+## M3 numeric verification for value-equation math
+
+Math is computed, not narrated. The value-equation calculator MUST emit a **runnable Python snippet** and perform **reciprocal verification** before writing the artifact. The band remains 25-33%; the recommended price is not a single magic number.
+
+The computation is: `price = round(value × ratio, -2)`. For reciprocal verification, compute `price=value×0.25` and then compute `value=price/0.25`; repeat for 0.33. If the forward and reciprocal calculations disagree outside ±£1 for currency or ±0.01% for percentages, **refuse to write** and surface the mismatch.
+
+```python
+# SPDX-License-Identifier: MIT
+# stdlib-only value-equation verifier
+
+customer_value_gbp = 10000
+ratios = [0.25, 0.33]
+
+for ratio in ratios:
+    price = round(customer_value_gbp * ratio, -2)
+    reciprocal_value = price / ratio
+    delta = abs(reciprocal_value - customer_value_gbp)
+    print({
+        "ratio": ratio,
+        "price_gbp": price,
+        "reciprocal_value_gbp": round(reciprocal_value, 2),
+        "delta_gbp": round(delta, 2),
+    })
+```
 
 ### 2. Tier model (3 tiers max)
 
@@ -65,6 +101,7 @@ Skill prose enforces this canonical correction:
 > - If conversion drops > 60%, the higher price is wrong; revert and investigate why.
 
 The skill records the experiment plan with explicit dates + decision criteria.
+The founder-undercharge framing is opinion-labeled in `references/biz/value-equation-pricing.md`; do not present it as a public market benchmark.
 
 ### 4. SEIS/EIS qualifying-trade interaction (cross-skill)
 

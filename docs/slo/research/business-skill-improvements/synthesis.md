@@ -77,7 +77,7 @@ The design must handle the dependency by ordering R2 → R3. If R3 starts before
 - [`references/biz/triage-gate.md`](../../../references/biz/triage-gate.md) — the four hard-block predicates
 - [`references/biz/artifact-schema.md`](../../../references/biz/artifact-schema.md) — frontmatter contract
 - [`references/biz/jurisdiction-uk.md`](../../../references/biz/jurisdiction-uk.md), [`references/biz/uk-regulator-enumeration.md`](../../../references/biz/uk-regulator-enumeration.md) (starter)
-- [`references/biz/legal-intake-form.md`](../../../references/biz/legal-intake-form.md) (starter; rename to `legal-intake-contract.md` in M2)
+- [`references/biz/legal-intake-contract.md`](../../../references/biz/legal-intake-contract.md) (renamed from `legal-intake-form.md` in M2)
 - [`references/biz/saas-kpi-targets-baseline.md`](../../../references/biz/saas-kpi-targets-baseline.md) (starter)
 - [`references/biz/hmrc-vcm-index.md`](../../../references/biz/hmrc-vcm-index.md), [`references/biz/ico-duaa-index.md`](../../../references/biz/ico-duaa-index.md), [`references/biz/cost-baseline-jpp-law-2026.md`](../../../references/biz/cost-baseline-jpp-law-2026.md), [`references/biz/ir35-cest-factors.md`](../../../references/biz/ir35-cest-factors.md)
 

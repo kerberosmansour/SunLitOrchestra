@@ -1,98 +1,101 @@
 ---
 name: hmrc-vcm-index
 created: 2026-04-25
-retrieved: 2026-04-25
-status: evolving — refresh when HMRC publishes Venture Capital Schemes Manual updates (https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/updates)
+retrieved: 2026-05-03
+refresh_recommended_by: 2027-05-03
+status: source-verified — refreshed for business-skill-improvements M1
 audience: /slo-equity (M3) + /slo-fundraise (M4)
 purpose: |
-  Citation index for HMRC Venture Capital Schemes Manual — VCM34080 (control / disqualifying arrangements), VCM3000 (excluded activities), VCM31000 (SEIS income tax relief), plus the SEIS / EIS Advance Assurance process anchor. Every cited paragraph carries a source URL + retrieval date so downstream advisor-skill outputs can be audited.
+  Citation index for HMRC Venture Capital Schemes Manual anchors used by
+  /slo-equity and /slo-fundraise when triaging SEIS/EIS qualification.
+  Every cited paragraph carries a source URL, retrieval date, and short
+  verbatim quote.
 sources:
   - https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual
   - https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080
   - https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm3000
   - https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm31000
+  - https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm33020
   - https://www.gov.uk/guidance/venture-capital-schemes-apply-for-advance-assurance
-  - https://www.gov.uk/guidance/venture-capital-schemes-apply-for-the-enterprise-investment-scheme
 ---
 
 # HMRC Venture Capital Schemes Manual — citation index
 
-> Retrieval date: **2026-04-25**.
+> Retrieval date: **2026-05-03**.
 > NOT legal / tax advice; NOT a substitute for HMRC guidance or accountant review.
-> This file is a citation index summarising the published HMRC manual paragraphs that `/slo-equity` (M3) and `/slo-fundraise` (M4) cite when triaging SEIS / EIS qualification questions.
+> This file is a citation index summarising the published HMRC manual paragraphs that `/slo-equity` and `/slo-fundraise` cite when triaging SEIS / EIS qualification questions.
 
-## Top retroactive-disqualification triggers (cited by `/slo-fundraise` triage gate)
+## Top retroactive-disqualification triggers
 
-When a founder asks about SEIS / EIS qualification, the advisor skill checks the founder's situation against the following triggers BEFORE any Advance Assurance application or term-sheet drafting. Each trigger fires `gate-1-regulated` (HMRC) and routes to accountant + (where indicated) lawyer.
+When a founder asks about SEIS / EIS qualification, the advisor skill checks the founder's situation against these triggers before drafting Advance Assurance or term-sheet artifacts. Each trigger fires `gate-1-regulated` (HMRC) and routes to accountant plus specialist lawyer where drafting rights or company-control questions are in scope.
 
-### Trigger 1 — Breach of control / independence (VCM34080)
+### Trigger 1 — Control / independence requirement (VCM34080)
 
-The qualifying company must NOT be a 51%-owned subsidiary of another company AND must NOT be under the control of another company or connected persons.
+- authority: VCM34080 — SEIS income tax relief: issuing company: control and independence requirement
+- source_url: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080
+- last_checked: 2026-05-03
+- quoted_text: "There must be no arrangements at any time during period A by virtue of which this test could be breached"
+- triage_routing: lawyer (corporate structure) + accountant (tax position)
 
-- Authority: **VCM34080** ("Disqualifying arrangements; control and connected persons; companies in administration / insolvency").
-- URL: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080
-- Triage routing: lawyer (corporate structure) + accountant (tax position).
-- Retrieved: 2026-04-25.
+### Trigger 2 — Company under control of another company (VCM34080)
 
-### Trigger 2 — Disqualifying arrangements (ITA07 s257HJ(1))
+- authority: VCM34080
+- source_url: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080
+- last_checked: 2026-05-03
+- quoted_text: "The company is not a qualifying company if it is under the control of another company"
+- triage_routing: lawyer + accountant
 
-Any scheme or agreement under which the company would breach independence at any point during "Period A" (typically share-issue date to 3 years after).
+### Trigger 3 — Qualifying-trade drift into excluded activities (VCM3000)
 
-- Authority: **VCM34080** (same paragraph).
-- Statutory citation: ITA07 s257HJ(1).
-- Triage routing: lawyer + accountant.
+- authority: VCM3000 — Excluded activities: contents
+- source_url: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm3000
+- last_checked: 2026-05-03
+- quoted_text: "VCM3010 Meaning of 'excluded activities'"
+- triage_routing: accountant with specialist VCT/EIS review for borderline cases
 
-### Trigger 3 — Preferential rights on share class
+### Trigger 4 — SEIS income-tax relief withdrawal/reduction surface (VCM31000)
 
-Ordinary shares granted preferential rights (via articles of association or shareholders agreement drafting) — even WITHOUT formal reissue — lose SEIS / EIS qualification.
+- authority: VCM31000 — Seed Enterprise Investment Scheme: income tax relief: contents
+- source_url: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm31000
+- last_checked: 2026-05-03
+- quoted_text: "Withdrawal or reduction of SEIS relief: contents"
+- triage_routing: accountant
 
-- Authority case law: **Abingdon Health Limited v HMRC [2016] TC 05525**; **Flix Innovations** line.
-- URL: https://www.rossmartin.co.uk/companies/seis-eis/2501-eis-preferential-rights-acquired
-- Triage routing: lawyer (drafting review) + accountant (tax impact).
-- Triage prose MUST flag this trigger explicitly when reviewing any cofounder split, vesting schedule, or articles drafting that touches share rights.
+### Trigger 5 — Abingdon Health marker: preferential share-rights review
 
-### Trigger 4 — Qualifying-trade drift into excluded activities (VCM3000 series)
+- authority: VCM33020 — SEIS: income tax relief: general requirements: shares requirement
+- source_url: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm33020
+- last_checked: 2026-05-03
+- quoted_text: "A right carried by a share is a preferential right if that right takes priority over a right carried by some other share"
+- case_marker: Abingdon Health Limited v HMRC [2016] TC 05525 is retained as a specialist-review marker; this M1 pass did not locate a stable official tribunal/GOV.UK text endpoint for the judgment, so downstream skills must cite the HMRC preferential-rights anchor above as the primary source.
+- triage_routing: lawyer (articles/share-rights drafting) + accountant (SEIS/EIS tax impact)
 
-The company's trade must not include "excluded activities" (e.g., dealing in land / commodities, banking, insurance, legal / accountancy services, property development, hotels). The list is statutory and detailed; subtle drift (e.g., a SaaS company that becomes >20% revenue from a property-management feature) can disqualify.
+## Advance Assurance — process anchor
 
-- Authority: **VCM3000** ("Excluded activities: contents") with sub-paragraphs VCM3010 through VCM3070+.
-- URL: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm3000
-- Triage routing: accountant (with specialist VCT advisor for borderline cases).
+- authority: GOV.UK Venture Capital Schemes Advance Assurance guidance
+- source_url: https://www.gov.uk/guidance/venture-capital-schemes-apply-for-advance-assurance
+- last_checked: 2026-05-03
+- advisor_rule: `/slo-fundraise` asks whether Advance Assurance has been applied for before drafting SEIS/EIS-sensitive fundraising artifacts.
+- practical_floor: Apply at least 6 weeks before term-sheet signature where SEIS/EIS Advance Assurance affects the fundraising story.
 
-### Trigger 5 — Value extraction / non-independent transactions
+## Triage gate prose for `/slo-fundraise`
 
-Loans, benefits, related-party transactions to investors AFTER the share issue can disqualify by breaching the no-value-received rule for the investor.
+When `/slo-fundraise` is invoked for any term-sheet drafting, SAFE math, or pitch narrative, the skill MUST surface these questions before drafting:
 
-- Authority: **VCM31000** ("SEIS income tax relief: contents") sub-paragraphs.
-- URL: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm31000
-- Triage routing: accountant (founders typically).
-
-## Advance Assurance — process and lead time
-
-- **Process**: Apply via gov.uk SEIS / EIS Advance Assurance form. https://www.gov.uk/guidance/venture-capital-schemes-apply-for-advance-assurance
-- **HMRC internal target**: ~15 working days.
-- **Realistic end-to-end**: 4–6 weeks (HMRC follow-up questions are common).
-- **2022-23 baseline**: ~26% of applications exceeded 30 days.
-- **SeedLegals-prepared applications**: typically clear in 2–3 weeks after a 1–2 week pre-submission review, per their published help docs.
-- **Practical floor for `/slo-fundraise` triage gate**: apply for Advance Assurance **at least 6 weeks before term-sheet signature**. Earlier-than-needed AA is preferred to a tight-timeline scramble.
-
-## Triage gate prose for `/slo-fundraise` (M4 will cite this section)
-
-When `/slo-fundraise` is invoked for any term-sheet drafting, SAFE math, or pitch narrative, the skill MUST surface these questions BEFORE drafting:
-
-1. **"Have you applied for Advance Assurance, and if so, when?"** — if not applied, hard-block term-sheet drafting; route to accountant immediately. AA must precede term-sheet by ≥ 6 weeks.
-2. **"Are you a 51%-owned subsidiary or controlled by another company / connected persons (VCM34080)?"** — if yes, hard-block; route to lawyer + accountant for restructuring.
-3. **"Have you audited your qualifying-trade status against VCM3000 in the last 12 months?"** — if not, warn; recommend pre-AA review with accountant.
-4. **"Are any share rights preferential vs ordinary (Abingdon Health line)?"** — if yes (or unsure), hard-block; route to lawyer for drafting review.
+1. "Have you applied for Advance Assurance, and if so, when?" If not applied, route to accountant before SEIS/EIS-sensitive drafting.
+2. "Are you a 51%-owned subsidiary or controlled by another company / connected persons (VCM34080)?" If yes or unclear, route to lawyer + accountant.
+3. "Have you audited your qualifying-trade status against VCM3000 in the last 12 months?" If no, warn and recommend accountant review.
+4. "Are any share rights preferential against another class (Abingdon Health marker / VCM33020)?" If yes or unsure, hard-block drafting and route to lawyer.
 
 ## What this file is NOT
 
 - NOT legal / tax advice.
-- NOT exhaustive on SEIS / EIS qualification — many other detailed rules exist (gross asset test, employee-count test, age-of-trade limits, prior funding limits) that are out of scope for the M3 / M4 advisor surface and route directly to accountant + specialist VCT advisor when relevant.
-- NOT a substitute for HMRC's manual or for accountant / specialist advice. The triggers above are the highest-frequency disqualification surfaces, not the complete set.
+- NOT exhaustive on SEIS / EIS qualification.
+- NOT a substitute for HMRC's manual or for accountant / specialist advice.
 
 ## Refresh cadence
 
-- **Quarterly check** of https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/updates for material changes.
-- **Annual** retrieval-date refresh.
-- **Triggered**: re-retrieve immediately when a new SEIS / EIS budget announcement (Spring / Autumn statements) shifts qualifying parameters — e.g., the 2023 SEIS limits raise (annual investment £150k → £250k, age limit 2 → 3 years).
+- warn_after: 2027-05-03
+- refuse_after: 2028-05-03
+- quarterly_check: https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/updates
+- triggered_refresh: Budget statements or HMRC VCM updates affecting SEIS/EIS qualification parameters.

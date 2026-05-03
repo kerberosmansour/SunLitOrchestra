@@ -40,8 +40,21 @@ archetype: generator
 skill: slo-talk-to-users
 jurisdiction: uk
 mode_arg: pre-interview | post-interview
+baseline_ref: references/biz/mom-test-canonical-questions.md@2026-05-03
 ---
 ```
+
+## M4 baseline provenance
+
+Interview question discipline comes from
+[`references/biz/mom-test-canonical-questions.md`](../../references/biz/mom-test-canonical-questions.md).
+Generated artifacts MUST include `baseline_ref:` with the retrieval stamp. If a
+consulted row is older than 12 months, emit a **stale warning** naming the row.
+If a consulted row is older than 24 months, **refuse at +24 months** and ask for
+a baseline refresh before producing canonical interview-question scaffolding.
+
+The baseline is attribution-only. Paraphrase the question schema and avoid long
+verbatim passages from Rob Fitzpatrick's book.
 
 Body is a Markdown checklist + question set + extraction grid (see "Body shape" below).
 
@@ -80,6 +93,7 @@ The founder fills in 3-5 hypotheses they want to test. The skill produces the co
 ### Mom Test question set (no leading questions)
 
 A canonical 8-12 question set drawn from Rob Fitzpatrick's *The Mom Test* (2013):
+This question set cites `references/biz/mom-test-canonical-questions.md@2026-05-03`; keep it paraphrased and artifact-stamped with `baseline_ref:`.
 
 1. "Tell me about the last time you tried to [achieve outcome X]." — anchored in a SPECIFIC recent event, not hypothetical.
 2. "What was hard about that?" — pain-discovery; the user's words, not the founder's frame.

@@ -28,6 +28,15 @@ Every artifact written by a biz skill MUST carry the frontmatter schema below. T
 | `pecr_triage_blocker` | string (one-line reason) | required when `pecr_triage_completed: false` | `cold email channel proposed; /slo-legal triage not yet run; channel BLOCKED until triage resolves` | Human-readable reason the triage hasn't been completed; serves as the channel-launch gate. |
 | `jurisdiction` | enum | yes | `uk` | Exactly one permitted value in v1: `uk`. Non-UK requests are rejected before artifact write. |
 | `cost_baseline_ref` | string (path + retrieval-date stamp) | yes for advisor `draft` outputs | `references/biz/cost-baseline-jpp-law-2026.md@2026-04-25` | Auditable provenance for ROI claims |
+| `baseline_ref` | string (path + retrieval-date stamp) | optional | `references/biz/saas-kpi-targets-baseline.md@2026-05-03` | Auditable provenance for generator numeric targets, KPI baselines, framework definitions, launch thresholds, and other source-verified references. |
+| `intake_summary` | block / mapping | optional | `F1_jurisdiction: uk` | Structured F1-F6 summary produced by the conversational intake contract. Optional for backward compatibility; advisor outputs populate it after restate-and-confirm. |
+| `gates_evaluation` | block / mapping | optional | `gate-1-regulated: pass` | Per-predicate evaluation with exactly `pass / fail / insufficient-info`; complements `gates_fired:` and records ambiguity rather than silently treating unknowns as pass. |
+| `restated_and_confirmed` | bool | optional | `true` | Whether the skill restated the intake summary and the founder confirmed it before gate evaluation or artifact write. |
+| `restated_at` | ISO-8601 timestamp with timezone | optional | `2026-05-03T14:30:00+01:00` | Timestamp for the restate-and-confirm checkpoint. |
+| `agent_version` | string | optional | `codex-gpt-5` | Agent/model identifier that produced the artifact; useful when comparing behavior across host/runtime versions. |
+| `agent_session_id` | opaque string | optional | `session-20260503-abc123` | Opaque session identifier for cross-artifact correlation; do not include user secrets or personal data. |
+| `conversation_turn_count` | integer | optional | `7` | Number of founder-skill turns during intake; helps detect bypassed or suspiciously short conversations. |
+| `intake_duration_seconds` | integer | optional | `420` | Elapsed elicitation time. This is an anti-pattern detector: if < 30s for full F1-F6 intake, flag for human review. |
 | `triage_gate_passed` | bool | yes for advisor outputs | `true` | False when any predicate in `references/biz/triage-gate.md` fired during evaluation |
 | `gates_fired` | list of predicate-ids | yes when `triage_gate_passed: false` | `[gate-2-deal-value-over-5k, gate-3-counterparty-has-lawyer-or-their-paper]` | Names every predicate that fired. Empty / absent when `triage_gate_passed: true`. |
 | `lawyer_review_recommended` | bool | yes for any advisor `draft` output | `true` | Always `true` for draft mode regardless of gate status — drafted docs are first-cut, never final. May be `true` or `false` for translate / triage / prepare based on situation specifics. |
