@@ -2,8 +2,8 @@
 //!
 //! Symlinks the skill directories under `skills/` in this repo into the
 //! selected host agent's skills directory (default: `~/.claude/skills/`), or
-//! into a project-local host directory such as `./.claude/skills/` or
-//! `./.copilot/skills/` when `--local` is passed.
+//! into a project-local host directory such as `./.claude/skills/`,
+//! `./.copilot/skills/`, or `./.codex/skills/` when `--local` is passed.
 //!
 //! The installer is idempotent: running it twice leaves the same state as
 //! running it once. Uninstall reverses every change recorded in the manifest.
