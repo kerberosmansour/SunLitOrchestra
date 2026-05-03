@@ -1,5 +1,5 @@
 //! Install manifest: records which skills are installed and where their
-//! symlinks point, so `uninstall` can reverse exactly what `install` did.
+//! managed links point, so `uninstall` can reverse exactly what `install` did.
 
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -17,9 +17,9 @@ pub struct Entry {
     /// Host id that owns this install (for example `claude-code`).
     #[serde(default = "default_host_id")]
     pub host: String,
-    /// Absolute path to the symlink we created.
+    /// Absolute path to the managed link we created.
     pub target: PathBuf,
-    /// Absolute path to the source skill directory the symlink points at.
+    /// Absolute path to the source skill directory the managed link points at.
     pub source: PathBuf,
     /// ISO-8601 UTC timestamp of the install.
     pub installed_at: String,

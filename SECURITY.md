@@ -16,7 +16,7 @@
 ~~~text
 Top risks were not explicitly captured by /slo-ideate for this runbook (the M1 edits to /slo-ideate post-date its original authoring). Inferred defaults used here; re-run /slo-ideate or update the idea doc to populate Top risks properly.
 
-- Breach: attacker-controlled content in a SKILL.md (installed locally) causes an agent in a future session to exfiltrate source or credentials from the user's machine via subprocess invocation. Surface: skills/*, sldo-install symlinks.
+- Breach: attacker-controlled content in a SKILL.md (installed locally) causes an agent in a future session to exfiltrate source or credentials from the user's machine via subprocess invocation. Surface: skills/*, sldo-install managed links.
 - Compliance fine: N/A — SLO is an OSS skill pack with no data processing; the compliance surface is downstream (users' projects).
 - Prolonged outage: sldo-research, sldo-plan, sldo-run shell out to the `claude` CLI; rate-limit or API outage stops the pipeline for affected users. Mitigation is user-side (retry, back off).
 ~~~
@@ -43,7 +43,7 @@ Top risks were not explicitly captured by /slo-ideate for this runbook (the M1 e
 - SKILL.md / prompt files: `sldo-research` accepts a `<prompt-file>` argument and passes its contents to `claude` via stdin. The prompt file is trusted input — the user chose it. **Do not pass untrusted prompt files** (e.g., user-uploaded content on a server); this is documented in the research skill's README.
 - Subprocess invocation: `Command::new("claude" | "git" | "cargo")` with explicit argument lists (no shell). Arguments derived from user input are passed as separate args, never interpolated into a shell string. `Stdio::piped()` with drain-in-separate-threads to avoid pipe-buffer deadlocks.
 - Outbound URLs: `sldo-tla-sha` fetches HTTPS URLs from `skills/slo-tla/tools.toml`. Host allow-list (`github.com`, `objects.githubusercontent.com`, `raw.githubusercontent.com`, etc. — see `src/allowed_hosts.rs`) enforced pre-redirect and post-redirect. Hard byte cap (`DEFAULT_MAX_BYTES = 500 MiB`) on streamed response to prevent OOM on a malicious CDN response.
-- File paths from user input: all paths used by `sldo-install` are computed from `~/.claude/` + skill name; user never provides arbitrary paths.
+- File paths from user input: install roots used by `sldo-install` are computed from the selected host config directory (`.claude`, `.copilot`, or `.codex`) + skill name; user never provides arbitrary target paths.
 - SQL / LDAP / shell interpolation: N/A — no database, no LDAP, no shell interpolation.
 - HTML output: N/A — no rendered HTML surface (parked Tauri app excluded).
 
@@ -63,7 +63,7 @@ N/A for current surfaces. If future work reintroduces an HTTP API (which would r
 - Rust: `cargo audit` + `cargo deny check` are the Phase 3 (`/slo-security-test`) contract for future CI; not currently wired. Recommended additions to CI: run on every PR, fail on High/Critical.
 - No git dependencies in any workspace `Cargo.toml`; all deps from crates.io.
 - Licenses: `MIT`, `Apache-2.0`, `BSD-3-Clause` across the dep graph (not currently enforced by `cargo deny`; manual audit only).
-- Skill pack installation: `sldo-install` uses symlinks with no elevated privileges; uninstall preserves user-modified symlinks (warns rather than overwrites).
+- Skill pack installation: `sldo-install` uses managed directory links. Linux and macOS use symlinks; Windows tries symlinks and falls back to directory junctions when symlink privileges are unavailable. Uninstall preserves user-modified links (warns rather than overwrites).
 
 ## Defense-in-depth
 

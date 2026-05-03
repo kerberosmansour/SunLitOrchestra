@@ -74,6 +74,7 @@ fn test_capability_matrix_marks_headless_non_claude_hosts_as_unsupported() {
 fn test_readme_links_to_getting_started_and_getting_started_has_first_run_sections() {
     let readme = read("README.md");
     let guide = read("docs/getting-started.md");
+    let workflow = read(".github/workflows/sldo-install.yml");
 
     assert!(
         readme.contains("docs/getting-started.md"),
@@ -82,6 +83,20 @@ fn test_readme_links_to_getting_started_and_getting_started_has_first_run_sectio
     assert!(
         readme.contains("--host codex") && guide.contains("--host codex"),
         "README and getting-started guide must document the Codex install path"
+    );
+    assert!(
+        readme.contains("Windows")
+            && readme.contains("Linux")
+            && guide.contains("Windows PowerShell")
+            && guide.contains("directory junctions"),
+        "README and getting-started guide must document cross-platform installer behavior"
+    );
+    assert!(
+        workflow.contains("ubuntu-latest")
+            && workflow.contains("windows-latest")
+            && workflow.contains("macos-latest")
+            && workflow.contains("cargo test -p sldo-install"),
+        "sldo-install workflow must exercise the installer across Linux, Windows, and macOS"
     );
 
     for heading in [

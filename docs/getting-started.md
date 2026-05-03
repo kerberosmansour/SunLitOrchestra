@@ -9,7 +9,7 @@ SunLitOrchestrate ships a **skill pack**: a folder of Markdown instruction files
 - **Skill pack**: the collection of `SKILL.md` files in the `skills/` directory.
 - **Host**: the coding agent that reads those installed skill files, such as Claude Code, GitHub Copilot, or Codex.
 - **Overlay doc**: the host-specific notes for one host. In this repo those are [CLAUDE.md](../CLAUDE.md), [copilot-instructions.md](../copilot-instructions.md), and [AGENTS.md](../AGENTS.md).
-- **Manifest**: the install record written by `sldo-install` so it knows which host owns which installed symlink.
+- **Manifest**: the install record written by `sldo-install` so it knows which host owns which installed managed link.
 
 ## Prerequisites
 
@@ -61,6 +61,8 @@ What success looks like:
 - `status` prints the installed skills for the host you chose.
 - Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`.
 - Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/` if you add `--local`.
+- On Windows PowerShell, use `.\target\release\sldo-install.exe` with the same flags shown above.
+- Linux and macOS installs use directory symlinks. Windows tries directory symlinks first, then falls back to directory junctions if symlink privileges are unavailable.
 
 ## Run your first skill
 
@@ -75,7 +77,7 @@ If you already have an idea doc, the usual next step is `/slo-research`, then `/
 
 ### `sldo-install` is not found
 
-Make sure you built it first with `cargo build -p sldo-install --release`, then run it from `./target/release/sldo-install`.
+Make sure you built it first with `cargo build -p sldo-install --release`, then run it from `./target/release/sldo-install`. On Windows PowerShell, the path is `.\target\release\sldo-install.exe`.
 
 ### The skills do not appear in my host
 
@@ -91,7 +93,7 @@ If the install target is right but the host still does not show the skills, rest
 
 ### My host install says there is a conflict in its skills directory
 
-That means a path already exists under the selected host root as a normal directory or file instead of an installer-managed symlink. `sldo-install` refuses to overwrite that silently. Move or remove the conflicting path first, then rerun the install for the same `--host`.
+That means a path already exists under the selected host root as a normal directory or file instead of an installer-managed link. `sldo-install` refuses to overwrite that silently. Move or remove the conflicting path first, then rerun the install for the same `--host`.
 
 ### `/slo-research` mentions `sldo-research`
 

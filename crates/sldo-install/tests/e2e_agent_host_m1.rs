@@ -17,6 +17,17 @@ fn make_skill(skills_dir: &Path, name: &str) {
     .unwrap();
 }
 
+fn assert_managed_link_to(link: &Path, source: &Path) {
+    assert!(
+        link.exists() || link.is_symlink(),
+        "expected managed link at {}",
+        link.display()
+    );
+    let resolved = fs::canonicalize(link).unwrap();
+    let expected = fs::canonicalize(source).unwrap();
+    assert_eq!(resolved, expected);
+}
+
 fn sldo_install(home: &Path, skills_dir: &Path, extra: &[&str]) -> std::process::Output {
     let mut cmd = Command::new(binary_path());
     cmd.env("HOME", home).arg("--skills-dir").arg(skills_dir);
@@ -61,9 +72,18 @@ fn test_claude_copilot_and_codex_roots_are_distinct() {
         String::from_utf8_lossy(&codex.stderr)
     );
 
-    assert!(home.path().join(".claude/skills/slo-ideate").is_symlink());
-    assert!(home.path().join(".copilot/skills/slo-ideate").is_symlink());
-    assert!(home.path().join(".codex/skills/slo-ideate").is_symlink());
+    assert_managed_link_to(
+        &home.path().join(".claude/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
+    assert_managed_link_to(
+        &home.path().join(".copilot/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
+    assert_managed_link_to(
+        &home.path().join(".codex/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
 
     let manifest = fs::read_to_string(home.path().join(".sldo/install.toml")).unwrap();
     assert!(manifest.contains("host = \"claude-code\""));
@@ -104,9 +124,15 @@ fn test_uninstall_only_removes_selected_host_entries() {
         String::from_utf8_lossy(&uninstall.stderr)
     );
 
-    assert!(home.path().join(".claude/skills/slo-ideate").is_symlink());
+    assert_managed_link_to(
+        &home.path().join(".claude/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
     assert!(!home.path().join(".copilot/skills/slo-ideate").exists());
-    assert!(home.path().join(".codex/skills/slo-ideate").is_symlink());
+    assert_managed_link_to(
+        &home.path().join(".codex/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
 
     let manifest_path = home.path().join(".sldo/install.toml");
     let manifest = fs::read_to_string(&manifest_path).expect("manifest should keep claude entries");
@@ -191,10 +217,10 @@ fn test_github_copilot_local_install_uses_repo_state() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    assert!(project
-        .path()
-        .join(".copilot/skills/slo-local")
-        .is_symlink());
+    assert_managed_link_to(
+        &project.path().join(".copilot/skills/slo-local"),
+        &src.path().join("slo-local"),
+    );
     assert!(project.path().join(".copilot/slo-install.toml").exists());
     assert!(!home.path().join(".copilot/skills/slo-local").exists());
 }
@@ -223,7 +249,10 @@ fn test_codex_local_install_uses_repo_state() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    assert!(project.path().join(".codex/skills/slo-local").is_symlink());
+    assert_managed_link_to(
+        &project.path().join(".codex/skills/slo-local"),
+        &src.path().join("slo-local"),
+    );
     assert!(project.path().join(".codex/slo-install.toml").exists());
     assert!(!home.path().join(".codex/skills/slo-local").exists());
 }
@@ -301,5 +330,8 @@ fn test_install_root_escape_refused_on_verify() {
 
     let stderr = String::from_utf8_lossy(&verify.stderr);
     assert!(stderr.contains("outside the selected host root"));
-    assert!(home.path().join(".claude/skills/slo-ideate").is_symlink());
+    assert_managed_link_to(
+        &home.path().join(".claude/skills/slo-ideate"),
+        &src.path().join("slo-ideate"),
+    );
 }
