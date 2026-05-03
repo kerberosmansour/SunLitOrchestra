@@ -1,2 +1,4 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Auto-detect text files, store them normalized, and check them out as LF.
+# Several SLO contract tests intentionally assert exact Markdown frontmatter
+# delimiters; keeping text worktrees LF-only makes those checks portable.
+* text=auto eol=lf
