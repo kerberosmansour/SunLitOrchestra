@@ -20,14 +20,17 @@ fn test_living_docs_distinguish_catalog_from_overlays() {
     let catalog = read("docs/skill-pack-catalog.md");
     let claude = read("CLAUDE.md");
     let copilot = read("copilot-instructions.md");
+    let codex = read("AGENTS.md");
 
     assert!(
         catalog.contains("canonical living catalog"),
         "catalog must identify itself as the canonical living catalog"
     );
     assert!(
-        catalog.contains("CLAUDE.md") && catalog.contains("copilot-instructions.md"),
-        "catalog must point readers to both host overlays"
+        catalog.contains("CLAUDE.md")
+            && catalog.contains("copilot-instructions.md")
+            && catalog.contains("AGENTS.md"),
+        "catalog must point readers to every host overlay"
     );
     assert!(
         claude.contains("Claude Code overlay") && claude.contains("docs/skill-pack-catalog.md"),
@@ -38,10 +41,14 @@ fn test_living_docs_distinguish_catalog_from_overlays() {
             && copilot.contains("docs/skill-pack-catalog.md"),
         "copilot overlay must identify itself as an overlay and point back to the canonical catalog"
     );
+    assert!(
+        codex.contains("Codex overlay") && codex.contains("docs/skill-pack-catalog.md"),
+        "AGENTS.md must identify itself as the Codex overlay and point back to the canonical catalog"
+    );
 }
 
 #[test]
-fn test_capability_matrix_marks_headless_copilot_as_unsupported() {
+fn test_capability_matrix_marks_headless_non_claude_hosts_as_unsupported() {
     let capability = read("docs/slo/design/agent-host-capabilities.md");
 
     assert!(
@@ -49,8 +56,13 @@ fn test_capability_matrix_marks_headless_copilot_as_unsupported() {
         "capability matrix must cover headless runtime automation"
     );
     assert!(
-        capability.contains("GitHub Copilot") && capability.contains("Not supported yet"),
-        "capability matrix must say headless GitHub Copilot automation is not supported yet"
+        capability.contains("GitHub Copilot") && capability.contains("Codex"),
+        "capability matrix must include both non-Claude supported hosts"
+    );
+    assert!(
+        capability.contains("No Copilot or Codex runtime harness is shipped today")
+            || capability.contains("Codex") && capability.contains("Not supported yet"),
+        "capability matrix must say headless GitHub Copilot and Codex automation are not supported yet"
     );
     assert!(
         capability.contains("interactive") || capability.contains("Interactive"),
@@ -66,6 +78,10 @@ fn test_readme_links_to_getting_started_and_getting_started_has_first_run_sectio
     assert!(
         readme.contains("docs/getting-started.md"),
         "README must link to the getting-started guide"
+    );
+    assert!(
+        readme.contains("--host codex") && guide.contains("--host codex"),
+        "README and getting-started guide must document the Codex install path"
     );
 
     for heading in [

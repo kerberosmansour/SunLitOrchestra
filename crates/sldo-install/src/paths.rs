@@ -20,7 +20,8 @@ pub fn home_dir() -> Result<PathBuf> {
     Ok(PathBuf::from(home))
 }
 
-/// Where global installs land: `~/.claude/skills/` or `~/.copilot/skills/`.
+/// Where global installs land, e.g. `~/.claude/skills/`,
+/// `~/.copilot/skills/`, or `~/.codex/skills/`.
 pub fn global_skills_root(home: &Path, host: Host) -> PathBuf {
     home.join(host.descriptor().config_dir).join("skills")
 }
@@ -75,6 +76,21 @@ mod tests {
         assert_eq!(
             local_manifest_path(cwd, Host::GithubCopilot),
             PathBuf::from("/tmp/fake-repo/.copilot/slo-install.toml")
+        );
+    }
+
+    #[test]
+    fn codex_roots_use_codex_config_dir() {
+        let base = Path::new("/tmp/fakehome");
+        assert_eq!(
+            global_skills_root(base, Host::Codex),
+            PathBuf::from("/tmp/fakehome/.codex/skills")
+        );
+
+        let cwd = Path::new("/tmp/fake-repo");
+        assert_eq!(
+            local_manifest_path(cwd, Host::Codex),
+            PathBuf::from("/tmp/fake-repo/.codex/slo-install.toml")
         );
     }
 }

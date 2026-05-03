@@ -31,7 +31,7 @@ fn manifest_path(home: &Path) -> PathBuf {
 }
 
 #[test]
-fn test_claude_and_copilot_roots_are_distinct() {
+fn test_claude_copilot_and_codex_roots_are_distinct() {
     let home = TempDir::new().unwrap();
     let src = TempDir::new().unwrap();
     make_skill(src.path(), "slo-ideate");
@@ -54,12 +54,21 @@ fn test_claude_and_copilot_roots_are_distinct() {
         String::from_utf8_lossy(&copilot.stderr)
     );
 
+    let codex = sldo_install(home.path(), src.path(), &["--host", "codex", "install"]);
+    assert!(
+        codex.status.success(),
+        "codex install failed: {}",
+        String::from_utf8_lossy(&codex.stderr)
+    );
+
     assert!(home.path().join(".claude/skills/slo-ideate").is_symlink());
     assert!(home.path().join(".copilot/skills/slo-ideate").is_symlink());
+    assert!(home.path().join(".codex/skills/slo-ideate").is_symlink());
 
     let manifest = fs::read_to_string(home.path().join(".sldo/install.toml")).unwrap();
     assert!(manifest.contains("host = \"claude-code\""));
     assert!(manifest.contains("host = \"github-copilot\""));
+    assert!(manifest.contains("host = \"codex\""));
 }
 
 #[test]
@@ -78,6 +87,11 @@ fn test_uninstall_only_removes_selected_host_entries() {
     )
     .status
     .success());
+    assert!(
+        sldo_install(home.path(), src.path(), &["--host", "codex", "install"])
+            .status
+            .success()
+    );
 
     let uninstall = sldo_install(
         home.path(),
@@ -92,11 +106,13 @@ fn test_uninstall_only_removes_selected_host_entries() {
 
     assert!(home.path().join(".claude/skills/slo-ideate").is_symlink());
     assert!(!home.path().join(".copilot/skills/slo-ideate").exists());
+    assert!(home.path().join(".codex/skills/slo-ideate").is_symlink());
 
     let manifest_path = home.path().join(".sldo/install.toml");
     let manifest = fs::read_to_string(&manifest_path).expect("manifest should keep claude entries");
     assert!(manifest.contains("host = \"claude-code\""));
     assert!(!manifest.contains("host = \"github-copilot\""));
+    assert!(manifest.contains("host = \"codex\""));
 }
 
 #[test]
@@ -132,6 +148,26 @@ fn test_status_and_verify_report_selected_host() {
 }
 
 #[test]
+fn test_codex_status_and_verify_report_selected_host() {
+    let home = TempDir::new().unwrap();
+    let src = TempDir::new().unwrap();
+    make_skill(src.path(), "slo-ideate");
+
+    let install = sldo_install(home.path(), src.path(), &["--host", "codex", "install"]);
+    assert!(install.status.success());
+
+    let status = sldo_install(home.path(), src.path(), &["--host", "codex", "status"]);
+    assert!(status.status.success());
+    let status_stdout = String::from_utf8_lossy(&status.stdout);
+    assert!(status_stdout.contains("codex"));
+
+    let verify = sldo_install(home.path(), src.path(), &["--host", "codex", "verify"]);
+    assert!(verify.status.success());
+    let verify_stdout = String::from_utf8_lossy(&verify.stdout);
+    assert!(verify_stdout.contains("codex"));
+}
+
+#[test]
 fn test_github_copilot_local_install_uses_repo_state() {
     let home = TempDir::new().unwrap();
     let src = TempDir::new().unwrap();
@@ -164,6 +200,35 @@ fn test_github_copilot_local_install_uses_repo_state() {
 }
 
 #[test]
+fn test_codex_local_install_uses_repo_state() {
+    let home = TempDir::new().unwrap();
+    let src = TempDir::new().unwrap();
+    make_skill(src.path(), "slo-local");
+
+    let project = TempDir::new().unwrap();
+    let out = Command::new(binary_path())
+        .current_dir(project.path())
+        .env("HOME", home.path())
+        .arg("--skills-dir")
+        .arg(src.path())
+        .arg("--host")
+        .arg("codex")
+        .arg("--local")
+        .arg("install")
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "local codex install failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    assert!(project.path().join(".codex/skills/slo-local").is_symlink());
+    assert!(project.path().join(".codex/slo-install.toml").exists());
+    assert!(!home.path().join(".codex/skills/slo-local").exists());
+}
+
+#[test]
 fn test_unknown_host_fails_loud() {
     let home = TempDir::new().unwrap();
     let src = TempDir::new().unwrap();
@@ -179,6 +244,7 @@ fn test_unknown_host_fails_loud() {
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(stderr.contains("claude-code"));
     assert!(stderr.contains("github-copilot"));
+    assert!(stderr.contains("codex"));
 }
 
 #[test]
