@@ -32,6 +32,7 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 | Surface | Location | What ships today |
 |---|---|---|
 | Sprint flow | `skills/slo-*` | Ideate → research → architect → plan → critique → execute → verify → retro → ship |
+| Ticket-sized SLO flow | `skills/slo-ticket-*` | GitHub issue → compact ticket contract → execute → verify → PR handoff |
 | Business advisor pack | `skills/slo-{legal,accounting,equity,fundraise}` | UK-only advisor flows with hard-block routing |
 | Business generator pack | `skills/slo-{talk-to-users,gtm,product,marketing,launch,sales-funnel,pricing,metrics,cofounder,hire,founder-check}` | Artifact generators for discovery, GTM, product, finance, hiring, and founder ops |
 | Security and SAST helpers | `skills/slo-{rulegen,ruleverify,sast}` | Semgrep rule generation, verification, and SAST wiring |
@@ -48,6 +49,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
 - **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md` and `copilot-instructions.md` are overlays, not competing sources of truth.
 - **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
+- **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`.
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/` or `~/.copilot/skills/`. Local installs land in `./.claude/skills/` or `./.copilot/skills/`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
@@ -147,7 +149,7 @@ Feature runbooks land Markdown / YAML / JSON structural-contract tests under `xt
 
 The skill pack improves itself through cyclic feedback structures that are not visible in a static dependency diagram. They are documented separately so newcomers and freshly-loaded Claude instances can answer "which loop am I in, and what do I run next?" in 90 seconds.
 
-- [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — sprint loop, security-tuning loop, lessons loop, library-feedback loop.
+- [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — sprint loop, ticket loop, security-tuning loop, lessons loop, library-feedback loop.
 - [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — user-interview loop, GTM loop, pricing loop, founder-check loop.
 
 The lessons loop is the canonical example: `/slo-retro` writes `docs/slo/lessons/<prefix>-m<N>.md` at every milestone close, classifies each lesson, dedupes via `gh search`, and files tracked issues with explicit user confirmation (rules locked in [`skills/slo-retro/references/issue-filing-discipline.md`](../skills/slo-retro/references/issue-filing-discipline.md)); `/slo-execute` pre-flight Step 1.5 then queries open `retro-derived` issues for the runbook's prefix and surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); `/slo-resume` compresses the result back to one screen.

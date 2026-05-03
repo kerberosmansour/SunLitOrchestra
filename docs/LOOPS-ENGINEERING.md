@@ -14,6 +14,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 |---|---|---|---|
 | "I have an idea — is it worth building?" | `/slo-ideate` | [Sprint loop](#sprint-loop) | `docs/slo/idea/<slug>.md` |
 | "I'm starting a new feature, what do I do?" | `/slo-ideate` then `/slo-research` | [Sprint loop](#sprint-loop) | `docs/RUNBOOK-<feature>.md` once `/slo-plan` completes |
+| "I have a GitHub issue — can an agent take it?" | `/slo-ticket-pick #<issue>` | [Ticket loop](#ticket-loop) | `docs/slo/tickets/ticket-<issue>-<slug>.md` |
 | "I have a repeated regression — where do I start?" | `/slo-resume` (orient) then check prior `docs/slo/lessons/` | [Lessons loop](#lessons-loop) | A scope candidate at the next milestone's pre-flight |
 | "Findings keep coming back from SAST — how do I tune?" | `/slo-rulegen --extend` | [Security-tuning loop](#security-tuning-loop) | A new rule pack rev under `.semgrep/<lang>/` |
 | "An upstream tool has a gap — what now?" | `/slo-sec-libs` (when shipped) | [Library-feedback loop](#library-feedback-loop) | An issue in the upstream repo |
@@ -61,6 +62,49 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
                               ▼
                           /slo-ship
 ```
+
+---
+
+## Ticket loop
+
+> **User-visible outcome**: one GitHub issue turns into a compact SLO ticket contract, a bounded branch, a reviewable PR, and an issue workpad with validation evidence.
+
+**Trigger**: a small GitHub issue or tracker ticket should be taken on without creating a full multi-milestone runbook.
+
+**Steps**:
+
+1. `/slo-ticket-pick` — select or claim one GitHub issue, apply the bite-sized gate, and create/update the issue workpad.
+2. `/slo-ticket-plan` — write `docs/slo/tickets/ticket-<issue>-<slug>.md` from `docs/slo/templates/ticket-contract-template_v_1.md`.
+3. `/slo-ticket-execute` — implement BDD-first inside the ticket contract's file allow-list.
+4. `/slo-ticket-verify` — run runtime checks, static/security gates, compatibility checks, and regression-test-first bug handling.
+5. `/slo-ticket-close` — fill closure summary, open/update the PR, and move the issue to review without auto-merge.
+
+**Exit condition**: every ticket Validation Plan row is pass or N/A-with-reason, the issue workpad is current, the PR is open, and follow-ups are surfaced with a lane (`micro | milestone | fresh-runbook`).
+
+**Artifacts**: `docs/slo/tickets/ticket-<issue>-<slug>.md`, issue workpad comment marked `slo-ticket-workpad:v1`, optional `docs/slo/verify/ticket-<issue>-<slug>.md`, the PR.
+
+**Skills involved**: `/slo-ticket-pick`, `/slo-ticket-plan`, `/slo-ticket-execute`, `/slo-ticket-verify`, `/slo-ticket-close`.
+
+```
+   GitHub issue
+        │
+        ▼
+   /slo-ticket-pick ──► issue workpad
+        │
+        ▼
+   /slo-ticket-plan ──► docs/slo/tickets/ticket-<issue>-<slug>.md
+        │
+        ▼
+   /slo-ticket-execute ──► code + tests + evidence rows
+        │
+        ▼
+   /slo-ticket-verify ──► runtime/static/security evidence
+        │
+        ▼
+   /slo-ticket-close ──► PR + issue review state
+```
+
+**Escalation rule**: if the ticket fails the sizing gate, stop and route to the [Sprint loop](#sprint-loop) with `/slo-plan` and the full v4 runbook template.
 
 ---
 
@@ -213,6 +257,8 @@ If a future addition to this doc cannot point at a concrete user-visible outcome
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md) — static structure of the skill pack at HEAD.
 - [docs/LOOPS-BUSINESS.md](LOOPS-BUSINESS.md) — business-side loops (user-interview, GTM, pricing, founder-check).
 - [docs/slo/templates/runbook-template_v_4_template.md](templates/runbook-template_v_4_template.md) — the canonical planning artifact whose "Carry-forward from prior retros" section is the lessons loop's read-back. (The earlier [v3 template](templates/runbook-template_v_3_template.md) remains in place for runbooks already authored against it.)
+- [docs/slo/templates/ticket-contract-template_v_1.md](slo/templates/ticket-contract-template_v_1.md) — compact v4-derived contract for the ticket loop.
+- [docs/slo/design/ticket-sized-slo-workflow.md](slo/design/ticket-sized-slo-workflow.md) — proposed GitHub Issues-first workflow inspired by Symphony.
 - [skills/slo-retro/SKILL.md](../skills/slo-retro/SKILL.md) — the writer end of the lessons loop.
 - [skills/slo-execute/SKILL.md](../skills/slo-execute/SKILL.md) — the reader end of the lessons loop (pre-flight carry-forward).
 - [skills/slo-resume/SKILL.md](../skills/slo-resume/SKILL.md) — one-screen orientation across loops.
