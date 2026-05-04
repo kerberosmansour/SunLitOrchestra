@@ -39,11 +39,15 @@
 
 ### Pre-requisites (one-time, BEFORE M1)
 
-- [ ] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only).
-- [ ] Populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
-- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`. Each crate / component advertises controls (use `cdx:sunlit:crypto:*` namespace for parametric crypto claims).
-- [ ] Add CycloneDX 1.6 `declarations` JSON to `SunLitSecureLibraries`. Same shape.
+- [x] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only).
+- [x] Populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
+- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`. Each crate / component advertises controls (use `cdx:sunlit:crypto:*` namespace for parametric crypto claims). Seed PR: <https://github.com/kerberosmansour/hulumi/pull/63>.
+- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/SunLitSecureLibraries`. Same shape. Seed PR: <https://github.com/kerberosmansour/SunLitSecureLibraries/pull/5>.
 - [ ] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner; `repo` for cross-repo fork+PR fallback) on contributor machines.
+
+**Current repository reality (2026-05-04)**: the secure-libraries source repo is
+`kerberosmansour/SunLitSecureLibraries` (private user repo), not
+`SunLitSecureLibraries/SunLitSecureLibraries`.
 
 ---
 
@@ -131,7 +135,7 @@
 | `skills/slo-sec-libs/references/upstream-filing-discipline.md` | argv-list + no-`--repo` + rate-limit | M3-M4 | Cited from SKILL.md |
 | `crates/sldo-common::toolflags::sec_libs_deny_flags()` | Skill-flag denial: `WebFetch`, `WebSearch` denied | M1 | SLO-CLI invocation layer |
 | `kerberosmansour/slo-security-intake` (repo) | Default capability-gap filing destination | Pre-req | `gh issue create` target |
-| Hulumi + SunLitSecureLibraries CycloneDX 1.6 declarations | Capability advertisement | Pre-req | JSON in each repo's release artifacts |
+| Hulumi + `kerberosmansour/SunLitSecureLibraries` CycloneDX 1.6 declarations | Capability advertisement | Pre-req | JSON in each repo's release artifacts |
 | `~/.cache/sldo/declarations/<sha>/` | Pinned-SHA cache | M1 | Local FS |
 
 ### Data Flow Summary
