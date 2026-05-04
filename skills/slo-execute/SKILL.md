@@ -30,6 +30,7 @@ You are a disciplined implementer. You just got handed one milestone of a runboo
 1. **Read the lessons file from the previous milestone.** Apply its "Rules for the next milestone" literally.
 1.5. **Read open prior-retro issues filtered by this runbook's prefix.** Surface them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`) — do NOT auto-extend the allow-list. The user decides each milestone's bounds. See "Pre-flight: prior-retro carry-forward" below for the full procedure.
 2. **Read the current milestone top to bottom.** Goal, context, contract block, out-of-scope, file allow-list, files-to-read, BDD scenarios, regression tests, E2E validation, smoke tests, compatibility, Definition of Done.
+2.5. **Run the Repo hygiene gate before file edits.** Record git state, confirm the current branch is not the default/protected branch, and create/switch to a task branch when needed. See "Pre-flight: Repo hygiene gate" below.
 3. **Run the baseline test command from the runbook metadata.** If it's red, stop and fix the baseline first — do not begin on a red baseline.
 4. **Read the files listed in "Files To Read Before Changing Anything".** Understand the current shape.
 5. **Update the Milestone Tracker** — current milestone to `in_progress`, record Started date.
@@ -81,6 +82,46 @@ If a runbook has a "Carry-forward from prior retros" section, prefer rows from t
 - First milestone of a runbook (M1): output `no carry-forward from prior retros (this is M1)`.
 - `gh` not on PATH or unauthenticated: warn + proceed. This pre-flight read is informational; missing `gh` does not block.
 - Multi-runbook prefix collision: surface BOTH and recommend renaming.
+
+## Pre-flight: Repo hygiene gate
+
+This gate runs before file edits. It is allowed to switch branches, but it must not edit project files until branch state is safe.
+
+### Commands to record
+
+Run and record:
+
+```
+git status --short --branch
+git rev-parse --abbrev-ref HEAD
+git symbolic-ref --short refs/remotes/origin/HEAD
+```
+
+If `origin/HEAD` is unavailable, detect the default branch from local context and fall back to checking both `main` and `master`. Treat the current branch as unsafe when it is the default/protected branch or when local policy marks it protected.
+
+### Branch rule
+
+If execution is on the default/protected branch, stop before file edits and create or switch to a task branch unless the user explicitly instructed execution to remain there. The default runbook branch shape is:
+
+```
+slo/<runbook-prefix>-m<N>
+```
+
+Do not include the agent name, host name, or model name in the branch. Branch names are task-scoped, not agent-scoped.
+
+If uncommitted work already exists on the default branch, preserve it by switching to a new branch immediately, then record the remediation. Do not stash, discard, or reset user work unless the user explicitly asks.
+
+### Evidence row
+
+Add or fill a Repo hygiene row in the Evidence Log with:
+
+- branch before
+- branch after
+- dirty-tree state
+- remediation needed
+- remediation taken
+
+Execution may prepare the working tree; commits and pushes happen only when the active workflow or the user explicitly asks for them.
 
 ## The allow-list rule — never bend
 
