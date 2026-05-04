@@ -1,5 +1,6 @@
 ---
 name: slo-execute
+# soft-cap-exception: carries execution safety gates plus GitHub carry-forward preflight
 description: >
   Use this skill to drive one milestone of a v3 runbook. Invoke with the
   milestone number or identifier, e.g. "/slo-execute M3" or "execute milestone
