@@ -1,5 +1,6 @@
 ---
 name: slo-retro
+# soft-cap-exception: carries milestone closeout, lessons, and issue-filing discipline
 description: >
   Use this skill at the END of every milestone, after /slo-execute and
   /slo-verify have finished. Writes the milestone's lessons-learned file,
