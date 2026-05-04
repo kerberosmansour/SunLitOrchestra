@@ -1,4 +1,4 @@
-# Business loops — SunLitOrchestrate
+# Business loops — SunLit Orchestra
 
 > **Purpose**: name the cyclic feedback structures that move the business side of the skill pack — discovery, GTM, pricing, founder ops — so a UK seed-stage founder can answer "which loop am I in, and what do I run next?" in 90 seconds.
 >

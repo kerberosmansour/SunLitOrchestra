@@ -1,4 +1,4 @@
-# Embed Security Across the SLO Skill Pack — SunLitOrchestrate (AI-First Runbook v3)
+# Embed Security Across the SLO Skill Pack — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Thread security through every stage of the SLO skill pack so `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, and `/slo-verify` produce artifacts with threat models, abuse-case BDD scenarios, class-elimination critiques, and a security verification pass — generated, not prompted from the user.
 > **Audience**: AI coding agents first, humans second. Written to reduce ambiguity, prevent scope drift, and improve output quality on security-sensitive runbooks.
@@ -549,7 +549,7 @@ Path: `docs/slo/completion/slo-sec-m<N>.md`. Use the shape from `docs/slo/templa
 #### Smoke Tests
 
 - [ ] Run `/slo-ideate foo-feature` in a scratch Claude Code session against a disposable repo (tempdir, not SLO) and observe the output idea doc contains a `## Top risks` block (manual; capture in verification report).
-- [ ] **Dogfood smoke**: run `/slo-architect slo-security-embedding` inside SunLitOrchestrate itself and observe that `SECURITY.md` appears at the repo root and `docs/slo/design/slo-security-embedding-threat-model.md` is created. This is an **intentional artifact** of M1 — SLO dogfooding its own security embedding is the strongest signal the skill works end-to-end on a real target. The generated `SECURITY.md` is committed as part of the M1 completion (see Documentation Update Table).
+- [ ] **Dogfood smoke**: run `/slo-architect slo-security-embedding` inside SunLitOrchestra itself and observe that `SECURITY.md` appears at the repo root and `docs/slo/design/slo-security-embedding-threat-model.md` is created. This is an **intentional artifact** of M1 — SLO dogfooding its own security embedding is the strongest signal the skill works end-to-end on a real target. The generated `SECURITY.md` is committed as part of the M1 completion (see Documentation Update Table).
 - [ ] `cargo test -p sldo-install --test e2e_slo_sec_m1` passes.
 - [ ] Baseline `cargo test -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install` passes.
 - [ ] `cargo build -p sldo-install --release && ./target/release/sldo-install --dry-run` shows both updated skills being copied without errors.

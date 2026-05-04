@@ -138,7 +138,7 @@ New abuse cases:
 - US / EU jurisdiction extensions (v2 architectural pivot per `docs/slo/design/biz-skill-pack-overview.md`).
 - New advisor doc-types or new generator skills.
 - Substantive changes to the biz-pack threat model beyond the three new abuse cases above.
-- Building the executable eval-runner (deferred from R2 / [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)); evals in this runbook are documented expectations.
+- Building the executable eval-runner (deferred from R2 / [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)); evals in this runbook are documented expectations.
 - Cross-skill SAFE-template generation (operative documents remain solicitor-drafted).
 
 ## Research-validation discipline (load-bearing)

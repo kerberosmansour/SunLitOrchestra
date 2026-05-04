@@ -117,10 +117,10 @@ New abuse cases:
 
 ## Out-of-scope
 
-- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)).
+- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)).
 - Substantive changes to skill behavior beyond decomposition + polish.
 - Extending the `update-config` skill (use as-is).
-- Moving any work currently in [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) (`/slo-sec-libs` Phase 4) into this runbook.
+- Moving any work currently in [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) (`/slo-sec-libs` Phase 4) into this runbook.
 
 ## Research-validation discipline (load-bearing)
 

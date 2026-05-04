@@ -1,4 +1,4 @@
-# Engineering loops — SunLitOrchestrate
+# Engineering loops — SunLit Orchestra
 
 > **Purpose**: name the cyclic feedback structures that move work through the engineering side of the skill pack, so a newcomer (human or freshly-loaded Claude instance) can answer "which loop am I in, and what do I run next?" in 90 seconds.
 >

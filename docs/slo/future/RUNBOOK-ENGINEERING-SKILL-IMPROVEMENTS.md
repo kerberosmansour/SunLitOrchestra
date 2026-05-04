@@ -1,9 +1,9 @@
-# Engineering Skill Improvements — SunLitOrchestrate (AI-First Runbook v3)
+# Engineering Skill Improvements — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Decompose monolithic engineering SKILL.md files (`/slo-sast`, `/slo-tla`, `/slo-plan`); seed `references/templates/` shared library; harden `/slo-freeze` with a settings.json PreToolUse hook; add per-skill `evals/`; gate every security-engineering claim through a research-validation source hierarchy.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Every milestone closes the structural-contract test before the next begins.
-> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/engineering-skill-improvements-overview.md](design/engineering-skill-improvements-overview.md), [docs/slo/idea/engineering-skill-improvements.md](idea/engineering-skill-improvements.md), [docs/slo/research/engineering-skill-improvements/synthesis.md](research/engineering-skill-improvements/synthesis.md), [Issue #21](https://github.com/kerberosmansour/SunLitOrchestrate/issues/21), [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22), 2026-04-27 skill-pack review
+> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/engineering-skill-improvements-overview.md](design/engineering-skill-improvements-overview.md), [docs/slo/idea/engineering-skill-improvements.md](idea/engineering-skill-improvements.md), [docs/slo/research/engineering-skill-improvements/synthesis.md](research/engineering-skill-improvements/synthesis.md), [Issue #21](https://github.com/kerberosmansour/SunLitOrchestra/issues/21), [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22), 2026-04-27 skill-pack review
 
 ---
 
@@ -43,7 +43,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                  SunLitOrchestrate skill pack                        │
+│                  SunLitOrchestra skill pack                        │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────┐     │
 │  │  references/templates/  (NEW — M1)                          │     │
@@ -823,9 +823,9 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 ### Milestone 5 — Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish
 
-**Goal**: Per-skill `evals/<case>.md` files for the highest-risk skills (advisors + sast + tla + execute + verify); `.claude/settings.json` PreToolUse hook hard-enforcing `/slo-freeze` scope; cross-skill polish items from [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) E5.
+**Goal**: Per-skill `evals/<case>.md` files for the highest-risk skills (advisors + sast + tla + execute + verify); `.claude/settings.json` PreToolUse hook hard-enforcing `/slo-freeze` scope; cross-skill polish items from [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) E5.
 
-**Context**: This milestone is the "polish + infrastructure layer". Eval cases are documented expectations until the runtime harness ships (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)). The PreToolUse hook closes the prose-level-discipline-only gap on `/slo-freeze`.
+**Context**: This milestone is the "polish + infrastructure layer". Eval cases are documented expectations until the runtime harness ships (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)). The PreToolUse hook closes the prose-level-discipline-only gap on `/slo-freeze`.
 
 **Important design rule**: PreToolUse hook is **opt-in per-project**, not global. Project-level `.claude/settings.json`. Mutation via the existing `update-config` skill — no parallel mutation surface.
 
@@ -851,10 +851,10 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Out of Scope / Must Not Do
 
-- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)).
+- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)).
 - Extending the `update-config` skill.
 - Adding new skill behavior beyond the named polish items.
-- Auto-extending the `/slo-execute` allow-list via PreToolUse hook (out-of-scope per [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) — the optional hook for execute is opt-in only).
+- Auto-extending the `/slo-execute` allow-list via PreToolUse hook (out-of-scope per [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) — the optional hook for execute is opt-in only).
 
 #### Pre-Flight
 
@@ -863,7 +863,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 3. Read M1's `references/templates/eval-cases.md`.
 4. Read 2026-04-27 review per-skill "Suggested eval cases" sections.
 5. Read the existing `update-config` skill behavior.
-6. Read [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) E5 polish items.
+6. Read [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) E5 polish items.
 
 #### Files Allowed To Change
 
@@ -982,7 +982,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Notes
 
-- The runtime harness for executable evals is deferred to a separate runbook (per [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) follow-ups). Eval cases here are documented expectations + manual run.
+- The runtime harness for executable evals is deferred to a separate runbook (per [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) follow-ups). Eval cases here are documented expectations + manual run.
 
 ---
 

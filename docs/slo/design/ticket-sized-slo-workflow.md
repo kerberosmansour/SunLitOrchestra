@@ -2,7 +2,7 @@
 
 > Status: proposed workflow contract for bite-sized issue execution.
 > First tracker adapter: GitHub Issues.
-> Design intent: bring Symphony-style issue execution into SunLitOrchestrate without losing v4 SLO rigor.
+> Design intent: bring Symphony-style issue execution into SunLitOrchestra without losing v4 SLO rigor.
 
 ## Why This Exists
 

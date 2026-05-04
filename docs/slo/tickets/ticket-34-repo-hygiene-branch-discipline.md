@@ -12,7 +12,7 @@
 |---|---|
 | Ticket Contract ID | `ticket-34-repo-hygiene-branch-discipline` |
 | Source tracker | `GitHub Issues` |
-| Source issue | [#34](https://github.com/kerberosmansour/SunLitOrchestrate/issues/34) |
+| Source issue | [#34](https://github.com/kerberosmansour/SunLitOrchestra/issues/34) |
 | Issue title | `Add repo hygiene and branch discipline to SLO execution skills` |
 | Labels | `enhancement`, `retro-derived` |
 | Assignee / owner | `unassigned` |
@@ -219,5 +219,5 @@ Use one persistent issue comment marked `<!-- slo-ticket-workpad:v1 -->`.
 
 ### PR / Issue Links
 
-- PR: https://github.com/kerberosmansour/SunLitOrchestrate/pull/36
-- Issue: https://github.com/kerberosmansour/SunLitOrchestrate/issues/34
+- PR: https://github.com/kerberosmansour/SunLitOrchestra/pull/36
+- Issue: https://github.com/kerberosmansour/SunLitOrchestra/issues/34

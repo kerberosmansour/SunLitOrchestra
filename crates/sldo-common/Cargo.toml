@@ -1,7 +1,16 @@
 [package]
 name = "sldo-common"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "../../README.md"
+description = "Shared library for the SunLit Orchestra (SLO) skill-pack tooling — utilities used by sldo-install and sldo-research."
+keywords = ["sunlit-orchestra", "slo", "agent", "skills", "claude"]
+categories = ["development-tools"]
 
 [lib]
 name = "sldo_common"

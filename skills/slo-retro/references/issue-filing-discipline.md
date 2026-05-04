@@ -74,7 +74,7 @@ This cap is the same per-session pattern documented in `/slo-sec-libs` (pending 
 Every filing surfaces a single confirmation prompt with:
 
 1. The classification (`product` / `upstream-OSS` / `slo-process`).
-2. The resolved destination (origin URL for `product`; resolved upstream URL via `.sldo/upstream-mapping.toml` for `upstream-OSS`; `kerberosmansour/SunLitOrchestrate` for `slo-process`).
+2. The resolved destination (origin URL for `product`; resolved upstream URL via `.sldo/upstream-mapping.toml` for `upstream-OSS`; `kerberosmansour/SunLitOrchestra` for `slo-process`).
 3. The dedupe disposition (`none` / `match-id` / `ambiguous`).
 4. The candidate title and body (truncated preview).
 5. A yes / no / file-new-anyway prompt.

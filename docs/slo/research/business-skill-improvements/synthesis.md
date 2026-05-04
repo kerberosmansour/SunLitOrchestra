@@ -72,8 +72,8 @@ The design must handle the dependency by ordering R2 → R3. If R3 starts before
 ## Source pointers
 
 - 2026-04-27 skill-pack review (in-conversation artifact)
-- [Issue #19](https://github.com/kerberosmansour/SunLitOrchestrate/issues/19) — advisor predicate hardening + conversational intake discipline
-- [Issue #20](https://github.com/kerberosmansour/SunLitOrchestrate/issues/20) — KPI baseline + heuristic-number authority files
+- [Issue #19](https://github.com/kerberosmansour/SunLitOrchestra/issues/19) — advisor predicate hardening + conversational intake discipline
+- [Issue #20](https://github.com/kerberosmansour/SunLitOrchestra/issues/20) — KPI baseline + heuristic-number authority files
 - [`references/biz/triage-gate.md`](../../../references/biz/triage-gate.md) — the four hard-block predicates
 - [`references/biz/artifact-schema.md`](../../../references/biz/artifact-schema.md) — frontmatter contract
 - [`references/biz/jurisdiction-uk.md`](../../../references/biz/jurisdiction-uk.md), [`references/biz/uk-regulator-enumeration.md`](../../../references/biz/uk-regulator-enumeration.md) (starter)

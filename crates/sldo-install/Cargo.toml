@@ -1,7 +1,16 @@
 [package]
 name = "sldo-install"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "../../README.md"
+description = "Installer CLI for the SunLit Orchestra (SLO) /slo-* skill pack — installs into Claude Code, Codex, or GitHub Copilot host roots."
+keywords = ["sunlit-orchestra", "slo", "claude", "codex", "skills"]
+categories = ["command-line-utilities", "development-tools"]
 
 [[bin]]
 name = "sldo-install"
@@ -12,7 +21,7 @@ clap = { workspace = true }
 anyhow = { workspace = true }
 colored = { workspace = true }
 chrono = { workspace = true }
-sldo-common = { path = "../sldo-common" }
+sldo-common = { path = "../sldo-common", version = "0.1.0" }
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 

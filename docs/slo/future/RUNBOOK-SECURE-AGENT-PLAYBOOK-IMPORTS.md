@@ -1,13 +1,13 @@
-# Secure Agent Playbook Imports - SunLitOrchestrate (future runbook)
+# Secure Agent Playbook Imports - SunLitOrchestra (future runbook)
 
-> **Purpose**: Capture reusable project-level ideas from OWASP Secure Agent Playbook and adapt them to SunLitOrchestrate without turning SLO into a generic security-assessment playbook.
+> **Purpose**: Capture reusable project-level ideas from OWASP Secure Agent Playbook and adapt them to SunLitOrchestra without turning SLO into a generic security-assessment playbook.
 > **Status**: planned. `/slo-plan` produced the v4 runbook at [docs/RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md](../../RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md) on 2026-05-01 — five milestones authored (M1: shared security-reporting integration; M2: example output gallery; M3: standards traceability matrix; M4: optional plugin packaging assessment with SHA-pin gate; M5: gated agent-role experiment). This document remains as the precursor planning record; the canonical execution contract is the v4 runbook.
 > **Source reviewed**: `/Users/sherifmansour/Dev/GitHub/secure-agent-playbook` project layout, agents, skills, plays, templates, examples, plugin metadata, and release workflow.
 > **Design write-up**: [docs/slo/design/secure-agent-playbook-imports-overview.md](../design/secure-agent-playbook-imports-overview.md).
 
 ## What is worth borrowing
 
-| Idea from Secure Agent Playbook | Fit for SunLitOrchestrate | Proposed SLO adaptation |
+| Idea from Secure Agent Playbook | Fit for SunLitOrchestra | Proposed SLO adaptation |
 |---|---|---|
 | Standard finding and report templates | High | Landed as `references/security/security-finding-template.md` and `references/security/security-assessment-summary-template.md`; `/slo-critique` and `/slo-verify` now point to them for expanded security findings. |
 | Thin skill wrappers over deeper play/procedure files | High | Continue the existing `docs/slo/future/RUNBOOK-ENGINEERING-SKILL-IMPROVEMENTS.md` plan to split long skills (`/slo-sast`, `/slo-tla`, `/slo-plan`) into lean entrypoints plus `references/` methodology files. |

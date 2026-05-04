@@ -41,7 +41,7 @@ The design must handle this — same as `/slo-sast` M5's `gh pr create` rule, sa
 
 ### 7. NO `--repo` flag on `gh pr create` (confused-deputy defense)
 
-The design must handle this per [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) `SEC-8`. Same pattern as `/slo-sast` M5. The skill targets only the current repo's origin remote.
+The design must handle this per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) `SEC-8`. Same pattern as `/slo-sast` M5. The skill targets only the current repo's origin remote.
 
 ### 8. Capability-gap record schema must be regex-validated, not free-text
 
@@ -55,7 +55,7 @@ The design must handle the pre-requisite gates explicitly because `/slo-sec-libs
 - `kerberosmansour/hulumi` and `SunLitSecureLibraries` repos publish CycloneDX 1.6 `declarations` JSON files.
 - Contributor `gh` CLI is authenticated with the right scopes.
 
-These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)) — the runbook's Background Context section flags them as required pre-flight before M1.
+These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)) — the runbook's Background Context section flags them as required pre-flight before M1.
 
 ## Open questions that research did not answer
 
@@ -66,7 +66,7 @@ These are out-of-band of the runbook (per [issue #4](https://github.com/kerberos
 
 ## Source pointers
 
-- [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) — Phase 4 runbook entry point + deferred follow-ups from Phase 1
+- [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) — Phase 4 runbook entry point + deferred follow-ups from Phase 1
 - [`docs/slo/idea/slo-security-embedding.md`](../../idea/slo-security-embedding.md) — original Phase 1 idea doc with "The next product" section that promoted /slo-sec-libs from stretch to core
 - [`docs/slo/research/slo-security-embedding/dossier.md`](../slo-security-embedding/dossier.md) and [`docs/slo/research/slo-security-embedding/synthesis.md`](../slo-security-embedding/synthesis.md) — upstream Q1-Q5 research findings
 - [`docs/slo/design/slo-security-embedding-threat-model.md`](../../design/slo-security-embedding-threat-model.md) — threat model for the upstream program; this runbook adds the `/slo-sec-libs` surface
