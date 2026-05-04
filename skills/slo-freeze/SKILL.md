@@ -5,7 +5,8 @@ description: >
   the session. Invoke as "/slo-freeze <path>" or "freeze edits to src/auth".
   Prevents accidental changes outside the named scope while debugging or
   implementing something narrow. Complements /slo-execute's allow-list — this
-  is ad-hoc, allow-list is per-milestone.
+  is ad-hoc, allow-list is per-milestone. This is not a security boundary; the
+  optional PreToolUse hook is a guardrail for honest mistakes.
 ---
 
 # /slo-freeze <path> — lock edits to one directory
@@ -27,7 +28,7 @@ You just froze your edit scope to the directory named in the argument. For the r
 
 ## State
 
-Remember the frozen path in session state (not a file). `/slo-unfreeze` or `/slo-resume` clears it.
+Remember the frozen path in session state. When the project has opted into [`references/freeze/hook-setup.md`](../../references/freeze/hook-setup.md), also mirror the active path into `~/.sldo/freeze-scope.txt`. A missing `~/.sldo/freeze-scope.txt` means no hook-enforced freeze is active, so behavior falls back to this prose-level discipline. `/slo-unfreeze` or `/slo-resume` clears both.
 
 ## Gates
 
@@ -38,6 +39,7 @@ Remember the frozen path in session state (not a file). `/slo-unfreeze` or `/slo
 
 - Lifting the freeze silently to perform an "obvious" edit. If the edit is obvious, expanding the freeze is obvious too.
 - Using `/slo-freeze` as a substitute for a milestone allow-list. The allow-list is the contract; this is convenience.
+- Treating `/slo-freeze` as adversarial containment. It is not a security boundary; deleting the session-state file disables the optional hook.
 
 ## Handoff
 
