@@ -53,7 +53,7 @@ jobs:
       - name: Cache cargo
         # Swatinem/rust-cache@v2 — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
         # Re-pin via: gh api repos/Swatinem/rust-cache/git/ref/tags/v2.7.5 (latest at pin)
-        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
 
       - name: Install Semgrep
         # MIN-SEMGREP-VERSION is 1.50.0 per references/sast/MIN-SEMGREP-VERSION.md.
