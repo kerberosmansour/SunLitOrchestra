@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout
         # actions/checkout pinned by SHA per F-ENG-5.
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           # Fetch the exact commit; no need for full history.
           fetch-depth: 1

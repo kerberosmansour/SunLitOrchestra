@@ -43,7 +43,7 @@ jobs:
       - name: Checkout
         # actions/checkout@v4.1.7 — pinned by SHA per BDD workflow_invokes_pinned_semgrep_action.
         # Update via: gh api repos/actions/checkout/git/refs/tags/v4 then re-pin.
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Rust toolchain
         # dtolnay/rust-toolchain "stable" — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
@@ -86,7 +86,7 @@ jobs:
     needs: admission-control
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Run Semgrep CI
         # returntocorp/semgrep-action@v1 (713efdd345f3035192eaa63f56867b88e63e4e5d).
