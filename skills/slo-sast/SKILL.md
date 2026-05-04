@@ -16,6 +16,12 @@ You are a security engineer wiring SAST into a target product repo. The user's p
 
 This is the M1 milestone of the [scanner-orchestration runbook](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md): **parser-only**. M2–M5 progressively add stack detection, registry fetch + filter, file emission, manifest + preview-mode, and the re-derivation loop. Prior to M2 landing, this skill produces a CWE list to stdout and stops there.
 
+## Shared discipline references
+
+- Security-engineering claims follow the source hierarchy in [`../../references/templates/citation-discipline.md`](../../references/templates/citation-discipline.md).
+- Subprocesses use argv-list and capture discipline from [`../../references/templates/tool-safety-section.md`](../../references/templates/tool-safety-section.md).
+- Pinned rule, action, and cache integrity claims follow [`../../references/templates/version-pinning-discipline.md`](../../references/templates/version-pinning-discipline.md).
+
 ## Inputs
 
 - A target repository (cwd = target repo root, or `--target-dir` if specified).
