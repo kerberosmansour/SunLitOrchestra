@@ -67,6 +67,12 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - `skills/<skill>/references/` holds skill-local methodology files that travel with the installed skill symlink; `/slo-sast` uses this pattern for its M1-M5 operating procedures, `/slo-tla` uses it for elicitation / abstraction / counterexample / verified-design guidance, and `/slo-plan` uses it for per-milestone authoring.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
 
+### Hooks and evals
+
+- High-risk skills may carry documented expectations under `skills/<skill>/evals/*.md`. These are Markdown cases for manual checks today and for a future runtime harness later; the shared case shape lives in `references/templates/eval-cases.md`.
+- The project-local Claude Code freeze hook lives in `.claude/settings.json`. It is opt-in, watches `Edit|Write|NotebookEdit`, and reads `~/.sldo/freeze-scope.txt` to block edits outside the active `/slo-freeze` scope.
+- Hook setup guidance lives in `references/freeze/hook-setup.md`. The hook is a guardrail for accidental edits, not a security boundary; deleting the session-state file disables enforcement.
+
 ## Rust workspace
 
 The current workspace has four active members:
