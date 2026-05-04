@@ -19,6 +19,7 @@ const HIGH_RISK_SKILLS: &[&str] = &[
     "slo-rulegen",
     "slo-ruleverify",
     "slo-research",
+    "slo-critique",
     "slo-architect",
     "slo-plan",
     "slo-talk-to-users",
