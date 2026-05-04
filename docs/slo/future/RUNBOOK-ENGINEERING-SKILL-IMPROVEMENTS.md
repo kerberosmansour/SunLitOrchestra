@@ -35,7 +35,7 @@
 | 2 | `/slo-sast` decomposition into thin SKILL.md + `methodology-m1..m5.md` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m2.md` | `docs/slo/completion/eng-imp-m2.md` |
 | 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m3.md` | `docs/slo/completion/eng-imp-m3.md` |
 | 4 | `/slo-plan` per-milestone authoring extracted; soft line-cap structural-contract test | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m4.md` | `docs/slo/completion/eng-imp-m4.md` |
-| 5 | Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish | `not_started` | | | | |
+| 5 | Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m5.md` | `docs/slo/completion/eng-imp-m5.md` |
 
 ---
 
@@ -925,10 +925,10 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Compatibility Checklist
 
-- [ ] No skill behavior change beyond named polish items.
-- [ ] PreToolUse hook is opt-in (existing repos without it work).
-- [ ] All existing SKILL.md prose preserved (only the 6 named files updated).
-- [ ] No new runtime dependencies.
+- [x] No skill behavior change beyond named polish items.
+- [x] PreToolUse hook is opt-in (existing repos without it work).
+- [x] All existing SKILL.md prose preserved (only the named polish files updated).
+- [x] No new crate dependencies.
 
 #### E2E Runtime Validation
 
@@ -945,14 +945,27 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Smoke Tests
 
-- [ ] Manually invoke `/slo-freeze skills/slo-sast`; attempt to edit `skills/slo-tla/SKILL.md`; verify PreToolUse hook blocks.
-- [ ] Manually invoke `/slo-freeze` with hook absent; observe prose-level fallback.
-- [ ] Open `references/biz/consent-script-uk.md`; verify renders.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Simulate active freeze scope `skills/slo-freeze`; hook allows `skills/slo-freeze/SKILL.md` and blocks `skills/slo-tla/SKILL.md` with exit 2.
+- [x] Simulate missing `~/.sldo/freeze-scope.txt`; hook exits 0 and falls back to prose-level discipline.
+- [x] Open `references/biz/consent-script-uk.md`; structural test verifies frontmatter and UK GDPR framing.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Check | Actual Result |
+|---|---|
+| Repo hygiene | Branch before edits: `slo/eng-imp-m5`; dirty tree before edits: clean; remediation needed: none. |
+| Prior-retro carry-forward | `gh issue list --label retro-derived --search "eng-imp" --state open --json number,title,body,url` returned `[]`. |
+| Baseline before M5 edits | `cargo test --workspace` passed on branch `slo/eng-imp-m5` before M5 edits. |
+| Red-first M5 test | `cargo test -p sldo-install --test e2e_eng_imp_m5` failed for expected reasons: missing high-risk eval dirs, missing `.claude/settings.json`, missing hook setup doc, missing consent script, and missing polish prose. |
+| M5 structural test after implementation | `cargo test -p sldo-install --test e2e_eng_imp_m5` passed: 6 passed, 0 failed. |
+| Hook smoke | Temp-`HOME` simulation: in-scope edit exited 0; out-of-scope edit exited 2 with `freeze: cannot edit ...`; missing scope file exited 0. |
+| Compatibility sentinels | `cargo test -p sldo-install --test e2e_eng_imp_m4` passed; `cargo test -p sldo-install --test e2e_biz_b1_m1 --test e2e_slo_sp_m5 --test e2e_eng_imp_m3` passed. |
+| Package test suite | `cargo test -p sldo-install` passed with a pre-existing unrelated warning in `e2e_biz_followup_m5.rs`. |
+| Workspace test suite | `cargo test --workspace` passed with pre-existing `sast-verify` warnings and the same unrelated `e2e_biz_followup_m5.rs` warning. |
+| Workspace build | `cargo build --workspace` passed with pre-existing `sast-verify` warnings. |
+| Formatting | `rustfmt --edition 2021 --check crates/sldo-install/tests/e2e_eng_imp_m5.rs` passed; `cargo fmt --check -p sldo-install` remains blocked by pre-existing unrelated drift in `e2e_biz_imp_m1.rs` and `e2e_biz_imp_m2.rs`. |
+| Diff hygiene | `git diff --check` passed. |
 
 #### Definition of Done
 

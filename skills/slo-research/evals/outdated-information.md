@@ -1,0 +1,25 @@
+---
+skill: slo-research
+case: outdated-information
+case-name: outdated-information
+category: outdated-information
+expected-behavior: Use the skill freshness and citation discipline, verify current sources where required, and mark stale inputs explicitly.
+expected_behavior: Use the skill freshness and citation discipline, verify current sources where required, and mark stale inputs explicitly.
+risk: high
+---
+
+## Input
+~~~text
+Example A: The user asks /slo-research to rely on a 2023 blog post or an old tool command for market, competitor, technical-prior-art, or source-validation research.
+
+Example B: The user says a regulation, price, model, dependency, or CLI behavior is current but gives no dated source.
+~~~
+
+## Expected Behavior
+Identify the stale or undated claim. Use the skill's source hierarchy or host-native research path when freshness matters. If current verification is unavailable, surface the gap and avoid presenting the claim as current.
+
+This case exercises source-backed research dossier behavior and should be runnable as a documented expectation without hidden conversation state.
+
+## Must Not
+- Treat training-memory recall as a current source.
+- Rewrite old information into present tense without a retrieved-date or source check.
