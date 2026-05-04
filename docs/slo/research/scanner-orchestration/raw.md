@@ -54,7 +54,7 @@ I have enough context to write the report.
 - **Logging:** custom timestamped append-only `LogFile` under a `.sldo-logs/` directory (`sldo_common::logging`); colored stderr via `sldo_common::color` (`header`, `info`, `success`, `warn`, `divider`, `ts`). No `tracing`/`log` crates.
 - **Preflight gating:** every CLI calls `sldo_common::preflight` to check the `claude` binary is on PATH, that paths exist, and that the current branch is not protected before doing work.
 - **External-process invocation:** binaries shell out (Claude Code CLI from `sldo-research`; Semgrep from `sast-verify`); `which` resolves binaries with `--*-bin` flags as overrides.
-- **Tests:** unit tests are `#[cfg(test)] mod tests` at the bottom of each file with explicit Given/When/Then comments; workspace-level E2E lives in `tests/e2e_*.rs` declared as `[[test]]` entries on the root `sunlit-orchestrate-tests` package.
+- **Tests:** unit tests are `#[cfg(test)] mod tests` at the bottom of each file with explicit Given/When/Then comments; workspace-level E2E lives in `tests/e2e_*.rs` declared as `[[test]]` entries on the root `sunlit-orchestra-tests` package.
 - **Skill discovery:** `crates/sldo-install/src/install.rs` `discover_skills()` walks `skills/` only — `references/` is intentionally excluded.
 - **Async:** none in the surviving code (the legacy CLIs and Tauri UI were removed in 2026-04 cleanup, per `CLAUDE.md`).
 

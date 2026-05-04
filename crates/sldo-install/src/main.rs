@@ -1,4 +1,4 @@
-//! `sldo-install` — install, update, and uninstall the SunLitOrchestrate skill pack.
+//! `sldo-install` — install, update, and uninstall the SunLitOrchestra skill pack.
 //!
 //! Links the skill directories under `skills/` in this repo into the selected
 //! host agent's skills directory (default: `~/.claude/skills/`), or into a
@@ -22,7 +22,7 @@ use host::Host;
 #[derive(Parser, Debug)]
 #[command(
     name = "sldo-install",
-    about = "Install the SunLitOrchestrate skill pack",
+    about = "Install the SunLitOrchestra skill pack",
     version
 )]
 struct Cli {
@@ -98,7 +98,7 @@ fn resolve_skills_dir(arg: Option<PathBuf>) -> Result<PathBuf> {
     if !default.exists() {
         bail!(
             "No skills/ directory found under current working directory ({}). \
-             Run from the SunLitOrchestrate repo root, or pass --skills-dir.",
+             Run from the SunLitOrchestra repo root, or pass --skills-dir.",
             cwd.display()
         );
     }

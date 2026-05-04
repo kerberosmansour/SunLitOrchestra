@@ -1,4 +1,4 @@
-# Biz-pack judgment runtime harness — SunLitOrchestrate (AI-First Runbook v3)
+# Biz-pack judgment runtime harness — SunLitOrchestra (AI-First Runbook v3)
 
 > **Forward-looking note (agent-host M4, 2026-04-30)**: this runbook describes
 > a Claude-only live runtime harness. Agent-host milestone 4 renamed the

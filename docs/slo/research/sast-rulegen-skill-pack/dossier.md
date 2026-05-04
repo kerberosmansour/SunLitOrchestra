@@ -55,7 +55,7 @@ Proxy spend the wedge displaces: Semgrep Code seat ($30/contributor/month), Snyk
 - **Creusot is LGPL-2.1** — vendoring caution. (Decision: ignore creusot for v1 anyway.)
 - **US EAR 5D002 ("intrusion software") enforcement on snippet collections is essentially zero** — Metasploit, Nuclei, Semgrep itself are publicly distributed.
 - **Two-tier corpus convention** is defensible: snippets in the **rule-pack repo** track-and-label (upstream convention); snippets in a **user's application repo** default to `.gitignore`'d (the user's repo is not a security-tooling repo, tracked vuln snippets there would be a compliance finding even if portable).
-- **No `LICENSE` file present in the SunLitOrchestrate repo root** — license obligations cannot be confirmed from the source tree. A LICENSE file should be added before any rule-pack is released externally.
+- **No `LICENSE` file present in the SunLitOrchestra repo root** — license obligations cannot be confirmed from the source tree. A LICENSE file should be added before any rule-pack is released externally.
 
 ## Open questions that research did not answer
 

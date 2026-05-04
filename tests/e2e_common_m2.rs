@@ -45,7 +45,7 @@ fn parse_actual_runbook_tracker() {
 
 #[test]
 fn git_checks_on_own_repo() {
-    // Given: The SunLitOrchestrate repository
+    // Given: The SunLitOrchestra repository
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let repo = Path::new(manifest_dir);
 
@@ -53,7 +53,7 @@ fn git_checks_on_own_repo() {
     // Then: Returns true
     assert!(
         sldo_common::git::is_git_repo(repo),
-        "SunLitOrchestrate root should be a git repo"
+        "SunLitOrchestra root should be a git repo"
     );
 
     // When: current_branch is called
@@ -67,7 +67,7 @@ fn git_checks_on_own_repo() {
 
 #[test]
 fn detect_commands_on_own_repo() {
-    // Given: The SunLitOrchestrate project (has Cargo.toml)
+    // Given: The SunLitOrchestra project (has Cargo.toml)
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let project_dir = Path::new(manifest_dir);
 

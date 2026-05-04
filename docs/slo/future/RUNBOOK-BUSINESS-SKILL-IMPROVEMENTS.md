@@ -1,9 +1,9 @@
-# Business Skill Improvements — SunLitOrchestrate (AI-First Runbook v3)
+# Business Skill Improvements — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Close the predicate-evaluation hallucination surface across the five advisor skills via conversational intake contracts; move every UK statute / regulator citation from inlined SKILL.md prose to authority files; verify SAFE / cap-table / pricing arithmetic before emission; centralize numeric heuristics for the seven biz generators with source attribution.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. R3 depends on R2 M1 (`references/templates/`) landing first.
-> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/business-skill-improvements-overview.md](design/business-skill-improvements-overview.md), [docs/slo/idea/business-skill-improvements.md](idea/business-skill-improvements.md), [docs/slo/research/business-skill-improvements/synthesis.md](research/business-skill-improvements/synthesis.md), [Issue #19](https://github.com/kerberosmansour/SunLitOrchestrate/issues/19), [Issue #20](https://github.com/kerberosmansour/SunLitOrchestrate/issues/20), 2026-04-27 skill-pack review
+> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/business-skill-improvements-overview.md](design/business-skill-improvements-overview.md), [docs/slo/idea/business-skill-improvements.md](idea/business-skill-improvements.md), [docs/slo/research/business-skill-improvements/synthesis.md](research/business-skill-improvements/synthesis.md), [Issue #19](https://github.com/kerberosmansour/SunLitOrchestra/issues/19), [Issue #20](https://github.com/kerberosmansour/SunLitOrchestra/issues/20), 2026-04-27 skill-pack review
 
 ---
 
@@ -44,7 +44,7 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                  SunLitOrchestrate biz pack (UK only)                  │
+│                  SunLitOrchestra biz pack (UK only)                  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────┐     │
 │  │  references/biz/  (existing + new)                            │     │

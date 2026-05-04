@@ -118,7 +118,7 @@ Target repo with ARCHITECTURE.md + stack-decision.md + RUNBOOK
 | Capability-gap record schema (regex-validated fields) | `stable` | Cross-org consumers (Hulumi, SunLitSecureLibraries) parse this |
 | `cdx:sunlit:crypto:*` namespace | `evolving` | Migrates to upstream Property Taxonomy post-MVP |
 | `--file-upstream` flag semantics | `stable` | Third-party filing requires this flag; no implicit upstream |
-| Per-session 40-issues/hr rate-limit cap | `stable` | Defensive; reuses pattern in [issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) (R1) |
+| Per-session 40-issues/hr rate-limit cap | `stable` | Defensive; reuses pattern in [issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) (R1) |
 | `gh pr create` discipline (argv-list, no `--repo`, no merge flags) | `stable-interface` | Inherited from `/slo-sast` M5 |
 
 ## TLA+ section
@@ -158,7 +158,7 @@ New abuse cases (extends `docs/slo/design/slo-security-embedding-threat-model.md
 
 ## Pre-requisites (one-time, before runbook M1)
 
-These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)):
+These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)):
 
 - [ ] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only); populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
 - [ ] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi) and [`SunLitSecureLibraries`](https://github.com/SunLitSecureLibraries/SunLitSecureLibraries). Each crate / component advertises the controls it implements; crypto-primitive parametric claims ride in `properties` under the vendored `cdx:sunlit:crypto:*` namespace.

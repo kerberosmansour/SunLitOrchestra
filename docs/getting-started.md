@@ -1,8 +1,8 @@
 # Getting Started
 
-This guide is for someone opening SunLitOrchestrate for the first time and wanting one clear path from clone to first successful skill run.
+This guide is for someone opening SunLit Orchestra for the first time and wanting one clear path from clone to first successful skill run.
 
-SunLitOrchestrate ships a **skill pack**: a folder of Markdown instruction files that you install into a coding agent. The coding agent is the **host**. Right now the supported hosts are Claude Code, GitHub Copilot, and Codex.
+SunLit Orchestra ships a **skill pack**: a folder of Markdown instruction files that you install into a coding agent. The coding agent is the **host**. Right now the supported hosts are Claude Code, GitHub Copilot, and Codex.
 
 ## Quick glossary
 
@@ -15,44 +15,50 @@ SunLitOrchestrate ships a **skill pack**: a folder of Markdown instruction files
 
 You need these before the first run:
 
-- Git, so you can clone the repo.
-- A stable Rust toolchain, because `sldo-install` is a Rust binary you build locally.
+- A stable Rust toolchain, because `sldo-install` is a Rust binary distributed via crates.io.
+- Git, only if you want to build from source instead of installing from crates.io.
 - One supported host: Claude Code, GitHub Copilot, or Codex.
 - Semgrep only if you want to use the SAST rule-pack skills right away.
 
 ## Install the skill pack
 
-Run these commands from the repo root:
+The fastest path is from crates.io — no clone needed:
 
 ```bash
-git clone https://github.com/kerberosmansour/SunLitOrchestrate.git
-cd SunLitOrchestrate
-
-cargo build -p sldo-install --release
+cargo install sldo-install
 ```
 
 Install into Claude Code:
 
 ```bash
-./target/release/sldo-install
-./target/release/sldo-install status
-./target/release/sldo-install verify
+sldo-install
+sldo-install status
+sldo-install verify
 ```
 
 Install into GitHub Copilot:
 
 ```bash
-./target/release/sldo-install --host github-copilot
-./target/release/sldo-install --host github-copilot status
-./target/release/sldo-install --host github-copilot verify
+sldo-install --host github-copilot
+sldo-install --host github-copilot status
+sldo-install --host github-copilot verify
 ```
 
 Install into Codex:
 
 ```bash
-./target/release/sldo-install --host codex
-./target/release/sldo-install --host codex status
-./target/release/sldo-install --host codex verify
+sldo-install --host codex
+sldo-install --host codex status
+sldo-install --host codex verify
+```
+
+If you want to build from source instead — for example, when iterating on the skill pack itself:
+
+```bash
+git clone https://github.com/kerberosmansour/SunLitOrchestra.git
+cd SunLitOrchestra
+cargo build -p sldo-install --release
+./target/release/sldo-install [...]    # same flags as above
 ```
 
 What success looks like:

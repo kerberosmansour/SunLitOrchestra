@@ -1,4 +1,4 @@
-# Host capability matrix — SunLitOrchestrate
+# Host capability matrix — SunLitOrchestra
 
 > **Purpose**: Document what each supported host (Claude Code, GitHub Copilot, Codex) can install + invoke + run. Drives decisions in M4 (plugin packaging), M5 (host-native agents), and future host additions.
 > **Authored**: 2026-05-01 during /slo-execute M4. Retrieval-date for upstream docs cited inline.

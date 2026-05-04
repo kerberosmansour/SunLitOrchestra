@@ -56,4 +56,4 @@ None.
 
 ## Runbook close-out
 
-All 5 milestones marked `done`. The runbook is ready for `/slo-verify` runtime QA, then `/slo-ship` to open the PR for [GitHub issue #15](https://github.com/kerberosmansour/SunLitOrchestrate/issues/15).
+All 5 milestones marked `done`. The runbook is ready for `/slo-verify` runtime QA, then `/slo-ship` to open the PR for [GitHub issue #15](https://github.com/kerberosmansour/SunLitOrchestra/issues/15).
