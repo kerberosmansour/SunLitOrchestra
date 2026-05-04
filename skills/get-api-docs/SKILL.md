@@ -22,6 +22,8 @@ chub search "<library name>" --json
 Pick the best-matching `id` from the results (e.g. `openai/chat`, `anthropic/sdk`,
 `stripe/api`). If nothing matches, try a broader term.
 
+If `chub search` returns nothing after a broader term, say the docs source is unavailable and ask for a URL or package name to verify. Do not invent the API surface.
+
 ## Step 2 — Fetch the docs
 
 ```bash
@@ -29,6 +31,8 @@ chub get <id> --lang py    # or --lang js, --lang ts
 ```
 
 Omit `--lang` if the doc has only one language variant — it will be auto-selected.
+
+If `chub get` fails because the ID, language, auth, network, or registry is unavailable, surface the exact failure and do NOT fall back to training memory. Use official docs via host-native browsing only if the user agrees or the active task already permits web research.
 
 ## Step 3 — Use the docs
 

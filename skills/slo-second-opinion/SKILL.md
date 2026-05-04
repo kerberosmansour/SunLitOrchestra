@@ -24,6 +24,10 @@ Try in this order, use the first one on PATH:
 1. `which codex` — OpenAI Codex CLI.
 2. `which gemini` — Google Gemini CLI.
 
+## Minimum CLI versions
+
+Run `<provider> --version` before dispatch. Use a current stable CLI that can run non-interactively and read prompt text from stdin; if the version command is missing, disclose that the provider was found but its version could not be verified.
+
 If neither is present:
 
 > No second-opinion provider found on PATH. Install one:
@@ -44,6 +48,8 @@ Exit non-zero. Do not silently fall back to asking the current host to "pretend 
 |---------|-------------------|---------------|------------------------|
 
 5. Surface the disagreements, not the overlaps. Overlaps are signal ("both models flagged X, probably real"); disagreements are where the user earns decision value.
+
+As a guardrail, neither response is verified by default. Treat both as review inputs until a source, test, runtime check, or user decision resolves the disagreement.
 
 ## Gates — do not emit when
 

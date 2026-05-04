@@ -70,7 +70,8 @@ Real interview transcripts contain:
 The founder's repo MUST exclude `docs/biz/` from version control. This skill writes a **WRITE-TIME WARNING** when ALL of these conditions hold simultaneously:
 
 - The target write directory is inside a git-tracked repository.
-- A `remote.origin.url` is configured.
+- `git rev-parse --git-dir` succeeds for the target path.
+- `git remote -v` shows at least one fetch or push remote.
 - The artifact's `tier` is `confidential`.
 
 The warning text:
@@ -115,7 +116,7 @@ Skill prose CALLS OUT THE ANTI-PATTERNS:
 ### Logistics
 
 - Time box: 25-40 min.
-- Recording: ASK PERMISSION (skill includes the consent script — short, GDPR-compliant under legitimate-interest for legitimate market research).
+- Recording: ASK PERMISSION using [`references/biz/consent-script-uk.md`](../../references/biz/consent-script-uk.md).
 - Note-taking: name + role + sector + interview date in frontmatter; quotes in body.
 
 ## Post-interview body shape
