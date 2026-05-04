@@ -35,6 +35,12 @@ If the milestone touches a UI surface:
 
 If it's a pure backend / CLI milestone, skip the UI cascade and stick to runtime E2E.
 
+## Shared discipline references
+
+- Security-engineering claims and scanner findings follow [`../../references/templates/citation-discipline.md`](../../references/templates/citation-discipline.md).
+- Scanner/tool execution follows [`../../references/templates/tool-safety-section.md`](../../references/templates/tool-safety-section.md).
+- False-positive triage and override routing follow [`../../references/templates/escalation.md`](../../references/templates/escalation.md).
+
 ## Method — three passes
 
 ### Pass 1. Happy path
@@ -83,6 +89,8 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 - **Capitalised-bigram named-person heuristic** — lines beginning with `name:` (case-insensitive) followed by a `[A-Z][a-z]+ [A-Z][a-z]+` pattern. False-positive tolerance is HIGH; this catches the common interview-transcript leak pattern.
 
 **Override mechanism** — an artifact MAY include `pii_scan_override: true` and `tier_override_reason: <one-line rationale>` in its frontmatter. The scan reads the override + reason and EMITS the override decision in the Pass 4 report (so it's auditable) but does NOT fail the milestone. Without the override, a match fails Pass 4 with the same regression-test flow as other findings: STOP → write a regression test → fix the file (move to `docs/biz/` or anonymise) → re-run.
+
+**Capitalised-bigram false-positive triage** — when the `name:` bigram heuristic matches a project name, product name, or placeholder rather than a person, use the false-positive triage shape in [`../../references/templates/escalation.md`](../../references/templates/escalation.md): record the matched value, why it is not a real person, and require `pii_scan_override: true` plus `tier_override_reason: this is a project/product/placeholder name, not a person`. The Pass 4 report must show the override decision; silent suppression is forbidden.
 
 **Scan scope** — `docs/biz-public/` only. The `docs/biz/` subtree is NOT scanned (those artifacts are confidential by design and contain real PII). The founder's repo `.gitignore` excludes `docs/biz/` (skill prose enforces this; SKILL.md prose for every biz-pack skill includes a write-time warning). Pass 4 PII-scan is the second-line defense after the gitignore + write-time-warning first-line.
 

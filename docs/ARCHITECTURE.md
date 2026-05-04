@@ -63,6 +63,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - `references/biz/` holds shared business-pack scaffolding such as gates, jurisdiction notes, templates, and regulator indexes.
 - `references/security/` holds shared security finding and assessment summary templates used by review / verification skills, plus the curated CWE × OWASP × ASVS × OpenCRE table at [`references/security/standards-mapping.md`](../references/security/standards-mapping.md) (added by sap-imp M3).
 - `references/sast/` holds SAST-specific references consumed by the security tooling and rule-pack work.
+- `references/templates/` holds shared cross-skill discipline templates for citation hierarchy, intake, restate-and-confirm, tool safety, output frontmatter, escalation, eval cases, heuristic numbers, rate limiting, fallback handling, and version pinning.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
 
 ## Rust workspace

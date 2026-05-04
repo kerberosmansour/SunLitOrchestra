@@ -19,6 +19,12 @@ training data. If the user explicitly wants automation through the optional
 Claude batch backend, you may use `sldo-research`, but that is a separate path
 and never the only way to run this skill.
 
+## Shared discipline references
+
+- Factual claims follow [`../../references/templates/citation-discipline.md`](../../references/templates/citation-discipline.md).
+- Optional backend command dispatch follows [`../../references/templates/tool-safety-section.md`](../../references/templates/tool-safety-section.md).
+- Missing-source and degraded research handling follows [`../../references/templates/fallback-discipline.md`](../../references/templates/fallback-discipline.md).
+
 ## Inputs
 
 - A slug. Expected idea doc at `docs/slo/idea/<slug>.md`. Refuse to run if missing — tell the user to run `/slo-ideate` first.
@@ -74,7 +80,7 @@ the user.
 1. Check `which sldo-research`. If not on PATH, print:
    > `sldo-research` CLI not found. Build it with `cargo install --path crates/sldo-research` from the repo root.
    Then exit non-zero.
-2. Run `sldo-research --help` once if you need to confirm the current CLI flags before dispatch.
+2. Run and record `sldo-research --help` before dispatch. Capture stdout, stderr, and exit code separately per [`../../references/templates/tool-safety-section.md`](../../references/templates/tool-safety-section.md). Do not dispatch if the expected flags are absent.
 3. Build a prompt file from the idea doc's wedge, target user, and up to five specific research questions.
 4. Dispatch the batch backend with an explicit note that this is the optional Claude batch backend, not the default interactive path.
 5. Read the batch output critically. If it misses the required bars, keep `incomplete: true` visible and tell the user what is missing.

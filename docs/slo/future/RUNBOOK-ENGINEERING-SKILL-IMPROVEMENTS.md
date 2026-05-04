@@ -31,7 +31,7 @@
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | `references/templates/` shared library + research-validation prereq landed | `not_started` | | | | |
+| 1 | `references/templates/` shared library + research-validation prereq landed | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m1.md` | `docs/slo/completion/eng-imp-m1.md` |
 | 2 | `/slo-sast` decomposition into thin SKILL.md + `methodology-m1..m5.md` | `not_started` | | | | |
 | 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `not_started` | | | | |
 | 4 | `/slo-plan` per-milestone authoring extracted; soft line-cap structural-contract test | `not_started` | | | | |
@@ -392,7 +392,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Definition of Done
 
-- All 8 templates exist with valid frontmatter.
+- All 11 templates exist with valid frontmatter.
 - `citation-discipline.md` source hierarchy locked verbatim + tested.
 - 5 SKILL.md files updated to cite from templates.
 - Source-verification spike documented in lessons file.
