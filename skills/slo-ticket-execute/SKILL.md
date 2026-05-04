@@ -38,7 +38,47 @@ You are the implementer for one issue-sized SLO contract. Your job is to satisfy
    - invariants/assertions
    - static-analysis gates
    - validation commands
-6. Create or switch to the target branch.
+6. Run the Repo hygiene gate before file edits. Record git state, confirm the current branch is not the default/protected branch, create/switch to the target task branch when needed, and update the issue workpad with the branch name once selected.
+
+## Pre-flight: Repo hygiene gate
+
+This gate runs before file edits. It is allowed to switch branches, but it must not edit project files until branch state is safe.
+
+### Commands to record
+
+Run and record:
+
+```
+git status --short --branch
+git rev-parse --abbrev-ref HEAD
+git symbolic-ref --short refs/remotes/origin/HEAD
+```
+
+If `origin/HEAD` is unavailable, detect the default branch from local context and fall back to checking both `main` and `master`. Treat the current branch as unsafe when it is the default/protected branch or when local policy marks it protected.
+
+### Branch rule
+
+Use the ticket contract's target branch when it is present. If the contract does not name one, derive:
+
+```
+ticket/<issue>-<slug>
+```
+
+Do not include the agent name, host name, or model name in the branch. Branch names are task-scoped, not agent-scoped.
+
+If execution is on the default/protected branch, stop before file edits and create or switch to the task branch unless the user explicitly instructed execution to remain there. If uncommitted work already exists on the default branch, preserve it by switching to a new branch immediately, then record the remediation. Do not stash, discard, or reset user work unless the user explicitly asks.
+
+### Evidence and workpad row
+
+Add or fill a Repo hygiene row in the ticket Validation Plan and issue workpad with:
+
+- branch before
+- branch after
+- dirty-tree state
+- remediation needed
+- remediation taken
+
+The issue workpad must include the selected branch name. Execution may prepare the working tree; commits and pushes happen only when the active workflow or the user explicitly asks for them.
 
 ## Allow-list rule
 
