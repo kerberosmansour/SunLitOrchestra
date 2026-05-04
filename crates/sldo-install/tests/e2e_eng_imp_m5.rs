@@ -25,6 +25,16 @@ const HIGH_RISK_SKILLS: &[&str] = &[
     "slo-founder-check",
 ];
 
+const CANONICAL_EVAL_CASES: &[&str] = &[
+    "happy-path",
+    "missing-context",
+    "ambiguous-input",
+    "adversarial",
+    "outdated-information",
+    "tool-failure",
+    "high-risk-case",
+];
+
 const FRONTMATTER_FIELDS: &[&str] = &["skill", "case-name", "category", "expected-behavior"];
 
 fn repo_root() -> PathBuf {
@@ -249,6 +259,24 @@ fn every_high_risk_skill_has_evals_dir() {
             markdown_count >= 1,
             "{skill} evals/ must contain at least one markdown case"
         );
+    }
+}
+
+#[test]
+fn every_high_risk_skill_has_canonical_eval_cases() {
+    for skill in HIGH_RISK_SKILLS {
+        for case in CANONICAL_EVAL_CASES {
+            let path = repo_root()
+                .join("skills")
+                .join(skill)
+                .join("evals")
+                .join(format!("{case}.md"));
+            assert!(
+                path.is_file(),
+                "{skill} missing canonical eval case `{case}` at {}",
+                path.display()
+            );
+        }
     }
 }
 
