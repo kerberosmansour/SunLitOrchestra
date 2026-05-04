@@ -1,10 +1,10 @@
-# SunLitOrchestrate Architecture
+# SunLit Orchestra Architecture
 
 > **Reality-first orientation doc**: this file describes what is implemented at HEAD. Planned work belongs in `docs/slo/design/*.md` and in feature runbooks.
 
 ## Overview
 
-SunLitOrchestrate ships three cooperating layers:
+SunLit Orchestra ships three cooperating layers:
 
 1. A Markdown skill pack under `skills/`.
 2. A host-aware installer in `crates/sldo-install/`.
@@ -84,7 +84,7 @@ The current workspace has four active members:
 | `crates/sldo-install` | Host-aware installer for the skill pack |
 | `xtasks/sast-verify` | Deterministic Semgrep validation, coverage, and gate runner |
 
-The root package `sunlit-orchestrate-tests` hosts workspace-level integration tests in `tests/`.
+The root package `sunlit-orchestra-tests` hosts workspace-level integration tests in `tests/`.
 
 ## Shared library: `sldo-common`
 

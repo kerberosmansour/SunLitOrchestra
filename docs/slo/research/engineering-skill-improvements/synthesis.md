@@ -49,7 +49,7 @@ The design must handle per-project scope because (a) the freeze scope is session
 
 ### 7. Per-skill evals must use the documented-expectation shape until the runtime harness lands
 
-The design must handle the staged-rollout because the "Runtime Claude Code harness" deferred-follow-up from [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) hasn't shipped. Until it does, evals are documented expectations + manual run, not executable. The shape (`evals/<case-name>.md` with input + expected-behavior frontmatter) lets the harness consume them later without rewrites.
+The design must handle the staged-rollout because the "Runtime Claude Code harness" deferred-follow-up from [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) hasn't shipped. Until it does, evals are documented expectations + manual run, not executable. The shape (`evals/<case-name>.md` with input + expected-behavior frontmatter) lets the harness consume them later without rewrites.
 
 ### 8. Soft line-cap structural-contract test must allow justified exceptions
 
@@ -60,17 +60,17 @@ The design must handle exceptions because some SKILL.md content (e.g., `/slo-tla
 1. **Apalache's distribution channel** — does it use SHA-256 like `tla2tools.jar` or release-asset checksums? Verify against https://github.com/apalache-mc/apalache/releases at runbook-author time and capture the pinned version + SHA in [`skills/slo-tla/tools.toml`](../../../skills/slo-tla/tools.toml).
 2. **`~~~text` user-string fence rule provenance** — is this a documented Markdown convention or a defense-in-depth invention? Critical for the `references/templates/citation-discipline.md` file's authoritative voice.
 3. **Soft line-cap threshold** — 200 lines as the cap is the review's recommendation, but `/slo-tla` may legitimately need 250-280 even after decomposition. The structural-contract test should be calibrated against the post-decomposition SKILL.md sizes.
-4. **Eval-runner harness API** — currently undefined; the deferred-follow-up in [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) lists it as blocked. The eval file shape must be forward-compatible without locking in the runner's API today.
+4. **Eval-runner harness API** — currently undefined; the deferred-follow-up in [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) lists it as blocked. The eval file shape must be forward-compatible without locking in the runner's API today.
 
 ## Source pointers
 
 - 2026-04-27 skill-pack review (in-conversation artifact)
-- [Issue #21](https://github.com/kerberosmansour/SunLitOrchestrate/issues/21) — SKILL.md decomposition + shared templates
-- [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) — per-skill evals + hard-enforcement hooks + polish
+- [Issue #21](https://github.com/kerberosmansour/SunLitOrchestra/issues/21) — SKILL.md decomposition + shared templates
+- [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) — per-skill evals + hard-enforcement hooks + polish
 - [`skills/slo-sast/SKILL.md`](../../../skills/slo-sast/SKILL.md) (296 lines), [`skills/slo-tla/SKILL.md`](../../../skills/slo-tla/SKILL.md) (323 lines), [`skills/slo-plan/SKILL.md`](../../../skills/slo-plan/SKILL.md) (132 lines) — primary decomposition targets
 - [`references/sast/`](../../../references/sast/) — existing per-stage references (parser-contract, stack-detection-contract, etc.) that the new `methodology-m1..m5.md` orchestration files complement
 - [`docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md`](../../completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md) (if present) — Phase 1 program that established the security-aware skill flow this runbook extends
 
 ## Note on chub / get-api-docs
 
-Use [`/get-api-docs`](../../../skills/get-api-docs/SKILL.md) for any third-party API reference encountered during execution — but the runbook itself doesn't pre-declare API integrations; the polish items (E5 in [issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22)) extend `chub`'s failure-mode handling.
+Use [`/get-api-docs`](../../../skills/get-api-docs/SKILL.md) for any third-party API reference encountered during execution — but the runbook itself doesn't pre-declare API integrations; the polish items (E5 in [issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22)) extend `chub`'s failure-mode handling.

@@ -1,4 +1,4 @@
-# SunLitOrchestrate Skill Pack
+# SunLit Orchestra Skill Pack
 
 This directory is the raw source for every `/slo-*` skill plus any third-party skills vendored into the pack. Each subdirectory here is one skill; each must contain a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by the skill body.
 

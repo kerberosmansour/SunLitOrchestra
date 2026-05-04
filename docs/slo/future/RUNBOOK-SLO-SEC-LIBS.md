@@ -3,7 +3,7 @@
 > **Purpose**: Add a `/slo-sec-libs` skill that reads target repo's CycloneDX 1.6+ declarations from Hulumi + SunLitSecureLibraries; matches each runbook proactive-control requirement against advertised library capabilities; recommends a specific component or files a structured capability-gap issue.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Pre-requisites (one-time) must complete BEFORE M1.
-> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/slo-sec-libs-overview.md](design/slo-sec-libs-overview.md), [docs/slo/idea/slo-sec-libs.md](idea/slo-sec-libs.md), [docs/slo/research/slo-sec-libs/synthesis.md](research/slo-sec-libs/synthesis.md), [docs/slo/research/slo-security-embedding/synthesis.md](research/slo-security-embedding/synthesis.md), [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)
+> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/slo-sec-libs-overview.md](design/slo-sec-libs-overview.md), [docs/slo/idea/slo-sec-libs.md](idea/slo-sec-libs.md), [docs/slo/research/slo-sec-libs/synthesis.md](research/slo-sec-libs/synthesis.md), [docs/slo/research/slo-security-embedding/synthesis.md](research/slo-security-embedding/synthesis.md), [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)
 
 ---
 
@@ -176,7 +176,7 @@ See template. Specifics:
 
 ### Current State
 
-[PR #3 (slo-security-embedding M1-M4)](https://github.com/kerberosmansour/SunLitOrchestrate/pull/3) merged. Phase 1 of the security-embedding program complete: `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, `/slo-verify` are security-aware. Every milestone's Contract Block now declares Data classification + Proactive controls + Abuse acceptance scenarios.
+[PR #3 (slo-security-embedding M1-M4)](https://github.com/kerberosmansour/SunLitOrchestra/pull/3) merged. Phase 1 of the security-embedding program complete: `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, `/slo-verify` are security-aware. Every milestone's Contract Block now declares Data classification + Proactive controls + Abuse acceptance scenarios.
 
 What works:
 

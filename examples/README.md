@@ -1,4 +1,4 @@
-# SunLitOrchestrate examples
+# SunLit Orchestra examples
 
 > **Synthetic, non-normative — not for direct use.**
 >

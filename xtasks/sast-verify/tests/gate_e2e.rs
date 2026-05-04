@@ -9,7 +9,7 @@ use std::process::Command;
 
 fn workspace_root() -> PathBuf {
     let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    // CARGO_MANIFEST_DIR for xtasks/sast-verify is .../SunLitOrchestrate/xtasks/sast-verify
+    // CARGO_MANIFEST_DIR for xtasks/sast-verify is .../SunLitOrchestra/xtasks/sast-verify
     // Walk up two levels.
     p.pop();
     p.pop();

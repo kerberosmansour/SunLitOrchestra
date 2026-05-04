@@ -8,8 +8,14 @@ members = [
 resolver = "2"
 
 [workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
 license = "Apache-2.0 OR MIT"
-repository = "https://github.com/kerberosmansour/SunLitOrchestrate"
+repository = "https://github.com/kerberosmansour/SunLitOrchestra"
+homepage = "https://github.com/kerberosmansour/SunLitOrchestra"
+authors = ["Sherif Mansour <cherifmansour@gmail.com>"]
+readme = "README.md"
 
 [workspace.dependencies]
 clap = { version = "4", features = ["derive"] }
@@ -27,7 +33,7 @@ pulldown-cmark = { version = "0.10", default-features = false }
 
 # Root package hosts workspace-level E2E / integration tests.
 [package]
-name = "sunlit-orchestrate-tests"
+name = "sunlit-orchestra-tests"
 version = "0.1.0"
 edition = "2021"
 publish = false

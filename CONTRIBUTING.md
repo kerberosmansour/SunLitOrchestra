@@ -1,6 +1,6 @@
-# Contributing to SunLitOrchestrate
+# Contributing to SunLit Orchestra
 
-Thanks for your interest. SunLitOrchestrate is a workflow tool that values explicit contracts over heroic prompting; the same discipline applies to contributions.
+Thanks for your interest. SunLit Orchestra is a workflow tool that values explicit contracts over heroic prompting; the same discipline applies to contributions.
 
 ## Quick links
 
@@ -11,7 +11,7 @@ Thanks for your interest. SunLitOrchestrate is a workflow tool that values expli
 
 ## Recommended workflow
 
-1. **Fork + clone.** `git clone <your-fork>` and `cd SunLitOrchestrate`.
+1. **Fork + clone.** `git clone <your-fork>` and `cd SunLitOrchestra`.
 2. **Open an issue first** for non-trivial work. The runbook discipline only pays off when scope is agreed before code is written. Tiny fixes (typos, broken links, one-line bug fixes) can skip this step.
 3. **Use the skills on yourself.** For larger work, run `/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` to produce a runbook the maintainers can review *before* any code lands. This is the lowest-friction path to merging — reviewers can sign off on the plan and trust the execution.
 4. **Pass the baseline.** `cargo test -p sldo-common -p sldo-install -p sldo-research` must be green.
@@ -60,7 +60,7 @@ The pack's value is in explicit guardrails. Do not skip:
 
 ## Getting help
 
-- **Bugs / feature requests**: file a [GitHub issue](https://github.com/kerberosmansour/SunLitOrchestrate/issues/new/choose).
+- **Bugs / feature requests**: file a [GitHub issue](https://github.com/kerberosmansour/SunLitOrchestra/issues/new/choose).
 - **Security vulnerabilities**: do **not** open a public issue — see [SECURITY.md](SECURITY.md) for the private disclosure path.
 - **Questions about the workflow**: open a discussion or an issue with the `question` label.
 
@@ -87,7 +87,7 @@ Why DCO and not a CLA: the DCO keeps the contribution barrier low (no agreement 
 For **new** source files you create, add this header at the top:
 
 ```rust
-// Copyright 2026 Sherif Mansour and SunLitOrchestrate contributors.
+// Copyright 2026 Sherif Mansour and SunLit Orchestra contributors.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 ```
 

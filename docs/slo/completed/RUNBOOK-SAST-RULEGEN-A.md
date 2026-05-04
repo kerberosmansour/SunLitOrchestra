@@ -257,7 +257,7 @@ Do this after every milestone.
 
 ### Current State
 
-The SunLitOrchestrate repo at HEAD (commit `bee4335`) ships:
+The SunLitOrchestra repo at HEAD (commit `bee4335`) ships:
 
 - **CLI binaries**: `sldo-common` (lib), `sldo-plan`, `sldo-run`, `sldo-research`, `sldo-install`, `sldo-tla-sha`. The parked `sldo-tauri` desktop app is untouched.
 - **Skill pack** at `skills/slo-*/`: 13 active skills (ideate, research, architect, tla, plan, critique, execute, verify, retro, ship, freeze, resume, second-opinion) plus 4 biz-pack skills (legal, accounting, equity, fundraise) plus the vendored `get-api-docs`.

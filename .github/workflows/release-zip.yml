@@ -35,7 +35,7 @@ jobs:
         run: |
           set -e
           TAG="${GITHUB_REF_NAME}"
-          PREFIX="sunlit-orchestrate-${TAG}"
+          PREFIX="sunlit-orchestra-${TAG}"
           mkdir -p dist
           git archive --format=zip --prefix="${PREFIX}/" HEAD -o "dist/${PREFIX}.zip"
           ls -la dist/

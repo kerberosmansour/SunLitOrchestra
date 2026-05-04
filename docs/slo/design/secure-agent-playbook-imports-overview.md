@@ -1,12 +1,12 @@
 # Secure Agent Playbook Imports - Adaptation Overview
 
-> **Purpose**: Capture the larger project ideas worth borrowing from OWASP Secure Agent Playbook, and explain how they should be adapted to SunLitOrchestrate without changing SLO's identity.
+> **Purpose**: Capture the larger project ideas worth borrowing from OWASP Secure Agent Playbook, and explain how they should be adapted to SunLitOrchestra without changing SLO's identity.
 > **Source reviewed**: `/Users/sherifmansour/Dev/GitHub/secure-agent-playbook` project layout, README, `agents/`, `skills/`, `plays/`, `templates/`, `examples/`, plugin metadata, and release workflow.
 > **Related tracker**: [docs/slo/future/RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md](../future/RUNBOOK-SECURE-AGENT-PLAYBOOK-IMPORTS.md).
 
 ## Executive summary
 
-Secure Agent Playbook is strongest as a security-assessment playbook: it separates specialist agents, short skills, detailed plays, reusable templates, standards data, and example outputs. SunLitOrchestrate is strongest as a runbook-driven delivery workflow: it turns an idea into scoped, reviewed, verified, shippable work with security woven through every stage.
+Secure Agent Playbook is strongest as a security-assessment playbook: it separates specialist agents, short skills, detailed plays, reusable templates, standards data, and example outputs. SunLitOrchestra is strongest as a runbook-driven delivery workflow: it turns an idea into scoped, reviewed, verified, shippable work with security woven through every stage.
 
 The useful borrowing path is therefore not "make SLO into Secure Agent Playbook." The useful path is to import the structural ideas that make security work repeatable:
 

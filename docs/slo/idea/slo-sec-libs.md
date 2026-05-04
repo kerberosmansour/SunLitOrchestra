@@ -9,7 +9,7 @@ tla_required: false
 
 ## The pain
 
-[Phase 1 of the security-embedding program (`slo-security-embedding`)](https://github.com/kerberosmansour/SunLitOrchestrate/pull/3) made `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, and `/slo-verify` security-aware: every milestone's Contract Block now declares Data classification + Proactive controls + Abuse acceptance scenarios. The threat model and SECURITY.md are dogfooded.
+[Phase 1 of the security-embedding program (`slo-security-embedding`)](https://github.com/kerberosmansour/SunLitOrchestra/pull/3) made `/slo-ideate`, `/slo-architect`, `/slo-plan`, `/slo-critique`, and `/slo-verify` security-aware: every milestone's Contract Block now declares Data classification + Proactive controls + Abuse acceptance scenarios. The threat model and SECURITY.md are dogfooded.
 
 The gap: when a milestone declares "this surface needs an Argon2id password hasher", the agent has no source-of-truth for *which* library covers that requirement at the runbook's pinned version. It defaults to whatever lib the model recalls — exactly the failure mode `/slo-research` exists to prevent.
 
@@ -25,7 +25,7 @@ A secondary failure: when the recommender finds **no** library that covers a req
 - A CycloneDX 1.6+ `declarations` reader (Python jsonschema subprocess path, since Rust ecosystem has no 1.6+ declarations support per the Phase 1 research synthesis Q1 findings).
 - A capability-matcher that returns either (a) a specific library component covering the requirement, or (b) "no match" with a structured capability-gap record.
 - An SLO-owned intake repo (`kerberosmansour/slo-security-intake`) as the default capability-gap filing destination.
-- A gated upstream-filing path: `--file-upstream` flag + client-side cap of 40 issues/hr per session (defensive against GitHub's undocumented per-endpoint secondary-rate-limit point cost — see [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) for the research-Q5 anchor).
+- A gated upstream-filing path: `--file-upstream` flag + client-side cap of 40 issues/hr per session (defensive against GitHub's undocumented per-endpoint secondary-rate-limit point cost — see [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) for the research-Q5 anchor).
 
 ## Top risks
 
@@ -51,7 +51,7 @@ Not applicable.
 
 Approach A. 5 milestones. M1 declarations reader; M2 capability matcher; M3 SLO-intake filer (default); M4 third-party filing gate + rate limit; M5 dogfood against this SLO repo (re-critique an existing milestone using `/slo-sec-libs` to recommend libraries for its proactive-controls row). Detailed milestone breakdown in [`docs/slo/future/RUNBOOK-SLO-SEC-LIBS.md`](../future/RUNBOOK-SLO-SEC-LIBS.md).
 
-The runbook depends on three one-time pre-requisites (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)):
+The runbook depends on three one-time pre-requisites (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)):
 
 1. Create `kerberosmansour/slo-security-intake` repo with `ISSUE_TEMPLATE` populated.
 2. Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi` and `SunLitSecureLibraries`.

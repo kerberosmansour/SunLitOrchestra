@@ -73,7 +73,7 @@ cd /tmp/sast-shakedown
 for repo in tokio-rs/bytes BurntSushi/aho-corasick hyperium/http seanmonstar/httparse rust-lang/regex; do
     git clone --depth 1 -q "https://github.com/$repo.git" 2>/dev/null
 done
-cd /path/to/SunLitOrchestrate
+cd /path/to/SunLitOrchestra
 for crate in bytes aho-corasick http httparse regex; do
     echo "=== $crate ==="
     semgrep --config .semgrep/rust/ --include '*.rs' --quiet /tmp/sast-shakedown/$crate/

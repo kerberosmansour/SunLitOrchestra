@@ -24,7 +24,7 @@ A developer (any future contributor or the project owner himself) lands on the S
 
 ## Top risks
 
-- **Breach**: low — this work doesn't introduce any new attack surface beyond filing issues to GitHub via `gh`. Risk: an upstream `gh search` query that exposes the founder's PII via a tampered git config. Surface: confused-deputy via `.git/config` — already covered by [`SECURITY.md`](../../SECURITY.md) "argv-list discipline" and [issue #4's `--repo` ban](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4).
+- **Breach**: low — this work doesn't introduce any new attack surface beyond filing issues to GitHub via `gh`. Risk: an upstream `gh search` query that exposes the founder's PII via a tampered git config. Surface: confused-deputy via `.git/config` — already covered by [`SECURITY.md`](../../SECURITY.md) "argv-list discipline" and [issue #4's `--repo` ban](https://github.com/kerberosmansour/SunLitOrchestra/issues/4).
 - **Compliance fine**: not applicable — no personal data flows through this work; lesson content is engineering reflection, not founder PII.
 - **Prolonged outage**: low — `/slo-retro` has no runtime dependency on issue filing; if `gh` is unavailable, the skill falls back to `LESSONS-BACKLOG.md` and the loop closes locally. The retro skill itself never fails because of issue-filing trouble.
 

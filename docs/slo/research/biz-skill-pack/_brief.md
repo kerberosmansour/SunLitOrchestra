@@ -2,11 +2,11 @@
 
 ## Wedge (one sentence)
 
-Ship `/slo-legal` v1 — NDA + Contractor SOW + IP Assignment + Terms & Conditions templates plus an advisor-pattern triage gate that refuses to `draft` when the matter is regulated, deal value > £5,000, the counterparty has their own lawyer, or the document is GDPR-related — as Milestone 1 of a 12-skill business-side SunLitOrchestrate (SLO) skill pack that mirrors the existing engineering pipeline (`/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` → `/slo-critique` → `/slo-execute` → `/slo-verify` → `/slo-retro` → `/slo-ship`).
+Ship `/slo-legal` v1 — NDA + Contractor SOW + IP Assignment + Terms & Conditions templates plus an advisor-pattern triage gate that refuses to `draft` when the matter is regulated, deal value > £5,000, the counterparty has their own lawyer, or the document is GDPR-related — as Milestone 1 of a 12-skill business-side SunLitOrchestra (SLO) skill pack that mirrors the existing engineering pipeline (`/slo-ideate` → `/slo-research` → `/slo-architect` → `/slo-plan` → `/slo-critique` → `/slo-execute` → `/slo-verify` → `/slo-retro` → `/slo-ship`).
 
 ## Target user (one sentence)
 
-UK-based seed-stage technical founder already running SunLitOrchestrate for the engineering side of their startup who hits a legal / business-ops wall (e.g. needing an NDA plus contractor IP-assignment before a Tuesday hiring conversation, or wondering whether to incorporate now versus later) and currently has zero in-pack scaffolding to handle the company-around-the-product side.
+UK-based seed-stage technical founder already running SunLitOrchestra for the engineering side of their startup who hits a legal / business-ops wall (e.g. needing an NDA plus contractor IP-assignment before a Tuesday hiring conversation, or wondering whether to incorporate now versus later) and currently has zero in-pack scaffolding to handle the company-around-the-product side.
 
 ## Pack scope context (so research stays grounded)
 
