@@ -1,0 +1,56 @@
+# CodeQL static analysis for the Rust workspace.
+#
+# Public repo, so Code Scanning is free. Runs on PRs into main, on pushes
+# to main, and weekly so newly published queries get a chance to fire
+# against unchanged code. Findings surface under the repo's Security tab
+# and on PRs as inline review comments.
+
+name: CodeQL
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    # Mondays 06:00 UTC — pick up new query releases on quiet code.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - rust
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@14c9a0cbe6373488c2a41f7e75c8dd142bb2aba8
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Build workspace
+        run: cargo build --workspace --all-targets --locked
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@14c9a0cbe6373488c2a41f7e75c8dd142bb2aba8
+        with:
+          category: "/language:${{ matrix.language }}"
