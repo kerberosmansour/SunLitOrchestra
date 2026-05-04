@@ -157,7 +157,7 @@ cargo test e2e_eng_imp_m5
 | Dependency / security audit | `N/A` | no dependency changes | N/A - no dependency changes | `pass` | |
 | Resource bound / invariant check | Category-existence structural test | passes | Passed: each of the 16 named high-risk skills has 7 eval Markdown files | `pass` | Fixture count command confirmed 7 per skill |
 | Compatibility check | Existing frontmatter/body test still passes for all eval files | passes | Passed in `eval_files_have_required_frontmatter`; `cargo test -p sldo-install` also passed with one unrelated warning in `e2e_biz_followup_m5.rs` | `pass` | Existing M5 hook/polish tests remain green |
-| `.gitignore` / artifact cleanup | `git status --short` | no stray artifacts | Intended ticket/test/eval changes only | `pass` | Final clean status to be recorded after commit |
+| `.gitignore` / artifact cleanup | `git status --short` | no stray artifacts | Clean after commit; ticket PR-link update only before final handoff commit | `pass` | No generated temporary files remain |
 
 ---
 
@@ -207,5 +207,5 @@ Workpad comment: https://github.com/kerberosmansour/SunLitOrchestrate/issues/22#
 
 ### PR / Issue Links
 
-- PR: `pending`
+- PR: https://github.com/kerberosmansour/SunLitOrchestrate/pull/42
 - Issue: https://github.com/kerberosmansour/SunLitOrchestrate/issues/22
