@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c 'import json\nimport os\nimport sys\n\nscope_file = os.path.expanduser(\"~/.sldo/freeze-scope.txt\")\nif not os.path.exists(scope_file):\n    sys.exit(0)\n\nwith open(scope_file, encoding=\"utf-8\") as handle:\n    frozen = handle.read().strip()\n\nif not frozen:\n    sys.exit(0)\n\ntry:\n    payload = json.load(sys.stdin)\nexcept Exception as exc:\n    print(f\"freeze: cannot inspect tool input: {exc}\", file=sys.stderr)\n    sys.exit(2)\n\ntool_input = payload.get(\"tool_input\") or {}\ntarget = \"\"\nfor key in (\"file_path\", \"path\", \"notebook_path\"):\n    value = tool_input.get(key)\n    if isinstance(value, str) and value:\n        target = value\n        break\n\nif not target:\n    sys.exit(0)\n\ncwd = payload.get(\"cwd\") or os.getcwd()\nfrozen_abs = frozen if os.path.isabs(frozen) else os.path.join(cwd, frozen)\ntarget_abs = target if os.path.isabs(target) else os.path.join(cwd, target)\nfrozen_abs = os.path.abspath(frozen_abs)\ntarget_abs = os.path.abspath(target_abs)\n\nif target_abs == frozen_abs or target_abs.startswith(frozen_abs + os.sep):\n    sys.exit(0)\n\nprint(f\"freeze: cannot edit {target!r} - it is outside the frozen scope {frozen!r}.\", file=sys.stderr)\nsys.exit(2)'"
+          }
+        ]
+      }
+    ]
+  }
+}
