@@ -219,5 +219,5 @@ Use one persistent issue comment marked `<!-- slo-ticket-workpad:v1 -->`.
 
 ### PR / Issue Links
 
-- PR: pending
+- PR: https://github.com/kerberosmansour/SunLitOrchestrate/pull/36
 - Issue: https://github.com/kerberosmansour/SunLitOrchestrate/issues/34
