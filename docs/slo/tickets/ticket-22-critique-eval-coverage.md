@@ -12,7 +12,7 @@
 |---|---|
 | Ticket Contract ID | `ticket-22-critique-eval-coverage` |
 | Source tracker | `GitHub Issues` |
-| Source issue | [#22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) |
+| Source issue | [#22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) |
 | Issue title | `Per-skill evals + hard-enforcement hooks + cross-skill polish` |
 | Labels | `enhancement` |
 | Assignee / owner | `unassigned` |
@@ -164,7 +164,7 @@ cargo test e2e_eng_imp_m5
 
 Use one persistent issue comment marked `<!-- slo-ticket-workpad:v1 -->`.
 
-Workpad comment: https://github.com/kerberosmansour/SunLitOrchestrate/issues/22#issuecomment-4371131623
+Workpad comment: https://github.com/kerberosmansour/SunLitOrchestra/issues/22#issuecomment-4371131623
 
 ---
 
@@ -206,5 +206,5 @@ Workpad comment: https://github.com/kerberosmansour/SunLitOrchestrate/issues/22#
 
 ### PR / Issue Links
 
-- PR: https://github.com/kerberosmansour/SunLitOrchestrate/pull/43
-- Issue: https://github.com/kerberosmansour/SunLitOrchestrate/issues/22
+- PR: https://github.com/kerberosmansour/SunLitOrchestra/pull/43
+- Issue: https://github.com/kerberosmansour/SunLitOrchestra/issues/22

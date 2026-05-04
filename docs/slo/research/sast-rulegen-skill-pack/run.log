@@ -13,8 +13,8 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [2026-04-25 01:12:55] ✔  claude CLI found: /Users/sherifmansour/.local/bin/claude
-[2026-04-25 01:12:55] ✔  Prompt file: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate/docs/research/sast-rulegen-skill-pack/prompt.md
-[2026-04-25 01:12:55] ✔  Repository: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate
+[2026-04-25 01:12:55] ✔  Prompt file: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestra/docs/research/sast-rulegen-skill-pack/prompt.md
+[2026-04-25 01:12:55] ✔  Repository: /Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestra
 [2026-04-25 01:12:55] ✔  Branch 'feature/biz-skill-pack' — safe to proceed.
 ──────────────────────────────────────────────────
 [2026-04-25 01:12:55] ℹ  Exploration prompt: 10026 bytes

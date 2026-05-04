@@ -136,7 +136,7 @@ This project embeds an LLM or AI agent. The following rules apply in addition to
 
 | Token | Source | Example |
 |---|---|---|
-| `{{PROJECT_NAME}}` | detected from root manifest (`name` in Cargo.toml, `name` in package.json, directory name if neither) | `sunlit-orchestrate` |
+| `{{PROJECT_NAME}}` | detected from root manifest (`name` in Cargo.toml, `name` in package.json, directory name if neither) | `sunlit-orchestra` |
 | `{{DATE}}` | today's date in ISO-8601 | `2026-04-24` |
 | `{{STACK}}` | detected stack string | `Rust + axum + tokio` |
 | `{{RUNTIME_VERSION}}` | MSRV from `Cargo.toml` or engines from `package.json` | `Rust 1.78+ (edition 2021)` |

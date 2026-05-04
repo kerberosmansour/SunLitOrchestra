@@ -1,6 +1,6 @@
-# Skill-Pack Rebuild — SunLitOrchestrate (AI-First Runbook v3)
+# Skill-Pack Rebuild — SunLitOrchestra (AI-First Runbook v3)
 
-> **Purpose**: Rebuild SunLitOrchestrate as a Claude Code skill pack that orchestrates research → design → execute sprints, while preserving the v3 runbook template as the canonical planning artifact.
+> **Purpose**: Rebuild SunLitOrchestra as a Claude Code skill pack that orchestrates research → design → execute sprints, while preserving the v3 runbook template as the canonical planning artifact.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Before starting any milestone, read its full section and the Global Execution Rules. After completing it, follow the Global Exit Rules. Never skip ahead. Never silently widen scope.
 > **Prerequisite reading**: [docs/skill-pack-catalog.md](skill-pack-catalog.md), [docs/slo/templates/runbook-template_v_3_template.md](runbook-template_v_3_template.md), [README.md](../README.md), [crates/sldo-common/src/preflight.rs](../crates/sldo-common/src/preflight.rs).
@@ -19,7 +19,7 @@
   - E2E backend: `cargo test -p sldo-install --test '*'` (per milestone also adds its own crate)
   - E2E frontend: `n/a`
   - Build/boot: `cargo build -p sldo-common -p sldo-plan -p sldo-run -p sldo-research -p sldo-install --release`
-- **Baseline note**: the `sunlit-orchestrate-tests` root crate contains a mix of integration tests. The `e2e_tauri_*` tests fail on macOS arm64 because of a broken esbuild binary under the Tauri UI's `node_modules/` (parked work). The `e2e_voice_tx_*` tests are also part of the parked Tauri / voice-transcriber scope. We therefore baseline at the library-crate level only. If anyone later un-parks Tauri, run `npm install` in `crates/sldo-tauri/ui/` first, then the full `cargo test --workspace` should pass again.
+- **Baseline note**: the `sunlit-orchestra-tests` root crate contains a mix of integration tests. The `e2e_tauri_*` tests fail on macOS arm64 because of a broken esbuild binary under the Tauri UI's `node_modules/` (parked work). The `e2e_voice_tx_*` tests are also part of the parked Tauri / voice-transcriber scope. We therefore baseline at the library-crate level only. If anyone later un-parks Tauri, run `npm install` in `crates/sldo-tauri/ui/` first, then the full `cargo test --workspace` should pass again.
 - **Allowed new dependencies by default**: `none`. Each milestone that needs a new crate declares it inline with rationale.
 - **Schema/config migration allowed by default**: `no`. Only M4/M5/M9 may touch persisted state, and they must carry migration tests.
 - **Public interfaces that must remain stable unless explicitly listed otherwise**:
@@ -55,7 +55,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                         SunLitOrchestrate Skill Pack                         │
+│                         SunLitOrchestra Skill Pack                         │
 │                                                                              │
 │   User (Claude Code session)                                                 │
 │        │                                                                     │
@@ -194,7 +194,7 @@ After every milestone:
 
 ### Current State
 
-SunLitOrchestrate is a Rust workspace with five crates:
+SunLitOrchestra is a Rust workspace with five crates:
 
 - [crates/sldo-common](../crates/sldo-common/) — shared types (preflight, detect, git, copilot, runbook, logging).
 - [crates/sldo-plan](../crates/sldo-plan/) — CLI that calls Copilot/Claude to generate a v3 runbook from a prompt + repo.
@@ -866,7 +866,7 @@ Because skills are Markdown executed inside Claude Code, E2E validation is manua
 
 ### Milestone 9 — Self-hosting validation
 
-**Goal**: Use the full skill pack to design and plan a new feature *for SunLitOrchestrate itself*, end-to-end, producing a v3 runbook that passes `/slo-critique`. If the pack cannot build the pack, the pack is not done.
+**Goal**: Use the full skill pack to design and plan a new feature *for SunLitOrchestra itself*, end-to-end, producing a v3 runbook that passes `/slo-critique`. If the pack cannot build the pack, the pack is not done.
 
 **Context**: The ultimate dogfood. Also the place where any rough edges surface — expect to need targeted fixes across earlier milestones.
 

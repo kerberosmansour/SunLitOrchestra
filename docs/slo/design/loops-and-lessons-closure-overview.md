@@ -51,7 +51,7 @@ No new runtime dependencies. No schema migrations.
         ┌────────────────┐
         │ Classify each   │     ┌─ product       ──→ current repo
         │ lesson          │ ──→ ┼─ upstream-OSS  ──→ resolved upstream repo
-        │ (LLM judgment)  │     └─ slo-process   ──→ kerberosmansour/SunLitOrchestrate
+        │ (LLM judgment)  │     └─ slo-process   ──→ kerberosmansour/SunLitOrchestra
         └────────┬───────┘
                  │
                  ▼

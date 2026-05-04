@@ -136,7 +136,7 @@ For every flagged lesson in `docs/slo/lessons/<prefix>-m<N>.md`, decide one of:
 
 - **`product`** — lesson applies to the current target product / repo. Filed against the current repo (resolved via `git config remote.origin.url`).
 - **`upstream-OSS`** — lesson applies to a third-party tool (Semgrep, Playwright, `cargo audit`, etc.). Filed against the resolved upstream repo via `.sldo/upstream-mapping.toml` (with crates.io / npm fallback).
-- **`slo-process`** — lesson applies to SunLitOrchestrate itself (skill prose, runbook template, the lessons loop mechanism). Filed against `kerberosmansour/SunLitOrchestrate`.
+- **`slo-process`** — lesson applies to SunLitOrchestra itself (skill prose, runbook template, the lessons loop mechanism). Filed against `kerberosmansour/SunLitOrchestra`.
 
 If a lesson does not fit any of the three, ask the user. Do not invent a fourth classification.
 

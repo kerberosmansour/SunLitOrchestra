@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Before opening this, please check whether an existing `/slo-*` skill already covers the use case — see [docs/skill-pack-catalog.md](../../docs/skill-pack-catalog.md).
-        For broad design discussions, prefer [Discussions](https://github.com/kerberosmansour/SunLitOrchestrate/discussions) over a feature issue.
+        For broad design discussions, prefer [Discussions](https://github.com/kerberosmansour/SunLitOrchestra/discussions) over a feature issue.
   - type: textarea
     id: problem
     attributes:

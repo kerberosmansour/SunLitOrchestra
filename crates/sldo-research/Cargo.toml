@@ -1,14 +1,23 @@
 [package]
 name = "sldo-research"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "../../README.md"
+description = "Optional Claude batch backend for the SunLit Orchestra (SLO) /slo-research skill — produces sourced research dossiers."
+keywords = ["sunlit-orchestra", "slo", "claude", "research", "skills"]
+categories = ["command-line-utilities", "development-tools"]
 
 [[bin]]
 name = "sldo-research"
 path = "src/main.rs"
 
 [dependencies]
-sldo-common = { path = "../sldo-common" }
+sldo-common = { path = "../sldo-common", version = "0.1.0" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 chrono = { workspace = true }
