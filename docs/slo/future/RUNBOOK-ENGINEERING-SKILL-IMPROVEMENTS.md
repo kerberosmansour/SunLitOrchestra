@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 1 | `references/templates/` shared library + research-validation prereq landed | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m1.md` | `docs/slo/completion/eng-imp-m1.md` |
 | 2 | `/slo-sast` decomposition into thin SKILL.md + `methodology-m1..m5.md` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m2.md` | `docs/slo/completion/eng-imp-m2.md` |
-| 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `not_started` | | | | |
+| 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m3.md` | `docs/slo/completion/eng-imp-m3.md` |
 | 4 | `/slo-plan` per-milestone authoring extracted; soft line-cap structural-contract test | `not_started` | | | | |
 | 5 | Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish | `not_started` | | | | |
 
