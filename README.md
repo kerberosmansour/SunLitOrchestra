@@ -337,6 +337,7 @@ Start here:
 - [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
 - [docs/slo/templates/ticket-contract-template_v_1.md](docs/slo/templates/ticket-contract-template_v_1.md) — compact v4-derived contract for bite-sized GitHub issue work
 - [docs/slo/templates/runbook-template_v_3_template.md](docs/slo/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
+- [references/templates/](references/templates/) — shared citation, intake, tool-safety, fallback, eval, and pinning discipline used by engineering skills
 - [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md) — engineering feedback loops (sprint, ticket, security-tuning, lessons, library-feedback)
 - [docs/LOOPS-BUSINESS.md](docs/LOOPS-BUSINESS.md) — business feedback loops (user-interview, GTM, pricing, founder-check)
 - [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) — capability matrix for install, interactive use, and headless automation
