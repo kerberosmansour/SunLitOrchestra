@@ -52,7 +52,7 @@ GitHub Issues-first path for small, reviewable work that should keep v4 rigor wi
 | `/slo-rulegen` | Bootstrap or extend Semgrep rule packs for Rust workspaces | Host-neutral. The bug-summary input can come from any agent-driven workflow. |
 | `/slo-ruleverify` | Run the deterministic SAST gate over an existing rule pack | Host-neutral. |
 | `/slo-sast` | Wire threat-model-driven SAST scanning into a target repo | Host-neutral. Subprocess invocations are `git`, `gh`, and `semgrep` — never an agent CLI. |
-| `/slo-sec-libs` | Read CycloneDX declarations and match proactive controls to advertised capabilities | Host-neutral. M1-M2 are read-only: offline Python `jsonschema` reader plus catalog-grounded matcher; no filing side effects. |
+| `/slo-sec-libs` | Read CycloneDX declarations, match proactive controls to advertised capabilities, and file confirmed intake gaps | Host-neutral. M1-M2 are read-only: offline Python `jsonschema` reader plus catalog-grounded matcher. M3 files only regex-validated, user-confirmed SLO-intake issues; no upstream filing until M4. |
 
 ## Business advisor skills
 
