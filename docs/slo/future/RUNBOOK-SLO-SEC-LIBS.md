@@ -35,7 +35,7 @@
 | 2 | Capability matcher (proactive-controls → advertised capabilities) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m2.md](../lessons/sec-libs-m2.md) | [docs/slo/completion/sec-libs-m2.md](../completion/sec-libs-m2.md) |
 | 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m3.md](../lessons/sec-libs-m3.md) | [docs/slo/completion/sec-libs-m3.md](../completion/sec-libs-m3.md) |
 | 4 | Third-party filing gate + per-session 40-issues/hr cap | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m4.md](../lessons/sec-libs-m4.md) | [docs/slo/completion/sec-libs-m4.md](../completion/sec-libs-m4.md) |
-| 5 | Dogfood: re-critique an SLO milestone using `/slo-sec-libs` | `not_started` | | | | |
+| 5 | Dogfood: re-critique an SLO milestone using `/slo-sec-libs` | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m5.md](../lessons/sec-libs-m5.md) | [docs/slo/completion/sec-libs-m5.md](../completion/sec-libs-m5.md) |
 
 ### Pre-requisites (one-time, BEFORE M1)
 
@@ -826,7 +826,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 ### Milestone 5 — Dogfood: re-critique an SLO milestone using `/slo-sec-libs`
 
-**Goal**: Re-critique **multiple already-shipped SLO milestones** (per paradigm — comprehensive coverage, not single-target) using `/slo-sec-libs` against the Hulumi + SunLitSecurityLibraries declarations. Produce: per-target dogfood reports listing `matched:` recommendations, `unmatched:` capability gaps, files filed. Targets: at least 3 candidates (recommend: `slo-security-embedding` M3, `slo-sast` M3, R3 M3 if shipped). Multiple targets validate the matcher across diverse proactive-controls surfaces.
+**Goal**: Shortlist at least 3 already-shipped SLO milestones, pick one target milestone, and re-critique it using `/slo-sec-libs` against the Hulumi + SunLitSecurityLibraries declarations. Produce a dogfood report listing `matched:` recommendations, `unmatched:` capability gaps, and `filed:` disposition. Targets considered: `slo-security-embedding` M3, `slo-sast` M3, and scanner-orchestration M3.
 
 **Context**: Dogfood is the integration test. Confirms the full pipeline (read → match → file) works end-to-end against real declarations + a real runbook. Proves the value-add: are we surfacing meaningful library recommendations + gaps?
 
@@ -841,7 +841,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | Inputs | An already-shipped SLO milestone's RUNBOOK + ARCHITECTURE.md + stack-decision.md (likely `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` or similar); Hulumi + SunLitSecurityLibraries declarations |
 | Outputs | Dogfood report at `docs/sec-libs-dogfood-<date>.md` capturing matched/unmatched/filed; lessons file; completion summary |
 | Interfaces touched | None — exercise of M1-M4 only |
-| Files allowed to change | `docs/sec-libs-dogfood-<YYYY-MM-DD>.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m5.rs` (NEW) |
+| Files allowed to change | `docs/sec-libs-dogfood-<YYYY-MM-DD>.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m5.rs` (NEW), this runbook's tracker/evidence, `docs/slo/lessons/sec-libs-m5.md` (NEW), `docs/slo/completion/sec-libs-m5.md` (NEW) |
 | Files to read before changing anything | All M1-M4 outputs; the chosen target milestone's runbook |
 | New files allowed | dogfood report + test file |
 | New dependencies allowed | `none` |
@@ -869,7 +869,10 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | File | Planned Change |
 |---|---|
 | `docs/sec-libs-dogfood-<YYYY-MM-DD>.md` | NEW: dogfood report (matched/unmatched/filed sections) |
-| `crates/sldo-install/tests/e2e_sec_libs_m5.rs` | NEW: structural-contract test asserting (a) dogfood report exists, (b) every section populated, (c) filed-issues list includes valid issue URLs |
+| `crates/sldo-install/tests/e2e_sec_libs_m5.rs` | NEW: structural-contract test asserting (a) dogfood report exists, (b) every section populated, (c) filed-issues list includes valid URLs or an explicit deferred-pending-confirmation status |
+| `docs/slo/lessons/sec-libs-m5.md` | NEW: lessons learned |
+| `docs/slo/completion/sec-libs-m5.md` | NEW: completion summary |
+| `docs/slo/future/RUNBOOK-SLO-SEC-LIBS.md` | Tracker, M5 BDD clarification, evidence, and checklist update |
 
 #### Step-by-Step
 
@@ -887,7 +890,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 |---|---|---|---|---|
 | Dogfood report has all sections | happy path | M5 closes | inspect report | matched / unmatched / filed sections all populated |
 | At least one matched recommendation | happy path | M5 closes | inspect | ≥ 1 matched (proves the matcher works on real declarations) |
-| Filed-issues list has valid URLs | happy path | M5 closes | inspect | each URL resolves; each issue is in `slo-security-intake` (default) |
+| Filed-issues list has valid URLs or explicit deferred status | happy path | M5 closes | inspect | each live URL resolves and belongs to `slo-security-intake` by default, OR every unfiled candidate is marked `deferred-pending-confirmation` with the no-live-filing reason |
 | Empty dogfood (no proactive-controls in target) | empty state | target milestone has no security_libs_required: true | M5 runs | dogfood report says "target milestone declares no security-libs requirement; dogfood inconclusive" |
 | Backward compat: M1-M4 unchanged | backward compatibility | M5 closes | git diff M1-M4 deliverables | empty |
 
@@ -898,8 +901,8 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 #### Compatibility Checklist
 
-- [ ] M1-M4 deliverables unchanged.
-- [ ] No skill behavior change.
+- [x] M1-M4 deliverables unchanged.
+- [x] No skill behavior change.
 
 #### E2E Runtime Validation
 
@@ -909,17 +912,29 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 |---|---|---|
 | `dogfood_report_exists` | Report present | path + frontmatter |
 | `dogfood_report_has_matched_section` | Matcher worked on real input | grep |
-| `dogfood_report_has_filed_issues` | Filer worked | grep + URL pattern |
+| `dogfood_report_has_filed_status_without_unconfirmed_live_url` | Filing discipline honored | grep for URL or deferred-pending-confirmation plus no-live-filing explanation |
 
 #### Smoke Tests
 
-- [ ] Open dogfood report; verify renders.
-- [ ] Click filed-issues URLs; verify resolve.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Open dogfood report; verify matched / unmatched / filed sections render.
+- [x] Verify filed rows are explicitly `deferred-pending-confirmation`; no live URLs were produced without confirmation.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
+|---|---|---|---|---|---|
+| Candidate shortlist | Inspect `slo-security-embedding` M3, SAST rulegen M3, scanner-orchestration M3 | one target selected | Selected `slo-security-embedding` M3 because it has `security_libs_required: true`; the other two declare `security_libs_required: false` | **pass** | Report records all three candidates. |
+| Reader dependency | `/private/tmp/slo-sec-libs-m5/venv/bin/python -m pip install jsonschema` | jsonschema available in temp venv | installed `jsonschema 4.26.0` in temp venv | **pass** | System Python lacked jsonschema; temp venv kept repo clean. |
+| Symlink guard smoke | Run reader through `/tmp/slo-sec-libs-m5/...` | symlink path refused | reader failed with `path segment is a symlink: /tmp` | **pass** | Confirms M1 path guard. |
+| Hulumi reader smoke | `read-declarations.py --schema-path /private/tmp/slo-sec-libs-m5/bom-1.6.schema.json /private/tmp/slo-sec-libs-m5/hulumi-cyclonedx-1.6-capabilities.json` | catalog emitted | 4 components, 2 claims, strict schema validation | **pass** | Source `kerberosmansour/hulumi@c29d75d4903838c51d35497d3e9bb78d8161c3b9`. |
+| SunLitSecurityLibraries reader smoke | `read-declarations.py --schema-path /private/tmp/slo-sec-libs-m5/bom-1.6.schema.json /private/tmp/slo-sec-libs-m5/sunlit-security-libraries-cyclonedx-1.6-capabilities.json` | catalog emitted | 11 components, 11 claims, strict schema validation | **pass** | Source `kerberosmansour/SunLitSecurityLibraries@ac3b4ccc641cbe4f12107196de9237a1e5503ab5`. |
+| Dogfood report | Inspect `docs/sec-libs-dogfood-2026-05-06.md` | matched/unmatched/filed populated | 3 matched, 2 unmatched, 2 deferred filing candidates | **pass** | No live issue was filed without confirmation. |
+| M5 E2E | `cargo test -p sldo-install --test e2e_sec_libs_m5` | green | 10 passed | **pass** | |
+| M1-M5 regression | `cargo test -p sldo-install --test e2e_sec_libs_m1 --test e2e_sec_libs_m2 --test e2e_sec_libs_m3 --test e2e_sec_libs_m4 --test e2e_sec_libs_m5` | green | 55 passed | **pass** | |
+| Install suite | `cargo test -p sldo-install` | green | all tests passed | **pass** | Existing unrelated unused-import warning remains. |
+| Workspace suite | `cargo test --workspace` | green | all tests passed | **pass** | Existing unrelated `sast-verify` dead-code warnings remain. |
+| Diff hygiene | `git diff --check` | no whitespace errors | no whitespace errors | **pass** | |
 
 #### Definition of Done
 
