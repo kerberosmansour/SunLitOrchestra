@@ -41,9 +41,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        # actions/checkout@v4.1.7 — pinned by SHA per BDD workflow_invokes_pinned_semgrep_action.
-        # Update via: gh api repos/actions/checkout/git/refs/tags/v4 then re-pin.
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        # actions/checkout@v6.0.2 — pinned by SHA per BDD workflow_invokes_pinned_semgrep_action.
+        # Update via: gh api repos/actions/checkout/git/refs/tags/v6.0.2 and re-pin.
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Rust toolchain
         # dtolnay/rust-toolchain "stable" — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
@@ -52,8 +52,8 @@ jobs:
 
       - name: Cache cargo
         # Swatinem/rust-cache@v2 — pinned by SHA per F-ENG-5 / F-SEC-4 (sap-imp M4).
-        # Re-pin via: gh api repos/Swatinem/rust-cache/git/ref/tags/v2.7.5 (latest at pin)
-        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
+        # Re-pin via: gh api repos/Swatinem/rust-cache/git/ref/tags/v2 and replace the SHA below.
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
 
       - name: Install Semgrep
         # MIN-SEMGREP-VERSION is 1.50.0 per references/sast/MIN-SEMGREP-VERSION.md.
@@ -86,7 +86,7 @@ jobs:
     needs: admission-control
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Run Semgrep CI
         # returntocorp/semgrep-action@v1 (713efdd345f3035192eaa63f56867b88e63e4e5d).

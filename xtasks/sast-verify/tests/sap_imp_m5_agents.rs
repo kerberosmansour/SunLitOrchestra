@@ -305,7 +305,7 @@ fn slo_critique_skill_md_unchanged() {
     let mut hasher = Sha256::new();
     hasher.update(&bytes);
     let hash = hasher.finalize();
-    let hex = format!("{:x}", hash);
+    let hex: String = hash.iter().map(|byte| format!("{byte:02x}")).collect();
     assert_eq!(
         hex, CRITIQUE_SKILL_SHA256,
         "skills/slo-critique/SKILL.md SHA-256 changed (expected {}, got {}) — M5 must not modify the canonical portable critique path. Update the constant only via a runbook amendment (per F-ENG-6).",

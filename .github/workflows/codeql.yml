@@ -36,13 +36,13 @@ jobs:
           - rust
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@14c9a0cbe6373488c2a41f7e75c8dd142bb2aba8
+        uses: github/codeql-action/init@0daab03d71ff584ef619d027a3fd9146679c5d84
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
@@ -51,6 +51,6 @@ jobs:
         run: cargo build --workspace --all-targets --locked
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@14c9a0cbe6373488c2a41f7e75c8dd142bb2aba8
+        uses: github/codeql-action/analyze@0daab03d71ff584ef619d027a3fd9146679c5d84
         with:
           category: "/language:${{ matrix.language }}"
