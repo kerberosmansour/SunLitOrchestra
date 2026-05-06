@@ -36,7 +36,7 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 | Ticket-sized SLO flow | `skills/slo-ticket-*` | GitHub issue → compact ticket contract → execute → verify → PR handoff |
 | Business advisor pack | `skills/slo-{legal,accounting,equity,fundraise}` | UK-only advisor flows with hard-block routing |
 | Business generator pack | `skills/slo-{talk-to-users,gtm,product,marketing,launch,sales-funnel,pricing,metrics,cofounder,hire,founder-check}` | Artifact generators for discovery, GTM, product, finance, hiring, and founder ops |
-| Security and SAST helpers | `skills/slo-{rulegen,ruleverify,sast}` | Semgrep rule generation, verification, and SAST wiring |
+| Security and SAST helpers | `skills/slo-{rulegen,ruleverify,sast,sec-libs}` | Semgrep rule generation, verification, SAST wiring, and CycloneDX declarations reading |
 | Utilities | `skills/slo-{freeze,resume,second-opinion}` | Session control, resumption, and disagreement surfacing |
 | Vendored helper | `skills/get-api-docs` | Third-party API doc fetches via `chub` |
 | Examples gallery | `examples/` | Synthetic, non-normative gallery (7 files) showing what shipped SLO outputs look like — read [`examples/README.md`](../examples/README.md). Not installable; not consumed by any skill. |
@@ -64,7 +64,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - `references/security/` holds shared security finding and assessment summary templates used by review / verification skills, plus the curated CWE × OWASP × ASVS × OpenCRE table at [`references/security/standards-mapping.md`](../references/security/standards-mapping.md) (added by sap-imp M3).
 - `references/sast/` holds SAST-specific references consumed by the security tooling and rule-pack work.
 - `references/templates/` holds shared cross-skill discipline templates for citation hierarchy, intake, restate-and-confirm, tool safety, output frontmatter, escalation, eval cases, heuristic numbers, rate limiting, fallback handling, and version pinning.
-- `skills/<skill>/references/` holds skill-local methodology files that travel with the installed skill symlink; `/slo-sast` uses this pattern for its M1-M5 operating procedures, `/slo-tla` uses it for elicitation / abstraction / counterexample / verified-design guidance, and `/slo-plan` uses it for per-milestone authoring.
+- `skills/<skill>/references/` holds skill-local methodology files that travel with the installed skill symlink; `/slo-sast` uses this pattern for its M1-M5 operating procedures, `/slo-sec-libs` uses it for declaration-reader methodology, `/slo-tla` uses it for elicitation / abstraction / counterexample / verified-design guidance, and `/slo-plan` uses it for per-milestone authoring.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
 
 ### Hooks and evals
@@ -174,7 +174,7 @@ The current host line is simple:
 - Headless runtime automation is still Claude-specific where it exists today.
 - `/slo-research` interactive use is multi-host today; `sldo-research` remains an optional Claude batch backend.
 - `/slo-second-opinion` is host-neutral: it compares the current host against an external provider CLI (Codex or Gemini), and never silently falls back to asking the current host to imitate the other provider.
-- `/slo-rulegen` and `/slo-sast` are host-neutral; their subprocess discipline targets `git`, `gh`, and `semgrep` rather than any agent CLI.
+- `/slo-rulegen`, `/slo-sast`, and `/slo-sec-libs` are host-neutral; their subprocess discipline targets local tools such as `git`, `gh`, `python3`, and `semgrep` rather than any agent CLI.
 - The live business judgment runtime harness remains a Claude-only path. The helper module (`crates/sldo-install/tests/common/claude_runtime.rs`) and its env vars (`BIZ_JUDGMENT_RUNTIME_*`) are explicitly Claude-named.
 
 Read `docs/slo/design/agent-host-capabilities.md` before making any stronger host-compatibility promise than that.

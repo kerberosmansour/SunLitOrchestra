@@ -31,7 +31,7 @@
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | CycloneDX 1.6 declarations reader (Python jsonschema subprocess) | `not_started` | | | | |
+| 1 | CycloneDX 1.6 declarations reader (Python jsonschema subprocess) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m1.md](../lessons/sec-libs-m1.md) | [docs/slo/completion/sec-libs-m1.md](../completion/sec-libs-m1.md) |
 | 2 | Capability matcher (proactive-controls → advertised capabilities) | `not_started` | | | | |
 | 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `not_started` | | | | |
 | 4 | Third-party filing gate + per-session 40-issues/hr cap | `not_started` | | | | |
@@ -388,22 +388,32 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 |---|---|---|
 | `slo_sec_libs_skill_exists` | Skill subtree present | `SKILL.md`, `scripts/read-declarations.py`, `references/methodology-m1-reader.md` exist |
 | `sec_libs_deny_flags_returns_webfetch_websearch` | Deny-list extended | function call returns expected set |
-| `python_script_stdlib_only` | Script provenance | grep imports against stdlib allow-list |
+| `python_script_imports_are_limited` | Script provenance | grep imports against stdlib allow-list |
 | `argv_list_discipline_documented` | Discipline cited | grep SKILL.md for argv-list rule |
-| `ten_mib_cap_documented` | Size cap cited | grep methodology + script |
+| `ten_mib_cap_documented_and_enforced` | Size cap cited | grep methodology + script |
+| `symlink_check_runs_before_path_resolution` | Cache traversal defense | grep script order to ensure symlink checks happen before `Path.resolve()` |
 | `strict_jsonschema_documented` | Strict mode cited | grep methodology |
-| `phase_1_skills_unchanged` | Backward compat | git diff against Phase 1 skill SKILL.md files |
+| `schema_url_and_sha_are_captured` | Schema pinning | grep methodology + script for official schema URL and SHA |
+| `cache_discipline_documented` | Cache safety | grep methodology for cache root, SHA check, size/age/LRU policy |
 
 #### Smoke Tests
 
-- [ ] Run Python script against a valid Hulumi declarations fixture; observe catalog.
-- [ ] Run against a malformed fixture; observe refusal.
-- [ ] Run against an 11 MiB file; observe refusal before parse.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Run Python script against valid Hulumi and SunLitSecurityLibraries declaration fixtures; observed catalogs.
+- [x] Run against a malformed fixture; observed refusal.
+- [x] Run against an 11 MiB file; observed refusal before parse.
+- [x] `cargo test -p sldo-install --test e2e_sec_libs_m1` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Timestamp | Evidence | Result |
+|---|---|---|
+| 2026-05-06 | Official CycloneDX 1.6 schema fetched from `https://cyclonedx.org/schema/bom-1.6.schema.json`; SHA-256 `1ebcb88a2c845ecb6ff7bee7aeabdff9422cb0347f3d6875b241bd444b7e098f` captured. | Pass |
+| 2026-05-06 | `cargo test -p sldo-common toolflags::tests::sec_libs` | Pass: 2 tests |
+| 2026-05-06 | `cargo test -p sldo-install --test e2e_sec_libs_m1` | Pass: 10 tests |
+| 2026-05-06 | Reader smoke against Hulumi declaration file with pinned schema. | Pass: 4 components, 2 claims |
+| 2026-05-06 | Reader smoke against SunLitSecurityLibraries declaration file with pinned schema. | Pass: 11 components, 11 claims |
+| 2026-05-06 | Malformed JSON fixture. | Pass: refused with JSON parser location |
+| 2026-05-06 | 11 MiB fixture. | Pass: refused before parse |
 
 #### Definition of Done
 

@@ -36,6 +36,12 @@ const CANONICAL_TEMPLATES: &[&str] = &[
 /// Tests run with `CARGO_MANIFEST_DIR` set to the package being tested
 /// (`xtasks/sast-verify`). The workspace root is two levels up.
 fn workspace_root() -> PathBuf {
+    if let Ok(cwd) = std::env::current_dir() {
+        if cwd.join("skills").is_dir() && cwd.join("Cargo.toml").is_file() {
+            return cwd;
+        }
+    }
+
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     PathBuf::from(manifest_dir)
         .parent()

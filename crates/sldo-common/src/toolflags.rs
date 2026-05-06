@@ -65,6 +65,20 @@ pub fn ruleverify_deny_flags() -> Vec<String> {
     vec!["--disallowedTools=Write,Edit,WebFetch,WebSearch".to_string()]
 }
 
+/// Allow flags for `/slo-sec-libs` M1.
+///
+/// The declaration reader is offline and only shells out to local `python3`,
+/// `git`, and later `gh` commands. It must not fetch schema/declaration content
+/// through agent web tools; those sources are pinned and cached explicitly.
+pub fn sec_libs_allow_flags() -> Vec<String> {
+    vec!["--allowedTools=Read,Bash,Glob,Grep".to_string()]
+}
+
+/// Deny flags for `/slo-sec-libs` — defense-in-depth.
+pub fn sec_libs_deny_flags() -> Vec<String> {
+    vec!["--disallowedTools=WebFetch,WebSearch".to_string()]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -185,6 +199,23 @@ mod tests {
         let combined = flags.join(",");
         assert!(combined.contains("Write"));
         assert!(combined.contains("Edit"));
+        assert!(combined.contains("WebFetch"));
+        assert!(combined.contains("WebSearch"));
+    }
+
+    // /slo-sec-libs toolflags — offline declarations reader.
+
+    #[test]
+    fn sec_libs_allow_flags_excludes_webfetch_and_websearch() {
+        let flags = sec_libs_allow_flags();
+        assert!(!flags.iter().any(|f| f.contains("WebFetch")));
+        assert!(!flags.iter().any(|f| f.contains("WebSearch")));
+    }
+
+    #[test]
+    fn sec_libs_deny_flags_explicitly_lists_webfetch_and_websearch() {
+        let flags = sec_libs_deny_flags();
+        let combined = flags.join(",");
         assert!(combined.contains("WebFetch"));
         assert!(combined.contains("WebSearch"));
     }

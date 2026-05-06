@@ -34,6 +34,12 @@ const ALLOWED_OUTPUT_PATH_PREFIXES: &[&str] = &["docs/slo/critique/", "docs/slo/
 const AGENT_FILE_LINE_CAP: usize = 200;
 
 fn workspace_root() -> PathBuf {
+    if let Ok(cwd) = std::env::current_dir() {
+        if cwd.join("skills").is_dir() && cwd.join("Cargo.toml").is_file() {
+            return cwd;
+        }
+    }
+
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     PathBuf::from(manifest_dir)
         .parent()
