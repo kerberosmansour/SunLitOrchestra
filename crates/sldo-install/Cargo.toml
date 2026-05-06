@@ -23,7 +23,7 @@ colored = { workspace = true }
 chrono = { workspace = true }
 sldo-common = { path = "../sldo-common", version = "0.1.1" }
 serde = { version = "1", features = ["derive"] }
-toml = "0.8"
+toml = "1.1"
 
 [dev-dependencies]
 tempfile = "3"

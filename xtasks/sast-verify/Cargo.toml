@@ -26,4 +26,4 @@ pulldown-cmark = { workspace = true }
 regex = { workspace = true }
 serde_yaml_ng = { workspace = true }
 chrono = { workspace = true }
-sha2 = "0.10"
+sha2 = "0.11"

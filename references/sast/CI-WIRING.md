@@ -29,7 +29,7 @@ Runs `semgrep ci --config .semgrep/` against the user's source. Fails the PR on 
 
 ### Pin maintenance
 
-- `actions/checkout` SHA: pinned to `692973e3d937129bcbf40652eb9f2f61becf3332` (v4.1.7). Update via `gh api repos/actions/checkout/git/refs/tags/v4` and re-pin.
+- `actions/checkout` SHA: pinned to `de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2). Update via `gh api repos/actions/checkout/git/refs/tags/v6.0.2` and re-pin.
 - `returntocorp/semgrep-action` SHA: pin to the latest release tag's SHA at deploy time. The workflow currently has the `uses:` line gated by `if: false` and falls back to direct `semgrep` CLI invocation while the action SHA is being maintained.
 - Semgrep pinned at `>= 1.50.0` per `references/sast/MIN-SEMGREP-VERSION.md`.
 
