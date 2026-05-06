@@ -8,7 +8,7 @@
 
 - New `docs/slo/design/host-capability-matrix.md` — capability matrix for Claude Code + GitHub Copilot, with green-lit decisions for both M4 (plugin packaging) and M5 (agent files with Copilot fallback documented).
 - New `.claude-plugin/plugin.json` — minimal manifest pointing at the canonical `skills/` tree. No skill duplication; no path traversal; no absolute paths.
-- New `.github/workflows/release-zip.yml` — SHA-pinned release-zip workflow triggered on `v*` tag push only. Generates the artifact via `git archive --format=zip --prefix=sunlit-orchestrate-${TAG}/ HEAD` (no runner working-dir leakage). Explicit `permissions: contents: write` block — no other scope.
+- New `.github/workflows/release-zip.yml` — SHA-pinned release-zip workflow triggered on `v*` tag push only. Generates the artifact via `git archive --format=zip --prefix=sunlit-orchestra-${TAG}/ HEAD` (no runner working-dir leakage). Explicit `permissions: contents: write` block — no other scope.
 - Updated `.github/workflows/semgrep.yml` (allow-list extension): SHA-pinned `dtolnay/rust-toolchain@stable` and `Swatinem/rust-cache@v2`; added explicit `permissions: contents: read` block.
 - New `xtasks/sast-verify/tests/sap_imp_m4_workflow_pinning.rs` — 6-test structural-contract test enforcing SHA-pin format, permissions block presence, decision-doc structure, plugin.json path safety, release workflow trigger discipline, and `git archive` requirement.
 - Updated `README.md` with optional Claude-plugin install section + Examples section (M2 carry-over). README explicitly preserves "Rust installer remains canonical" wording.
@@ -75,7 +75,7 @@
 ## Naming conventions established
 
 - `dist/` for build outputs (zip artifact lands here; `.gitignore` will need to include it).
-- `sunlit-orchestrate-${TAG}` as the release zip prefix (matches the project name + tag, idiomatic for `git archive --prefix`).
+- `sunlit-orchestra-${TAG}` as the release zip prefix (matches the project name + tag, idiomatic for `git archive --prefix`).
 
 ## Test patterns that worked well
 

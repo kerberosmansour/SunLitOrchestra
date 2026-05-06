@@ -1,10 +1,10 @@
-# SunLitOrchestrate Architecture
+# SunLit Orchestra Architecture
 
 > **Reality-first orientation doc**: this file describes what is implemented at HEAD. Planned work belongs in `docs/slo/design/*.md` and in feature runbooks.
 
 ## Overview
 
-SunLitOrchestrate ships three cooperating layers:
+SunLit Orchestra ships three cooperating layers:
 
 1. A Markdown skill pack under `skills/`.
 2. A host-aware installer in `crates/sldo-install/`.
@@ -63,7 +63,15 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - `references/biz/` holds shared business-pack scaffolding such as gates, jurisdiction notes, templates, and regulator indexes.
 - `references/security/` holds shared security finding and assessment summary templates used by review / verification skills, plus the curated CWE × OWASP × ASVS × OpenCRE table at [`references/security/standards-mapping.md`](../references/security/standards-mapping.md) (added by sap-imp M3).
 - `references/sast/` holds SAST-specific references consumed by the security tooling and rule-pack work.
+- `references/templates/` holds shared cross-skill discipline templates for citation hierarchy, intake, restate-and-confirm, tool safety, output frontmatter, escalation, eval cases, heuristic numbers, rate limiting, fallback handling, and version pinning.
+- `skills/<skill>/references/` holds skill-local methodology files that travel with the installed skill symlink; `/slo-sast` uses this pattern for its M1-M5 operating procedures, `/slo-tla` uses it for elicitation / abstraction / counterexample / verified-design guidance, and `/slo-plan` uses it for per-milestone authoring.
 - These trees are read by skills, but they are not discovered as installable skills because `sldo-install` only walks `skills/<name>/SKILL.md`.
+
+### Hooks and evals
+
+- High-risk skills may carry documented expectations under `skills/<skill>/evals/*.md`. These are Markdown cases for manual checks today and for a future runtime harness later; the shared case shape lives in `references/templates/eval-cases.md`.
+- The project-local Claude Code freeze hook lives in `.claude/settings.json`. It is opt-in, watches `Edit|Write|NotebookEdit`, and reads `~/.sldo/freeze-scope.txt` to block edits outside the active `/slo-freeze` scope.
+- Hook setup guidance lives in `references/freeze/hook-setup.md`. The hook is a guardrail for accidental edits, not a security boundary; deleting the session-state file disables enforcement.
 
 ## Rust workspace
 
@@ -76,7 +84,7 @@ The current workspace has four active members:
 | `crates/sldo-install` | Host-aware installer for the skill pack |
 | `xtasks/sast-verify` | Deterministic Semgrep validation, coverage, and gate runner |
 
-The root package `sunlit-orchestrate-tests` hosts workspace-level integration tests in `tests/`.
+The root package `sunlit-orchestra-tests` hosts workspace-level integration tests in `tests/`.
 
 ## Shared library: `sldo-common`
 

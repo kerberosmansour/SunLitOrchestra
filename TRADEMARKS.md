@@ -1,6 +1,6 @@
 # Trade-marks
 
-**SunLitOrchestrate** and the associated logo are unregistered trade-marks of **Sherif Mansour**.
+**SunLit Orchestra** and the associated logo are unregistered trade-marks of **Sherif Mansour**.
 
 The dual licence on this repository ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0) OR [MIT](https://opensource.org/licenses/MIT)) grants you rights in the **code**. It does **not** grant you rights in the **name** or **logo**:
 
@@ -10,21 +10,21 @@ The dual licence on this repository ([Apache License, Version 2.0](https://www.a
 ## What you may do without permission
 
 - Use, modify, distribute, and sublicense the code under the terms of either Apache-2.0 or MIT (your choice).
-- Refer to the project by name in factual, descriptive, non-endorsing ways — e.g. *"compatible with SunLitOrchestrate"*, *"a fork of SunLitOrchestrate"*, *"based on SunLitOrchestrate"* — provided the use does not imply sponsorship, affiliation, or endorsement.
+- Refer to the project by name in factual, descriptive, non-endorsing ways — e.g. *"compatible with SunLit Orchestra"*, *"a fork of SunLit Orchestra"*, *"based on SunLit Orchestra"* — provided the use does not imply sponsorship, affiliation, or endorsement.
 - Use the name in academic citation, journalism, technical documentation, or commentary.
 
 ## What requires written permission
 
-- Using **SunLitOrchestrate** as the name (or part of the name) of a fork, derivative, product, service, or company.
+- Using **SunLit Orchestra** as the name (or part of the name) of a fork, derivative, product, service, or company.
 - Using the **logo** in any context other than unmodified inclusion in the source tree.
 - Any use that could reasonably create confusion as to the origin or sponsorship of a fork or derivative.
-- Domain registrations containing **sunlitorchestrate** or confusingly similar variants.
+- Domain registrations containing **sunlitorchestra** or confusingly similar variants.
 
 If you fork the project and modify it materially, please rename the fork. The Apache 2.0 / MIT licences guarantee your right to fork; the trade-mark reservation guarantees that the name continues to identify the upstream project.
 
 ## Requesting permission
 
-Open a GitHub issue tagged `trademark` at https://github.com/kerberosmansour/SunLitOrchestrate or contact Sherif Mansour directly via the contact details in the GitHub profile.
+Open a GitHub issue tagged `trademark` at https://github.com/kerberosmansour/SunLitOrchestra or contact Sherif Mansour directly via the contact details in the GitHub profile.
 
 ## Future assignment
 

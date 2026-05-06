@@ -24,7 +24,8 @@ docs/legal
 # CLI and code-agent local state/logs
 .sldo-logs/
 .copilot-logs/
-.claude/
+.claude/*
+!.claude/settings.json
 .codex/
 .copilot/
 .cursor/
@@ -50,7 +51,7 @@ docs/biz/
 .sldo/
 
 # Release zip outputs from .github/workflows/release-zip.yml (sap-imp M4 green-lit).
-# The workflow generates `dist/sunlit-orchestrate-${TAG}.zip` via `git archive HEAD`
+# The workflow generates `dist/sunlit-orchestra-${TAG}.zip` via `git archive HEAD`
 # and uploads it to GitHub Releases via softprops/action-gh-release. Local dry-runs
 # of `gh release create --draft` produce the same file in `dist/`; never commit it.
 dist/

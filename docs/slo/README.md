@@ -1,4 +1,4 @@
-# `docs/slo/` — SunLitOrchestrate runbooks and milestone artifacts
+# `docs/slo/` — SunLit Orchestra runbooks and milestone artifacts
 
 Everything under this directory is **work / task information** produced by the `/slo-*` skill pack: runbooks, milestone outputs, design notes, research dossiers, and templates. Code-level documentation (`docs/ARCHITECTURE.md`, `docs/getting-started.md`, `docs/skill-pack-catalog.md`, `docs/LOOPS-*.md`, `docs/PARADIGM-*.md`) lives one level up at `docs/`.
 

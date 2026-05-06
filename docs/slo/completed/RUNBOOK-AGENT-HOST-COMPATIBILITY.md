@@ -1,4 +1,4 @@
-# Agent-Host Compatibility Cleanup — SunLitOrchestrate (AI-First Runbook v3)
+# Agent-Host Compatibility Cleanup — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Make the SLO skill pack work cleanly in multiple skill-capable coding agents, starting with Claude Code and GitHub Copilot, by removing hidden Claude-only assumptions from installation, living docs, interactive skill flows, and test harness naming while preserving existing skill names and artifact contracts. Treat open-source user documentation as a first-class deliverable: README and getting-started usage docs must be as intentional and testable as the code.  
 > **Audience**: AI coding agents first, humans second. This document is written to reduce ambiguity, prevent scope drift, and keep the portability work honest about what is truly host-neutral versus what remains Claude-only batch automation.  
@@ -69,7 +69,7 @@ Provide a complete architecture diagram of the proposed end state after all mile
 flowchart LR
     User[User in current host agent]
 
-    subgraph Repo[SunLitOrchestrate repo]
+    subgraph Repo[SunLitOrchestra repo]
         Skills[skills/*/SKILL.md]
         Catalog[docs/skill-pack-catalog.md]
         Install[sldo-install]
@@ -307,7 +307,7 @@ Do this after every milestone.
 
 ### Current State
 
-SunLitOrchestrate today is a mixed Markdown-skill and Rust-tooling repo with four active workspace members in [Cargo.toml](../Cargo.toml): `sldo-common`, `sldo-research`, `sldo-install`, and `xtasks/sast-verify`. The skill pack itself lives under [skills](../skills/), where each skill is a directory containing `SKILL.md`. That contract is already compatible with GitHub Copilot's installed-skill layout on this machine (`~/.copilot/skills/get-api-docs/SKILL.md` exists and uses the same frontmatter/body shape).
+SunLitOrchestra today is a mixed Markdown-skill and Rust-tooling repo with four active workspace members in [Cargo.toml](../Cargo.toml): `sldo-common`, `sldo-research`, `sldo-install`, and `xtasks/sast-verify`. The skill pack itself lives under [skills](../skills/), where each skill is a directory containing `SKILL.md`. That contract is already compatible with GitHub Copilot's installed-skill layout on this machine (`~/.copilot/skills/get-api-docs/SKILL.md` exists and uses the same frontmatter/body shape).
 
 The main portability blockers are not the skill file format. They are the surrounding assumptions. [crates/sldo-install/src/main.rs](../crates/sldo-install/src/main.rs), [crates/sldo-install/src/paths.rs](../crates/sldo-install/src/paths.rs), and [crates/sldo-install/tests/install_e2e.rs](../crates/sldo-install/tests/install_e2e.rs) hardcode `.claude` roots and only implement `claude-code` as a host. [CLAUDE.md](../CLAUDE.md), [README.md](../README.md), [skills/README.md](../skills/README.md), [docs/skill-pack-catalog.md](skill-pack-catalog.md), and [docs/ARCHITECTURE.md](ARCHITECTURE.md) still present Claude-specific guidance as canonical project truth. Several historical docs also reference removed legacy crates and outdated baselines.
 

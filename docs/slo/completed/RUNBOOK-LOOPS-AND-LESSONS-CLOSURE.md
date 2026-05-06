@@ -1,9 +1,9 @@
-# Loops + Lessons Closure — SunLitOrchestrate (AI-First Runbook v3)
+# Loops + Lessons Closure — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Make engineering loops and business loops first-class artifacts; extend `/slo-retro` to file lessons as tracked issues; close the loop at milestone start so prior-retro issues become scope candidates for the current milestone; and make "what do I do next?" a first-class answer via the existing `/slo-resume` entrypoint.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Before starting any milestone, read its full section and the Global Execution Rules. After completing it, follow the Global Exit Rules.
-> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/loops-and-lessons-closure-overview.md](design/loops-and-lessons-closure-overview.md), [docs/slo/idea/loops-and-lessons-closure.md](idea/loops-and-lessons-closure.md), [docs/slo/research/loops-and-lessons-closure/synthesis.md](research/loops-and-lessons-closure/synthesis.md), [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16), [Issue #17](https://github.com/kerberosmansour/SunLitOrchestrate/issues/17), [Issue #18](https://github.com/kerberosmansour/SunLitOrchestrate/issues/18)
+> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/loops-and-lessons-closure-overview.md](design/loops-and-lessons-closure-overview.md), [docs/slo/idea/loops-and-lessons-closure.md](idea/loops-and-lessons-closure.md), [docs/slo/research/loops-and-lessons-closure/synthesis.md](research/loops-and-lessons-closure/synthesis.md), [Issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16), [Issue #17](https://github.com/kerberosmansour/SunLitOrchestra/issues/17), [Issue #18](https://github.com/kerberosmansour/SunLitOrchestra/issues/18)
 
 ---
 
@@ -45,7 +45,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                  SunLitOrchestrate skill pack                           │
+│                  SunLitOrchestra skill pack                           │
 │                                                                          │
 │  ┌────────────────┐         ┌──────────────────────┐                     │
 │  │ ARCHITECTURE.md│ ◀─────▶ │  docs/LOOPS-          │ ◀─────────┐        │
@@ -77,7 +77,7 @@
 │  │  destinations:                                       │         │        │
 │  │    - product → current repo                         │         │        │
 │  │    - upstream-OSS → resolved upstream repo          │ - - - ─ ┘        │
-│  │    - slo-process → kerberosmansour/SunLitOrchestrate│                  │
+│  │    - slo-process → kerberosmansour/SunLitOrchestra│                  │
 │  │  fallback: LESSONS-BACKLOG.md                       │                  │
 │  └────────────────────────────┬────────────────────────┘                  │
 │                               │                                            │
@@ -298,7 +298,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 
 **Goal**: A `docs/LOOPS-ENGINEERING.md` that documents at minimum the four engineering loops (sprint, security-tuning, lessons, library-feedback), cross-linked from `ARCHITECTURE.md` and from each implicated engineering SKILL.md, with a newcomer-friendly "Start here" orienter at the top.
 
-**Context**: The project has no engineering-loops doc today. Issue [#17](https://github.com/kerberosmansour/SunLitOrchestrate/issues/17) is the canonical decision record for "split from business loops, separate doc, separate concerns" + "living doc, no staleness check" + "no per-runbook declaration of loops".
+**Context**: The project has no engineering-loops doc today. Issue [#17](https://github.com/kerberosmansour/SunLitOrchestra/issues/17) is the canonical decision record for "split from business loops, separate doc, separate concerns" + "living doc, no staleness check" + "no per-runbook declaration of loops".
 
 **Important design rule**: Match the closest existing design-doc style (likely `docs/slo/design/scanner-orchestration-overview.md`) for ASCII vs Mermaid choice. The doc opens with a short "Start here" orienter (`question -> loop -> first skill -> expected artifact`). Per loop: user-visible outcome, trigger, steps, exit condition, artifacts, skills involved, diagram.
 
@@ -332,7 +332,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 #### Pre-Flight
 
 1. Complete Global Entry Rules.
-2. Read [Issue #17](https://github.com/kerberosmansour/SunLitOrchestrate/issues/17) end-to-end.
+2. Read [Issue #17](https://github.com/kerberosmansour/SunLitOrchestra/issues/17) end-to-end.
 3. Survey every engineering SKILL.md to identify which ones participate in which loop.
 4. Pick diagram format (ASCII vs Mermaid) by inspecting `docs/slo/design/` for the dominant style.
 
@@ -446,7 +446,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 
 **Goal**: A `docs/LOOPS-BUSINESS.md` document covering at minimum the four business loops (user-interview, GTM, pricing, founder-check), cross-linked from each implicated biz SKILL.md, with a newcomer-friendly "Start here" orienter at the top.
 
-**Context**: Issue [#18](https://github.com/kerberosmansour/SunLitOrchestrate/issues/18) is the canonical decision record. Same shape as M1; biz domain. Possible additional loops to inventory before authoring: fundraise loop, cofounder loop, hiring loop, legal-triage loop (Issue #18 Q1 leaves these as open additions).
+**Context**: Issue [#18](https://github.com/kerberosmansour/SunLitOrchestra/issues/18) is the canonical decision record. Same shape as M1; biz domain. Possible additional loops to inventory before authoring: fundraise loop, cofounder loop, hiring loop, legal-triage loop (Issue #18 Q1 leaves these as open additions).
 
 **Important design rule**: Match M1's diagram style for consistency. The doc opens with a short "Start here" orienter (`question -> loop -> first skill -> expected artifact`). Per loop: user-visible outcome, trigger, steps, exit condition, artifacts, skills involved, diagram.
 
@@ -479,7 +479,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 #### Pre-Flight
 
 1. Complete Global Entry Rules.
-2. Read [Issue #18](https://github.com/kerberosmansour/SunLitOrchestrate/issues/18) end-to-end including thread comments for any inventory additions.
+2. Read [Issue #18](https://github.com/kerberosmansour/SunLitOrchestra/issues/18) end-to-end including thread comments for any inventory additions.
 3. Survey every biz SKILL.md to identify loop participation.
 4. Decide: are there 4 loops (Issue #18 inventory) or 5+ (added during runbook execution)? Confirm with project owner if more than 4.
 
@@ -561,7 +561,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 
 **Goal**: `/slo-retro` extends to classify each lesson (product / upstream-OSS / slo-process), dedupe via `gh search`, and file as an issue with user confirmation. Fallback to `LESSONS-BACKLOG.md` if `gh` is unavailable. The lessons file is still written first; issue filing is additive after.
 
-**Context**: [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) is the canonical decision record. Decisions: extension of `/slo-retro` (not a separate skill), dedupe via `gh search` first, never auto-file (always confirm), reuse rate-limit discipline from `/slo-sec-libs`, fallback to local file when no tracker configured.
+**Context**: [Issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) is the canonical decision record. Decisions: extension of `/slo-retro` (not a separate skill), dedupe via `gh search` first, never auto-file (always confirm), reuse rate-limit discipline from `/slo-sec-libs`, fallback to local file when no tracker configured.
 
 **Important design rule**: Issue filing is ADDITIVE — the existing lessons file write happens unchanged first; classification + filing run after. If filing fails, the lessons file is still safely on disk.
 
@@ -597,7 +597,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 1. Complete Global Entry Rules.
 2. Read [`skills/slo-retro/SKILL.md`](../skills/slo-retro/SKILL.md) end-to-end.
 3. Read `skills/slo-sast/SKILL.md` M5 (the argv-list + no-`--repo` discipline anchor).
-4. Read [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) thread for marker decision.
+4. Read [Issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) thread for marker decision.
 5. **Spike step**: test `gh search` reliability against three marker options (title prefix `[retro]`, label `retro-derived`, body sentinel `<!-- retro-derived -->`) on a small populated set. Document the choice in the lessons file before locking it.
 6. Decide explicit upstream-mapping format: `.sldo/upstream-mapping.toml` with crates.io / npm fallback resolution.
 
@@ -704,7 +704,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 
 **Goal**: `/slo-execute M<N>` pre-flight queries open issues filed by `/slo-retro` for prior milestones in this runbook's prefix; surfaces them as scope candidates with a suggested lane (`micro | milestone | fresh-runbook`); user decides each milestone's bounds. Runbook template gains an optional "Carry-forward from prior retros" section so the loop is visible in the artifact, not just in the skill flow.
 
-**Context**: [Issue #16](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) decision: "close the loop in execution flow ... runbook template should reflect this — don't bolt it onto the skill alone." [Issue #16 Q3](https://github.com/kerberosmansour/SunLitOrchestrate/issues/16) decision (folded into this runbook): the template change lives here.
+**Context**: [Issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) decision: "close the loop in execution flow ... runbook template should reflect this — don't bolt it onto the skill alone." [Issue #16 Q3](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) decision (folded into this runbook): the template change lives here.
 
 **Important design rule**: Surfacing is informational, not auto-additive. The user decides each milestone's bounds; the skill never auto-extends the allow-list. The surface should reduce, not add, ceremony: at most the top 3 carry-forward items are shown inline, each with a suggested lane and a one-line why.
 
@@ -773,7 +773,7 @@ See template (`docs/slo/completion/loops-m<N>.md`).
 | `gh` unavailable | dependency failure | `gh` missing | pre-flight runs | warns + proceeds (does not block on gh-availability for this informational read) |
 | `gh` returns rate-limit | dependency failure (paradigm: comprehensive degraded states) | `gh issue list` returns 403 secondary rate-limit | pre-flight | applies 5s timeout; falls back to "carry-forward unavailable; gh rate-limited at <retry_after>"; never hangs |
 | Tampered issue body smuggles prompt | abuse case (`tm-loops-abuse-6`) | issue body contains `<role>system</role>` payload | pre-flight surfaces issue | issue body wrapped in `~~~text` fence in stdout; agent treats as literal text |
-| Issue was transferred to another repo | dependency failure (paradigm: comprehensive degraded states) | retro-derived issue moved from current repo to `kerberosmansour/SunLitOrchestrate` | `gh issue list` returns it under different repo | carry-forward surfaces with `[transferred from <origin>]` annotation; does NOT auto-follow the cross-repo reference |
+| Issue was transferred to another repo | dependency failure (paradigm: comprehensive degraded states) | retro-derived issue moved from current repo to `kerberosmansour/SunLitOrchestra` | `gh issue list` returns it under different repo | carry-forward surfaces with `[transferred from <origin>]` annotation; does NOT auto-follow the cross-repo reference |
 | Issue closed but linked PR is open | dependency failure | issue closed by referencing PR `Fixes #N` but PR is unmerged | carry-forward query | surfaces as "closed-via-PR-pending"; user decides whether to track |
 | Issue is a `gh` cache stale-read | dependency failure | local `gh` cache returns issue last-known-state from 2 weeks ago | carry-forward query | carry-forward annotates "freshness: cached <timestamp>"; user can `gh repo refresh` and re-run |
 | Multi-runbook prefix collision | edge case | two runbooks share a prefix accidentally (e.g., both `loops`) | carry-forward query | filter is by exact prefix; if collision, surface BOTH as "ambiguous prefix; consider runbook ID renaming" |

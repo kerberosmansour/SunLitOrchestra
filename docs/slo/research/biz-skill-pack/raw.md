@@ -22,7 +22,7 @@ This dossier is a structured research artifact produced by `sldo-research`. It i
 
 ## Project Structure
 
-One level deep from repo root (`/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestrate`):
+One level deep from repo root (`/Users/sherifmansour/Documents/Dev/GitHub/SunLitOrchestra`):
 
 - `Cargo.toml`, `Cargo.lock`, `Makefile`, `README.md`, `CLAUDE.md`, `SECURITY.md` — workspace root + project docs.
 - `crates/` — Rust workspace members:

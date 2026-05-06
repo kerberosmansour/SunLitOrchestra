@@ -1,4 +1,4 @@
-# SunLitOrchestrate — GitHub Copilot overlay
+# SunLit Orchestra — GitHub Copilot overlay
 
 This file is the GitHub Copilot overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in GitHub Copilot and want the Copilot-specific install path, reading order, and limitations.
 
@@ -12,7 +12,16 @@ If you are new to the repo, start with [docs/getting-started.md](docs/getting-st
 
 ## Install into GitHub Copilot
 
-From the repo root:
+Fastest path — install from crates.io:
+
+```bash
+cargo install sldo-install
+sldo-install --host github-copilot
+sldo-install --host github-copilot status
+sldo-install --host github-copilot verify
+```
+
+From a checkout (when iterating on the skill pack itself):
 
 ```bash
 cargo build -p sldo-install --release
@@ -24,6 +33,8 @@ cargo build -p sldo-install --release
 Project-local install:
 
 ```bash
+sldo-install --host github-copilot --local
+# or, from a checkout:
 ./target/release/sldo-install --host github-copilot --local
 ```
 

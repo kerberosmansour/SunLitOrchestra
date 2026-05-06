@@ -1,4 +1,4 @@
-//! sldo-common — shared library for SunLitOrchestrate Rust tools.
+//! sldo-common — shared library for SunLitOrchestra Rust tools.
 
 pub mod claude_cli;
 pub mod color;

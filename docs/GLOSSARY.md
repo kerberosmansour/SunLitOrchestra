@@ -1,6 +1,6 @@
 # Glossary
 
-Terms and acronyms used across the SunLitOrchestrate skill pack, runbook templates, and reference docs. Add an entry the first time you find yourself defining a term in a PR description.
+Terms and acronyms used across the SunLit Orchestra skill pack, runbook templates, and reference docs. Add an entry the first time you find yourself defining a term in a PR description.
 
 ## Core concepts
 

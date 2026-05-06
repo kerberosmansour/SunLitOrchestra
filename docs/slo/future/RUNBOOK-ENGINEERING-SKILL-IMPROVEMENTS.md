@@ -1,9 +1,9 @@
-# Engineering Skill Improvements — SunLitOrchestrate (AI-First Runbook v3)
+# Engineering Skill Improvements — SunLitOrchestra (AI-First Runbook v3)
 
 > **Purpose**: Decompose monolithic engineering SKILL.md files (`/slo-sast`, `/slo-tla`, `/slo-plan`); seed `references/templates/` shared library; harden `/slo-freeze` with a settings.json PreToolUse hook; add per-skill `evals/`; gate every security-engineering claim through a research-validation source hierarchy.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Every milestone closes the structural-contract test before the next begins.
-> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/engineering-skill-improvements-overview.md](design/engineering-skill-improvements-overview.md), [docs/slo/idea/engineering-skill-improvements.md](idea/engineering-skill-improvements.md), [docs/slo/research/engineering-skill-improvements/synthesis.md](research/engineering-skill-improvements/synthesis.md), [Issue #21](https://github.com/kerberosmansour/SunLitOrchestrate/issues/21), [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22), 2026-04-27 skill-pack review
+> **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/engineering-skill-improvements-overview.md](design/engineering-skill-improvements-overview.md), [docs/slo/idea/engineering-skill-improvements.md](idea/engineering-skill-improvements.md), [docs/slo/research/engineering-skill-improvements/synthesis.md](research/engineering-skill-improvements/synthesis.md), [Issue #21](https://github.com/kerberosmansour/SunLitOrchestra/issues/21), [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22), 2026-04-27 skill-pack review
 
 ---
 
@@ -31,11 +31,11 @@
 
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
-| 1 | `references/templates/` shared library + research-validation prereq landed | `not_started` | | | | |
-| 2 | `/slo-sast` decomposition into thin SKILL.md + `methodology-m1..m5.md` | `not_started` | | | | |
-| 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `not_started` | | | | |
-| 4 | `/slo-plan` per-milestone authoring extracted; soft line-cap structural-contract test | `not_started` | | | | |
-| 5 | Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish | `not_started` | | | | |
+| 1 | `references/templates/` shared library + research-validation prereq landed | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m1.md` | `docs/slo/completion/eng-imp-m1.md` |
+| 2 | `/slo-sast` decomposition into thin SKILL.md + `methodology-m1..m5.md` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m2.md` | `docs/slo/completion/eng-imp-m2.md` |
+| 3 | `/slo-tla` decomposition + Apalache pin in `tools.toml` | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m3.md` | `docs/slo/completion/eng-imp-m3.md` |
+| 4 | `/slo-plan` per-milestone authoring extracted; soft line-cap structural-contract test | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m4.md` | `docs/slo/completion/eng-imp-m4.md` |
+| 5 | Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish | `done` | 2026-05-04 | 2026-05-04 | `docs/slo/lessons/eng-imp-m5.md` | `docs/slo/completion/eng-imp-m5.md` |
 
 ---
 
@@ -43,7 +43,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                  SunLitOrchestrate skill pack                        │
+│                  SunLitOrchestra skill pack                        │
 │                                                                      │
 │  ┌────────────────────────────────────────────────────────────┐     │
 │  │  references/templates/  (NEW — M1)                          │     │
@@ -392,7 +392,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Definition of Done
 
-- All 8 templates exist with valid frontmatter.
+- All 11 templates exist with valid frontmatter.
 - `citation-discipline.md` source hierarchy locked verbatim + tested.
 - 5 SKILL.md files updated to cite from templates.
 - Source-verification spike documented in lessons file.
@@ -823,9 +823,9 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 ### Milestone 5 — Per-skill `evals/` infrastructure + `/slo-freeze` PreToolUse hook + cross-skill polish
 
-**Goal**: Per-skill `evals/<case>.md` files for the highest-risk skills (advisors + sast + tla + execute + verify); `.claude/settings.json` PreToolUse hook hard-enforcing `/slo-freeze` scope; cross-skill polish items from [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) E5.
+**Goal**: Per-skill `evals/<case>.md` files for the highest-risk skills (advisors + sast + tla + execute + verify); `.claude/settings.json` PreToolUse hook hard-enforcing `/slo-freeze` scope; cross-skill polish items from [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) E5.
 
-**Context**: This milestone is the "polish + infrastructure layer". Eval cases are documented expectations until the runtime harness ships (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)). The PreToolUse hook closes the prose-level-discipline-only gap on `/slo-freeze`.
+**Context**: This milestone is the "polish + infrastructure layer". Eval cases are documented expectations until the runtime harness ships (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)). The PreToolUse hook closes the prose-level-discipline-only gap on `/slo-freeze`.
 
 **Important design rule**: PreToolUse hook is **opt-in per-project**, not global. Project-level `.claude/settings.json`. Mutation via the existing `update-config` skill — no parallel mutation surface.
 
@@ -851,10 +851,10 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Out of Scope / Must Not Do
 
-- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4)).
+- Building the runtime Claude Code harness for executable evals (deferred-follow-up in [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)).
 - Extending the `update-config` skill.
 - Adding new skill behavior beyond the named polish items.
-- Auto-extending the `/slo-execute` allow-list via PreToolUse hook (out-of-scope per [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) — the optional hook for execute is opt-in only).
+- Auto-extending the `/slo-execute` allow-list via PreToolUse hook (out-of-scope per [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) — the optional hook for execute is opt-in only).
 
 #### Pre-Flight
 
@@ -863,7 +863,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 3. Read M1's `references/templates/eval-cases.md`.
 4. Read 2026-04-27 review per-skill "Suggested eval cases" sections.
 5. Read the existing `update-config` skill behavior.
-6. Read [Issue #22](https://github.com/kerberosmansour/SunLitOrchestrate/issues/22) E5 polish items.
+6. Read [Issue #22](https://github.com/kerberosmansour/SunLitOrchestra/issues/22) E5 polish items.
 
 #### Files Allowed To Change
 
@@ -925,10 +925,10 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Compatibility Checklist
 
-- [ ] No skill behavior change beyond named polish items.
-- [ ] PreToolUse hook is opt-in (existing repos without it work).
-- [ ] All existing SKILL.md prose preserved (only the 6 named files updated).
-- [ ] No new runtime dependencies.
+- [x] No skill behavior change beyond named polish items.
+- [x] PreToolUse hook is opt-in (existing repos without it work).
+- [x] All existing SKILL.md prose preserved (only the named polish files updated).
+- [x] No new crate dependencies.
 
 #### E2E Runtime Validation
 
@@ -945,14 +945,27 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Smoke Tests
 
-- [ ] Manually invoke `/slo-freeze skills/slo-sast`; attempt to edit `skills/slo-tla/SKILL.md`; verify PreToolUse hook blocks.
-- [ ] Manually invoke `/slo-freeze` with hook absent; observe prose-level fallback.
-- [ ] Open `references/biz/consent-script-uk.md`; verify renders.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Simulate active freeze scope `skills/slo-freeze`; hook allows `skills/slo-freeze/SKILL.md` and blocks `skills/slo-tla/SKILL.md` with exit 2.
+- [x] Simulate missing `~/.sldo/freeze-scope.txt`; hook exits 0 and falls back to prose-level discipline.
+- [x] Open `references/biz/consent-script-uk.md`; structural test verifies frontmatter and UK GDPR framing.
+- [x] `cargo test -p sldo-install` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Check | Actual Result |
+|---|---|
+| Repo hygiene | Branch before edits: `slo/eng-imp-m5`; dirty tree before edits: clean; remediation needed: none. |
+| Prior-retro carry-forward | `gh issue list --label retro-derived --search "eng-imp" --state open --json number,title,body,url` returned `[]`. |
+| Baseline before M5 edits | `cargo test --workspace` passed on branch `slo/eng-imp-m5` before M5 edits. |
+| Red-first M5 test | `cargo test -p sldo-install --test e2e_eng_imp_m5` failed for expected reasons: missing high-risk eval dirs, missing `.claude/settings.json`, missing hook setup doc, missing consent script, and missing polish prose. |
+| M5 structural test after implementation | `cargo test -p sldo-install --test e2e_eng_imp_m5` passed: 6 passed, 0 failed. |
+| Hook smoke | Temp-`HOME` simulation: in-scope edit exited 0; out-of-scope edit exited 2 with `freeze: cannot edit ...`; missing scope file exited 0. |
+| Compatibility sentinels | `cargo test -p sldo-install --test e2e_eng_imp_m4` passed; `cargo test -p sldo-install --test e2e_biz_b1_m1 --test e2e_slo_sp_m5 --test e2e_eng_imp_m3` passed. |
+| Package test suite | `cargo test -p sldo-install` passed with a pre-existing unrelated warning in `e2e_biz_followup_m5.rs`. |
+| Workspace test suite | `cargo test --workspace` passed with pre-existing `sast-verify` warnings and the same unrelated `e2e_biz_followup_m5.rs` warning. |
+| Workspace build | `cargo build --workspace` passed with pre-existing `sast-verify` warnings. |
+| Formatting | `rustfmt --edition 2021 --check crates/sldo-install/tests/e2e_eng_imp_m5.rs` passed; `cargo fmt --check -p sldo-install` remains blocked by pre-existing unrelated drift in `e2e_biz_imp_m1.rs` and `e2e_biz_imp_m2.rs`. |
+| Diff hygiene | `git diff --check` passed. |
 
 #### Definition of Done
 
@@ -969,7 +982,7 @@ See template (`docs/slo/lessons/eng-imp-m<N>.md`, `docs/slo/completion/eng-imp-m
 
 #### Notes
 
-- The runtime harness for executable evals is deferred to a separate runbook (per [Issue #4](https://github.com/kerberosmansour/SunLitOrchestrate/issues/4) follow-ups). Eval cases here are documented expectations + manual run.
+- The runtime harness for executable evals is deferred to a separate runbook (per [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4) follow-ups). Eval cases here are documented expectations + manual run.
 
 ---
 

@@ -1,6 +1,6 @@
 # Skill Pack Catalog
 
-> **Status**: canonical living catalog of shipped SunLitOrchestrate skills at HEAD.
+> **Status**: canonical living catalog of shipped SunLit Orchestra skills at HEAD.
 > **Audience**: contributors, host-overlay authors, and users deciding which skill to run.
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).

@@ -1,6 +1,6 @@
 # Shared security reporting references
 
-This directory holds shared output shapes for security findings and assessment summaries emitted by SunLitOrchestrate skills.
+This directory holds shared output shapes for security findings and assessment summaries emitted by SunLit Orchestra skills.
 
 Use these references when a skill produces security-relevant findings, especially:
 

@@ -141,7 +141,7 @@ docker run --rm -v "$PWD/output:/reports" \
 
 ## Target-repo `.gitignore` snippet
 
-Users can paste the following into the TARGET repo's `.gitignore` to ensure Pass 4 output artifacts do not leak into version control. **Do NOT add these patterns to SunLitOrchestrate's own `.gitignore`** — SLO is not typically the target of Pass 4.
+Users can paste the following into the TARGET repo's `.gitignore` to ensure Pass 4 output artifacts do not leak into version control. **Do NOT add these patterns to SunLitOrchestra's own `.gitignore`** — SLO is not typically the target of Pass 4.
 
 ```
 # Pass 4 security outputs (security-pass-commands.md)

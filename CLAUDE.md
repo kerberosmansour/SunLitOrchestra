@@ -1,4 +1,4 @@
-# SunLitOrchestrate — Claude Code overlay
+# SunLit Orchestra — Claude Code overlay
 
 This file is the Claude Code overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in Claude Code and need Claude-specific session notes. For the host-neutral list of shipped skills, read the catalog first. For GitHub Copilot-specific notes, read [copilot-instructions.md](copilot-instructions.md). For Codex-specific notes, read [AGENTS.md](AGENTS.md).
 
@@ -92,7 +92,16 @@ The workspace contains four crates: `sldo-common` (shared library), `sldo-resear
 
 ## Installing the pack on this machine
 
-From the repo root:
+The fastest path is `cargo install` from crates.io:
+
+```bash
+cargo install sldo-install
+sldo-install                # global: ~/.claude/skills/
+sldo-install --dry-run      # preview
+sldo-install uninstall      # reverse
+```
+
+From a checkout (when iterating on the skill pack itself):
 
 ```bash
 cargo build -p sldo-install --release

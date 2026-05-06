@@ -11,13 +11,13 @@
 - **Symlinks, not copies.** Skills live in the repo and symlink into `~/.claude/skills/`. Rationale: zero sync cost, edits propagate immediately, uninstall is trivial. Copy-based installers need version tracking or invalidation logic; symlinks don't.
 - **Manifest at `~/.sldo/install.toml`.** A separate file, not inside `~/.claude/`. Rationale: Claude Code owns `~/.claude/`; we don't want to collide with or pollute its state.
 - **Uninstall preserves user-modified symlinks.** If someone replaces our symlink with their own, we leave it alone and warn. This mirrors how package managers handle `/etc` drop-ins.
-- **Library crates baseline only.** The integration tests crate (`sunlit-orchestrate-tests`) has Tauri and voice-tx e2e tests that depend on parked work. Rather than fix those or delete them, we baseline per-crate. Documented in the runbook so the next milestone knows the rule.
+- **Library crates baseline only.** The integration tests crate (`sunlit-orchestra-tests`) has Tauri and voice-tx e2e tests that depend on parked work. Rather than fix those or delete them, we baseline per-crate. Documented in the runbook so the next milestone knows the rule.
 
 ## Mistakes made
 - First baseline attempt used `cargo test --workspace --exclude sldo-tauri -- --skip e2e_tauri`. The `--skip` flag filters by test-function name inside a binary, not by binary name. The tauri integration tests have function names like `frontend_dist_exists_after_build`, so `--skip e2e_tauri` didn't touch them. Moved to per-crate `-p` filtering.
 
 ## Root causes
-- The `sunlit-orchestrate-tests` root crate has `[[test]]` entries for every milestone of every prior runbook, including parked Tauri work. The failing test is purely environmental (esbuild arm64 binary missing in the Tauri UI's `node_modules/`), not a regression from this branch. But a red baseline is a red baseline.
+- The `sunlit-orchestra-tests` root crate has `[[test]]` entries for every milestone of every prior runbook, including parked Tauri work. The failing test is purely environmental (esbuild arm64 binary missing in the Tauri UI's `node_modules/`), not a regression from this branch. But a red baseline is a red baseline.
 
 ## What was harder than expected
 - Getting `cargo test` to skip specific test *binaries* (not test functions) cleanly. Cargo has `--exclude` for crates but no direct "exclude this binary in a keep-other-binaries crate" flag.

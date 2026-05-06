@@ -15,7 +15,7 @@ security_libs_reason: >
   (Phase 4) can match runbook requirements to library capabilities.
 ai_component: true
 ai_component_reason: >
-  SunLitOrchestrate orchestrates Claude Code (the `claude` CLI subprocess). The
+  SunLitOrchestra orchestrates Claude Code (the `claude` CLI subprocess). The
   MITRE ATLAS + OWASP LLM Top 10 + NIST AI RMF triad applies — see the threat
   model file for citations.
 compliance: [soc2, asvs]
