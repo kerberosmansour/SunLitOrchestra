@@ -2,6 +2,8 @@
 
 Everything under this directory is **work / task information** produced by the `/slo-*` skill pack: runbooks, milestone outputs, design notes, research dossiers, and templates. Code-level documentation (`docs/ARCHITECTURE.md`, `docs/getting-started.md`, `docs/skill-pack-catalog.md`, `docs/LOOPS-*.md`, `docs/PARADIGM-*.md`) lives one level up at `docs/`.
 
+Historical artifacts in `completed/`, `completion/`, and `lessons/` may retain the former secure-libraries repo spelling used at the time they were written. Live docs should use the canonical public repo: `kerberosmansour/SunLitSecurityLibraries`.
+
 ## Layout
 
 | Path | What lives here |

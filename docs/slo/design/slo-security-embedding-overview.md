@@ -10,7 +10,7 @@ tla_reason: >
   subprocess invocation.
 security_libs_required: true
 security_libs_reason: >
-  This feature exists to integrate with Hulumi and SunLitSecureLibraries, and
+  This feature exists to integrate with Hulumi and SunLitSecurityLibraries, and
   to ship the reading side of CycloneDX 1.6+ declarations so /slo-sec-libs
   (Phase 4) can match runbook requirements to library capabilities.
 ai_component: true
@@ -30,7 +30,7 @@ compliance_reason: >
 
 ## System goal
 
-Thread security through every stage of the SLO skill pack so the AI agents executing SLO runbooks produce artifacts with threat models, abuse-case BDD scenarios, class-elimination critiques, proactive-control adoption nudges, and a feedback loop to the two upstream security libraries (Hulumi, SunLitSecureLibraries). Do this without turning the skill pack into a compiled codebase — prompts stay in Markdown, deterministic steps shell out.
+Thread security through every stage of the SLO skill pack so the AI agents executing SLO runbooks produce artifacts with threat models, abuse-case BDD scenarios, class-elimination critiques, proactive-control adoption nudges, and a feedback loop to the two upstream security libraries (Hulumi, SunLitSecurityLibraries). Do this without turning the skill pack into a compiled codebase — prompts stay in Markdown, deterministic steps shell out.
 
 ## Planned architecture (this feature)
 
@@ -87,7 +87,7 @@ Solid lines exist today. Dashed lines are added by the Phase 1 runbook (M1–M4)
 │ (local subprocess)    │  │ (Python subprocess,    │  │   ├─► SLO-owned intake repo   │
 │                       │  │  local)                │  │   │   (default)              │
 │ Semgrep CE            │  │                        │  │   └─► kerberosmansour/hulumi,  │
-│ ast-grep 0.42         │  │ optional: Ollama       │  │       SunLitSecureLibraries   │
+│ ast-grep 0.42         │  │ optional: Ollama       │  │       SunLitSecurityLibraries   │
 │ (local subprocess)    │  │ (local subprocess)     │  │       (gated, user-confirmed,  │
 │                       │  │                        │  │        ≤40 issues/hr)         │
 └───────────────────────┘  └────────────────────────┘  └───────────────────────────────┘
@@ -115,7 +115,7 @@ Phase 1 introduces three new artifact shapes in the target repo SLO is directing
 - **Reality-first `docs/ARCHITECTURE.md`.** Any planned work produced by `/slo-architect` for this feature stays in `docs/slo/design/` or the runbook Target Architecture section — it does not enter ARCHITECTURE.md until shipped.
 - **Threat model is generated, not prompted.** `/slo-architect` produces the threat-model file in one pass; the user reviews, does not author from scratch. 80/20 burden per Google PSC.
 - **Escape hatches are documented residual risk.** `/slo-execute` may accept overrides of secure-default recommendations (e.g. using raw `String` instead of `SecureJson` type) only when the justification is written into the milestone's Evidence Log as a tracked residual risk — never a silent waiver.
-- **Filing upstream is gated.** `/slo-sec-libs` (Phase 4) files into the SLO-owned intake repo by default. Filing against `kerberosmansour/hulumi` or `sunlitsecurelibraries/*` requires an explicit user-provided flag and is capped at 40 issues/hr per session.
+- **Filing upstream is gated.** `/slo-sec-libs` (Phase 4) files into the SLO-owned intake repo by default. Filing against `kerberosmansour/hulumi` or `kerberosmansour/SunLitSecurityLibraries` requires an explicit user-provided flag and is capped at 40 issues/hr per session.
 - **No promised round-trip fidelity across formats.** OSCAL ↔ CycloneDX mapping is asserted by NIST CSWP 53 ipd but not published as a lossless table (synthesis). If SLO ever emits both, losses are documented rather than hidden.
 
 ## Residual risks carried into /slo-plan

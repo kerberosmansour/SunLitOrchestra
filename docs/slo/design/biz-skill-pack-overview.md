@@ -12,7 +12,7 @@ security_libs_required: false
 security_libs_reason: >
   This feature is prose-shaped Markdown skills, not a runtime system. There
   is no axum service, no Pulumi infra, no multi-tenant auth surface where
-  Hulumi or SunLitSecureLibraries components would be candidates. The
+  Hulumi or SunLitSecurityLibraries components would be candidates. The
   security work here is template-injection defense, output-artifact
   containment (gitignore discipline), and oneNDA byte-verbatim verification —
   none of which map to the upstream security libraries.

@@ -13,9 +13,9 @@ tla_required: false
 
 The gap: when a milestone declares "this surface needs an Argon2id password hasher", the agent has no source-of-truth for *which* library covers that requirement at the runbook's pinned version. It defaults to whatever lib the model recalls — exactly the failure mode `/slo-research` exists to prevent.
 
-Hulumi (Pulumi components for AWS) and SunLitSecureLibraries (Rust security crates) are designed to advertise their capabilities via CycloneDX 1.6+ `declarations` — but no skill reads those declarations. So the libraries' designed-in advertisability is dead weight.
+Hulumi (Pulumi components for AWS) and SunLitSecurityLibraries (Rust security crates) are the public declaration-source repos for this workflow. SunLitSecurityLibraries already advertises capabilities via CycloneDX 1.6+ `declarations`; Hulumi still needs its declaration artifact landed on `main`; no SLO skill reads either source yet.
 
-Concrete failure: a runbook with `security_libs_required: true` and a "secure JSON deserialization" requirement gets a paraphrased `serde_json` recommendation when SunLitSecureLibraries' `secure_boundary::SecureJson` (which advertises `C5` proactive control with parametric configuration) would be the right call.
+Concrete failure: a runbook with `security_libs_required: true` and a "secure JSON deserialization" requirement gets a paraphrased `serde_json` recommendation when SunLitSecurityLibraries' `secure_boundary::SecureJson` (which advertises `C5` proactive control with parametric configuration) would be the right call.
 
 A secondary failure: when the recommender finds **no** library that covers a requirement, today the gap dies as a comment in a lessons file. A capability-gap issue should be filed against the library owner's intake repo so the gap is tracked as work, not lost as text.
 
@@ -54,7 +54,7 @@ Approach A. 5 milestones. M1 declarations reader; M2 capability matcher; M3 SLO-
 The runbook depends on three one-time pre-requisites (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)):
 
 1. Create `kerberosmansour/slo-security-intake` repo with `ISSUE_TEMPLATE` populated.
-2. Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi` and `SunLitSecureLibraries`.
+2. Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`; `kerberosmansour/SunLitSecurityLibraries` already has `declarations/cyclonedx-1.6-capabilities.json` on `main`.
 3. Confirm `gh` CLI scopes (`repo` or `public_repo`) on contributor machines.
 
 These prereqs are out-of-band of this runbook — flagged in the runbook's Background Context section so the author can confirm them before M1.

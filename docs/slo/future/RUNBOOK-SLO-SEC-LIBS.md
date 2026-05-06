@@ -1,6 +1,6 @@
 # /slo-sec-libs — Phase 4 of slo-security-embedding (AI-First Runbook v3)
 
-> **Purpose**: Add a `/slo-sec-libs` skill that reads target repo's CycloneDX 1.6+ declarations from Hulumi + SunLitSecureLibraries; matches each runbook proactive-control requirement against advertised library capabilities; recommends a specific component or files a structured capability-gap issue.
+> **Purpose**: Add a `/slo-sec-libs` skill that reads target repo's CycloneDX 1.6+ declarations from Hulumi + SunLitSecurityLibraries; matches each runbook proactive-control requirement against advertised library capabilities; recommends a specific component or files a structured capability-gap issue.
 > **Audience**: AI coding agents first, humans second.
 > **How to use**: Work through milestones sequentially. Pre-requisites (one-time) must complete BEFORE M1.
 > **Prerequisite reading**: [ARCHITECTURE.md](../ARCHITECTURE.md), [docs/slo/design/slo-sec-libs-overview.md](design/slo-sec-libs-overview.md), [docs/slo/idea/slo-sec-libs.md](idea/slo-sec-libs.md), [docs/slo/research/slo-sec-libs/synthesis.md](research/slo-sec-libs/synthesis.md), [docs/slo/research/slo-security-embedding/synthesis.md](research/slo-security-embedding/synthesis.md), [Issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)
@@ -39,10 +39,11 @@
 
 ### Pre-requisites (one-time, BEFORE M1)
 
-- [ ] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only).
-- [ ] Populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
-- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`. Each crate / component advertises controls (use `cdx:sunlit:crypto:*` namespace for parametric crypto claims).
-- [ ] Add CycloneDX 1.6 `declarations` JSON to `SunLitSecureLibraries`. Same shape.
+- [x] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only).
+- [x] Populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
+- [x] Confirm declaration-source repos are public: `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries`.
+- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`. Each crate / component advertises controls (use `cdx:sunlit:crypto:*` namespace for parametric crypto claims). Seed PR <https://github.com/kerberosmansour/hulumi/pull/63> was closed unmerged; as of 2026-05-06 the file is not on `main`.
+- [x] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/SunLitSecurityLibraries`: <https://github.com/kerberosmansour/SunLitSecurityLibraries/blob/main/declarations/cyclonedx-1.6-capabilities.json>.
 - [ ] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner; `repo` for cross-repo fork+PR fallback) on contributor machines.
 
 ---
@@ -57,7 +58,7 @@
 │  - target repo's ARCHITECTURE.md + stack-decision.md                    │
 │  - target repo's RUNBOOK-<slug>.md proactive-controls rows              │
 │  - pinned CycloneDX schema SHA                                          │
-│  - pinned Hulumi + SunLitSecureLibraries declaration SHA per source     │
+│  - pinned declaration SHA per source (Hulumi + SunLitSecurityLibraries) │
 │                                                                          │
 │  ┌───────────────────────────────────────────────────────────────┐     │
 │  │ Pre-flight (every invocation):                                 │     │
@@ -131,14 +132,14 @@
 | `skills/slo-sec-libs/references/upstream-filing-discipline.md` | argv-list + no-`--repo` + rate-limit | M3-M4 | Cited from SKILL.md |
 | `crates/sldo-common::toolflags::sec_libs_deny_flags()` | Skill-flag denial: `WebFetch`, `WebSearch` denied | M1 | SLO-CLI invocation layer |
 | `kerberosmansour/slo-security-intake` (repo) | Default capability-gap filing destination | Pre-req | `gh issue create` target |
-| Hulumi + SunLitSecureLibraries CycloneDX 1.6 declarations | Capability advertisement | Pre-req | JSON in each repo's release artifacts |
+| Hulumi + `kerberosmansour/SunLitSecurityLibraries` CycloneDX 1.6 declarations | Capability advertisement | Pre-req | JSON in each repo's release artifacts |
 | `~/.cache/sldo/declarations/<sha>/` | Pinned-SHA cache | M1 | Local FS |
 
 ### Data Flow Summary
 
 | Flow | From | To | Protocol/Mechanism | Milestone |
 |---|---|---|---|---|
-| Declarations fetch | Hulumi / SunLitSecureLibraries repo | Local cache | `git clone` (argv-list) → cache | M1 |
+| Declarations fetch | Hulumi / SunLitSecurityLibraries repo | Local cache | `git clone` (argv-list) → cache | M1 |
 | Declarations parse | Python subprocess | stdout JSON | `python3 scripts/read-declarations.py` (argv-list) | M1 |
 | Capability match | runbook proactive-controls | catalog | LLM judgment + matcher rules | M2 |
 | Capability-gap filing | unmatched record | GitHub | `gh issue create` (argv-list, no `--repo`) | M3-M4 |
@@ -181,18 +182,19 @@ See template. Specifics:
 What works:
 
 - Phase 1 makes runbooks security-aware at the planning + critique + verify level.
-- Hulumi (Pulumi components for AWS) and SunLitSecureLibraries (Rust security crates) advertise capabilities via CycloneDX (existing repos).
+- `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries` are public declaration-source repos.
+- `kerberosmansour/SunLitSecurityLibraries` already advertises capabilities via CycloneDX 1.6 declarations.
 - `/slo-sast` ships the SAST orchestration (separate program).
 
 What does not work:
 
 - When a runbook milestone declares "this surface needs an Argon2id password hasher", the agent has no source-of-truth for which library covers that requirement at the runbook's pinned version. Defaults to whatever the model recalls.
-- Hulumi + SunLitSecureLibraries' CycloneDX advertising is dead weight — no skill reads the declarations.
+- Hulumi's CycloneDX declaration artifact is still pending on `main`, and no skill reads the available declarations yet.
 - When the recommender finds NO library that covers a requirement, the gap dies in lessons file commentary. No upstream filing.
 
 ### Problem
 
-1. **No declarations reader**: Phase 1 produces security-aware runbooks; Phase 4 needs to consume the per-library capability advertising that Hulumi + SunLitSecureLibraries already publish.
+1. **No declarations reader**: Phase 1 produces security-aware runbooks; Phase 4 needs to consume per-library capability advertising from `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries`; the latter already publishes declarations and Hulumi remains a prereq.
 2. **No capability matcher**: declarations alone don't pick the library; the matcher reads runbook proactive-controls rows and matches.
 3. **No capability-gap filing**: gaps die in markdown.
 4. **Rust ecosystem lacks 1.6+ declarations support** ([Phase 1 research Q2](research/slo-security-embedding/synthesis.md)): `cyclonedx-bom 0.8.1` is spec-1.5 only. Python jsonschema subprocess is the path; matches Phase 2 SecOpsTM precedent.
@@ -204,9 +206,9 @@ See "End-to-End Architecture Diagram" above.
 
 ### Key Design Principles
 
-0. **Over-engineering for simplicity**: per [`docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md`](PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md), `/slo-sec-libs` exemplifies the paradigm at the security-library scale. A human-driven library-feedback loop ("file capability gaps upstream") routinely fails because filing 10 issues per quarter is 5 hours of cumulative effort, and developers shortcut to "good enough libraries". The LLM-driven `/slo-sec-libs` files capability gaps as structured records with regex-validated schema, per-session 40-issues/hr cap, argv-list discipline, no `--repo` flag, multi-layer Unicode-trick + billion-laughs + symlink-traversal defenses — all costing the user nothing visible. The user sees: "your runbook needed Argon2id; here's the SunLitSecureLibraries crate that advertises it with parametrics; we filed gaps upstream for the 2 unmatched controls."
+0. **Over-engineering for simplicity**: per [`docs/PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md`](PARADIGM-OVER-ENGINEERING-FOR-SIMPLICITY.md), `/slo-sec-libs` exemplifies the paradigm at the security-library scale. A human-driven library-feedback loop ("file capability gaps upstream") routinely fails because filing 10 issues per quarter is 5 hours of cumulative effort, and developers shortcut to "good enough libraries". The LLM-driven `/slo-sec-libs` files capability gaps as structured records with regex-validated schema, per-session 40-issues/hr cap, argv-list discipline, no `--repo` flag, multi-layer Unicode-trick + billion-laughs + symlink-traversal defenses — all costing the user nothing visible. The user sees: "your runbook needed Argon2id; here's the SunLitSecurityLibraries crate that advertises it with parametrics; we filed gaps upstream for the 2 unmatched controls."
 
-1. **Reader-side only this phase**: no Rust CycloneDX emitter work; declarations come from Hulumi + SunLitSecureLibraries; SLO reads them.
+1. **Reader-side only this phase**: no Rust CycloneDX emitter work; declarations come from `kerberosmansour/hulumi` + `kerberosmansour/SunLitSecurityLibraries`; SLO reads them.
 2. **Python jsonschema subprocess**: matches Phase 2 precedent; Rust ecosystem will catch up later.
 3. **SLO-owned intake repo as default**: `kerberosmansour/slo-security-intake`; same-owner authentication; user controls issue-template shape.
 4. **Third-party filing is gated**: `--file-upstream` flag + per-session 40-issues/hr cap.
@@ -298,7 +300,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 | Field | Value |
 |---|---|
-| Inputs | Pinned CycloneDX 1.6 schema URL + SHA; pinned Hulumi + SunLitSecureLibraries declaration source SHAs; Python 3.10+ + jsonschema availability |
+| Inputs | Pinned CycloneDX 1.6 schema URL + SHA; pinned Hulumi + SunLitSecurityLibraries declaration source SHAs; Python 3.10+ + jsonschema availability |
 | Outputs | `skills/slo-sec-libs/SKILL.md` (skeleton); `scripts/read-declarations.py`; `references/methodology-m1-reader.md`; `crates/sldo-common::toolflags::sec_libs_deny_flags()`; structured-contract test |
 | Interfaces touched | NEW skill subtree; toolflag deny-list extension |
 | Files allowed to change | `skills/slo-sec-libs/SKILL.md` (NEW), `skills/slo-sec-libs/scripts/read-declarations.py` (NEW), `skills/slo-sec-libs/references/methodology-m1-reader.md` (NEW), `crates/sldo-common/src/toolflags.rs` (extend), `crates/sldo-install/tests/e2e_sec_libs_m1.rs` (NEW) |
@@ -324,7 +326,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 1. Complete Global Entry Rules.
 2. Visit https://cyclonedx.org/docs/1.6/json/ at runbook-author time. Capture schema URL + SHA.
-3. Confirm pre-requisites complete (intake repo + Hulumi/SunLitSecureLibraries declarations exist).
+3. Confirm pre-requisites complete (intake repo exists; both source repos are public; Hulumi/SunLitSecurityLibraries declarations exist).
 4. Read `crates/sldo-common/src/toolflags.rs` for the existing deny-list pattern.
 5. Read R2 M1's `references/templates/citation-discipline.md` for source hierarchy.
 
@@ -662,7 +664,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 ### Milestone 4 — Third-party filing gate + rate-limit cap
 
-**Goal**: `--file-upstream` flag enables filing to library-owner repos (Hulumi, SunLitSecureLibraries, etc.); per-session 40-issues/hr cap as defensive cap against GitHub secondary rate limits; spillover to `LESSONS-BACKLOG.md` on cap-exceeded.
+**Goal**: `--file-upstream` flag enables filing to library-owner repos (Hulumi, SunLitSecurityLibraries, etc.); per-session 40-issues/hr cap as defensive cap against GitHub secondary rate limits; spillover to `LESSONS-BACKLOG.md` on cap-exceeded.
 
 **Context**: GitHub secondary rate-limit point costs are undocumented (Phase 1 research Q5). 40-issues/hr is a defensive cap derived from public Octokit benchmarks.
 
@@ -776,7 +778,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 ### Milestone 5 — Dogfood: re-critique an SLO milestone using `/slo-sec-libs`
 
-**Goal**: Re-critique **multiple already-shipped SLO milestones** (per paradigm — comprehensive coverage, not single-target) using `/slo-sec-libs` against the Hulumi + SunLitSecureLibraries declarations. Produce: per-target dogfood reports listing `matched:` recommendations, `unmatched:` capability gaps, files filed. Targets: at least 3 candidates (recommend: `slo-security-embedding` M3, `slo-sast` M3, R3 M3 if shipped). Multiple targets validate the matcher across diverse proactive-controls surfaces.
+**Goal**: Re-critique **multiple already-shipped SLO milestones** (per paradigm — comprehensive coverage, not single-target) using `/slo-sec-libs` against the Hulumi + SunLitSecurityLibraries declarations. Produce: per-target dogfood reports listing `matched:` recommendations, `unmatched:` capability gaps, files filed. Targets: at least 3 candidates (recommend: `slo-security-embedding` M3, `slo-sast` M3, R3 M3 if shipped). Multiple targets validate the matcher across diverse proactive-controls surfaces.
 
 **Context**: Dogfood is the integration test. Confirms the full pipeline (read → match → file) works end-to-end against real declarations + a real runbook. Proves the value-add: are we surfacing meaningful library recommendations + gaps?
 
@@ -788,7 +790,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 | Field | Value |
 |---|---|
-| Inputs | An already-shipped SLO milestone's RUNBOOK + ARCHITECTURE.md + stack-decision.md (likely `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` or similar); Hulumi + SunLitSecureLibraries declarations |
+| Inputs | An already-shipped SLO milestone's RUNBOOK + ARCHITECTURE.md + stack-decision.md (likely `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` or similar); Hulumi + SunLitSecurityLibraries declarations once both prereqs are complete |
 | Outputs | Dogfood report at `docs/sec-libs-dogfood-<date>.md` capturing matched/unmatched/filed; lessons file; completion summary |
 | Interfaces touched | None — exercise of M1-M4 only |
 | Files allowed to change | `docs/sec-libs-dogfood-<YYYY-MM-DD>.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m5.rs` (NEW) |
@@ -892,7 +894,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 | Milestone | ARCHITECTURE.md Update | README.md Update | .gitignore Update | Other Docs |
 |---|---|---|---|---|
-| Pre-req | none | none | none | Out-of-band: create `slo-security-intake` repo + ISSUE_TEMPLATE; add CycloneDX declarations to Hulumi + SunLitSecureLibraries |
+| Pre-req | none | none | none | Out-of-band: create `slo-security-intake` repo + ISSUE_TEMPLATE; add CycloneDX declarations to Hulumi + SunLitSecurityLibraries |
 | 1 | Add `/slo-sec-libs` to skill inventory | optional | `~/.cache/sldo/declarations/` (already gitignored at user level) | `skills/slo-sec-libs/` (new subtree) |
 | 2 | none | none | none | `methodology-m2-matcher.md` |
 | 3 | none | optional bullet | none | `capability-gap-schema.md`, `upstream-filing-discipline.md` |

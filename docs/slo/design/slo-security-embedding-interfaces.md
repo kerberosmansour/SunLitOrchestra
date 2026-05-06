@@ -46,7 +46,7 @@ Three required rows are added to the Contract Block of every milestone:
 | **Proactive controls in play** | always | `stable` | `C5 secure_boundary (input validation at skill boundary), C10 secure_errors (no raw panic messages in user-visible output)` |
 | **Abuse acceptance scenarios** | when the milestone introduces a new surface (endpoint, IPC handler, file path written, outbound request, subprocess invocation) | `stable` | `Attacker supplies a crafted SKILL.md path traversal; /slo-execute rejects it with a Path safety violation before reading.` |
 
-The classification vocabulary is fixed: `Public`, `Internal`, `Confidential`, `Restricted`. Proactive-control citations use the SunLitSecureLibraries naming (`C1`–`C10`) when the target repo uses those crates; for other stacks, agents cite OWASP Proactive Controls category names directly.
+The classification vocabulary is fixed: `Public`, `Internal`, `Confidential`, `Restricted`. Proactive-control citations use the SunLitSecurityLibraries naming (`C1`–`C10`) when the target repo uses those crates; for other stacks, agents cite OWASP Proactive Controls category names directly.
 
 ## SKILL.md frontmatter additions
 
@@ -55,7 +55,7 @@ The following new frontmatter keys may appear in `docs/slo/design/<slug>-overvie
 | Key | Type | Set by | Read by | Notes |
 |---|---|---|---|---|
 | `tla_required` | bool | `/slo-architect` | `/slo-tla` | Unchanged from today. |
-| `security_libs_required` | bool | `/slo-architect` M1 | `/slo-plan`, `/slo-critique`, `/slo-sec-libs` (Phase 4) | `true` when the target repo uses Rust-axum web services, Pulumi/AWS infra, or multi-tenant auth flows — i.e., when Hulumi or SunLitSecureLibraries are candidates. |
+| `security_libs_required` | bool | `/slo-architect` M1 | `/slo-plan`, `/slo-critique`, `/slo-sec-libs` (Phase 4) | `true` when the target repo uses Rust-axum web services, Pulumi/AWS infra, or multi-tenant auth flows — i.e., when Hulumi or SunLitSecurityLibraries are candidates. |
 | `ai_component` | bool | `/slo-architect` M1 | `/slo-plan`, `/slo-critique` | `true` when the system under design invokes or embeds an LLM. Triggers the MITRE ATLAS + OWASP LLM Top 10 + NIST AI RMF citation triad. |
 | `compliance` | list of strings | `/slo-architect` M1 (or user-authored) | `/slo-architect`, `/slo-plan`, `/slo-critique` | Opt-in framework column set. Allowed values today: `soc2`, `asvs`, `gdpr`, `hipaa`, `pci-dss`, `nist-800-53`, `iso-27001`. Defaults: `[soc2, asvs]` when absent. |
 

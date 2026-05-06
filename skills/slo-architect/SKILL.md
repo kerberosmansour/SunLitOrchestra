@@ -32,7 +32,7 @@ Five files (creating or updating as appropriate):
 Set three frontmatter keys in `docs/slo/design/<slug>-overview.md`:
 
 - `tla_required: <bool>` — how `/slo-tla` knows whether to run (see Step 5).
-- `security_libs_required: <bool>` — how `/slo-sec-libs` (Phase 4 of the security-embedding work) knows whether to recommend Hulumi / SunLitSecureLibraries components. Default when absent: `false`.
+- `security_libs_required: <bool>` — how `/slo-sec-libs` (Phase 4 of the security-embedding work) knows whether to recommend Hulumi / SunLitSecurityLibraries components. Default when absent: `false`.
 - `ai_component: <bool>` — `true` when the target system invokes or embeds an LLM / AI agent. Gates the MITRE ATLAS + OWASP LLM Top 10 + NIST AI RMF triad in the threat model. Default when absent: `false`.
 - `compliance: [<list>]` — framework columns for the threat model. Default when absent: `[soc2, asvs]`. Allowed values: `soc2`, `asvs`, `gdpr`, `hipaa`, `pci-dss`, `nist-800-53`, `iso-27001`. Unknown values are rejected by the frontmatter-type-check documented below.
 

@@ -12,7 +12,7 @@ compliance: [soc2, asvs]
 
 ## System goal
 
-Add a `/slo-sec-libs` skill that reads a target repo's `ARCHITECTURE.md` + `stack-decision.md` + the runbook's per-milestone proactive-control requirements, matches each requirement against capabilities advertised by Hulumi + SunLitSecureLibraries via CycloneDX 1.6+ `declarations`, and either (a) recommends a specific library component covering the requirement or (b) files a structured capability-gap issue against the library owner's intake repo (default: `kerberosmansour/slo-security-intake`; third-party gated by `--file-upstream` flag + per-session 40-issues/hr cap).
+Add a `/slo-sec-libs` skill that reads a target repo's `ARCHITECTURE.md` + `stack-decision.md` + the runbook's per-milestone proactive-control requirements, matches each requirement against capabilities advertised by Hulumi + SunLitSecurityLibraries via CycloneDX 1.6+ `declarations`, and either (a) recommends a specific library component covering the requirement or (b) files a structured capability-gap issue against the library owner's intake repo (default: `kerberosmansour/slo-security-intake`; third-party gated by `--file-upstream` flag + per-session 40-issues/hr cap).
 
 ## Stack decision
 
@@ -37,7 +37,7 @@ New runtime dependency: Python 3.10+ with `jsonschema` library available locally
 | `skills/slo-sec-libs/references/upstream-filing-discipline.md` | argv-list rules + no-`--repo` rule + rate-limit cap | M3-M4 | Cited from SKILL.md |
 | `crates/sldo-common::toolflags::sec_libs_deny_flags()` | Skill-flag denial: `WebFetch`, `WebSearch` denied | M1 | Enforced at SLO-CLI invocation layer |
 | `kerberosmansour/slo-security-intake` repo | Default capability-gap filing destination | One-time prereq (out-of-band) | Issue template: `capability-gap-record` per the schema |
-| Hulumi + SunLitSecureLibraries CycloneDX 1.6 declarations | Capability advertisement | One-time prereq | Published as JSON in each repo's release artifacts |
+| Hulumi + `kerberosmansour/SunLitSecurityLibraries` CycloneDX 1.6 declarations | Capability advertisement | One-time prereq | Published as JSON in each repo's release artifacts |
 
 ## Data flow
 
@@ -56,7 +56,7 @@ Target repo with ARCHITECTURE.md + stack-decision.md + RUNBOOK
                      ▼
         ┌────────────────────────────┐
         │ Fetch CycloneDX declarations │ ← cached at ~/.cache/sldo/declarations/<sha>
-        │ from Hulumi + SunLitSecureLibraries
+        │ from Hulumi + SunLitSecurityLibraries
         │ (pinned SHA per stack-decision)
         └────────────┬───────────────┘
                      │
@@ -115,7 +115,7 @@ Target repo with ARCHITECTURE.md + stack-decision.md + RUNBOOK
 | Interface | Stability | Notes |
 |---|---|---|
 | CycloneDX 1.6 `declarations` schema URL + pinned SHA | `stable` per runbook | Bumping is `/slo-architect` re-pass discipline |
-| Capability-gap record schema (regex-validated fields) | `stable` | Cross-org consumers (Hulumi, SunLitSecureLibraries) parse this |
+| Capability-gap record schema (regex-validated fields) | `stable` | Cross-org consumers (Hulumi, SunLitSecurityLibraries) parse this |
 | `cdx:sunlit:crypto:*` namespace | `evolving` | Migrates to upstream Property Taxonomy post-MVP |
 | `--file-upstream` flag semantics | `stable` | Third-party filing requires this flag; no implicit upstream |
 | Per-session 40-issues/hr rate-limit cap | `stable` | Defensive; reuses pattern in [issue #16](https://github.com/kerberosmansour/SunLitOrchestra/issues/16) (R1) |
@@ -160,8 +160,10 @@ New abuse cases (extends `docs/slo/design/slo-security-embedding-threat-model.md
 
 These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)):
 
-- [ ] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only); populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
-- [ ] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi) and [`SunLitSecureLibraries`](https://github.com/SunLitSecureLibraries/SunLitSecureLibraries). Each crate / component advertises the controls it implements; crypto-primitive parametric claims ride in `properties` under the vendored `cdx:sunlit:crypto:*` namespace.
+- [x] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only); populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
+- [x] Confirm declaration-source repos are public: [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi) and [`kerberosmansour/SunLitSecurityLibraries`](https://github.com/kerberosmansour/SunLitSecurityLibraries).
+- [ ] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi). Seed PR [#63](https://github.com/kerberosmansour/hulumi/pull/63) was closed unmerged; as of 2026-05-06 the declaration file is not on `main`.
+- [x] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/SunLitSecurityLibraries`](https://github.com/kerberosmansour/SunLitSecurityLibraries/blob/main/declarations/cyclonedx-1.6-capabilities.json).
 - [ ] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner filing; `repo` for cross-repo fork+PR fallback) on contributor machines.
 
 The runbook's Background Context section flags these as required pre-flight before M1.
