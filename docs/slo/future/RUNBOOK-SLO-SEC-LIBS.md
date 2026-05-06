@@ -32,7 +32,7 @@
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
 | 1 | CycloneDX 1.6 declarations reader (Python jsonschema subprocess) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m1.md](../lessons/sec-libs-m1.md) | [docs/slo/completion/sec-libs-m1.md](../completion/sec-libs-m1.md) |
-| 2 | Capability matcher (proactive-controls → advertised capabilities) | `not_started` | | | | |
+| 2 | Capability matcher (proactive-controls → advertised capabilities) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m2.md](../lessons/sec-libs-m2.md) | [docs/slo/completion/sec-libs-m2.md](../completion/sec-libs-m2.md) |
 | 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `not_started` | | | | |
 | 4 | Third-party filing gate + per-session 40-issues/hr cap | `not_started` | | | | |
 | 5 | Dogfood: re-critique an SLO milestone using `/slo-sec-libs` | `not_started` | | | | |
@@ -508,8 +508,8 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 #### Compatibility Checklist
 
-- [ ] M1 reader unchanged.
-- [ ] Toolflag deny-list unchanged.
+- [x] M1 reader unchanged.
+- [x] Toolflag deny-list unchanged.
 
 #### E2E Runtime Validation
 
@@ -518,19 +518,32 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | E2E Test | What It Proves | Pass Criteria |
 |---|---|---|
 | `methodology_m2_exists` | Methodology file present | path + frontmatter |
+| `skill_dispatch_documents_match_mode` | SKILL.md exposes M2 mode | grep `--match <runbook.md> --catalog <catalog.json>` |
 | `tiebreaker_rule_documented` | Specificity rule cited | grep methodology |
 | `tie_disposition_documented` | Tie handling | grep |
+| `conservative_tiebreaker_documented` | C-6 decision is captured | grep conservative disposition and diagnostic |
+| `output_schema_contains_matched_unmatched_and_diagnostics` | Output shape is stable | grep JSON fields |
 | `every_matched_entry_references_catalog_id` | No fabrication | structural rule on output JSON |
+| `fabricated_catalog_id_is_rejected_by_structural_guard` | Abuse case guard | structural fixture detects made-up ID |
+| `empty_states_documented` | Empty states are explicit | grep diagnostics |
+| `m1_reader_contract_still_present` | M1 compatibility | reader script and dispatch still present |
+| `sec_libs_tool_deny_flags_unchanged` | Toolflag compatibility | deny-list still includes WebFetch/WebSearch |
 
 #### Smoke Tests
 
-- [ ] Feed fixture runbook + catalog; observe matcher output.
-- [ ] Feed runbook with unmatched control; observe `unmatched:` populated.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Feed fixture runbook + catalog; observe matcher output.
+- [x] Feed runbook with unmatched control; observe `unmatched:` populated.
+- [x] `cargo test -p sldo-install --test e2e_sec_libs_m2` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+| Timestamp | Evidence | Result |
+|---|---|---|
+| 2026-05-06 | `cargo test -p sldo-install --test e2e_sec_libs_m2` | Pass: 11 tests |
+| 2026-05-06 | `cargo test -p sldo-install --test e2e_sec_libs_m1` | Pass: 10 tests |
+| 2026-05-06 | Fixture matcher smoke: C5 strict schema row against two catalog candidates. | Pass: preferred `component:slsl-strict-schema` by specificity |
+| 2026-05-06 | Fixture matcher smoke: C9 audit row with no catalog candidate. | Pass: one `unmatched` record |
+| 2026-05-06 | Fabricated catalog ID guard fixture. | Pass: made-up ID detected and refused |
 
 #### Definition of Done
 
