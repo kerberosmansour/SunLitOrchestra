@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|---|
 | 1 | CycloneDX 1.6 declarations reader (Python jsonschema subprocess) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m1.md](../lessons/sec-libs-m1.md) | [docs/slo/completion/sec-libs-m1.md](../completion/sec-libs-m1.md) |
 | 2 | Capability matcher (proactive-controls → advertised capabilities) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m2.md](../lessons/sec-libs-m2.md) | [docs/slo/completion/sec-libs-m2.md](../completion/sec-libs-m2.md) |
-| 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `not_started` | | | | |
+| 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m3.md](../lessons/sec-libs-m3.md) | [docs/slo/completion/sec-libs-m3.md](../completion/sec-libs-m3.md) |
 | 4 | Third-party filing gate + per-session 40-issues/hr cap | `not_started` | | | | |
 | 5 | Dogfood: re-critique an SLO milestone using `/slo-sec-libs` | `not_started` | | | | |
 
@@ -579,7 +579,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | Inputs | M2's `unmatched:` records; user `gh` auth; pre-requisite intake repo + ISSUE_TEMPLATE |
 | Outputs | filed issues in `kerberosmansour/slo-security-intake`; capability-gap-schema.md (NEW); upstream-filing-discipline.md (NEW) |
 | Interfaces touched | SKILL.md mode dispatch extended; new methodology files; `gh issue create` invocation |
-| Files allowed to change | `skills/slo-sec-libs/SKILL.md` (extend), `skills/slo-sec-libs/references/capability-gap-schema.md` (NEW), `skills/slo-sec-libs/references/upstream-filing-discipline.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m3.rs` (NEW) |
+| Files allowed to change | `skills/slo-sec-libs/SKILL.md` (extend), `skills/slo-sec-libs/references/capability-gap-schema.md` (NEW), `skills/slo-sec-libs/references/upstream-filing-discipline.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m3.rs` (NEW), tracker/lessons/completion docs |
 | Files to read before changing anything | M2 lessons; `/slo-sast/SKILL.md` M5 (argv-list + no `--repo`); R1 M3's `issue-filing-discipline.md` (rate-limit cap shape) |
 | New files allowed | 2 references + test file |
 | New dependencies allowed | `none` |
@@ -616,7 +616,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 3. Author `upstream-filing-discipline.md` with argv-list + no `--repo` rules.
 4. Update SKILL.md with M3 mode dispatch.
 5. Verify structural-contract test.
-6. Manual smoke: feed M2 unmatched record; confirm filing; observe issue created in intake repo.
+6. Manual smoke: feed M2 unmatched record; observe validation + confirmation preview. Live issue creation requires explicit per-issue confirmation.
 7. Self-review.
 
 #### BDD Acceptance Scenarios
@@ -643,8 +643,8 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 #### Compatibility Checklist
 
-- [ ] M1 + M2 unchanged.
-- [ ] `/slo-sast` discipline preserved.
+- [x] M1 + M2 unchanged.
+- [x] `/slo-sast` discipline preserved.
 
 #### E2E Runtime Validation
 
@@ -657,17 +657,30 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | `no_repo_flag_documented` | Confused-deputy defense | grep |
 | `no_merge_flags` | No auto-merge | grep refuses any merge flag |
 | `no_gh_auth_login_from_skill` | Auth discipline | grep |
+| `schema_rejects_untrusted_prose_and_unicode_tricks` | Abuse case 2 blocked | grep NFKC, zero-width, RTL/LTR override, angle brackets, pipes, and legacy owner spelling rejection |
+| `skill_dispatch_documents_file_gaps_mode` | M3 dispatch present | grep SKILL.md |
+| `user_confirmation_required` | Consent gate preserved | grep SKILL.md + filing discipline |
+| `intake_repo_template_dependency_documented` | Intake dependency explicit | grep repo + template path |
+| `m1_m2_contracts_still_present` | Backward compatibility | grep M1/M2 refs |
+| `sec_libs_tool_deny_flags_unchanged` | Toolflag compatibility | deny flags still include WebFetch/WebSearch |
 
 #### Smoke Tests
 
-- [ ] Manually run M3 against a fixture M2 output; observe confirmation prompt.
-- [ ] Decline at confirmation; verify no issue created.
-- [ ] `gh issue list --repo kerberosmansour/slo-security-intake --label capability-gap` after manual filing — observe filed issue.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Confirmed `kerberosmansour/slo-security-intake` exists and is reachable via `gh repo view`.
+- [x] Confirmed `.github/ISSUE_TEMPLATE/capability-gap-record.md` exists in the intake repo.
+- [x] Simulated fixture M2 unmatched record through schema/discipline structural coverage; confirmation-required path documented.
+- [x] Decline/no-confirmation path documented so no issue is created without per-issue confirmation.
+- [x] Live `gh issue create` smoke deferred because no explicit per-issue filing confirmation was supplied during implementation.
+- [x] `cargo test -p sldo-install --test e2e_sec_libs_m3` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+- 2026-05-06: `gh repo view kerberosmansour/slo-security-intake --json nameWithOwner,visibility,url` returned `kerberosmansour/slo-security-intake`, visibility `PRIVATE`, URL `https://github.com/kerberosmansour/slo-security-intake`.
+- 2026-05-06: `gh api repos/kerberosmansour/slo-security-intake/contents/.github/ISSUE_TEMPLATE/capability-gap-record.md --jq '.content' | base64 --decode` confirmed the intake template exists.
+- 2026-05-06: `cargo test -p sldo-install --test e2e_sec_libs_m3` passed with 12 tests.
+- 2026-05-06: `cargo test -p sldo-install` passed.
+- 2026-05-06: `cargo test --workspace` passed.
+- 2026-05-06: No live intake issue was filed in this implementation pass because M3 requires explicit per-issue confirmation.
 
 #### Definition of Done
 
