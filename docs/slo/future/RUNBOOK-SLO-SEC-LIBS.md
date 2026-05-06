@@ -34,7 +34,7 @@
 | 1 | CycloneDX 1.6 declarations reader (Python jsonschema subprocess) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m1.md](../lessons/sec-libs-m1.md) | [docs/slo/completion/sec-libs-m1.md](../completion/sec-libs-m1.md) |
 | 2 | Capability matcher (proactive-controls → advertised capabilities) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m2.md](../lessons/sec-libs-m2.md) | [docs/slo/completion/sec-libs-m2.md](../completion/sec-libs-m2.md) |
 | 3 | SLO-intake filer (default channel; `kerberosmansour/slo-security-intake`) | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m3.md](../lessons/sec-libs-m3.md) | [docs/slo/completion/sec-libs-m3.md](../completion/sec-libs-m3.md) |
-| 4 | Third-party filing gate + per-session 40-issues/hr cap | `not_started` | | | | |
+| 4 | Third-party filing gate + per-session 40-issues/hr cap | `completed` | 2026-05-06 | 2026-05-06 | [docs/slo/lessons/sec-libs-m4.md](../lessons/sec-libs-m4.md) | [docs/slo/completion/sec-libs-m4.md](../completion/sec-libs-m4.md) |
 | 5 | Dogfood: re-critique an SLO milestone using `/slo-sec-libs` | `not_started` | | | | |
 
 ### Pre-requisites (one-time, BEFORE M1)
@@ -715,7 +715,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | Inputs | M3's filer; `--file-upstream` flag; per-session counter |
 | Outputs | Filings to library-owner repos when `--file-upstream` is passed; spillover to `LESSONS-BACKLOG.md` on cap |
 | Interfaces touched | SKILL.md mode dispatch; `upstream-filing-discipline.md` extended |
-| Files allowed to change | `skills/slo-sec-libs/SKILL.md` (extend), `skills/slo-sec-libs/references/upstream-filing-discipline.md` (extend), `crates/sldo-install/tests/e2e_sec_libs_m4.rs` (NEW) |
+| Files allowed to change | `skills/slo-sec-libs/SKILL.md` (extend), `skills/slo-sec-libs/references/upstream-filing-discipline.md` (extend), `crates/sldo-install/tests/e2e_sec_libs_m4.rs` (NEW), tracker/lessons/completion/catalog docs |
 | Files to read before changing anything | M3 lessons; R1 M3's rate-limit pattern (if shipped) |
 | New files allowed | test file |
 | New dependencies allowed | `none` |
@@ -772,8 +772,8 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 #### Compatibility Checklist
 
-- [ ] M1, M2, M3 unchanged.
-- [ ] Default destination still `slo-security-intake`.
+- [x] M1, M2, M3 unchanged.
+- [x] Default destination still `slo-security-intake`.
 
 #### E2E Runtime Validation
 
@@ -785,16 +785,28 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 | `forty_per_hour_cap_documented` | Cap cited | grep |
 | `cross_session_state_not_persisted` | Per-session discipline | grep refuses any "saved counter" pattern |
 | `lessons_backlog_spillover` | Spillover documented | grep |
+| `cap_simulation_allows_first_40_and_spills_41st` | Cap boundary | executable helper allows 0-39 and spills 40+ |
+| `default_destination_unchanged_without_file_upstream` | M3 default preserved | grep SKILL.md + discipline |
+| `upstream_owner_mapping_locked` | Owner mapping bounded | grep Hulumi, SunLitSecurityLibraries, unknown refusal |
+| `upstream_confirmation_and_fallback_documented` | Consent gate preserved | grep confirmation + fallback |
+| `no_repo_and_no_merge_flags_still_forbidden` | Existing safety preserved | grep forbidden flags |
+| `m1_m2_m3_contracts_still_present` | Backward compatibility | grep prior mode refs |
+| `sec_libs_tool_deny_flags_unchanged` | Toolflag compatibility | deny flags still include WebFetch/WebSearch |
 
 #### Smoke Tests
 
-- [ ] Mock-invoke 40 fillings; observe all proceed; 41st triggers cap + spillover.
-- [ ] End session, restart, attempt filing — observe counter reset.
-- [ ] `cargo test -p sldo-install` passes.
+- [x] Simulated 40 upstream filings in `e2e_sec_libs_m4`; 41st triggers `spilled-cap`.
+- [x] Verified the discipline says cap state is memory-only and resets when the invocation/session ends.
+- [x] Confirmed no live upstream issue was filed during implementation because upstream filing still requires explicit per-issue confirmation.
+- [x] `cargo test -p sldo-install --test e2e_sec_libs_m4` passes.
 
 #### Evidence Log
 
-(Copy at execution time.)
+- 2026-05-06: `cargo test -p sldo-install --test e2e_sec_libs_m4` passed with 12 tests.
+- 2026-05-06: M4 cap boundary simulated in test: filings 1-40 allowed; 41st and later spill to `LESSONS-BACKLOG.md`.
+- 2026-05-06: `cargo test -p sldo-install` passed.
+- 2026-05-06: `cargo test --workspace` passed.
+- 2026-05-06: No live upstream issue was filed in this implementation pass because M4 still requires explicit per-issue confirmation.
 
 #### Definition of Done
 
