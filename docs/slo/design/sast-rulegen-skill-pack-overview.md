@@ -21,7 +21,7 @@ Wedge ships **Runbook A — Rust + Semgrep — 3 milestones**: M1 bootstrap pack
 ## Frontmatter rationale
 
 - `tla_required: false` — rule generation is offline batch in a single process. No concurrent shared state, no consensus, no leader election, no leases, no ordering guarantees across processes. The xtask runs `semgrep --validate` then `semgrep --test` deterministically; nothing to model-check.
-- `security_libs_required: false` — no service surface, no auth, no crypto-confidentiality requirement. SunLitSecureLibraries / Hulumi components do not apply. Local CLI + skill pack only.
+- `security_libs_required: false` — no service surface, no auth, no crypto-confidentiality requirement. SunLitSecurityLibraries / Hulumi components do not apply. Local CLI + skill pack only.
 - `ai_component: true` — both skills drive Claude Code (`claude` CLI subprocess) and the extend-mode skill consumes founder-pasted bug summaries + fix diffs. MITRE ATLAS + OWASP LLM Top 10 + NIST AI RMF triad applies. Specific surfaces in the threat model.
 - `compliance: [soc2, asvs]` — defaults. No GDPR (no personal data processing in the skill pack itself; the user's bug-summary text is treated as confidential per SECURITY.md two-tier convention but does not constitute personal data unless the user pastes some, in which case the same gitignore tier kicks in).
 

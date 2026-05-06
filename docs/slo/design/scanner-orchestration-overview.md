@@ -11,7 +11,7 @@ tla_reason: >
 security_libs_required: false
 security_libs_reason: >
   This skill produces SAST scan artifacts (workflow YAML, rule selection,
-  manifest). Hulumi and SunLitSecureLibraries are runtime libraries downstream
+  manifest). Hulumi and SunLitSecurityLibraries are runtime libraries downstream
   user apps consume; they are orthogonal to scanner orchestration. No capability
   manifest match is required for /slo-sast itself.
 ai_component: true

@@ -149,7 +149,7 @@ fn catalog_cites_secure_libraries() {
         .collect();
     assert!(
         found.len() >= 3,
-        "bug-class catalog must cite ≥3 SunLitSecureLibraries crates/types as elimination patterns; found {found:?}"
+        "bug-class catalog must cite ≥3 SunLitSecurityLibraries crates/types as elimination patterns; found {found:?}"
     );
 }
 

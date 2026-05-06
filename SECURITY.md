@@ -49,7 +49,7 @@ Top risks were not explicitly captured by /slo-ideate for this runbook (the M1 e
 
 ## Output encoding
 
-N/A for current surfaces. If future work reintroduces an HTTP API (which would require un-parking Tauri or a new service), use `secure_output` from the SunLitSecureLibraries workspace.
+N/A for current surfaces. If future work reintroduces an HTTP API (which would require un-parking Tauri or a new service), use `secure_output` from the SunLitSecurityLibraries workspace.
 
 ## Error handling
 
@@ -86,7 +86,7 @@ Approved by: <reviewer name>
 
 Known legitimate escape hatches in related work:
 
-- `DevAuthLayer` in `secure_reference_service` (SunLitSecureLibraries) — dev-only header-based auth (`X-Dev-Subject`, `X-Dev-Roles`) replaced by real `IdentitySource` before any production deploy. Not used in SLO itself.
+- `DevAuthLayer` in `secure_reference_service` (SunLitSecurityLibraries) — dev-only header-based auth (`X-Dev-Subject`, `X-Dev-Roles`) replaced by real `IdentitySource` before any production deploy. Not used in SLO itself.
 
 ## Compliance
 

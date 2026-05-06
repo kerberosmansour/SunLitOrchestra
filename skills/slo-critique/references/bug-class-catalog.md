@@ -1,12 +1,12 @@
 # Bug-class catalog — `/slo-critique`
 
-Organized by OWASP ASVS 5.0 chapter (V1–V17). Each chapter lists 2–4 named bug classes with one elimination pattern per class. Where the elimination pattern is already implemented in SunLitSecureLibraries (Rust-axum) or Hulumi (Pulumi/AWS), the crate / component is cited. Otherwise the pattern is described in language-agnostic terms with a pointer to OWASP Proactive Controls v3.
+Organized by OWASP ASVS 5.0 chapter (V1–V17). Each chapter lists 2–4 named bug classes with one elimination pattern per class. Where the elimination pattern is already implemented in SunLitSecurityLibraries (Rust-axum) or Hulumi (Pulumi/AWS), the crate / component is cited. Otherwise the pattern is described in language-agnostic terms with a pointer to OWASP Proactive Controls v3.
 
 A **class** is architecturally eliminated when the pattern makes every instance impossible by construction. A **class** is mitigated when instances are bounded but possible. The security persona uses this distinction in every finding.
 
 ## V1 — Encoding and Sanitization
 
-| Bug class | Elimination pattern | SunLitSecureLibraries / Hulumi |
+| Bug class | Elimination pattern | SunLitSecurityLibraries / Hulumi |
 |---|---|---|
 | HTML injection / reflected XSS | Context-aware output encoding at rendering boundary | `secure_output::HtmlEncoder` |
 | URL open-redirect | Relative-path-only redirect type | `secure_boundary::safe_types::SafeRedirectUrl` |

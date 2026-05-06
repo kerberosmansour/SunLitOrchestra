@@ -3,7 +3,7 @@
 This file is the canonical vocabulary for two fields in every milestone's Contract Block:
 
 1. **Data classification** — fixed four-value enum.
-2. **Proactive controls in play** — stack-aware vocabulary. Rust-axum targets cite SunLitSecureLibraries crate names; Pulumi/AWS targets cite Hulumi component names; other stacks cite OWASP Proactive Controls v3 category names directly.
+2. **Proactive controls in play** — stack-aware vocabulary. Rust-axum targets cite SunLitSecurityLibraries crate names; Pulumi/AWS targets cite Hulumi component names; other stacks cite OWASP Proactive Controls v3 category names directly.
 
 Values here are Markdown-literal text. They are substituted verbatim into runbook Contract Block tables by `/slo-plan`. **They are never interpolated into shell commands, never invoked as subprocesses, never used as identifiers in generated code** — the contract is read by `/slo-execute` + `/slo-critique` + `/slo-verify` as prose, not executed as logic. This defense-in-depth rule means a malicious or unwary vocabulary value with shell metacharacters (semicolons, backticks, `$()`) cannot compromise the skill pipeline.
 
@@ -26,11 +26,11 @@ A milestone handling `Restricted` data MUST additionally:
 - Set the `compliance:` frontmatter to the applicable framework list (e.g. `[soc2, asvs, hipaa]`).
 - Produce an abuse-case scenario per STRIDE category — Spoofing, Tampering, Information Disclosure are all live surfaces.
 
-## Proactive controls vocabulary — Rust-axum (SunLitSecureLibraries)
+## Proactive controls vocabulary — Rust-axum (SunLitSecurityLibraries)
 
-When the target stack is Rust + axum and `security_libs_required: true`, the Proactive controls row cites crate names from SunLitSecureLibraries. Each maps to OWASP Proactive Controls C-numbers.
+When the target stack is Rust + axum and `security_libs_required: true`, the Proactive controls row cites crate names from SunLitSecurityLibraries. Each maps to OWASP Proactive Controls C-numbers.
 
-| Control | OWASP C# | SunLitSecureLibraries crate / type | Use when the milestone |
+| Control | OWASP C# | SunLitSecurityLibraries crate / type | Use when the milestone |
 |---|---|---|---|
 | **Input validation** | C5 | `secure_boundary::extract::SecureJson<T>`; `safe_types::{SafePath,SafeUrl,SafeFilename,SafeCommandArg,SqlIdentifier,SafeRedirectUrl,LdapSafeString}` | introduces any new request body, URL-from-user-input, file path, shell arg, or SQL identifier |
 | **Output encoding** | C4 | `secure_output::{HtmlEncoder,UrlEncoder,JsStringEncoder,CssEncoder,XmlEncoder,ldap::{encode_dn,encode_filter},shell::encode,sanitize_uri_scheme}` | renders user data into HTML / URL / JS / CSS / XML / LDAP / shell |
@@ -106,5 +106,5 @@ When `security_libs_required: false` OR the stack has no equivalent library ecos
 
 - **Free-form data classifications.** The enum is fixed: Public / Internal / Confidential / Restricted. "Medium confidential," "critical PII," "yellow-level secrets" — all rejected. Use the enum.
 - **Leaving Proactive controls blank.** Every milestone introduces some surface (even if it's just file I/O); cite at least one C-number with an explanation. If truly nothing applies, use the "milestone introduces no new surface" N/A phrasing — not blank.
-- **Coining new C-numbers.** The vocabulary is fixed at C1–C10 plus SunLitSecureLibraries crate names. Invented names drift across runbooks and defeat the point.
+- **Coining new C-numbers.** The vocabulary is fixed at C1–C10 plus SunLitSecurityLibraries crate names. Invented names drift across runbooks and defeat the point.
 - **Treating this file as executable.** Proactive-controls row values are Markdown prose read by humans and by downstream skills. They are never spliced into shell, never invoked as subprocess commands, never used as code identifiers.

@@ -15,14 +15,14 @@ An engineer (Sherif today; other SLO users tomorrow) directing AI agents through
 What structured formats exist for expressing "this library / component provides these security controls" that an LLM agent can parse and match against a runbook requirement?
 
 - Look at: **CycloneDX** (SBOM + VDR + VEX), **OSCAL** (NIST SP 800-53 control catalogs, component definitions), **OpenSSF Scorecard** manifest, **agentskills.io SKILL.md** frontmatter, **MCP** server capability descriptors, **SPDX** (license + supply-chain), **SARIF** (static-analysis result interchange).
-- For each: is it agent-parsable (JSON/YAML), does it express "control X implemented by component Y", and what's the adoption effort to add it to Hulumi + SunLitSecureLibraries?
+- For each: is it agent-parsable (JSON/YAML), does it express "control X implemented by component Y", and what's the adoption effort to add it to Hulumi + SunLitSecurityLibraries?
 - Concrete output: a ranked shortlist with one concrete example of each format describing one security control (e.g. "Argon2id password hashing" or "envelope encryption").
 
 ### Q2 — Compliance framework default set for an OSS skill pack
 
 For a skill pack whose users build web services + cloud infrastructure, which compliance frameworks should the threat-model compliance-mapping column default to?
 
-- Baseline: SunLitSecureLibraries cites **NIST 800-53** + **IEC 62443** + **SOC 2 Type II**.
+- Baseline: SunLitSecurityLibraries cites **NIST 800-53** + **IEC 62443** + **SOC 2 Type II**.
 - Candidates to add/drop: **GDPR** (EU audience), **HIPAA** (US healthcare), **PCI DSS 4.0** (payments), **FedRAMP** (US gov), **ISO 27001**, **CIS Controls v8**, **OWASP ASVS 4.0.3**.
 - Question: what's the minimal set that covers ≥80% of real-world SLO users without making the threat-model file unwieldy? Evidence we can use: published developer-survey data (Stack Overflow, JetBrains, Snyk State of Open Source Security), compliance-framework adoption stats by company size, guidance from OWASP / NIST on "which framework for which project scale."
 
@@ -45,7 +45,7 @@ Google PSC's variant-analysis pattern ("when you find a bug, grep the codebase f
 
 When an AI agent invokes `gh issue create` against a repo it does not own (e.g., `/slo-sec-libs` filing a capability-gap issue against `kerberosmansour/hulumi` from a user's project repo), what are the real operational limits?
 
-- Concrete unknowns: OAuth scope requirements, GitHub REST API rate limits (5k/hr authed, 15k/hr via GHEC), GitHub spam-detection thresholds for cross-repo issue creation, enforced issue-template use (repos can mandate `.github/ISSUE_TEMPLATE/*.yml`), attribution (the issue will be authored by the user's `gh` identity — is that acceptable for Hulumi / SunLitSecureLibraries?), alternatives (forks + PR, email intake, RFC repo).
+- Concrete unknowns: OAuth scope requirements, GitHub REST API rate limits (5k/hr authed, 15k/hr via GHEC), GitHub spam-detection thresholds for cross-repo issue creation, enforced issue-template use (repos can mandate `.github/ISSUE_TEMPLATE/*.yml`), attribution (the issue will be authored by the user's `gh` identity — is that acceptable for Hulumi / SunLitSecurityLibraries?), alternatives (forks + PR, email intake, RFC repo).
 - Required output: a decision table comparing ≥3 filing channels on auth surface, friction, and upstream-maintainer cost.
 
 ## Out of scope for this research

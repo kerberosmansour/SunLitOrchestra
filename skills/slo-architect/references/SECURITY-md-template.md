@@ -129,7 +129,7 @@ This project embeds an LLM or AI agent. The following rules apply in addition to
 
 - After every `/slo-architect` re-run where the detected stack changes, `security_libs_required` flips, or `compliance:` frontmatter changes. The architect prompts the user whether to overwrite, merge, or skip — never silent clobber.
 - When a milestone ships a new escape hatch that applies beyond the milestone boundary.
-- When an OWASP ASVS version bump or a SunLitSecureLibraries breaking change happens upstream.
+- When an OWASP ASVS version bump or a SunLitSecurityLibraries breaking change happens upstream.
 ```
 
 ## Placeholder reference (what each `{{TOKEN}}` above means)
@@ -141,7 +141,7 @@ This project embeds an LLM or AI agent. The following rules apply in addition to
 | `{{STACK}}` | detected stack string | `Rust + axum + tokio` |
 | `{{RUNTIME_VERSION}}` | MSRV from `Cargo.toml` or engines from `package.json` | `Rust 1.78+ (edition 2021)` |
 | `{{USER_PROVIDED_TOP_RISKS}}` | verbatim content of the idea doc's `## Top risks` block, **always rendered inside a `~~~text` fence** | — |
-| `{{CRYPTO_SYMMETRIC}}`, `{{CRYPTO_PASSWORDS}}`, `{{CRYPTO_KMS}}`, `{{CRYPTO_TLS}}` | stack-aware crypto defaults (SunLitSecureLibraries for Rust-axum; AWS-native for AWS; library-native for other stacks) | — |
+| `{{CRYPTO_SYMMETRIC}}`, `{{CRYPTO_PASSWORDS}}`, `{{CRYPTO_KMS}}`, `{{CRYPTO_TLS}}` | stack-aware crypto defaults (SunLitSecurityLibraries for Rust-axum; AWS-native for AWS; library-native for other stacks) | — |
 | `{{AUTH_N}}`, `{{AUTH_Z}}`, `{{AUTH_SESSION}}`, `{{SESSION_IDLE}}`, `{{SESSION_ABSOLUTE}}` | stack-aware auth defaults | — |
 | `{{INPUT_*}}` | stack-aware safe-type defaults | — |
 | `{{DARK_LAUNCH_WINDOW}}` | default `2 weeks`; override per runbook | — |

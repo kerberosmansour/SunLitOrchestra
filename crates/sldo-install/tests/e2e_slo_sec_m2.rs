@@ -150,7 +150,7 @@ fn vocabulary_file_has_rust_axum_crate_names() {
     let found: Vec<&&str> = candidates.iter().filter(|c| vocab.contains(**c)).collect();
     assert!(
         found.len() >= 3,
-        "vocabulary file must cite at least three SunLitSecureLibraries crate names; found {found:?}"
+        "vocabulary file must cite at least three SunLitSecurityLibraries crate names; found {found:?}"
     );
 }
 
