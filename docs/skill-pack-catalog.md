@@ -5,7 +5,7 @@
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
-**Shipped skills at HEAD: 37** (10 sprint flow + 5 ticket flow + 6 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 37 entries.
+**Shipped skills at HEAD: 38** (10 sprint flow + 5 ticket flow + 7 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` — should be 38 entries.
 
 ## Repo reality at HEAD
 
@@ -52,6 +52,7 @@ GitHub Issues-first path for small, reviewable work that should keep v4 rigor wi
 | `/slo-rulegen` | Bootstrap or extend Semgrep rule packs for Rust workspaces | Host-neutral. The bug-summary input can come from any agent-driven workflow. |
 | `/slo-ruleverify` | Run the deterministic SAST gate over an existing rule pack | Host-neutral. |
 | `/slo-sast` | Wire threat-model-driven SAST scanning into a target repo | Host-neutral. Subprocess invocations are `git`, `gh`, and `semgrep` — never an agent CLI. |
+| `/slo-sec-libs` | Read CycloneDX declarations from Hulumi and SunLitSecurityLibraries | Host-neutral. M1 is an offline Python `jsonschema` reader; no web tools or filing side effects. |
 
 ## Business advisor skills
 
