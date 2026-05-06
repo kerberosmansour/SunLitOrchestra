@@ -52,8 +52,8 @@ The design must handle this because gap records flow into the upstream intake re
 The design must handle the pre-requisite gates explicitly because `/slo-sec-libs` is unusable until:
 
 - `kerberosmansour/slo-security-intake` exists with `ISSUE_TEMPLATE` populated.
-- `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries` are the public declaration-source repos. `kerberosmansour/SunLitSecurityLibraries` publishes `declarations/cyclonedx-1.6-capabilities.json`; Hulumi still needs its CycloneDX 1.6 `declarations` file landed on `main`.
-- Contributor `gh` CLI is authenticated with the right scopes.
+- `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries` are the public declaration-source repos. Both publish `declarations/cyclonedx-1.6-capabilities.json` on `main`.
+- Contributor `gh` CLI is authenticated with the right scopes; the current contributor machine has `repo` scope as of 2026-05-06.
 
 These are out-of-band of the runbook (per [issue #4](https://github.com/kerberosmansour/SunLitOrchestra/issues/4)) — the runbook's Background Context section flags them as required pre-flight before M1.
 

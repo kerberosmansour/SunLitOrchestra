@@ -162,9 +162,9 @@ These are out-of-band of the runbook (per [issue #4](https://github.com/kerberos
 
 - [x] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only); populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
 - [x] Confirm declaration-source repos are public: [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi) and [`kerberosmansour/SunLitSecurityLibraries`](https://github.com/kerberosmansour/SunLitSecurityLibraries).
-- [ ] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi). Seed PR [#63](https://github.com/kerberosmansour/hulumi/pull/63) was closed unmerged; as of 2026-05-06 the declaration file is not on `main`.
+- [x] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/hulumi`](https://github.com/kerberosmansour/hulumi/blob/main/declarations/cyclonedx-1.6-capabilities.json). Landed via [`kerberosmansour/hulumi#70`](https://github.com/kerberosmansour/hulumi/pull/70).
 - [x] Add CycloneDX 1.6 `declarations` JSON to [`kerberosmansour/SunLitSecurityLibraries`](https://github.com/kerberosmansour/SunLitSecurityLibraries/blob/main/declarations/cyclonedx-1.6-capabilities.json).
-- [ ] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner filing; `repo` for cross-repo fork+PR fallback) on contributor machines.
+- [x] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner filing; `repo` for cross-repo fork+PR fallback) on the current contributor machine. Confirmed `repo` scope on 2026-05-06.
 
 The runbook's Background Context section flags these as required pre-flight before M1.
 

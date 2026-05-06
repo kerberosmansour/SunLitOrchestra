@@ -42,9 +42,9 @@
 - [x] Create `kerberosmansour/slo-security-intake` repo (issue-tracker-only).
 - [x] Populate `ISSUE_TEMPLATE/capability-gap-record.md` per the M3 schema.
 - [x] Confirm declaration-source repos are public: `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries`.
-- [ ] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`. Each crate / component advertises controls (use `cdx:sunlit:crypto:*` namespace for parametric crypto claims). Seed PR <https://github.com/kerberosmansour/hulumi/pull/63> was closed unmerged; as of 2026-05-06 the file is not on `main`.
+- [x] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/hulumi`: <https://github.com/kerberosmansour/hulumi/blob/main/declarations/cyclonedx-1.6-capabilities.json>. Landed via <https://github.com/kerberosmansour/hulumi/pull/70>.
 - [x] Add CycloneDX 1.6 `declarations` JSON to `kerberosmansour/SunLitSecurityLibraries`: <https://github.com/kerberosmansour/SunLitSecurityLibraries/blob/main/declarations/cyclonedx-1.6-capabilities.json>.
-- [ ] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner; `repo` for cross-repo fork+PR fallback) on contributor machines.
+- [x] Confirm `gh` CLI scopes (`repo` or `public_repo` for same-owner; `repo` for cross-repo fork+PR fallback) on the current contributor machine. Confirmed `repo` scope on 2026-05-06.
 
 ---
 
@@ -183,18 +183,18 @@ What works:
 
 - Phase 1 makes runbooks security-aware at the planning + critique + verify level.
 - `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries` are public declaration-source repos.
-- `kerberosmansour/SunLitSecurityLibraries` already advertises capabilities via CycloneDX 1.6 declarations.
+- `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries` advertise capabilities via CycloneDX 1.6 declarations.
 - `/slo-sast` ships the SAST orchestration (separate program).
 
 What does not work:
 
 - When a runbook milestone declares "this surface needs an Argon2id password hasher", the agent has no source-of-truth for which library covers that requirement at the runbook's pinned version. Defaults to whatever the model recalls.
-- Hulumi's CycloneDX declaration artifact is still pending on `main`, and no skill reads the available declarations yet.
+- No skill reads the available Hulumi or SunLitSecurityLibraries declarations yet.
 - When the recommender finds NO library that covers a requirement, the gap dies in lessons file commentary. No upstream filing.
 
 ### Problem
 
-1. **No declarations reader**: Phase 1 produces security-aware runbooks; Phase 4 needs to consume per-library capability advertising from `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries`; the latter already publishes declarations and Hulumi remains a prereq.
+1. **No declarations reader**: Phase 1 produces security-aware runbooks; Phase 4 needs to consume per-library capability advertising from `kerberosmansour/hulumi` and `kerberosmansour/SunLitSecurityLibraries`; both now publish declarations, but SLO has no reader yet.
 2. **No capability matcher**: declarations alone don't pick the library; the matcher reads runbook proactive-controls rows and matches.
 3. **No capability-gap filing**: gaps die in markdown.
 4. **Rust ecosystem lacks 1.6+ declarations support** ([Phase 1 research Q2](research/slo-security-embedding/synthesis.md)): `cyclonedx-bom 0.8.1` is spec-1.5 only. Python jsonschema subprocess is the path; matches Phase 2 SecOpsTM precedent.
@@ -790,7 +790,7 @@ See template (`docs/slo/lessons/sec-libs-m<N>.md`, `docs/slo/completion/sec-libs
 
 | Field | Value |
 |---|---|
-| Inputs | An already-shipped SLO milestone's RUNBOOK + ARCHITECTURE.md + stack-decision.md (likely `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` or similar); Hulumi + SunLitSecurityLibraries declarations once both prereqs are complete |
+| Inputs | An already-shipped SLO milestone's RUNBOOK + ARCHITECTURE.md + stack-decision.md (likely `docs/slo/completed/RUNBOOK-SLO-SECURITY-EMBEDDING.md` or similar); Hulumi + SunLitSecurityLibraries declarations |
 | Outputs | Dogfood report at `docs/sec-libs-dogfood-<date>.md` capturing matched/unmatched/filed; lessons file; completion summary |
 | Interfaces touched | None — exercise of M1-M4 only |
 | Files allowed to change | `docs/sec-libs-dogfood-<YYYY-MM-DD>.md` (NEW), `crates/sldo-install/tests/e2e_sec_libs_m5.rs` (NEW) |
