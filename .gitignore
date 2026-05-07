@@ -23,6 +23,7 @@ docs/legal
 
 # CLI and code-agent local state/logs
 .sldo-logs/
+.nettacker/
 .copilot-logs/
 .claude/*
 !.claude/settings.json
@@ -57,3 +58,4 @@ docs/biz/
 dist/
 .claude-plugin/dist/
 *.zip
+.nettacker
