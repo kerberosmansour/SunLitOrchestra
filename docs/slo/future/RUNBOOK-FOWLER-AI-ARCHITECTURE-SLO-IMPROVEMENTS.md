@@ -45,7 +45,7 @@
 | 2 | `/slo-plan` exemplar-code rows + true refactoring discipline | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m2.md` | `docs/slo/completion/fowler-ai-arch-m2.md` |
 | 3 | AI nondeterminism tolerance contract across architect/plan/verify | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m3.md` | `docs/slo/completion/fowler-ai-arch-m3.md` |
 | 4 | `/slo-critique` architecture-coherence review pass | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m4.md` | `docs/slo/completion/fowler-ai-arch-m4.md` |
-| 5 | Ticket-flow parity + catalog/docs structural checks | `not_started` | | | | |
+| 5 | Ticket-flow parity + catalog/docs structural checks | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m5.md` | `docs/slo/completion/fowler-ai-arch-m5.md` |
 
 ---
 
@@ -546,20 +546,26 @@ No prior `fowler-ai-arch` retros exist. First execution of this runbook should o
 
 | Check | Command / Action | Expected Result | Actual Result | Status | Notes |
 |---|---|---|---|---|---|
-| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | | pending | |
-| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m5` | fails before ticket parity exists | | pending | |
-| Formatter | `cargo fmt --all -- --check` | passes | | pending | |
-| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m5` | passes | | pending | |
-| Full tests | `cargo test --workspace` | green or documented unrelated failure | | pending | |
-| Catalog/doc check | `rg 'reversibility|exemplar|AI tolerance' docs/skill-pack-catalog.md docs/ARCHITECTURE.md` | concise orientation only | | pending | |
+| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | green | pass | Warning only: pre-existing unused import in `e2e_biz_followup_m5.rs`. |
+| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m5` | fails before ticket parity exists | failed before implementation: missing compact ticket rows, ticket skill guidance, and catalog/architecture orientation | pass | Expected red-first BDD result. |
+| Formatter | `cargo fmt --all -- --check` | passes | red on pre-existing files outside M5; no M5 file appears in rustfmt diff | documented exception | Existing rustfmt drift in `e2e_biz_imp_*`, `e2e_sec_libs_m1.rs`, and `xtasks/sast-verify/tests/*`. |
+| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m5` | passes | 5 passed | pass | M5 structural contract locked. |
+| Ticket mirror tests | `cargo test -p sldo-install --test e2e_ticket_flow` | passes | 5 passed | pass | Skill-local and docs ticket templates still mirror. |
+| Package tests | `cargo test -p sldo-install` | passes | passed | pass | Existing warning only. |
+| Full tests | `cargo test --workspace` | green or documented unrelated failure | passed | pass | Existing warnings only. |
+| Catalog/doc check | `rg 'reversibility|exemplar|AI tolerance' docs/skill-pack-catalog.md docs/ARCHITECTURE.md` | concise orientation only | passed | pass | Two concise orientation lines; no duplicated contract table. |
+| Compact diff check | `git diff --word-diff -- docs/slo/templates/ticket-contract-template_v_1.md skills/slo-ticket-plan/references/ticket-contract-template_v_1.md` | compact row additions only | passed | pass | Both mirrors add the same five rows. |
+| Whitespace check | `git diff --check` | no whitespace errors | passed | pass | No whitespace errors. |
+| Security scan | `semgrep scan --config=p/security-audit ...` | no findings | 0 results | pass | Output written to `/tmp/fowler-ai-arch-m5-semgrep.json`. |
+| Dependency audit | `cargo audit --stale` | no advisories | no advisories | pass | No dependency changes in M5. |
 
 #### Definition of Done
 
-- [ ] Ticket template has compact parity rows.
-- [ ] Ticket plan/execute/verify consume the new rows.
-- [ ] Catalog/architecture docs mention the discipline without duplicating skill contracts.
-- [ ] M5 structural tests pass.
-- [ ] All runbook milestones ready for `/slo-execute`.
+- [x] Ticket template has compact parity rows.
+- [x] Ticket plan/execute/verify consume the new rows.
+- [x] Catalog/architecture docs mention the discipline without duplicating skill contracts.
+- [x] M5 structural tests pass.
+- [x] All runbook milestones complete and ready for `/slo-ship`.
 
 ---
 
@@ -574,13 +580,13 @@ No prior `fowler-ai-arch` retros exist. First execution of this runbook should o
 
 ## 9. Self-Review Gate
 
-- [ ] Did every milestone stay inside its allow-list?
-- [ ] Did every new Contract Block row have an N/A-with-reason path?
-- [ ] Did skill-local references change before or alongside repo mirror templates?
-- [ ] Did ticket flow reach parity with sprint flow?
-- [ ] Did every new behavior get a structural-contract test?
-- [ ] Did no host-runtime promise expand beyond current host-capability docs?
-- [ ] Did all user/source-note content remain treated as untrusted unless source-backed?
+- [x] Did every milestone stay inside its allow-list?
+- [x] Did every new Contract Block row have an N/A-with-reason path?
+- [x] Did skill-local references change before or alongside repo mirror templates?
+- [x] Did ticket flow reach parity with sprint flow?
+- [x] Did every new behavior get a structural-contract test?
+- [x] Did no host-runtime promise expand beyond current host-capability docs?
+- [x] Did all user/source-note content remain treated as untrusted unless source-backed?
 
 ## 10. Handoff
 

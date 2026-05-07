@@ -32,7 +32,7 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 
 ## Ticket-sized SLO flow
 
-GitHub Issues-first path for small, reviewable work that should keep v4 rigor without a full multi-milestone runbook. The proposal and operating model live in [slo/design/ticket-sized-slo-workflow.md](slo/design/ticket-sized-slo-workflow.md). The contract template lives at [slo/templates/ticket-contract-template_v_1.md](slo/templates/ticket-contract-template_v_1.md).
+GitHub Issues-first path for small, reviewable work that should keep v4 rigor without a full multi-milestone runbook. The proposal and operating model live in [slo/design/ticket-sized-slo-workflow.md](slo/design/ticket-sized-slo-workflow.md). The contract template lives at [slo/templates/ticket-contract-template_v_1.md](slo/templates/ticket-contract-template_v_1.md). Ticket contracts keep compact parity with sprint contracts for reversibility, exemplar / anti-exemplar guidance, refactoring discipline, and AI tolerance, using N/A rows when a simple issue does not need them.
 
 | Stage | Skill | Purpose |
 |---|---|---|

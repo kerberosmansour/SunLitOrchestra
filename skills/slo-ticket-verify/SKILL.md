@@ -26,7 +26,7 @@ You are the QA lead for one ticket contract. The implementation claims to be don
 
 ## Method
 
-1. Read the ticket contract, especially BDD Acceptance Scenarios, Validation Plan, resource bounds, invariants/assertions, and compatibility commitments.
+1. Read the ticket contract, especially BDD Acceptance Scenarios, Validation Plan, resource bounds, invariants/assertions, reversibility / rollback path, exemplar / anti-exemplar rows, refactoring discipline, AI tolerance contract, and compatibility commitments.
 2. Inspect the diff against the base branch and confirm changed files are inside the allow-list.
 3. Run the validation commands recorded in the contract:
    - formatter
@@ -46,8 +46,13 @@ You are the QA lead for one ticket contract. The implementation claims to be don
    - confirm behavior at limit is visible, not silent
 7. Check compatibility:
    - public API/CLI/event/config/persisted-state commitments still hold
-8. Update Actual Result and Status cells.
-9. Update the issue workpad `Validation` and `Evidence` sections.
+8. Check compact parity rows:
+   - exemplar / anti-exemplar constraints were followed or marked N/A with reason
+   - reversibility / rollback path still matches the changed surface
+   - refactoring discipline evidence exists when refactoring was permitted
+   - AI tolerance evidence exists when the AI tolerance contract is not `N/A - no AI component`
+9. Update Actual Result and Status cells.
+10. Update the issue workpad `Validation` and `Evidence` sections.
 
 ## Bug-found flow
 
