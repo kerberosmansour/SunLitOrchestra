@@ -43,7 +43,7 @@
 |---|---|---|---|---|---|---|
 | 1 | `/slo-architect` reversibility matrix + brownfield code map | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m1.md` | `docs/slo/completion/fowler-ai-arch-m1.md` |
 | 2 | `/slo-plan` exemplar-code rows + true refactoring discipline | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m2.md` | `docs/slo/completion/fowler-ai-arch-m2.md` |
-| 3 | AI nondeterminism tolerance contract across architect/plan/verify | `not_started` | | | | |
+| 3 | AI nondeterminism tolerance contract across architect/plan/verify | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m3.md` | `docs/slo/completion/fowler-ai-arch-m3.md` |
 | 4 | `/slo-critique` architecture-coherence review pass | `not_started` | | | | |
 | 5 | Ticket-flow parity + catalog/docs structural checks | `not_started` | | | | |
 
@@ -402,19 +402,23 @@ No prior `fowler-ai-arch` retros exist. First execution of this runbook should o
 
 | Check | Command / Action | Expected Result | Actual Result | Status | Notes |
 |---|---|---|---|---|---|
-| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | | pending | |
-| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m3` | fails before AI reference/pass exist | | pending | |
-| Formatter | `cargo fmt --all -- --check` | passes | | pending | |
-| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m3` | passes | | pending | |
-| Full tests | `cargo test --workspace` | green or documented unrelated failure | | pending | |
+| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | green | pass | Warning only: pre-existing unused import in `e2e_biz_followup_m5.rs`. |
+| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m3` | fails before AI reference/pass exist | failed before implementation: missing AI reference, plan guidance, verify pass, template row, and architect link | pass | Expected red-first BDD result. |
+| Formatter | `cargo fmt --all -- --check` | passes | red on pre-existing files outside M3; no M3 file remained in diff after local formatting patch | documented exception | Existing rustfmt drift in `e2e_biz_imp_*`, `e2e_sec_libs_m1.rs`, and `xtasks/sast-verify/tests/*`. |
+| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m3` | passes | 6 passed | pass | M3 structural contract locked. |
+| Template mirror | `cargo test -p sldo-install --test e2e_v4_template` | passes | 14 passed | pass | Skill-local and docs v4 mirrors aligned. |
+| Package tests | `cargo test -p sldo-install` | passes | passed | pass | Existing warning only. |
+| Full tests | `cargo test --workspace` | green or documented unrelated failure | passed | pass | Existing warnings only. |
+| Security scan | `semgrep scan --config=p/security-audit ...` | no findings | 0 results | pass | Output written to `/tmp/fowler-ai-arch-m3-semgrep.json`. |
+| Dependency audit | `cargo audit --stale` | no advisories | no advisories | pass | No dependency changes in M3. |
 
 #### Definition of Done
 
-- [ ] `ai-tolerance-contract.md` exists.
-- [ ] `/slo-plan` emits AI tolerance row when applicable.
-- [ ] `/slo-verify` documents AI tolerance pass.
-- [ ] Non-AI N/A path is explicit.
-- [ ] M3 structural tests pass.
+- [x] `ai-tolerance-contract.md` exists.
+- [x] `/slo-plan` emits AI tolerance row when applicable.
+- [x] `/slo-verify` documents AI tolerance pass.
+- [x] Non-AI N/A path is explicit.
+- [x] M3 structural tests pass.
 
 ---
 

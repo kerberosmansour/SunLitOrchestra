@@ -870,6 +870,7 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Exemplar code to copy | [paths and code shapes to follow, or `N/A — docs-only`] |
 | Anti-exemplar code not to copy | [paths or patterns to avoid, or `N/A — no anti-exemplar identified, see <reason>`] |
 | Refactoring discipline | [cite `skills/slo-plan/references/refactoring-discipline.md` when refactor budget permits refactoring, or `N/A — no refactoring performed, see <reason>`] |
+| AI tolerance contract | [required for AI/LLM behavior: accepted variance, deterministic boundary, eval evidence, retry / fallback, must-never outcomes, sample budget; or `N/A — no AI component`] |
 | Forbidden shortcuts | [mocks in prod, TODOs, silent fallbacks, broad refactor, etc.] |
 | Data classification (optional) | [Public / Internal / Confidential / Restricted — per project threat-model conventions] |
 | Proactive controls in play (optional) | [OWASP Proactive Controls citations, e.g., C1, C5, C9] |

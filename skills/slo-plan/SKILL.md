@@ -42,6 +42,7 @@ Every milestone Contract Block includes the base rows plus:
 
 - **Exemplar code to copy**: cite concrete paths or write `N/A — docs-only` / `N/A — no brownfield exemplar needed` with a reason.
 - **Anti-exemplar code not to copy**: cite risky legacy paths or patterns agents must not imitate; N/A with reason is valid.
+- **AI tolerance contract**: required when the milestone introduces, modifies, or verifies AI/LLM behavior (`ai_component: true`, prompt/tool-choice changes, eval harnesses, generated-output behavior, or AI-agent flows). Cite [`references/ai-tolerance-contract.md`](references/ai-tolerance-contract.md) and fill accepted variance, deterministic boundary, eval evidence, retry / fallback, must-never outcomes, and bounded sample budget. For non-AI work, write `N/A — no AI component`.
 - **Data classification**: `Public`, `Internal`, `Confidential`, or `Restricted`; see [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md).
 - **Proactive controls in play**: cite stack-aware controls from [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md).
 - **Abuse acceptance scenarios**: cite [`references/abuse-case-examples.md`](references/abuse-case-examples.md); required for every new surface. If no new surface, write `N/A — no new surface introduced, see <reason>`. Silent omission is forbidden.
