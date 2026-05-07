@@ -867,6 +867,9 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Invariants/assertions required | [list, per §4.3] |
 | Debugger / inspection expectation | [what must be inspectable, per §4.1] |
 | Static analysis gates | [formatter / typecheck / linter / audit commands, per §4.2] |
+| Exemplar code to copy | [paths and code shapes to follow, or `N/A — docs-only`] |
+| Anti-exemplar code not to copy | [paths or patterns to avoid, or `N/A — no anti-exemplar identified, see <reason>`] |
+| Refactoring discipline | [cite `skills/slo-plan/references/refactoring-discipline.md` when refactor budget permits refactoring, or `N/A — no refactoring performed, see <reason>`] |
 | Forbidden shortcuts | [mocks in prod, TODOs, silent fallbacks, broad refactor, etc.] |
 | Data classification (optional) | [Public / Internal / Confidential / Restricted — per project threat-model conventions] |
 | Proactive controls in play (optional) | [OWASP Proactive Controls citations, e.g., C1, C5, C9] |

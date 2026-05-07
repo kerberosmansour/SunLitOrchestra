@@ -40,9 +40,13 @@ One file in the user's project: `docs/RUNBOOK-<kebab-slug>.md`. Use `references/
 
 Every milestone Contract Block includes the base rows plus:
 
+- **Exemplar code to copy**: cite concrete paths or write `N/A — docs-only` / `N/A — no brownfield exemplar needed` with a reason.
+- **Anti-exemplar code not to copy**: cite risky legacy paths or patterns agents must not imitate; N/A with reason is valid.
 - **Data classification**: `Public`, `Internal`, `Confidential`, or `Restricted`; see [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md).
 - **Proactive controls in play**: cite stack-aware controls from [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md).
 - **Abuse acceptance scenarios**: cite [`references/abuse-case-examples.md`](references/abuse-case-examples.md); required for every new surface. If no new surface, write `N/A — no new surface introduced, see <reason>`. Silent omission is forbidden.
+
+When the Refactor budget is anything except `No refactor permitted beyond direct implementation`, apply [`references/refactoring-discipline.md`](references/refactoring-discipline.md): behavior-preserving microsteps, pre-test evidence, and post-test proof.
 
 BDD includes happy path, invalid input, empty state, dependency failure, retry/concurrency/persistence/backward compat as applicable, and **abuse case** for new surfaces.
 

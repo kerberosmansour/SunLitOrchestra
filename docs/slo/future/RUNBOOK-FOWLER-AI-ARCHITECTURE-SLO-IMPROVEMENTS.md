@@ -42,7 +42,7 @@
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
 | 1 | `/slo-architect` reversibility matrix + brownfield code map | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m1.md` | `docs/slo/completion/fowler-ai-arch-m1.md` |
-| 2 | `/slo-plan` exemplar-code rows + true refactoring discipline | `not_started` | | | | |
+| 2 | `/slo-plan` exemplar-code rows + true refactoring discipline | `done` | 2026-05-07 | 2026-05-07 | `docs/slo/lessons/fowler-ai-arch-m2.md` | `docs/slo/completion/fowler-ai-arch-m2.md` |
 | 3 | AI nondeterminism tolerance contract across architect/plan/verify | `not_started` | | | | |
 | 4 | `/slo-critique` architecture-coherence review pass | `not_started` | | | | |
 | 5 | Ticket-flow parity + catalog/docs structural checks | `not_started` | | | | |
@@ -331,19 +331,22 @@ No prior `fowler-ai-arch` retros exist. First execution of this runbook should o
 
 | Check | Command / Action | Expected Result | Actual Result | Status | Notes |
 |---|---|---|---|---|---|
-| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | | pending | |
-| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m2` | fails before rows/reference exist | | pending | |
-| Formatter | `cargo fmt --all -- --check` | passes | | pending | |
-| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m2` | passes | | pending | |
-| Full tests | `cargo test --workspace` | green or documented unrelated failure | | pending | |
-| `.gitignore` / artifact cleanup | `git status --short` | no stray test artifacts | | pending | |
+| Repo hygiene | `git status --short --branch`; tracker update | task branch, M2 started before BDD write | on `slo/fowler-ai-architecture-improvements`; only pre-existing `.gitignore` dirty before M2; tracker flipped to `in_progress` first | pass | Applied M1 rule for next milestone. |
+| Baseline before change | `cargo test -p sldo-install` | green or known unrelated failure captured | green; existing warning in `e2e_biz_followup_m5.rs` | pass | |
+| New tests fail first | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m2` | fails before rows/reference exist | failed for expected missing exemplar rows, refactoring reference, `/slo-plan` citation, and docs-only N/A path; `Refactor budget` preservation already passed | pass | BDD-first failure confirmed. |
+| Formatter | `cargo fmt --all -- --check` | passes | failed on pre-existing formatting drift outside M2 allow-list; after local fix, no M2 file appeared in formatter diff | known_unrelated | M2 test line-wraps were fixed. |
+| Unit/BDD tests | `cargo test -p sldo-install --test e2e_fowler_ai_arch_m2` | passes | 6 passed | pass | |
+| Template mirror check | `cargo test -p sldo-install --test e2e_v4_template`; `git diff --word-diff` | skill-local/docs mirrors aligned and rows compact | 14 passed; word diff shows identical three-row additions in both mirrors | pass | |
+| Full tests | `cargo test --workspace` | green or documented unrelated failure | green | pass | Workspace warnings pre-existed. |
+| `/slo-verify` runtime QA | `docs/slo/verify/fowler-ai-arch-m2.md` | every BDD row exercised | all M2 BDD scenarios pass; no bugs found | pass | Pass 4: Semgrep pass; `ast-grep` skipped; DAST/PII N/A; dependency audit N/A because no dependency changes. |
+| `.gitignore` / artifact cleanup | `git status --short` | no stray test artifacts | no Pass 4 artifacts written into repo; expected source/docs edits only plus pre-existing `.gitignore` | pass | Semgrep JSON written to `/tmp`. |
 
 #### Definition of Done
 
-- [ ] `/slo-plan` cites exemplar and refactoring discipline.
-- [ ] v4 template includes new additive rows.
-- [ ] `refactoring-discipline.md` exists and is cited.
-- [ ] M2 structural tests pass.
+- [x] `/slo-plan` cites exemplar and refactoring discipline.
+- [x] v4 template includes new additive rows.
+- [x] `refactoring-discipline.md` exists and is cited.
+- [x] M2 structural tests pass.
 
 ---
 
