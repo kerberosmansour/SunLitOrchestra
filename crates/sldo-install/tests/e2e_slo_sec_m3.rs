@@ -2,19 +2,20 @@
 //!
 //! Asserts `skills/slo-critique/personas/security.md` is rewritten around
 //! bug-class elimination + variant analysis + threat-model citation, and
-//! that `ceo.md` / `eng.md` / `design.md` personas plus the finding-row
-//! table schema in `SKILL.md` are byte-unchanged.
+//! that `ceo.md` / `design.md` personas plus the finding-row table schema in
+//! `SKILL.md` are byte-unchanged. `eng.md` was intentionally changed later by
+//! the Fowler AI architecture M4 runbook, so this historical guard now checks
+//! that the authorized architecture-coherence marker exists instead of pinning
+//! bytes from before M4.
 
 use std::fs;
 use std::path::{Path, PathBuf};
 
-// --- Fixtures: FNV-1a-64 hashes of the three non-rewritten personas,
+// --- Fixtures: FNV-1a-64 hashes of the non-rewritten personas,
 // captured at M3 start on 2026-04-24. If any of these hashes changes during
 // M3, an out-of-scope persona was touched — contract violated.
 const EXPECTED_CEO_FNV1A_64: u64 = 0xa297a61e54048204;
 const EXPECTED_CEO_BYTE_LEN: usize = 1787;
-const EXPECTED_ENG_FNV1A_64: u64 = 0x0f8013ab4393afb4;
-const EXPECTED_ENG_BYTE_LEN: usize = 2192;
 const EXPECTED_DESIGN_FNV1A_64: u64 = 0x449d7a844c24e5cd;
 const EXPECTED_DESIGN_BYTE_LEN: usize = 1860;
 
@@ -184,7 +185,7 @@ fn playbook_has_small_codebase_exit() {
 }
 
 // ---------------------------------------------------------------------------
-// BDD #9–#10 — CEO / eng / design personas unchanged (byte-identical).
+// BDD #9–#10 — CEO / design personas unchanged; eng changed by later M4.
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -204,18 +205,13 @@ fn ceo_persona_unchanged() {
 }
 
 #[test]
-fn eng_persona_unchanged() {
+fn eng_persona_architecture_coherence_allowed_after_m4() {
     let path = repo_root().join("skills/slo-critique/personas/eng.md");
-    let body = fs::read(&path).unwrap();
-    assert_eq!(
-        body.len(),
-        EXPECTED_ENG_BYTE_LEN,
-        "eng.md byte length changed"
-    );
-    assert_eq!(
-        fnv1a_64(&body),
-        EXPECTED_ENG_FNV1A_64,
-        "eng.md content changed — M3 must not edit eng persona"
+    let body = read(&path);
+    let lower = body.to_lowercase();
+    assert!(
+        lower.contains("architecture coherence") && lower.contains("four-object summary"),
+        "eng.md must carry the authorized M4 architecture-coherence marker"
     );
 }
 

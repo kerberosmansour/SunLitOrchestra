@@ -8,19 +8,19 @@
 //! - F-SEC-6: every `output-paths` entry, after `Path::components()` canonicalization,
 //!   is a strict prefix-subset of `{docs/slo/critique/, docs/slo/verify/}` AND contains
 //!   no `Component::ParentDir` segments and is not absolute.
-//! - F-ENG-6: `skills/slo-critique/SKILL.md` byte-identical to its M4 baseline,
-//!   verified via SHA-256 hash constant pinned at runbook-authoring-time / M4 close.
+//! - F-ENG-6: `skills/slo-critique/SKILL.md` byte-identical to its post-Fowler
+//!   AI architecture M4 baseline, verified via SHA-256 hash constant.
 //! - Each agent's `copilot-fallback` field is non-empty (per host-capability matrix).
 //! - Each agent file ≤ 200 lines.
 
 use sha2::{Digest, Sha256};
 use std::path::{Component, Path, PathBuf};
 
-/// SHA-256 of `skills/slo-critique/SKILL.md` captured 2026-05-01 at M5 start
-/// (post-M3 wiring, post-M4 plugin-packaging close, post any other M3 prose
-/// updates). Updating this constant requires a runbook amendment per F-ENG-6.
+/// SHA-256 of `skills/slo-critique/SKILL.md` captured 2026-05-07 after the
+/// Fowler AI architecture M4 coherence-pass update. Updating this constant
+/// requires a runbook amendment per F-ENG-6.
 const CRITIQUE_SKILL_SHA256: &str =
-    "8b1c1db40706f6168fa30c2d8cc44b9caa0356a2c1e5f7c7797f1b4e00184d65";
+    "5970f982ebb2f9739efd0186a66556ce1bc3db6d9bff125e5ef901991cbca071";
 
 const EXPECTED_AGENT_NAMES: &[&str] = &[
     "slo-runbook-review-lead",
