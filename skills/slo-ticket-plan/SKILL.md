@@ -57,6 +57,10 @@ The ticket template is deliberately derived from `docs/slo/templates/runbook-tem
    - invariants/assertions
    - debugger expectation
    - static-analysis gates
+   - reversibility / rollback path
+   - exemplar code to copy and anti-exemplar code not to copy
+   - refactoring discipline when refactoring is permitted
+   - AI tolerance contract when AI/LLM behavior is introduced, modified, or verified; otherwise `N/A - no AI component`
    - forbidden shortcuts
 9. Write BDD scenarios for happy path, invalid input, empty/degraded state, and abuse case when any new surface is introduced.
 10. Fill Validation Plan rows with real commands where discoverable. If a command is unknown, write `unknown - ask before execution`.

@@ -98,6 +98,21 @@ Every Pass 4 row must use the result vocabulary `pass/fail/skipped/N/A` so false
 
 **Threat-model rows** — this scan addresses `tm-biz-abuse-1` (founder repo leak) and `tm-biz-abuse-6` (founder pastes PII into generator). See [`docs/slo/design/biz-skill-pack-threat-model.md`](../../docs/slo/design/biz-skill-pack-threat-model.md).
 
+### Pass 5. AI tolerance (gated)
+
+Run this pass only when the milestone introduces, modifies, or verifies AI/LLM behavior, or when the Contract Block's AI tolerance contract row is anything other than `N/A — no AI component`.
+
+Verify the AI tolerance contract from [`slo-plan/references/ai-tolerance-contract.md`](../slo-plan/references/ai-tolerance-contract.md):
+
+- **Accepted variance** — observed samples stay within the contract's declared output variance.
+- **Deterministic boundary** — code, config, schemas, safety rules, interfaces, and persisted data that must be deterministic did not drift.
+- **Eval evidence** — golden/scenario fixtures or commands were run with the declared bounded sample budget.
+- **Retry / fallback** — retries and fallback behavior are bounded and visible when tolerance is exceeded.
+- **Must-never outcomes** — banned safety, security, compliance, privacy, and data-integrity outcomes did not occur.
+- **Sample budget** — verification used the declared bounded sample/eval count; unbounded sampling is a failure.
+
+For deterministic, docs-only, template-only, or non-AI milestones, record `N/A — no AI component` and do not run AI-specific sampling.
+
 ## When you find a bug
 
 1. **STOP** and write a regression test that reproduces it. The test should fail today.

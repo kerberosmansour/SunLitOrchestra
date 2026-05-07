@@ -36,6 +36,10 @@ You are the implementer for one issue-sized SLO contract. Your job is to satisfy
    - public interface compatibility
    - resource bounds
    - invariants/assertions
+   - reversibility / rollback path
+   - exemplar / anti-exemplar constraints
+   - refactoring discipline
+   - AI tolerance contract, when present
    - static-analysis gates
    - validation commands
 6. Run the Repo hygiene gate before file edits. Record git state, confirm the current branch is not the default/protected branch, create/switch to the target task branch when needed, and update the issue workpad with the branch name once selected.
@@ -97,11 +101,11 @@ If the fix requires editing a file not listed in `Files allowed to change`:
 3. Add runtime validation stubs if the contract requires them.
 4. Implement the smallest safe change inside the allow-list.
 5. Encode required invariants/assertions and resource bounds.
-6. Make the tests pass.
-7. Run formatter, typecheck/build, static analysis/lint, unit/BDD tests, and any dependency/security audit required by the contract.
-8. Run runtime validation if the ticket touches behavior that can be exercised outside unit tests.
-9. Fill Actual Result and Status cells in the Validation Plan.
-10. Update the issue workpad `Evidence` section with command names and outcomes.
+6. Follow the exemplar / anti-exemplar, reversibility, refactoring discipline, and AI tolerance rows when they are not N/A.
+7. Make the tests pass.
+8. Run formatter, typecheck/build, static analysis/lint, unit/BDD tests, and any dependency/security audit required by the contract.
+9. Run runtime validation if the ticket touches behavior that can be exercised outside unit tests.
+10. Fill Actual Result and Status cells in the Validation Plan and update the issue workpad `Evidence` section with command names and outcomes.
 
 ## Gates
 

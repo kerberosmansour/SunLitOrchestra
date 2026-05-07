@@ -15,6 +15,16 @@ Every plan assumes something. Name it:
 
 If the runbook's BDD scenarios don't exercise the assumption, it's hidden. Propose a scenario that breaks it.
 
+### Architecture coherence
+Compare the milestone contracts against the architecture artifacts before judging implementation detail:
+
+- Read `docs/slo/design/<slug>-code-map.md` and check the four-object summary. If a milestone edits a major object not named there, flag the mismatch.
+- Check exemplar and anti-exemplar rows against the code-map. If a runbook cites an exemplar absent from the code-map, recommend updating the row or the code-map.
+- Check reversibility rows for hard-to-change interfaces, persisted state, commands, or skill contracts. If a milestone touches one without a rollback / migration path, flag the missing reversibility proof.
+- Check AI tolerance rows on AI/LLM milestones. If `ai_component: true` or the milestone modifies AI behavior but the row is absent, unbounded, or lacks must-never outcomes, flag it.
+
+Reject vague architecture concerns. "Architecture feels messy" is not accepted. Every architecture coherence finding needs a concrete actor, action, and bad outcome, plus the specific artifact row that drifted.
+
 ### Missing failure modes
 For every action in a milestone, ask:
 - What if the dependency is down?

@@ -50,7 +50,7 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
 - **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md`, `copilot-instructions.md`, and `AGENTS.md` are overlays, not competing sources of truth.
 - **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
-- **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`.
+- **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`. The template stays compact while mirroring sprint-flow reversibility, exemplar / anti-exemplar, refactoring discipline, and AI tolerance rows with N/A paths.
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`. Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/`.
 - **Cross-platform installer behavior.** Linux and macOS use directory symlinks. Windows tries directory symlinks first and falls back to directory junctions when symlink privileges are unavailable. Home resolution supports `HOME`, `USERPROFILE`, and `HOMEDRIVE` + `HOMEPATH`.

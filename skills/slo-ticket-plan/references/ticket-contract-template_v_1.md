@@ -112,6 +112,11 @@ For docs-only or test-only work, write `N/A - no architecture delta` with a one-
 | Invariants/assertions required | `[assertions, typed states, pre/postconditions or N/A]` |
 | Debugger / inspection expectation | `[when debugger/state inspection is required, or N/A with reason]` |
 | Static analysis gates | `[formatter, typecheck, lint/static analyzer, audit if deps changed]` |
+| Reversibility / rollback path | `[rollback/migration path for hard-to-change decisions, or N/A - additive/simple change]` |
+| Exemplar code to copy | `[paths/patterns to follow, or N/A - docs-only/no brownfield exemplar]` |
+| Anti-exemplar code not to copy | `[risky paths/patterns to avoid, or N/A - no anti-exemplar identified, because ...]` |
+| Refactoring discipline | `[pre-test/microstep/post-test proof if refactor permitted, or N/A - no refactoring performed]` |
+| AI tolerance contract | `[accepted variance, deterministic boundary, eval evidence, bounded sample budget, or N/A - no AI component]` |
 | Forbidden shortcuts | `[no placeholder logic, no silent fallback, no broad refactor, ...]` |
 
 ---
