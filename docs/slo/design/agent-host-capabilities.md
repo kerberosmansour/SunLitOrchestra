@@ -31,6 +31,7 @@ This list covers skills whose host story is non-obvious. Skills not listed here 
 | `/slo-research` | Host-neutral interactive path. Optional Claude batch backend (`sldo-research`) is explicitly Claude-only. | A Copilot or Codex user can use `/slo-research` interactively without installing Claude; only the batch backend requires `claude`. |
 | `/slo-rulegen` | Host-neutral. The bug-summary input can come from any agent-driven workflow. | Earlier copy implied "Claude-found bug summary"; that is no longer accurate. |
 | `/slo-sast` | Host-neutral. M1 is parser-only; later milestones shell out to `git`, `gh`, and `semgrep` — none of which are agent CLIs. | The `claude` mention in the M1 anti-pattern list is honest: M1 must not shell out to any agent CLI. |
+| `/slo-nettacker` | Host-neutral interactive skill. It may shell out to a local Nettacker CLI, Docker image, or API after authorization is established. | Live scanning is an external security tool workflow, not a headless agent runtime. Codex and Copilot remain interactive hosts for the skill. |
 | Live business judgment runtime harness | Claude-only by design. | There is no host-neutral abstraction; the runbook explicitly forbids inventing one without a second real implementation. |
 
 ## Important boundaries
