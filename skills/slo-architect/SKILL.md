@@ -21,15 +21,17 @@ You are a staff engineer who must decide now, not later. You have an idea doc, a
 
 ## Outputs
 
-Five files (creating or updating as appropriate):
+Seven files (creating or updating as appropriate):
 
 1. `ARCHITECTURE.md` at the target repo root (or `docs/ARCHITECTURE.md` per repo convention) — component diagram + data flow + trust boundaries + legend.
 2. `docs/slo/design/<slug>-stack-decision.md` — chosen stack, rejected alternatives with reasons.
 3. `docs/slo/design/<slug>-interfaces.md` — public APIs, commands, events, persisted-state shapes that downstream milestones must keep stable.
 4. `SECURITY.md` at the target repo root — project-wide security rules, generated from `references/SECURITY-md-template.md`. Emitted when `security_libs_required: true` OR the idea doc's `## Top risks` block is non-trivial. This file is read by every downstream agent before generating code (the "project-wide security defaults" contract).
 5. `docs/slo/design/<slug>-threat-model.md` — STRIDE per component + abuse cases + compliance mapping, generated from `references/threat-model-template.md`. Always emitted (even for small systems — `N/A — <reason>` rows are valid).
+6. `docs/slo/design/<slug>-reversibility.md` — hard-to-change decisions, why each is hard to reverse, the reversibility tactic, rollback / migration path, and proof required.
+7. `docs/slo/design/<slug>-code-map.md` — for a non-empty brownfield repo, a four-object summary, exemplar code to copy, anti-exemplar code not to copy, and dangerous seams. Greenfield projects write `N/A — greenfield; no existing codebase to map`.
 
-Set three frontmatter keys in `docs/slo/design/<slug>-overview.md`:
+Set four frontmatter keys in `docs/slo/design/<slug>-overview.md`:
 
 - `tla_required: <bool>` — how `/slo-tla` knows whether to run (see Step 5).
 - `security_libs_required: <bool>` — how `/slo-sec-libs` (Phase 4 of the security-embedding work) knows whether to recommend Hulumi / SunLitSecurityLibraries components. Default when absent: `false`.
@@ -82,6 +84,19 @@ Before locking interfaces, produce the security artifacts. This is the 80/20 bur
 7. **Re-run behavior (idempotency).** If `SECURITY.md` or `<slug>-threat-model.md` already exists (i.e., `/slo-architect` has run before), do NOT silently clobber. Detect the existing file, diff against what would be regenerated, surface the diff to the user, and prompt: **overwrite** (apply regeneration), **merge** (preserve user edits where possible; regenerate only untouched sections), or **skip** (leave the file alone). Default on missing user input: prompt again; never overwrite by default.
 
 After Step 3.5, the threat model is the artifact `/slo-plan`, `/slo-critique`, and `/slo-verify` all cite.
+
+### Step 3.6 — Emit reversibility matrix + brownfield code map
+
+Write `docs/slo/design/<slug>-reversibility.md` with a table covering each hard-to-change decision: decision, why hard to change, reversibility tactic, rollback / migration path, and proof required. If there are no hard-to-change decisions, write an explicit `N/A — <reason>` row rather than omitting the artifact.
+
+Write `docs/slo/design/<slug>-code-map.md` after direct repo inspection. For non-empty brownfield repos, include:
+
+- Four-object summary — the main objects/modules/artifacts and how they relate.
+- Exemplar code to copy — concrete file paths and the shape worth following.
+- Anti-exemplar code not to copy — concrete file paths or patterns that are legacy, risky, or misleading.
+- Dangerous seams — boundaries where agents should inspect before editing.
+
+For greenfield projects, the code map is `N/A — greenfield; no existing codebase to map`. On re-run, apply the same idempotency rule as Step 3.5: detect existing reversibility/code-map files, diff proposed changes, and prompt for overwrite, merge, or skip. Never silently clobber existing design artifacts.
 
 ### 4. Lock down interfaces
 

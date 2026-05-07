@@ -14,8 +14,9 @@ risk: high
 ~~~
 
 ## Expected Behavior
-Write architecture artifacts, record stack decisions, build STRIDE rows, and set `tla_required` according to the risk.
+Write architecture artifacts, record stack decisions, build STRIDE rows, emit the reversibility matrix and code map, and set `tla_required` according to the risk.
 
 ## Must Not
 - Skip threat modeling because the feature is small.
 - Leave `tla_required` implicit.
+- Omit reversibility or brownfield code-map outputs because the existing architecture diagram is present.
