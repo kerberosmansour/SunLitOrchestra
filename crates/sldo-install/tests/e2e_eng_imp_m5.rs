@@ -13,6 +13,7 @@ const HIGH_RISK_SKILLS: &[&str] = &[
     "slo-fundraise",
     "slo-hire",
     "slo-sast",
+    "slo-nettacker",
     "slo-tla",
     "slo-execute",
     "slo-verify",
