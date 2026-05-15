@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kerberosmansour/zaprun/blob/main/schema/manifest-v1.json",
+  "title": "zaprun DAST manifest v1",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema_version",
+    "generated_at",
+    "generated_by_zaprun_version",
+    "image_digest",
+    "upstream_image_digest",
+    "cwes_claimed",
+    "cwes_actually_covered",
+    "cwes_uncovered",
+    "detected_stack",
+    "detected_surface",
+    "detected_auth",
+    "selected_scanners",
+    "selected_rules",
+    "selection_strategy"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "1.0" },
+    "generated_at": { "type": "string" },
+    "generated_by_zaprun_version": { "type": "string" },
+    "image_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "upstream_image_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "threat_model_sha": {
+      "anyOf": [
+        { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        { "type": "null" }
+      ]
+    },
+    "cwes_claimed": { "type": "array", "items": { "$ref": "#/$defs/cwe" } },
+    "cwes_actually_covered": { "type": "array", "items": { "$ref": "#/$defs/cwe" } },
+    "cwes_uncovered": { "type": "array", "items": { "$ref": "#/$defs/cwe" } },
+    "coverage_gaps": { "type": "array" },
+    "detected_stack": { "type": "array", "items": { "type": "string" } },
+    "detected_surface": { "type": "string" },
+    "detected_auth": { "type": "string" },
+    "selected_scanners": { "type": "array", "items": { "type": "string" } },
+    "selected_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "level"],
+        "properties": {
+          "id": { "type": "string" },
+          "source": { "type": "string" },
+          "level": { "type": "string" },
+          "metadata_cwe": { "type": "array", "items": { "$ref": "#/$defs/cwe" } },
+          "script_path": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "selection_strategy": { "enum": ["threat-model-cwe", "default-fallback"] },
+    "findings_summary": { "type": ["object", "null"] },
+    "baseline_summary": { "type": ["object", "null"] }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "cwe": { "type": "string", "pattern": "^CWE-[0-9]+$" }
+  }
+}
