@@ -1,0 +1,110 @@
+[[mappings]]
+cwe = "CWE-22"
+zap_rules = [
+  { id = "6", level = "WARN", surface = "both", note = "Path traversal passive signal" },
+  { id = "40035", level = "FAIL", surface = "web", note = "Hidden file finder" },
+]
+nuclei_templates = ["http/exposures/files/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-78"
+zap_rules = [{ id = "90020", level = "FAIL", surface = "both", note = "Remote OS command injection" }]
+nuclei_templates = ["http/cves/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-79"
+zap_rules = [
+  { id = "40012", level = "FAIL", surface = "both", note = "Reflected XSS" },
+  { id = "40014", level = "FAIL", surface = "web", note = "Persistent XSS" },
+  { id = "40016", level = "FAIL", surface = "web", note = "Persistent XSS spider prime" },
+  { id = "40017", level = "FAIL", surface = "web", note = "Persistent XSS spider" },
+  { id = "40026", level = "WARN", surface = "web", note = "DOM XSS nightly only" },
+]
+nuclei_templates = ["http/exposures/dom-xss/"]
+custom_scripts = ["cwe-79-dom-taint-flow.js"]
+
+[[mappings]]
+cwe = "CWE-89"
+zap_rules = [
+  { id = "40018", level = "FAIL", surface = "both", note = "SQL injection" },
+  { id = "40019", level = "FAIL", surface = "both", note = "SQL injection MySQL" },
+  { id = "40021", level = "FAIL", surface = "both", note = "SQL injection Oracle" },
+  { id = "40022", level = "FAIL", surface = "both", note = "SQL injection PostgreSQL" },
+  { id = "40024", level = "FAIL", surface = "both", note = "SQL injection SQLite" },
+  { id = "40027", level = "FAIL", surface = "both", note = "SQL injection MsSQL" },
+]
+nuclei_templates = []
+custom_scripts = []
+sqlmap_profile = "fast"
+
+[[mappings]]
+cwe = "CWE-200"
+zap_rules = [
+  { id = "10036", level = "WARN", surface = "both", note = "Server header leak" },
+  { id = "10037", level = "WARN", surface = "both", note = "X-Powered-By leak" },
+  { id = "40034", level = "FAIL", surface = "web", note = "Env information leak" },
+]
+nuclei_templates = ["http/exposures/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-287"
+zap_rules = [{ id = "10109", level = "WARN", surface = "web", note = "Modern web application auth signal" }]
+nuclei_templates = ["http/default-logins/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-352"
+zap_rules = [{ id = "20012", level = "FAIL", surface = "web", note = "Anti-CSRF tokens check" }]
+nuclei_templates = ["http/misconfiguration/csrf/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-502"
+zap_rules = [{ id = "90019", level = "FAIL", surface = "both", note = "Server-side code injection signal" }]
+nuclei_templates = ["http/cves/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-601"
+zap_rules = [{ id = "20019", level = "FAIL", surface = "both", note = "External redirect" }]
+nuclei_templates = ["http/misconfiguration/open-redirect/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-611"
+zap_rules = [{ id = "90023", level = "FAIL", surface = "api", note = "XXE" }]
+nuclei_templates = ["http/cves/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-770"
+zap_rules = [{ id = "40038", level = "FAIL", surface = "web", note = "Bypassing 403 may reveal resource controls" }]
+nuclei_templates = ["http/misconfiguration/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-798"
+zap_rules = [{ id = "10096", level = "WARN", surface = "both", note = "Timestamp disclosure adjacent passive signal" }]
+nuclei_templates = ["http/exposures/tokens/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-918"
+zap_rules = [{ id = "40042", level = "FAIL", surface = "web", note = "Spring actuator information leak" }]
+nuclei_templates = ["http/vulnerabilities/ssrf/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-1021"
+zap_rules = [{ id = "10020", level = "FAIL", surface = "web", note = "X-Frame-Options header" }]
+nuclei_templates = ["http/misconfiguration/clickjacking/"]
+custom_scripts = []
+
+[[mappings]]
+cwe = "CWE-1333"
+zap_rules = [{ id = "40040", level = "FAIL", surface = "web", note = "CORS misconfiguration can expose regex-like origin handling" }]
+nuclei_templates = ["http/misconfiguration/cors/"]
+custom_scripts = []

@@ -1,0 +1,20 @@
+[upstream]
+image = "cgr.dev/chainguard/wolfi-base"
+digest = "sha256:31da6565f35af6401031c1d7aa91dc84ac76c5c48edd17fb90f0ed9e3173c7a9"
+checked_at = "2026-05-06"
+note = "Clean Wolfi base resolved with docker buildx imagetools inspect cgr.dev/chainguard/wolfi-base:latest."
+
+[zap_release]
+version = "2.17.0"
+tag = "v2.17.0"
+asset = "ZAP_2.17.0_Linux.tar.gz"
+url = "https://github.com/zaproxy/zaproxy/releases/download/v2.17.0/ZAP_2.17.0_Linux.tar.gz"
+digest = "sha256:efe799aaa3627db683b43f00c9c210aea0b75c00cc8f0a0f0434d12bb3ddde5a"
+checked_at = "2026-05-06"
+note = "Latest GitHub release asset digest from the official zaproxy/zaproxy release API."
+
+[ours]
+image = "ghcr.io/kerberosmansour/zaprun"
+digest = "sha256:1caa4c454beac1a5ca67bb06484282b94e43a5cd01ba772ec1a2b78a6ed4c649"
+checked_at = "2026-05-12"
+note = "v0.1.0 release digest - first publicly signed and attested image. Future releases auto-bump this field via release.yml's bump-pins job."

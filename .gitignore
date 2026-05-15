@@ -38,6 +38,9 @@ docs/legal
 docs/slo/research/**/run.log
 docs/research/**/run.log
 
+# In-progress runbooks live under docs/slo/ and stay local until promoted.
+docs/slo/RUNBOOK-*.md
+
 # Research dossier output directory
 output/
 
