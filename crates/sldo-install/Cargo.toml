@@ -21,7 +21,7 @@ clap = { workspace = true }
 anyhow = { workspace = true }
 colored = { workspace = true }
 chrono = { workspace = true }
-sldo-common = { path = "../sldo-common", version = "0.1.1" }
+sldo-common = { path = "../sldo-common", version = "0.1.2" }
 serde = { version = "1", features = ["derive"] }
 toml = "1.1"
 

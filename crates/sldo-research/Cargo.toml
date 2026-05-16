@@ -17,7 +17,7 @@ name = "sldo-research"
 path = "src/main.rs"
 
 [dependencies]
-sldo-common = { path = "../sldo-common", version = "0.1.1" }
+sldo-common = { path = "../sldo-common", version = "0.1.2" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 chrono = { workspace = true }

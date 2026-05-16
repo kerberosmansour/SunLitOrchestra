@@ -3,6 +3,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+const PUBLISH_READY_VERSION: &str = "0.1.2";
+
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -63,7 +65,9 @@ fn published_crates_have_local_readmes() {
 #[test]
 fn publish_prep_bumps_workspace_and_internal_dependency_versions() {
     let root_manifest = read(repo_root().join("Cargo.toml"));
-    assert!(root_manifest.contains("[workspace.package]\nversion = \"0.1.1\""));
+    assert!(root_manifest.contains(&format!(
+        "[workspace.package]\nversion = \"{PUBLISH_READY_VERSION}\""
+    )));
 
     for crate_name in ["sldo-common", "sldo-install", "sldo-research"] {
         assert!(
@@ -74,8 +78,9 @@ fn publish_prep_bumps_workspace_and_internal_dependency_versions() {
 
     for crate_name in ["sldo-install", "sldo-research"] {
         assert!(
-            crate_manifest(crate_name)
-                .contains("sldo-common = { path = \"../sldo-common\", version = \"0.1.1\" }"),
+            crate_manifest(crate_name).contains(&format!(
+                "sldo-common = {{ path = \"../sldo-common\", version = \"{PUBLISH_READY_VERSION}\" }}"
+            )),
             "{crate_name} should depend on the publish-ready sldo-common version"
         );
     }
