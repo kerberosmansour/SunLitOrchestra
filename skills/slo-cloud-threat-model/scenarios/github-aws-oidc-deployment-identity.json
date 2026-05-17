@@ -1,0 +1,69 @@
+{
+  "id": "github-aws-oidc-deployment-identity",
+  "title": "GitHub→AWS OIDC Deployment Identity — positive deployment role with exact repo/env/workflow claims",
+  "provider": "cross-provider",
+  "description": "A platform engineer wires a GitHub Actions deployment workflow to assume an AWS deployment role. Hulumi's Edge Platform (v1.3.2) provides GitHubAwsOidcDeploymentRole, a positive cross-provider abstraction that generates an AWS IAM role whose trust policy binds the GitHub OIDC subject to exact repository, environment, and reusable-workflow (job_workflow_ref) claims — no wildcard sub — with least-privilege policy attachments. G_OIDC_1 is the regression guardrail that rejects wildcard/StringLike sub trust at preview time.",
+  "requiredFrameworks": ["CCM", "NIST-800-53-r5", "NIST-SSDF-v1.1", "OpenSSF-Scorecard", "MITRE-ATTCK", "GitHub-Well-Architected", "Hulumi-Policy"],
+  "actors": [
+    "Platform Engineer (trusted; provisions the deployment role)",
+    "Deployment Workflow (trusted within exact OIDC claims)",
+    "Compromised Workflow / Action (untrusted; attempts to assume the production role)",
+    "Contributor (semi-trusted; may omit environment gates or use long-lived keys)"
+  ],
+  "assets": [
+    "AWS IAM deployment role and its trust policy",
+    "GitHub OIDC subject claims (repository, environment, job_workflow_ref)",
+    "Protected GitHub environment gates",
+    "Least-privilege policy attachments on the deployment role",
+    "Production AWS resources reachable by the deployment role"
+  ],
+  "stride": [
+    {
+      "type": "S",
+      "name": "Wildcard sub trust assumed by a compromised workflow",
+      "description": "A compromised workflow or Action uses a wildcard / StringLike sub trust to assume the production AWS deployment role without the intended repository, environment, or reusable-workflow constraints. Mitigation: GitHubAwsOidcDeploymentRole binds exact repository + environment + job_workflow_ref claims; G_OIDC_1 rejects wildcard/StringLike sub conditions at preview time.",
+      "controls": ["CCM:IAM-10", "NIST-SSDF-v1.1:PO.5", "GitHub-Well-Architected:PO.3", "MITRE-ATTCK:T1195", "G_OIDC_1"]
+    },
+    {
+      "type": "E",
+      "name": "Missing protected-environment gate lets any branch deploy",
+      "description": "A contributor omits the protected-environment gate for production, so any matching branch can assume the deployment role and deploy. Mitigation: the environment input is required for the startup-hardened tier so the trust is bound to a protected environment with reviewers/branch policy.",
+      "controls": ["CCM:IAM-07", "NIST-SSDF-v1.1:PO.3", "GitHub-Well-Architected:PW.5"]
+    },
+    {
+      "type": "T",
+      "name": "Long-lived AWS keys used instead of OIDC",
+      "description": "Long-lived AWS access keys are added as GitHub secrets instead of using the short-lived OIDC role, bypassing the short-lived identity model. Mitigation: docs and a policy fixture reject a deployment-capable repository without the OIDC role path; the positive component makes the safe path the easy path.",
+      "controls": ["CCM:CEK-04", "NIST-800-53-r5:IA-5", "NIST-SSDF-v1.1:PO.5"]
+    },
+    {
+      "type": "I",
+      "name": "Over-scoped deployment role",
+      "description": "The deployment role is granted broader permissions than the deployment needs, so a compromised workflow within the exact claims still has excess blast radius. Mitigation: GitHubAwsOidcDeploymentRole uses least-privilege policy attachments scoped to the deployment targets, not account-wide writes.",
+      "controls": ["CCM:IAM-07", "NIST-800-53-r5:AC-6", "OpenSSF-Scorecard:Token-Permissions"]
+    },
+    {
+      "type": "R",
+      "name": "Deployment not attributable across providers",
+      "description": "A deployment cannot be attributed to a specific repository/workflow/actor across the GitHub→AWS boundary. Mitigation: the AWS IAM role and GitHub environment audit trails together attribute the assume to exact OIDC claims; the role is tagged so CloudTrail distinguishes IaC-originated assumes.",
+      "controls": ["CCM:LOG-02", "NIST-800-53-r5:AU-12"]
+    }
+  ],
+  "recommendedComponents": [
+    {
+      "name": "@hulumi/platform-patterns.GitHubAwsOidcDeploymentRole",
+      "availability": "Shipped in @hulumi/platform-patterns@1.3.2 (Edge Platform; surface: stable)",
+      "rationale": "Positive AWS IAM role abstraction binding GitHub OIDC trust to exact repository, environment, and job_workflow_ref claims with least-privilege policy attachments and no wildcard sub."
+    },
+    {
+      "name": "@hulumi/policies.github.G_OIDC_1",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (rule since v1.1.0 M3; covers the cross-provider deployment role)",
+      "rationale": "Declarative CrossGuard rule rejecting StringLike / wildcard sub conditions on GitHub OIDC trust to AWS / Azure / GCP at preview time; the regression guardrail for the deployment role."
+    },
+    {
+      "name": "@hulumi/baseline.github.OrgFoundation",
+      "availability": "Shipped in @hulumi/baseline@1.3.2 (component since v1.1.0 M2)",
+      "rationale": "Ships the org-side OIDC subject-claim customization template with the safe three-axis default so the GitHub side matches the exact-claim AWS trust."
+    }
+  ]
+}

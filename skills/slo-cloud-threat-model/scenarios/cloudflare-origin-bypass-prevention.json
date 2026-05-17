@@ -1,0 +1,69 @@
+{
+  "id": "cloudflare-origin-bypass-prevention",
+  "title": "Cloudflare Origin-Bypass Prevention — tunnel vs allowlist+AOP for the Cloudflare→AWS path",
+  "provider": "cloudflare",
+  "description": "A workload is documented as 'behind Cloudflare' while its AWS origin (ALB/NLB or service) still accepts direct public traffic. Hulumi's Edge Platform (v1.3.2) enforces the cross-provider invariant that public application traffic reaches AWS origins only through Cloudflare-controlled paths: CloudflareOriginIngress offers a tunnel mode (no public origin at all) or an allowlist+AOP mode (origin security group restricted to Cloudflare ranges plus Authenticated Origin Pull). CF_ORIGIN_1 requires secure-origin evidence; the origin-bypass pack's X_ORIGIN_1 reports public AWS origins reachable around Cloudflare.",
+  "requiredFrameworks": ["CCM", "NIST-800-53-r5", "OWASP-ASVS-v5.0", "ISO-27001-2022", "Hulumi-Policy"],
+  "actors": [
+    "Platform Engineer (trusted)",
+    "AI Coding Agent (trusted; may create ALB and Cloudflare DNS in separate code paths)",
+    "External Attacker (untrusted; discovers and connects directly to the origin)",
+    "Contributor (semi-trusted; may pick public origin mode for convenience)"
+  ],
+  "assets": [
+    "AWS origin (internet-facing ALB/NLB or service)",
+    "Origin security-group ingress rules",
+    "Cloudflare Tunnel configuration or Authenticated Origin Pull material",
+    "The public application served through Cloudflare",
+    "Chosen origin-ingress mode evidence"
+  ],
+  "stride": [
+    {
+      "type": "I",
+      "name": "Origin-bypass breach via direct origin reachability",
+      "description": "An attacker discovers the ALB DNS name or a historical origin IP (DNS history, leaked IP, DNS-only record) and connects directly to the AWS origin, bypassing Cloudflare WAF, bot controls, rate limiting, and Access. Mitigation: CloudflareOriginIngress defaults to tunnel mode (no public origin) or allowlist+AOP; CF_ORIGIN_1 requires secure-origin evidence and X_ORIGIN_1 reports a public AWS origin reachable around Cloudflare.",
+      "controls": ["CCM:IVS-09", "NIST-800-53-r5:SC-7", "OWASP-ASVS-v5.0:V14", "ISO-27001-2022:A.8.20", "CF_ORIGIN_1_REQUIRE_SECURE_ORIGIN_MODE", "X_ORIGIN_1_NO_PUBLIC_AWS_ORIGIN_BYPASS"]
+    },
+    {
+      "type": "S",
+      "name": "Spoofed origin requests not from Cloudflare",
+      "description": "Even with a restricted security group, an attacker inside an allowed network path could reach the origin if requests are not authenticated as coming from Cloudflare. Mitigation: allowlist+AOP mode requires Authenticated Origin Pull (mTLS client certificate) so the origin trusts only Cloudflare; tunnel mode removes inbound exposure entirely.",
+      "controls": ["CCM:IAM-10", "NIST-800-53-r5:IA-3", "NIST-800-53-r5:SC-8"]
+    },
+    {
+      "type": "T",
+      "name": "Security group widened back to 0.0.0.0/0",
+      "description": "The origin security group is changed out of band to accept public ingress again, re-opening the bypass. Mitigation: allowlist+AOP pins Cloudflare IP ranges in the security group as managed state; X_ORIGIN_1 is the fixture-backed cross-provider check that flags a public AWS origin alongside a Cloudflare public-app record.",
+      "controls": ["CCM:IVS-03", "NIST-800-53-r5:SC-7", "NIST-800-53-r5:AU-12"]
+    },
+    {
+      "type": "E",
+      "name": "Public origin mode selected without source restrictions",
+      "description": "A contributor selects a public origin mode without Cloudflare source restrictions to make a deployment easier, weakening origin posture. Mitigation: a discriminated-union argument prevents mixed insecure modes and an explicit acknowledgePublicOrigin path is required before any public origin mode is accepted.",
+      "controls": ["CCM:GRC-07", "NIST-800-53-r5:CM-7", "OWASP-ASVS-v5.0:V14"]
+    },
+    {
+      "type": "R",
+      "name": "No evidence of chosen mode or compensating controls",
+      "description": "Without recorded evidence of the chosen ingress mode, an auditor cannot tell whether the cross-provider invariant holds. Mitigation: CloudflareOriginIngress emits outputs documenting the chosen mode and compensating controls; CF_ORIGIN_1 only accepts ingress evidence whose hostname matches the public app record.",
+      "controls": ["CCM:LOG-02", "NIST-800-53-r5:AU-12"]
+    }
+  ],
+  "recommendedComponents": [
+    {
+      "name": "@hulumi/platform-patterns.CloudflareOriginIngress",
+      "availability": "Shipped in @hulumi/platform-patterns@1.3.2 (Edge Platform; surface: stable)",
+      "rationale": "Tunnel mode (no public origin) or allowlist+AOP mode (Cloudflare-range security group plus Authenticated Origin Pull). Discriminated-union args refuse public origin mode without explicit controls."
+    },
+    {
+      "name": "@hulumi/policies.cloudflare.HulumiCloudflareHardeningPack",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (Edge Platform; rule IDs stable)",
+      "rationale": "Mandatory CF_ORIGIN_1 requires application hostnames to carry CloudflareOriginIngress tunnel or allowlist+AOP evidence whose hostname matches the public app record."
+    },
+    {
+      "name": "@hulumi/policies.HulumiOriginBypassPack",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (Edge Platform; advisory/evolving until origin-bypass M4 sandbox fixtures)",
+      "rationale": "Cross-provider X_ORIGIN_1 reports Cloudflare public-app records targeting an AWS ELB origin without tunnel or allowlist+AOP evidence; advisory until sandbox fixture coverage promotes it."
+    }
+  ]
+}

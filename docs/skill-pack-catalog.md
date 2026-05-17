@@ -5,7 +5,7 @@
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
-**Shipped skills at HEAD: 40** (10 sprint flow + 5 ticket flow + 9 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 40 entries.
+**Shipped skills at HEAD: 41** (10 sprint flow + 5 ticket flow + 10 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 41 entries.
 
 ## Repo reality at HEAD
 
@@ -55,6 +55,7 @@ GitHub Issues-first path for small, reviewable work that should keep v4 rigor wi
 | `/slo-dast-tuner` | Wire and tune zaprun-backed DAST for an authorized web app: SARIF-guided tuning, auth-aware coverage, PTK/DOM-XSS lane, the **SAST→DAST route bridge** + a **12-framework adapter catalog** with a generic fallback, and generic-rule boundaries ([plain-language README](../skills/slo-dast-tuner/README.md)) | Host-neutral. Operates ZAP only through `zaprun` and the latest approved digest-pinned zaprun image. |
 | `/slo-sec-libs` | Read CycloneDX declarations, match proactive controls to advertised capabilities, and file confirmed capability gaps | Host-neutral. M1-M2 are read-only: offline Python `jsonschema` reader plus catalog-grounded matcher. M3 files regex-validated SLO-intake issues; M4 adds explicit upstream filing with per-issue confirmation and a 40-issues/hr session cap. |
 | `/slo-nettacker` | Run authorized OWASP Nettacker assessment workflows, triage reports, and author safe custom Nettacker YAML modules | Host-neutral interactive skill. Uses local Nettacker CLI/Docker/API when available; no headless Codex/Copilot runtime harness is assumed. |
+| `/slo-cloud-threat-model` | Author a scenario-driven AWS / GitHub / Cloudflare threat model (modernized SLO-native port of Hulumi's `hulumi-threat-model`, refreshed for the Hulumi v1.3.2 Edge Platform) | Host-neutral. Pure-Markdown skill; the only subprocess is an offline stdlib-only Python catalog lister/validator (argv-list, no network). Cites framework IDs + URLs only. Distinct from the `/slo-threat-model` provider tracked in #67. |
 
 ## Business advisor skills
 

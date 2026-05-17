@@ -1,0 +1,69 @@
+{
+  "id": "cloudflare-zone-and-dns-foundation",
+  "title": "Cloudflare Zone & DNS Foundation — DNSSEC, strict SSL/TLS, proxied-by-default public records",
+  "provider": "cloudflare",
+  "description": "A platform engineer onboards a public zone to Cloudflare with Hulumi's Edge Platform (v1.3.2). Target end state: ZoneFoundation enables DNSSEC and emits the DS-record / nameserver handoff outputs, sets SSL/TLS mode to strict, and applies hardened zone settings; every public application hostname is created through PublicHostname so it is proxied by default and a DNS-only record requires an explicit acknowledgement plus justification. The HulumiCloudflareHardeningPack enforces CF_DNSSEC_1 and CF_DNS_1 at preview time.",
+  "requiredFrameworks": ["CCM", "NIST-800-53-r5", "OWASP-ASVS-v5.0", "ISO-27001-2022", "Hulumi-Policy"],
+  "actors": [
+    "Platform Engineer (trusted)",
+    "AI Coding Agent (trusted, authoring Pulumi IaC)",
+    "External Attacker (untrusted; off-path DNS spoofing or origin discovery)",
+    "Contributor (semi-trusted; may add a raw DNS record for convenience)"
+  ],
+  "assets": [
+    "Cloudflare zone configuration and DNSSEC state",
+    "DS record and nameserver handoff outputs",
+    "Public application hostnames and their proxied/DNS-only flag",
+    "The AWS origin IP reachable behind a public hostname",
+    "Zone-level SSL/TLS mode"
+  ],
+  "stride": [
+    {
+      "type": "S",
+      "name": "DNS response spoofing without DNSSEC",
+      "description": "Without DNSSEC on the public zone, an off-path attacker forges or poisons DNS responses so clients resolve the hostname to an attacker-controlled address. Mitigation: ZoneFoundation enables DNSSEC and surfaces the DS record for registrar handoff; CF_DNSSEC_1 fails preview if a public zone lacks ZoneFoundation/ZoneDnssec evidence.",
+      "controls": ["CCM:IVS-04", "NIST-800-53-r5:SC-20", "NIST-800-53-r5:SC-21", "ISO-27001-2022:A.8.20", "CF_DNSSEC_1_REQUIRE_PUBLIC_ZONE_DNSSEC"]
+    },
+    {
+      "type": "I",
+      "name": "Origin IP disclosure via DNS-only public record",
+      "description": "A public application hostname is created DNS-only (proxied=false), so the AWS origin IP is published in DNS and discoverable from DNS history, leaking the origin and enabling WAF/bot/Access bypass. Mitigation: PublicHostname is proxied by default; a DNS-only public app record requires acknowledgeDnsOnlyExposure plus a non-empty justification, and CF_DNS_1 rejects the raw unsafe shape.",
+      "controls": ["CCM:IVS-09", "NIST-800-53-r5:SC-7", "OWASP-ASVS-v5.0:V14", "CF_DNS_1_NO_DNS_ONLY_PUBLIC_APP_RECORD"]
+    },
+    {
+      "type": "T",
+      "name": "Downgrade via weak zone SSL/TLS mode",
+      "description": "A zone left in Flexible (or Off) SSL/TLS mode lets traffic between Cloudflare and the origin travel unencrypted, enabling on-path tampering or downgrade. Mitigation: ZoneFoundation defaults SSL/TLS mode to strict (full strict) so origin certificates are validated end to end.",
+      "controls": ["CCM:CEK-01", "NIST-800-53-r5:SC-8", "ISO-27001-2022:A.8.24"]
+    },
+    {
+      "type": "E",
+      "name": "Raw cloudflare.Record bypasses hardened defaults",
+      "description": "A Pulumi program uses a raw cloudflare.Record beside Hulumi components, sidestepping PublicHostname's proxied default and exposure acknowledgement. Mitigation: CF_DNS_1 rejects raw proxy-eligible public app records that set proxied=false unless a scoped suppression carries a non-empty reason.",
+      "controls": ["CCM:GRC-07", "NIST-800-53-r5:CM-7", "CF_DNS_1_NO_DNS_ONLY_PUBLIC_APP_RECORD"]
+    },
+    {
+      "type": "R",
+      "name": "Unattributed zone / DNSSEC change",
+      "description": "A zone or DNSSEC change is made out of band and cannot be attributed. Mitigation: Pulumi state plus the Cloudflare audit trail where available; ZoneFoundation owns DNSSEC as a managed resource so drift is visible at the next preview.",
+      "controls": ["CCM:LOG-02", "NIST-800-53-r5:AU-12"]
+    }
+  ],
+  "recommendedComponents": [
+    {
+      "name": "@hulumi/cloudflare-baseline.ZoneFoundation",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: stable)",
+      "rationale": "DNSSEC, strict SSL/TLS mode, hardened zone settings, and nameserver/DS handoff outputs. Owning the zone as a managed resource makes DNSSEC drift visible."
+    },
+    {
+      "name": "@hulumi/cloudflare-baseline.PublicHostname",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: stable)",
+      "rationale": "Safe proxied-by-default public DNS record abstraction; a DNS-only public app record requires explicit acknowledgement plus justification, closing the origin-disclosure path."
+    },
+    {
+      "name": "@hulumi/policies.cloudflare.HulumiCloudflareHardeningPack",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (Edge Platform; rule IDs stable)",
+      "rationale": "Mandatory CF_DNSSEC_1 and CF_DNS_1 rules enforce public-zone DNSSEC evidence and reject raw DNS-only public app records at preview time."
+    }
+  ]
+}

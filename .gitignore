@@ -62,3 +62,7 @@ dist/
 .claude-plugin/dist/
 *.zip
 .nettacker
+
+# Python bytecode caches
+__pycache__/
+*.pyc

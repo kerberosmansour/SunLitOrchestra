@@ -1,0 +1,69 @@
+{
+  "id": "cloudflare-edge-waf-and-bot-protection",
+  "title": "Cloudflare Edge WAF & Bot Protection — managed rulesets, rate-limit baseline, plan-aware bot intent",
+  "provider": "cloudflare",
+  "description": "A platform engineer fronts a public application with Cloudflare WAF and bot controls using Hulumi's Edge Platform (v1.3.2). Target end state: EdgeWafBaseline applies the Cloudflare-managed and OWASP managed rulesets, a small set of typed custom rules, and a login/auth/API rate-limit baseline; BotProtectionBaseline maps a bounded intent (simple, balanced, granular) to the controls the account plan can actually deliver, and surfaces unsupported/degraded controls instead of silently downgrading.",
+  "requiredFrameworks": ["CCM", "NIST-800-53-r5", "OWASP-ASVS-v5.0", "SOC2-TSC-2017", "Hulumi-Policy"],
+  "actors": [
+    "Platform Engineer (trusted)",
+    "Misconfigured User (semi-trusted; may request an Enterprise-only control on a lower plan)",
+    "External Attacker (untrusted; exploit traffic, scraping, credential stuffing)",
+    "Automated Bot / Crawler (untrusted)"
+  ],
+  "assets": [
+    "WAF managed and custom rule configuration",
+    "Rate-limit rules for login/auth/API paths",
+    "Bot-intent selection and the plan it maps to",
+    "EdgeWafBaseline applied/unsupported/degraded control outputs",
+    "The public application behind the edge"
+  ],
+  "stride": [
+    {
+      "type": "T",
+      "name": "Exploit traffic reaches origin without managed WAF",
+      "description": "A raw zone with no managed ruleset lets injection/exploit traffic reach the origin application. Mitigation: EdgeWafBaseline applies the Cloudflare-managed and OWASP managed rulesets plus typed custom rules so common exploit classes are filtered at the edge.",
+      "controls": ["CCM:TVM-02", "NIST-800-53-r5:SI-3", "NIST-800-53-r5:SC-7", "OWASP-ASVS-v5.0:V14"]
+    },
+    {
+      "type": "D",
+      "name": "Volumetric / credential-stuffing on unprotected endpoints",
+      "description": "Login, auth, and API endpoints without rate limiting are exposed to volumetric abuse and credential stuffing. Mitigation: EdgeWafBaseline ships a login/auth/API rate-limit baseline with explicit bounds rather than unbounded generated rules.",
+      "controls": ["CCM:IVS-09", "NIST-800-53-r5:SC-5", "OWASP-ASVS-v5.0:V14"]
+    },
+    {
+      "type": "S",
+      "name": "Bots impersonate legitimate users",
+      "description": "Scrapers and credential-stuffing bots impersonate real users against the application. Mitigation: BotProtectionBaseline normalizes a bounded intent enum to the strongest bot control the plan supports (Bot Fight Mode / Super Bot Fight Mode / Enterprise Bot Management).",
+      "controls": ["CCM:IAM-02", "NIST-800-53-r5:SC-5", "SOC2-TSC-2017:CC6.6"]
+    },
+    {
+      "type": "I",
+      "name": "False security from silent plan degradation (overtrust)",
+      "description": "A user selects an Enterprise-only control (granular bot management, account-wide ruleset) on a plan that cannot deliver it. If the component silently degraded, the user would believe a control exists that Cloudflare never deployed. Mitigation: plan-aware mapping plus unsupportedControls / degradedControls outputs and test snapshots make the gap explicit.",
+      "controls": ["CCM:GRC-06", "NIST-800-53-r5:CM-6", "SOC2-TSC-2017:CC7.1"]
+    },
+    {
+      "type": "E",
+      "name": "Raw ruleset resource bypasses typed inputs",
+      "description": "A raw Cloudflare ruleset resource beside Hulumi components bypasses EdgeWafBaseline's typed rule inputs and bounded rate-limit design. Mitigation: prefer the component; the Cloudflare hardening pack flags raw unsafe edge configuration at preview time.",
+      "controls": ["CCM:GRC-07", "NIST-800-53-r5:CM-7"]
+    }
+  ],
+  "recommendedComponents": [
+    {
+      "name": "@hulumi/cloudflare-baseline.EdgeWafBaseline",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: evolving)",
+      "rationale": "Managed + OWASP rulesets, bounded typed custom rules, and a login/auth/API rate-limit baseline, with a plan-aware unsupported-controls output instead of silent downgrade."
+    },
+    {
+      "name": "@hulumi/cloudflare-baseline.BotProtectionBaseline",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: evolving)",
+      "rationale": "Maps a bounded intent enum (simple/balanced/granular) to the strongest bot control the account plan supports and lists degraded controls so users do not overtrust a lower plan."
+    },
+    {
+      "name": "@hulumi/policies.cloudflare.HulumiCloudflareHardeningPack",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (Edge Platform; rule IDs stable)",
+      "rationale": "Preview-time guardrails over raw Cloudflare edge configuration that would bypass the typed WAF/bot baselines."
+    }
+  ]
+}
