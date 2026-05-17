@@ -73,13 +73,34 @@ For each SARIF result `(file, line, ruleId, cwe)`:
    timing/error oracle); server-log sinks stay `sast-only`; app-wide config goes to the
    passive header pass — never reported as confirmed without a real oracle.
 
+## Generalized: contract + adapter catalog + generic fallback
+
+The Express procedure above is **one instance** of a framework-agnostic design. The reusable
+machinery:
+
+- [`entry-point-map-contract.md`](entry-point-map-contract.md) — the protocol-abstract schema
+  (`http | graphql | grpc | event | serverless`); "route" is just the HTTP concretization.
+- [`resolver-adapter-contract.md`](resolver-adapter-contract.md) — what any per-framework
+  adapter must specify, plus the **generic fallback** so an unknown stack *degrades, never
+  breaks* (resolve from typed routes / OpenAPI / proto / schema / infra manifest; if protocol
+  or selector can't be established → `needs-human-input`, never guessed).
+- [`resolvers/index.md`](resolvers/index.md) — adapter catalog: express (**validated:NodeGoat**)
+  + nestjs, fastify, koa, spring-boot, django, flask-fastapi, rails, laravel, aspnetcore,
+  go-http, graphql (all `spec-only:from-framework-docs` until fixture-tested).
+- [`probe-library.md`](probe-library.md) — payload/oracle per `vuln_class`, shared across all
+  adapters.
+- [`../../../references/security/vuln-class-taxonomy.md`](../../../references/security/vuln-class-taxonomy.md)
+  — the shared SAST↔DAST class spine; no synonyms.
+
 ## Boundaries
 
-- The resolver is a **reusable, generic algorithm** (Express handler-object + inline + router
-  mounts); it carries no app-specific literals and ports across Express apps. Frameworks with a
-  different route model (NestJS decorators, Fastify, Spring `@RequestMapping`, Django urls.py)
-  need a per-framework resolver of the same shape — same methodology, different parser.
+- The framework-specific part is **only** the route-extraction adapter; the schema, taxonomy,
+  probe library and discipline are invariant. Adapters are additive contributions, not skill
+  rewrites; the generic fallback covers anything without an adapter.
+- A `spec-only` adapter is an accuracy accelerator, **not** ground truth — the scan step must
+  label targets it resolved as `adapter:spec-only` and treat them as strong hints. Promote to
+  `validated` only after a real vulnerable-app fixture run (the bar Express met on NodeGoat).
 - The bridge enriches targeting; it does **not** lower thresholds or assert findings. A resolved
-  endpoint is a *place to test*, confirmation still requires a runtime oracle.
+  endpoint is a *place to test*; confirmation still requires a runtime oracle.
 - Reference implementation: `report/sast_dast_bridge.py` + `report/guided_dast_probe.py` in the
   companion adversarial-tuning workspace.
