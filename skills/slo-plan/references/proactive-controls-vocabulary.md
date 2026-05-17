@@ -45,6 +45,10 @@ When the target stack is Rust + axum and `security_libs_required: true`, the Pro
 
 ## Proactive controls vocabulary — Pulumi / AWS (Hulumi)
 
+**Hulumi explicit** means the target repo, runbook, import graph, package name, or user request names Hulumi. In that case, cite Hulumi components directly.
+
+**Generic Pulumi TypeScript** means the target uses Pulumi but does not name Hulumi. Do not force Hulumi on a generic Pulumi user. Cite Pulumi secure IaC controls, policy as code, and unit tests, then ask whether Hulumi should be adopted.
+
 When the target stack is Pulumi + AWS and `security_libs_required: true`, cite Hulumi component names directly.
 
 | Control | Hulumi component | Use when the milestone |
@@ -56,6 +60,10 @@ When the target stack is Pulumi + AWS and `security_libs_required: true`, cite H
 | **IaC role tagging** | `hulumi:iac-role=true` tag | any IaC execution role |
 
 Stack-specific invariant: Pulumi/AWS milestones never commit secrets to state files. Use AWS Secrets Manager or SSM Parameter Store, referenced by ARN.
+
+## TypeScript / Java fallback
+
+When the target is TypeScript or Java and there is no local capability catalog, do not invent library capability claims. Start with OWASP ASVS and OWASP Proactive Controls, then use official framework docs for the concrete stack. If the milestone needs a reusable secure abstraction, record a capability gap rather than recommending from model memory.
 
 ## Proactive controls vocabulary — other stacks (OWASP Proactive Controls v3)
 

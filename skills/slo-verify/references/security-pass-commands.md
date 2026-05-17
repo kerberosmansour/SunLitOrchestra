@@ -110,34 +110,18 @@ govulncheck ./...
 - Exit ≥ 1 (other): tool error. Skipped.
 - Install hint: `go install golang.org/x/vuln/cmd/govulncheck@latest`.
 
-## Any stack — DAST (conditional)
+## Any stack — DAST (conditional, through zaprun)
 
-### OWASP ZAP (API scan)
+DAST runs only when the target has authorization, in-scope URL(s), a runnable smoke/reference service, and enough route/OpenAPI/auth context to make the scan meaningful. Use `/slo-dast-tuner`, which operates ZAP through `zaprun` and the approved digest-pinned image. Pass 4 should record the `/slo-dast-tuner` command/evidence path, not teach direct scanner invocation.
 
-Runs only when the target has a runnable smoke / reference service with an OpenAPI spec. Otherwise N/A.
+Selector:
 
-```
-docker run --rm -v "$PWD:/zap/wrk" \
-  -t ghcr.io/zaproxy/zaproxy:stable \
-  zap-api-scan.py -t <openapi-url-or-local-path>
-```
+- HTTP route with OpenAPI or route inventory + smoke service: run `/slo-dast-tuner` and `zaprun` guided/full lanes as appropriate.
+- Authenticated route: require configured auth and logged-in verification. An unauthenticated scan of authenticated attack surface is a coverage failure, never a clean result.
+- Pure library / markdown-only / no smoke service: DAST is `N/A - no smoke service`; use unit, abuse, SAST, variant, and supply-chain checks.
+- SPA / DOM-XSS: use the `/slo-dast-tuner` PTK/DOM-XSS lane only after confirming a PTK-capable image.
 
-- Exit 0: no High/Critical findings.
-- Exit 1: findings at the configured fail threshold. Emit per-finding rows.
-- Exit ≥ 2: Docker missing, image pull failure, scan invocation error. Skipped (`docker not running` / `image unavailable`).
-- Prerequisite: Docker on PATH; `zaproxy:stable` image pulled (pre-fetch recommended).
-
-### Dastardly (Burp Suite, free)
-
-Alternative DAST with crawl-based approach. Same conditional on smoke-service presence.
-
-```
-docker run --rm -v "$PWD/output:/reports" \
-  public.ecr.aws/portswigger/dastardly:latest \
-  -t <target-url>
-```
-
-- Exit code semantics same as ZAP.
+Artifact expectation: `zaprun` evidence such as guided map, summary, coverage, SARIF, observations, and auth diagnostics when applicable.
 
 ## Target-repo `.gitignore` snippet
 
@@ -146,8 +130,8 @@ Users can paste the following into the TARGET repo's `.gitignore` to ensure Pass
 ```
 # Pass 4 security outputs (security-pass-commands.md)
 output/pass4-*.sarif
+output/zaprun-*
 output/zap-report.*
-output/dastardly-report.*
 .semgrep/
 .ast-grep/
 ```
@@ -159,7 +143,7 @@ A target with Cargo.toml at root + a `package.json` under `ui/` runs:
 - Rust row: `cargo audit` + `cargo deny check` + `ast-grep scan`
 - Node row: `npm audit --json --audit-level=high` + Semgrep
 - Any-stack: Semgrep (if not already counted in Node row, run once deduplicated)
-- DAST (conditional): if a smoke service is detected in either stack, one ZAP/Dastardly row.
+- DAST (conditional): if a smoke service is detected in either stack, one `/slo-dast-tuner` / `zaprun` row.
 
 Each row appears independently in the Pass 4 section; no tiebreaker, no merge.
 

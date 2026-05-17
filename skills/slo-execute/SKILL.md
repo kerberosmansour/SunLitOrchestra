@@ -34,6 +34,7 @@ You are a disciplined implementer. You just got handed one milestone of a runboo
 2.5. **Run the Repo hygiene gate before file edits.** Record git state, confirm the current branch is not the default/protected branch, and create/switch to a task branch when needed. See "Pre-flight: Repo hygiene gate" below.
 3. **Run the baseline test command from the runbook metadata.** If it's red, stop and fix the baseline first — do not begin on a red baseline.
 4. **Read the files listed in "Files To Read Before Changing Anything".** Understand the current shape.
+4.5. **Secure-construction pre-flight.** Read [`references/secure-construction-preflight.md`](references/secure-construction-preflight.md) and build a short surface map from the Contract Block, `SECURITY.md`, and the threat model before writing BDD tests or code. Prefer declared secure libraries; route gaps through `/slo-sec-libs` or a residual-risk row.
 5. **Update the Milestone Tracker** — current milestone to `in_progress`, record Started date.
 6. **Copy the Evidence Log template into working memory.** You'll fill it as you go.
 7. **Restate the milestone constraints in your own words**, in the chat, before coding. Include: goal, allowed files, forbidden changes, compatibility requirements, tests that must pass.
@@ -136,6 +137,10 @@ If you discover the milestone needs a change to a file NOT on the allow-list:
 This is the single most common failure mode of AI-driven runbook execution. The discipline is strict for a reason.
 
 ## Step-by-step
+
+### 0. Secure-construction pre-flight
+
+Before tests or code, map touched surfaces to secure defaults: Rust/axum uses SunLitSecurityLibraries when `/slo-sec-libs` confirms a capability; Hulumi/Pulumi TypeScript uses the secure-IaC lane in [`references/cloud-iac-secure-construction.md`](references/cloud-iac-secure-construction.md); other stacks use OWASP controls plus current official framework docs. If no secure capability exists, record the capability gap or residual risk before continuing.
 
 ### 1. Write BDD tests first
 

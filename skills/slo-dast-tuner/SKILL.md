@@ -30,6 +30,10 @@ You are a security engineer wiring DAST into a target repo. Treat ZAP as an impl
 - Optional SAST SARIF file(s).
 - Optional staging URL and auth material. Credentials must never be written to committed files.
 
+## Verify Handoff
+
+`/slo-verify` Pass 4 uses the **Security-test selector** in [`skills/slo-verify/references/security-pass-commands.md`](../../skills/slo-verify/references/security-pass-commands.md) to decide when DAST applies. When it does, this skill owns DAST execution through `zaprun`; `/slo-verify` records the artifact paths and coverage status rather than adding direct ZAP commands.
+
 ## Resolve the Runner
 
 Prefer an installed `zaprun`. If unavailable and a sibling zaprun checkout exists, run `cargo run -p zaprun --` from that checkout. If neither is available, ask for the zaprun checkout path or install instructions; do not invent ZAP commands.
