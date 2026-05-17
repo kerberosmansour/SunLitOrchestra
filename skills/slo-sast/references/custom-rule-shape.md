@@ -50,6 +50,24 @@ pattern-propagators:
 
 In the exercise this single addition flipped log-injection and IDOR from miss to hit.
 
+### Per-language input-propagator (the generic form)
+
+The *technique* (taint + a framework-input propagator) is language-agnostic; only the
+**propagator pattern** is per-stack. Author the equivalent for the detected language:
+
+| Stack | Request source | Propagator idiom to add |
+|---|---|---|
+| Express/Koa (JS/TS) | `req.body/query/params`, `ctx.request.body` | `const { $T } = $F` destructure |
+| NestJS/Spring/.NET | DTO bound param (`@Body`/`@RequestBody`/`[FromBody]`) | param → field access; treat the DTO param as a source |
+| Django/DRF | `request.GET/POST/data`, `serializer.validated_data` | `$T = request.data.get(...)` / `$T = serializer.validated_data[...]` |
+| Flask/FastAPI | `request.args/form/json`, path/query func args | function-arg source; `$T = request.json[...]` |
+| Rails/Laravel | `params[:x]`, `$request->input('x')` | `$T = params[$K]` / `$T = $request->$M(...)` |
+| Go | `r.URL.Query().Get`, `chi.URLParam`, `c.Param` | `$T := r.URL.Query().Get($K)` source |
+
+Same rule shape, swapped propagator. The class spine is shared — see
+[`../../../references/security/vuln-class-taxonomy.md`](../../../references/security/vuln-class-taxonomy.md);
+every rule's `metadata` MUST use a `vuln_class` from it so the SAST→DAST bridge can consume it.
+
 ## 3. Keep intrinsic-sink structural rules for flow-free classes
 
 Some classes are dangerous regardless of flow and need no taint: Mongo `$where` with any
@@ -88,6 +106,14 @@ scan invocation SHOULD exclude by default: `**/views/**`, `**/templates/**`, `**
 - **No SCA**: the vulnerable-and-outdated-components class (CWE-1035 / CWE-937, e.g.
   `marked@0.3.5`) is unreachable by Semgrep patterns. `/slo-sast` MUST recommend a paired SCA
   step and not imply dependency coverage.
+
+## Pack layout (additive per language)
+
+Organize as `.semgrep/<lang>/<class>/` (mirrors `semgrep/semgrep-rules` and eases upstreaming):
+e.g. `.semgrep/node/injection.yaml`, `.semgrep/python/injection.yaml`. New language packs are
+additive — same rule shape, per-language propagator, shared `vuln_class` taxonomy — never a
+skill rewrite. This mirrors the DAST side's per-framework resolver-adapter catalog: one
+invariant contract, pluggable language/framework parts.
 
 ## Reference pack
 
