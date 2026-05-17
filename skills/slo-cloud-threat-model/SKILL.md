@@ -39,6 +39,10 @@ control catalog.
 - A machine-readable companion at `docs/slo/design/<scenario>-cloud-threat-model.json` (the resolved scenario object plus deduplicated citation list) for downstream skills.
 - This skill writes only inside the user's working directory and only these two files. It does not deploy, scan, or call any provider API.
 
+## Execute Handoff
+
+When a later milestone implements the modeled cloud/platform resource, `/slo-execute` should use the secure-IaC lane in [`../slo-execute/references/cloud-iac-secure-construction.md`](../slo-execute/references/cloud-iac-secure-construction.md): Pulumi TypeScript tests, Hulumi components when explicit/detected, policy checks, preview evidence, drift evidence, and no plaintext secrets in state.
+
 ## Pre-flight
 
 1. Confirm `python3` is on PATH: `python3 --version`. Record stdout, stderr, and exit code separately.

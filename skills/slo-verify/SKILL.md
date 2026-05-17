@@ -61,6 +61,8 @@ For any scenario that has a "partial failure" category, construct the failure (p
 
 Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catches classes of problems that behavioral testing alone misses: vulnerable dependencies, known-bad code patterns lurking in files the milestone didn't edit, and (when applicable) runtime exposure via DAST.
 
+**Security-test selector** — before command dispatch, use the milestone threat model and touched surface to choose checks. HTTP routes with a smoke service route DAST through `/slo-dast-tuner` and `zaprun`; authenticated routes require logged-in proof or a coverage-failure row; pure library code keeps DAST `N/A` and relies on unit/abuse/SAST/variant checks; cloud IaC uses policy, preview, and drift evidence. Do not run noisy scanners just to fill a row.
+
 **Stack detection** — inspect the target repo's manifests: `Cargo.toml` → Rust; `package.json` → Node / TypeScript; `pyproject.toml` or `requirements.txt` → Python; `go.mod` → Go. When multiple are present (**polyglot** targets: the real common case for many projects), Pass 4 runs **all applicable command sets**, and each stack gets its own row in the Pass 4 section of the verification report. No arbitrary tiebreaker; one row per stack.
 
 **Tool-optional rule** — if a named command (`cargo audit`, `cargo deny`, `semgrep`, `ast-grep`, `npm audit`, `govulncheck`, `pip-audit`, ZAP, Dastardly) is not on PATH, Pass 4 emits an explicit `skipped — <tool> not installed (see <install-hint>)` row and moves on. Missing tools do not fail Pass 4.
@@ -69,7 +71,7 @@ Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catch
 
 Every Pass 4 row must use the result vocabulary `pass/fail/skipped/N/A` so false-positive triage and skipped-tool evidence stay machine-readable.
 
-**DAST conditional on smoke-service presence** — DAST (OWASP ZAP or Dastardly) runs only when the target has a runnable smoke / reference service with an OpenAPI spec or a `docker-compose.yml` exposing a service. On markdown-only / library-only targets, DAST is explicitly `N/A — no compiled artifacts / no smoke service` with the reason recorded. This prevents DAST runs on pure docs/skill-pack milestones from being noise.
+**DAST conditional on smoke-service presence** — DAST runs only when the target has a runnable smoke / reference service with an OpenAPI spec or a `docker-compose.yml` exposing a service. Use `/slo-dast-tuner` / `zaprun`; do not add direct ZAP commands here. On markdown-only / library-only targets, DAST is explicitly `N/A — no compiled artifacts / no smoke service` with the reason recorded. This prevents DAST runs on pure docs/skill-pack milestones from being noise.
 
 **Command reference** — the full command catalog (Rust, Node, Python, Go, DAST) lives in [`references/security-pass-commands.md`](references/security-pass-commands.md). Each command documents its exit-code contract, install hint, and interactive-budget expectation. Pass 4 targets ≤ 2 min total on a small milestone; commands that exceed that budget are deferred to a nightly cadence.
 

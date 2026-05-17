@@ -17,6 +17,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 | "I have a GitHub issue — can an agent take it?" | `/slo-ticket-pick #<issue>` | [Ticket loop](#ticket-loop) | `docs/slo/tickets/ticket-<issue>-<slug>.md` |
 | "I have a repeated regression — where do I start?" | `/slo-resume` (orient) then check prior `docs/slo/lessons/` | [Lessons loop](#lessons-loop) | A scope candidate at the next milestone's pre-flight |
 | "Findings keep coming back from SAST — how do I tune?" | `/slo-rulegen --extend` | [Security-tuning loop](#security-tuning-loop) | A new rule pack rev under `.semgrep/<lang>/` |
+| "A milestone needs secure code or secure cloud resources — what should the agent use?" | `/slo-execute` | [Secure-construction loop](#secure-construction-loop) | A surface map with matched secure libraries, tests, gaps, or residual risks |
 | "An upstream tool has a gap — what now?" | `/slo-sec-libs` (when shipped) | [Library-feedback loop](#library-feedback-loop) | An issue in the upstream repo |
 | "I stepped away — where was I?" | `/slo-resume` | (any) | A one-screen orientation message |
 
@@ -61,6 +62,52 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
                               │
                               ▼
                           /slo-ship
+```
+
+---
+
+## Secure-construction loop
+
+> **User-visible outcome**: `/slo-execute` starts implementation with secure defaults already selected, not discovered after the fact.
+
+**Trigger**: a milestone touches request boundaries, auth, secrets, persistence,
+subprocesses, SQL, UI/DOM, GitHub Actions, Pulumi/Hulumi cloud resources, or
+another security-relevant surface.
+
+**Steps**:
+
+1. `/slo-execute` reads the contract block, security context, and threat model.
+2. It builds a surface map before BDD tests are written.
+3. Rust surfaces are matched through `/slo-sec-libs` against SunLitSecurityLibraries declarations.
+4. Pulumi TypeScript cloud surfaces use the secure-IaC lane; Hulumi is preferred when it is explicit or detected.
+5. If a capability is missing, `/slo-sec-libs` records or files the gap before local code hand-rolls the control.
+6. `/slo-verify` selects security tests from the surface map and threat model.
+
+**Exit condition**: every touched surface has one of `matched secure capability`,
+`control-first fallback`, `capability gap filed`, or `residual risk accepted`
+with evidence.
+
+**Artifacts**: milestone Evidence Log rows, optional
+`docs/slo/verify/<prefix>-dogfood.md`, upstream issues, and capability
+declaration updates.
+
+**Skills involved**: `/slo-execute`, `/slo-sec-libs`, `/slo-plan`, `/slo-verify`,
+`/slo-dast-tuner`, `/slo-cloud-threat-model`.
+
+```
+   /slo-execute pre-flight
+          │
+          ▼
+   surface map ──► /slo-sec-libs match
+          │              │
+          │              ├── matched capability ──► BDD + implementation
+          │              │
+          │              └── gap ──► upstream issue/fix or residual risk
+          ▼
+   /slo-verify security-test selector
+          │
+          ▼
+   runtime/static/IaC evidence, or N/A with reason
 ```
 
 ---
