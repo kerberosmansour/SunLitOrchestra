@@ -2,6 +2,8 @@
 
 This directory is the raw source for every `/slo-*` skill plus any third-party skills vendored into the pack. Each subdirectory here is one skill; each must contain a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by the skill body.
 
+`SKILL.md` is the **machine-facing contract** the agent executes. A skill MAY also ship a human-facing `README.md` next to it — a plain-language "what is this / why / quick start" front door for people browsing the repo. Documentation is a first-class citizen: any skill with real user-facing surface area (e.g. the security skills) should have one. Worked examples to follow: [`slo-sast/README.md`](slo-sast/README.md), [`slo-dast-tuner/README.md`](slo-dast-tuner/README.md).
+
 The canonical living catalog is [../docs/skill-pack-catalog.md](../docs/skill-pack-catalog.md). Host-specific session overlays live in [../CLAUDE.md](../CLAUDE.md) and [../copilot-instructions.md](../copilot-instructions.md). The first-run guide lives in [../docs/getting-started.md](../docs/getting-started.md).
 
 ## Layout

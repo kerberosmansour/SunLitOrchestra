@@ -30,7 +30,8 @@ SunLit Orchestra is a portable `/slo-*` skill pack for disciplined AI-assisted d
 | A new product or feature idea | `/slo-ideate` | Problem framing, risks, and a path into research/design |
 | A scoped GitHub issue | `/slo-ticket-pick #<issue>` | A compact ticket contract, evidence log, and PR handoff |
 | A full feature that needs planning | `/slo-plan` after ideate/research/architecture | A v4 runbook with milestones, BDD, abuse cases, and gates |
-| A security-only need | `/slo-rulegen` or `/slo-sast` | Semgrep rules and a deterministic verification gate |
+| A security-only need (code) | `/slo-sast` · `/slo-rulegen` | Threat-model-driven Semgrep + a custom rule pack and a deterministic gate |
+| A security-only need (running app) | `/slo-dast-tuner` | Tuned, authenticated ZAP scan + a [SAST→DAST bridge](skills/slo-dast-tuner/README.md) that turns code findings into targeted web tests |
 | A UK founder/business artifact | The relevant `/slo-*` biz skill | Drafts or decision artifacts with hard-block gates |
 
 Supported interactive hosts:
@@ -61,7 +62,7 @@ The pack is organised around four workflows that compose:
 
 1. **Core sprint flow** — `/slo-ideate → /slo-research → /slo-architect → /slo-plan → /slo-critique → /slo-execute → /slo-verify → /slo-retro → /slo-ship`. Each stage produces a versioned artifact under `docs/` that the next stage (and the next reviewer) can rely on. Optional `/slo-tla` adds a TLA+ model-check step for designs with real concurrency, ordering, or protocol risk.
 2. **Ticket-sized SLO flow** — `/slo-ticket-pick → /slo-ticket-plan → /slo-ticket-execute → /slo-ticket-verify → /slo-ticket-close`. This is the GitHub Issues-first path for bite-sized work: one issue, one compact v4-derived ticket contract, one branch, one PR, and one evidence trail.
-3. **Security + SAST** — `/slo-rulegen`, `/slo-ruleverify`, `/slo-sast`. A 10/10 CWE Semgrep rule pack is included, gated by CI.
+3. **Security: SAST + DAST** — `/slo-rulegen`, `/slo-ruleverify`, `/slo-sast` (read the source for bugs), and `/slo-dast-tuner` (test the *running* app like an attacker). A 10/10 CWE Semgrep rule pack is included and CI-gated; a **SAST→DAST bridge** lets the code-scanner findings drive targeted, authenticated web tests. Plain-language intros: [`/slo-sast`](skills/slo-sast/README.md) · [`/slo-dast-tuner`](skills/slo-dast-tuner/README.md).
 4. **UK biz pack (v1)** — 15 founder, GTM, pricing, legal, accounting, equity, and hiring artifact skills, with mandatory hard-block gates (regulated work, large counterparties, GDPR, IR35) and confidential-vs-public output tiers.
 
 The raw `SKILL.md` contract is agent-neutral, so the pack is portable between hosts. Canonical list: [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md).
@@ -92,6 +93,7 @@ Most AI-coding workflows treat security as a closing checklist or a separate aud
 - **`/slo-execute`** — writes BDD tests first, *including the abuse-case rows*. Security tests are part of the red-green TDD cycle from the start, not bolted on after the feature works. The skill is also bound to the runbook's allow-list, so it cannot silently widen scope into adjacent files — closing one of the most common attack surfaces against the workflow itself. Each security consideration declared in the plan becomes a concrete test the milestone has to pass.
 - **`/slo-verify`** — runs a PII-pattern scan over public output paths (Pass 4), so confidential drafts cannot accidentally leak through the public tier; runtime QA closes the loop on the abuse-case scenarios.
 - **`/slo-rulegen` + `/slo-ruleverify` + `/slo-sast`** — maintain and CI-gate a 10/10 CWE-class Semgrep rule pack against the codebase, so the static-analysis layer is also kept honest as the project evolves.
+- **`/slo-dast-tuner` + the SAST→DAST bridge** — closes the loop at runtime: it reads the codebase to turn a code-scanner finding ("file X, line 42") into a concrete authenticated web test ("attack `GET /research`, log in first"), then proves it against the live app. On a deliberately-vulnerable practice app this turned a blind default scan's **0 confirmed** into **4 confirmed** real bugs. It is honest about coverage: an unauthenticated scan of a login-gated app is reported as a *coverage failure*, never "clean".
 - **The UK biz pack** — adds hard-block gates (regulated work, counterparties >£5,000, GDPR-scoped documents, IR35-triggering hires) that refuse to draft until the right human is in the loop.
 
 The consequence: there is no "security review" stage at the end, because there is no stage *without* security in it. From the first ideation question — *"what's the worst that can happen?"* — through threat model, plan template, BDD test scaffolding, runtime verification, and CI rule gate, security is something the workflow *forces* you to commit to and execute on, not something you might remember to do.
@@ -353,6 +355,8 @@ Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
+- [skills/slo-sast/README.md](skills/slo-sast/README.md) — plain-language intro to the code-scanning skill (what SAST is, why, quick start)
+- [skills/slo-dast-tuner/README.md](skills/slo-dast-tuner/README.md) — plain-language intro to the running-app scanning skill, the SAST→DAST bridge, and the 12-framework adapter catalog
 - [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
 - [docs/slo/templates/ticket-contract-template_v_1.md](docs/slo/templates/ticket-contract-template_v_1.md) — compact v4-derived contract for bite-sized GitHub issue work
 - [docs/slo/templates/runbook-template_v_3_template.md](docs/slo/templates/runbook-template_v_3_template.md) — historical v3 template for runbooks already authored against it
