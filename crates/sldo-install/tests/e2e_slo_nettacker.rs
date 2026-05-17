@@ -30,9 +30,9 @@ fn nettacker_skill_is_discoverable_and_cataloged() {
     assert!(skill.contains("custom Nettacker"));
 
     let catalog = read(repo_root().join("docs/skill-pack-catalog.md"));
-    assert!(catalog.contains("Shipped skills at HEAD: 40"));
+    assert!(catalog.contains("Shipped skills at HEAD: 41"));
     assert!(catalog.contains("/slo-nettacker"));
-    assert!(catalog.contains("9 power tools"));
+    assert!(catalog.contains("10 power tools"));
 }
 
 #[test]

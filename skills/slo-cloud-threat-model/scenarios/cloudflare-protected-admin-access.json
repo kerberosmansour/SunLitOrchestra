@@ -1,0 +1,69 @@
+{
+  "id": "cloudflare-protected-admin-access",
+  "title": "Cloudflare Protected Admin Access — deny-by-default Cloudflare Access in front of admin/preview hosts",
+  "provider": "cloudflare",
+  "description": "A platform engineer exposes an admin console or a preview environment on a public hostname. Hulumi's Edge Platform (v1.3.2) provides ProtectedAdminHostname, an optional Cloudflare Access wrapper that puts a deny-by-default Access policy in front of the admin/preview host and requires an explicit allow-list of identities (email, email domain, Access group ID, or IdP ID). Target end state: no admin/preview host is reachable without passing Cloudflare Access, and the allowed-identity set is explicit and minimal.",
+  "requiredFrameworks": ["CCM", "NIST-800-53-r5", "OWASP-ASVS-v5.0", "ISO-27001-2022"],
+  "actors": [
+    "Platform Engineer (trusted)",
+    "Authorized Operator (trusted; reaches admin via Access)",
+    "External Attacker (untrusted; attempts direct admin-host access)",
+    "Contributor (semi-trusted; may set an over-broad allow-list)"
+  ],
+  "assets": [
+    "Admin / preview hostname",
+    "Cloudflare Access application and policy configuration",
+    "Allowed-identity list (email / domain / Access group / IdP)",
+    "Cloudflare Access audit trail",
+    "The admin application and its data"
+  ],
+  "stride": [
+    {
+      "type": "S",
+      "name": "Direct admin-host access without identity",
+      "description": "An attacker reaches the admin or preview host directly because no identity gate exists in front of it. Mitigation: ProtectedAdminHostname wraps the host in a Cloudflare Access application with a deny-by-default policy, so every request must pass Access before reaching the host.",
+      "controls": ["CCM:IAM-08", "NIST-800-53-r5:AC-3", "NIST-800-53-r5:IA-2", "OWASP-ASVS-v5.0:V14"]
+    },
+    {
+      "type": "E",
+      "name": "Over-broad allow-list grants unintended access",
+      "description": "The allow-list is set to a whole domain (or left effectively open), letting more identities through than intended. Mitigation: ProtectedAdminHostname requires explicit allowed identities (email, email domain, Access group ID, or IdP ID) with no wildcard-all default, and deny-by-default for everything else.",
+      "controls": ["CCM:IAM-07", "NIST-800-53-r5:AC-6"]
+    },
+    {
+      "type": "I",
+      "name": "Admin host discovered and information-disclosed",
+      "description": "The admin/preview hostname is discovered (DNS history, link leak, search indexing); without Access in front, an attacker can enumerate or read admin surfaces. Mitigation: the Access gate sits before the admin/preview host so discovery alone does not yield access.",
+      "controls": ["CCM:IVS-09", "NIST-800-53-r5:SC-7"]
+    },
+    {
+      "type": "R",
+      "name": "Admin access not attributable",
+      "description": "Admin access without an audit trail cannot be attributed during incident response. Mitigation: Cloudflare Access provides an authentication/authorization audit trail where the plan supports it; the component documents the audit dependency in its outputs.",
+      "controls": ["CCM:LOG-02", "NIST-800-53-r5:AU-2", "NIST-800-53-r5:AU-12"]
+    },
+    {
+      "type": "T",
+      "name": "Raw Cloudflare Access resource misconfigured beside Hulumi",
+      "description": "A raw Cloudflare Access application/policy created next to Hulumi components ships with a permissive or empty policy. Mitigation: prefer ProtectedAdminHostname's typed deny-by-default shape; raw permissive Access configuration is an anti-pattern surfaced by review and the Cloudflare hardening guidance.",
+      "controls": ["CCM:GRC-07", "NIST-800-53-r5:CM-7"]
+    }
+  ],
+  "recommendedComponents": [
+    {
+      "name": "@hulumi/cloudflare-baseline.ProtectedAdminHostname",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: evolving)",
+      "rationale": "Optional Cloudflare Access wrapper for admin/preview hosts: deny-by-default Access policy with an explicit allowed-identity list and no wildcard-all default."
+    },
+    {
+      "name": "@hulumi/cloudflare-baseline.PublicHostname",
+      "availability": "Shipped in @hulumi/cloudflare-baseline@1.3.2 (Edge Platform; surface: stable)",
+      "rationale": "The admin/preview hostname should still be a proxied PublicHostname so the Access gate and edge controls sit in front of it rather than a DNS-only record exposing the origin."
+    },
+    {
+      "name": "@hulumi/policies.cloudflare.HulumiCloudflareHardeningPack",
+      "availability": "Shipped in @hulumi/policies@1.3.2 (Edge Platform; rule IDs stable)",
+      "rationale": "Preview-time guardrails that keep the admin hostname proxied and origin-restricted so the Access gate cannot be bypassed at the network layer."
+    }
+  ]
+}
