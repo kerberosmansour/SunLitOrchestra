@@ -19,6 +19,8 @@ You are a security engineer wiring DAST into a target repo. Treat ZAP as an impl
 - Treat SAST SARIF as evidence, not proof of DAST coverage.
 - Do not commit app-specific custom rules to SunLitOrchestra or zaprun. Keep them under the target repo's `.zaprun/scripts/`, an ignored scratch directory, or run artifacts.
 - Before touching a live target, confirm authorization, in-scope URL(s), auth permission, and any rate/concurrency limits.
+- **An unauthenticated scan of an authenticated app is a coverage failure, not a clean result.** Empirically, an unauthenticated NodeGoat scan missed its entire authenticated attack surface (eval-RCE, NoSQL `$where`, IDOR, SSRF, ReDoS, CSRF) while an authenticated probe proved every one was DAST-reachable. Never report "no findings" / low risk for auth-gated endpoints without verified logged-in state — escalate per [`references/authentication-coverage.md`](references/authentication-coverage.md). Authentication is the single highest-recall DAST lever.
+- **`zaprun ptk` requires a PTK-add-on-capable image.** The default pinned digest may lack the OWASP PTK add-on; an `Error(s) logged when setting configs` / `zap_report_missing` right after `Changing generic config key ptk.*` is an image mismatch, not "no findings". Validate the image and re-run per [`references/ptk-dom-xss.md`](references/ptk-dom-xss.md) before reporting any PTK result.
 
 ## Inputs
 
@@ -40,7 +42,8 @@ Use argv-list subprocess discipline from [`../../references/templates/tool-safet
 |---|---|
 | First install | Read [`references/workflow.md`](references/workflow.md), then run `zaprun init --target-dir <repo> [--deployment-target <url>]`. |
 | Drift check | Read [`references/workflow.md`](references/workflow.md), then run `zaprun rederive --target-dir <repo>`. |
-| SARIF-guided tuning | Read [`references/sarif-guided-scans.md`](references/sarif-guided-scans.md). When M3 is available, run `zaprun triage-sarif`; until then, classify the evidence and do not claim automated tuning. |
+| SARIF-guided tuning | Read [`references/sarif-guided-scans.md`](references/sarif-guided-scans.md), then run `zaprun triage-sarif`. Note: a plain Semgrep SARIF carries no HTTP route/method, so the guided map will be empty (0 dast-detectable is correct, not a bug) — do not claim a guided scan exists without route/OpenAPI evidence. |
+| SPA / DOM-XSS target | Read [`references/ptk-dom-xss.md`](references/ptk-dom-xss.md). For Angular/React/JS-heavy apps run `zaprun ptk` with a PTK-capable image — it is the only lane that finds DOM-based XSS (`web-pr` cannot execute the SPA). |
 | Authenticated coverage | Read [`references/authentication-coverage.md`](references/authentication-coverage.md). Auth failure is a coverage failure, not a clean scan. |
 | Rule authoring or promotion | Read [`references/rule-boundary.md`](references/rule-boundary.md) before proposing any custom script or generic rule. |
 
@@ -61,6 +64,9 @@ Report:
 - Promoting a one-app script into a shared rule because it found one real bug.
 - Lowering thresholds to hide findings without expiry and rationale.
 - Reporting "no vulnerabilities" when crawling, auth, fixtures, or endpoint reachability failed.
+- Reporting an unauthenticated scan of an auth-gated app as clean/low-risk (auth-gated endpoints are unproven, not safe).
+- Running `zaprun ptk` on a non-PTK image and reporting the `zap_report_missing` abort as "no findings".
+- Using `web-pr` on a SPA and concluding no XSS — DOM-XSS needs the PTK lane.
 - Committing credentials, session cookies, auth diagnostics, private SARIF, or app-specific scripts to a public/shared repo.
 
 **Loops**: Security-tuning loop - see [docs/LOOPS-ENGINEERING.md#security-tuning-loop](../../docs/LOOPS-ENGINEERING.md#security-tuning-loop).

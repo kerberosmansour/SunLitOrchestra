@@ -47,6 +47,17 @@ Coverage-gap summaries may use [`../../references/security/security-assessment-s
 | Method (M4 — manifest + Preview-mode UX) | [`references/methodology-m4-manifest.md`](references/methodology-m4-manifest.md): Manifest schema v1.0, first install vs Re-derivation, mixed pre-existing state with workflow/config, rollback on decline, manifest symlink defense, defensive design not regulatory mandate. |
 | Method (M5 — re-derivation loop) | [`references/methodology-m5-pr-creation.md`](references/methodology-m5-pr-creation.md): Re-derivation trigger evaluation, `scanner-orch-rederivation-triggers.md`, `no drift detected`, PR creation, argv-list `gh pr create`, no `--repo`, max 1 PR per invocation, TempDir dogfood with file-content copy, template-skeleton / manifest-derived PR body, Auto-merge forbidden. |
 
+## Custom rule shape (when the registry under-covers the threat model)
+
+When the threat model needs coverage the registry does not provide, project-specific rules are
+authored. Empirically validated rule shape — taint mode + a destructuring propagator as the
+default for request-data-flow classes, intrinsic-sink structural rules for flow-free classes,
+driver-split DB sinks with the matching CWE, receiver-constrained heuristic sinks, default
+doc/fixture excludes, and explicit intra-file-taint / no-SCA caveats — is specified in
+[`references/custom-rule-shape.md`](references/custom-rule-shape.md). Apply it to any hand-authored
+web pack; it roughly doubled recall in an adversarial NodeGoat + Juice Shop test with one net
+false positive, and generalised unmodified across apps.
+
 ## Common Anti-patterns
 
 - Treating CWE references inside HTML comments, code fences, or `~~~text` user-string fences as authoritative.
@@ -54,6 +65,8 @@ Coverage-gap summaries may use [`../../references/security/security-assessment-s
 - Inferring stack or selecting rules while running only the M1 parser path.
 - Falling back to a default rule pack on missing threat-model input.
 - Running subprocesses outside the stage-specific contract.
+- Authoring web rules that match a literal `req.*` at the sink (the dominant false-negative shape — use taint + propagator per `references/custom-rule-shape.md`).
+- Implying dependency (CWE-1035/937) coverage from Semgrep alone; recommend a paired SCA step.
 
 ## See also
 
@@ -64,6 +77,7 @@ Coverage-gap summaries may use [`../../references/security/security-assessment-s
 - [`../../references/sast/scanner-orch-action-shas.md`](../../references/sast/scanner-orch-action-shas.md)
 - [`../../references/sast/scanner-orch-manifest-schema.md`](../../references/sast/scanner-orch-manifest-schema.md)
 - [`../../references/sast/scanner-orch-rederivation-triggers.md`](../../references/sast/scanner-orch-rederivation-triggers.md)
+- [`references/custom-rule-shape.md`](references/custom-rule-shape.md) — empirical custom-rule shape (taint+propagator, driver-split CWE, default excludes, coverage caveats)
 - [`../../docs/slo/design/scanner-orchestration-threat-model.md`](../../docs/slo/design/scanner-orchestration-threat-model.md)
 - [`../../docs/slo/design/scanner-orchestration-interfaces.md`](../../docs/slo/design/scanner-orchestration-interfaces.md)
 - [`../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md`](../../docs/slo/completed/RUNBOOK-SCANNER-ORCHESTRATION.md)
