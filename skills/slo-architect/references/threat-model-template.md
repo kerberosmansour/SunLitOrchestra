@@ -159,3 +159,19 @@ Known risks that are not fully mitigated by the controls above. Each has an owne
 - **Leaving `AI / LLM-specific threats` populated when `ai_component: false`**: the conditional block is the gate. An AI-triad section on a non-AI target is noise that dilutes the real signal.
 - **Free-Markdown interpolation of user-provided text**: every `{{USER_PROVIDED_*}}` token renders inside `~~~text`. Deviating from this rule is the vector for template-placeholder injection.
 - **Bug-instance framing**: cells say "eliminated by &lt;control&gt;" / "mitigated by &lt;control&gt;", not "SQLi might be here." Class-elimination framing is what `/slo-critique` downstream relies on.
+
+## SLO JSON companion serialization mapping
+
+`/slo-architect` Step 3.5 ALSO emits `docs/slo/design/<slug>-threat-model.slo.json`, the machine-readable companion conforming to [`references/security/threat-model-schema.md`](../../../references/security/threat-model-schema.md). This section is the Markdown→JSON mapping. The JSON is the source of truth read by `/slo-critique` and `/slo-verify`; the Markdown remains the human-reviewed artifact. Both carry the same content.
+
+| Markdown source | JSON field | Rule |
+|---|---|---|
+| `STRIDE per component` cell | `stride[]` `{component, class, state, control_or_reason}` | `state` ∈ `eliminated\|mitigated\|na\|residual` |
+| Abuse-case row id `tm-<slug>-abuse-N` | `abuse_cases[].id` | **1:1, frozen. The id maps onto the JSON `id` field unchanged. Renumber is forbidden** — a changed abuse case is `status: superseded` + non-empty `superseded_by` + `supersede_reason`, never renumbered, never silently dropped (supersede-don't-renumber). |
+| Abuse-case attacker / step / outcome / control | `abuse_cases[]` string fields | descriptive strings only |
+| `Residual risks` row | `residual_risks[]` incl. `accepted_residual` | `accepted_residual: true` ⇒ knowingly accepted, NOT missing coverage |
+| `Compliance mapping` row | `compliance[]` | SOC 2 + ASVS default columns |
+| Provenance block | `provenance` | `producer_skill_sha` = git SHA of `skills/slo-architect/SKILL.md` at emit; `inputs[].sha` = git blob SHAs (idiom of `references/sast/manifest-schema.md`; not a content hash) |
+| (per entry) sensitivity | `sensitivity` / per-entry `classification` | `public\|internal\|confidential\|restricted` |
+
+**SEC-1 producer-side neutralisation.** Emit the JSON via a structural JSON serializer (or escape equivalently). User-controlled idea-doc / Top-risks text is serialized ONLY into descriptive string fields and **never** chooses `id`, `classification`, `accepted_residual`, or `status` (author-controlled). This is the write-side analogue of the consumer `~~~text` fence rule; without it a crafted Top-risks string yields a schema-valid but semantically-poisoned `.slo.json`.

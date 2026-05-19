@@ -1,0 +1,33 @@
+{
+  "slo_schema_version": "0.1.0",
+  "slug": "slo-threat-model-producer-demo",
+  "sensitivity": "internal",
+  "otm_compatible": false,
+  "provenance": {
+    "produced_by": "slo-architect",
+    "producer_skill_sha": "e4ccfdf1e3b5b5e4257a50196b7463195a408e9e",
+    "generated_at": "2026-05-19",
+    "inputs": [
+      {
+        "path": "docs/RUNBOOK-SLO-THREAT-MODEL-PRODUCER.md",
+        "sha": "4eb0b5d315157a45c3a1004480ee69b06e71500c"
+      }
+    ]
+  },
+  "stride": [
+    { "component": "demo widget", "class": "Tampering", "state": "mitigated", "control_or_reason": "strict input validation at the demo widget boundary" }
+  ],
+  "abuse_cases": [
+    { "id": "tm-slo-threat-model-producer-demo-abuse-1", "surface": "demo widget /submit endpoint", "attacker": "unauthenticated network caller", "attack_step": "POST oversized payload (1 GiB) to /submit", "attacker_outcome": "demo widget OOM and crash", "control": "demo widget rejects payloads above the 1 MiB cap (C5)", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-slo-threat-model-producer-demo-abuse-2", "surface": "demo widget /submit endpoint", "attacker": "unauthenticated network caller", "attack_step": "POST a JSON body with a recursive cycle", "attacker_outcome": "demo widget parser stack overflow", "control": "demo widget rejects nesting > 64 levels (initial draft of this control)", "status": "superseded", "superseded_by": "tm-slo-threat-model-producer-demo-abuse-4", "supersede_reason": "the original control (depth-64 cap only) missed a variant: a sibling chain that bypasses the depth check by being wide instead of deep. Replaced with abuse-4 which models both depth and breadth bounds together. Original row preserved (supersede-don't-renumber) so /slo-plan citations still resolve.", "classification": "internal" },
+    { "id": "tm-slo-threat-model-producer-demo-abuse-3", "surface": "demo widget /status endpoint", "attacker": "scraping attacker", "attack_step": "GET /status repeatedly to enumerate internal state names", "attacker_outcome": "internal-state inventory leaked", "control": "demo widget /status returns a coarse health enum only — never internal state names (C6)", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-slo-threat-model-producer-demo-abuse-4", "surface": "demo widget /submit endpoint", "attacker": "unauthenticated network caller", "attack_step": "POST a JSON body crafted to exhaust the parser via combined depth and breadth (the variant abuse-2's control missed)", "attacker_outcome": "demo widget parser DoS", "control": "demo widget rejects nesting > 64 levels AND siblings > 1024 per object (combined bound replaces abuse-2's depth-only check)", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+  ],
+  "residual_risks": [
+    { "risk": "demo widget log-volume amplification under sustained valid traffic", "exploit_path": "Sustained-but-valid /submit traffic fills demo log disk; demo widget continues serving but logging stops first.", "compensating_control": "log rotation cap; alert at 80% volume. Not eliminated because logging is best-effort by design in the demo.", "accepted_residual": true, "owner": "demo-owner", "review_by": "2026-08-19", "classification": "internal" }
+  ],
+  "compliance": [
+    { "control": "demo widget 1 MiB body cap + nesting/breadth bounds", "soc2": "CC7.4 (capacity)", "asvs": "V5.1 Input Validation — size + structure limits" },
+    { "control": "demo widget /status returns coarse health enum only", "soc2": "CC6.7 (info disclosure)", "asvs": "V8.3 sensitive data exposure" }
+  ]
+}
