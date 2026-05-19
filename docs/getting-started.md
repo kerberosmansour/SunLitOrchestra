@@ -67,6 +67,7 @@ What success looks like:
 - `status` prints the installed skills for the host you chose.
 - Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`.
 - Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/` if you add `--local`.
+- These are SLO installer compatibility root paths. Current host-native project skill roots may differ: GitHub Copilot documents `.github/skills` and `.agents/skills`, and Codex documents `.agents/skills`. SunLit keeps `.copilot/skills` and `.codex/skills` compatible until a deliberate installer migration exists.
 - On Windows PowerShell, use `.\target\release\sldo-install.exe` with the same flags shown above.
 - Linux and macOS installs use directory symlinks. Windows tries directory symlinks first, then falls back to directory junctions if symlink privileges are unavailable.
 

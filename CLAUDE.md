@@ -2,6 +2,10 @@
 
 This file is the Claude Code overlay for the canonical living catalog at [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md). Use it when you are working in Claude Code and need Claude-specific session notes. For the host-neutral list of shipped skills, read the catalog first. For GitHub Copilot-specific notes, read [copilot-instructions.md](copilot-instructions.md). For Codex-specific notes, read [AGENTS.md](AGENTS.md).
 
+## Shared operating contract
+
+Follow [references/agent/operating-contract.md](references/agent/operating-contract.md) for the host-neutral agent rules: ask when ambiguous, make the smallest safe change, respect SLO allow-lists, verify before claiming, and keep host-boundary claims honest. Detailed workflows still live in [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) and the installed `skills/<name>/SKILL.md` files.
+
 ## Skill pack — first-party `/slo-*` skills
 
 Sprint flow: Think → Plan → Build → Review → Test → Ship → Reflect.
