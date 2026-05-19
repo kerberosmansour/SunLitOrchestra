@@ -42,6 +42,8 @@ Supported interactive hosts:
 | GitHub Copilot | `~/.copilot/skills/` | [copilot-instructions.md](copilot-instructions.md) |
 | Codex | `~/.codex/skills/` | [AGENTS.md](AGENTS.md) |
 
+These install targets are `sldo-install` compatibility root paths. Current host-native project skill roots may differ: GitHub Copilot documents `.github/skills` and `.agents/skills`, and Codex documents `.agents/skills`. SunLit keeps `~/.copilot/skills`, `./.copilot/skills`, `~/.codex/skills`, and `./.codex/skills` stable until an explicit installer migration exists.
+
 ## The problem
 
 LLM-assisted development is fast at producing code and slow at producing the things that make code useful afterwards: a clear scope, a recorded rationale, an honest threat model, an executable verification plan, and lessons that survive the next conversation. The default failure modes are easy to recognise:
@@ -253,6 +255,7 @@ What success looks like:
 - `status` lists the installed skills for the host you chose.
 - Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`.
 - Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/` if you add `--local`.
+- These paths are SLO installer compatibility root paths. They intentionally remain documented even where the host's official project-skill root is now `.github/skills` or `.agents/skills`.
 - On Windows PowerShell, use `.\target\release\sldo-install.exe` with the same flags. Native Windows shells can rely on `%USERPROFILE%` when `HOME` is not set.
 - Linux and macOS installs use directory symlinks. Windows tries directory symlinks first, then falls back to directory junctions if symlink privileges are unavailable.
 
@@ -432,6 +435,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 - Trail of Bits' [`semgrep-rules`](https://github.com/trailofbits/semgrep-rules) (AGPL) for the structural shape inspiration on the panic-DoS / CWE-755 rule. The SunLit Orchestra rule pack is independently re-authored from variation templates per the AGPL clean-room policy in [references/sast/AUTHORING.md](references/sast/AUTHORING.md).
 - The [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) for helping popularize structured, lifecycle-aware AI-assisted development. SunLit Orchestra arrives at a more contract-heavy, security-first shape, but it shares the belief that better outcomes come from explicit workflow rather than one-shot prompting.
+- Andrej Karpathy's four-rule CLAUDE.md framing, as summarized in [this r/AIAgentsInAction post](https://www.reddit.com/r/AIAgentsInAction/comments/1tgnulq/karpathys_4_rules_for_claudemd_was_1_on_github/): ask rather than assume, prefer the simplest working solution, leave unrelated code alone, and flag uncertainty explicitly. SunLit generalizes those rules into the shared [agent operating contract](references/agent/operating-contract.md) used by Claude Code, GitHub Copilot, and Codex overlays.
 - [TLA+](https://github.com/tlaplus/tlaplus), and the broader formal-methods tradition around it, for reinforcing the idea that some designs should be challenged as specifications before they are implemented as code. SunLit carries that idea through `/slo-tla` when concurrency, ordering, or protocol risk is real.
 - Jim Manico's talk [*Securing Claude Code: Guardrails for AI-Assisted Development*](https://youtu.be/thsdAsgIsFc?si=FvxYtdHyus7DQTe7) for sharpening the guardrail-first mindset behind the project's threat-modeling, verification, and "no agentic shortcuts" posture.
 - John Carmack's [*Best programming setup and IDE*](https://youtu.be/tzr7hRXcwkw?si=SeeakVCVpqWatOUl) clip from the Lex Fridman Podcast for influencing the v4 runbook template's Carmack-style reliability controls — debugger-first inspection, mandatory static analysis, assertion-driven invariants, bounded resource design, and "make invalid states unrepresentable".

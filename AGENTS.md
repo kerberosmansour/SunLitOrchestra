@@ -4,6 +4,10 @@ This file is the Codex overlay for the canonical living catalog at [docs/skill-p
 
 If you are new to the repo, start with [docs/getting-started.md](docs/getting-started.md). For the other host overlays, read [CLAUDE.md](CLAUDE.md) or [copilot-instructions.md](copilot-instructions.md).
 
+## Shared operating contract
+
+Follow [references/agent/operating-contract.md](references/agent/operating-contract.md) for the host-neutral agent rules: ask when ambiguous, make the smallest safe change, respect SLO allow-lists, verify before claiming, and keep host-boundary claims honest. Use [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) to pick the detailed SLO skill.
+
 ## Read this first
 
 1. [docs/getting-started.md](docs/getting-started.md) - first-run path

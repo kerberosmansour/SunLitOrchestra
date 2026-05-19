@@ -32,6 +32,8 @@ cargo build --release --bin sldo-install
                                                        # project-local GitHub Copilot install: ./.copilot/skills/<name>/
 ```
 
+The paths above are SLO installer compatibility root paths. Current host-native project skill roots may differ: GitHub Copilot documents `.github/skills` and `.agents/skills`, and Codex documents `.agents/skills`. Keep `.copilot/skills` and `.codex/skills` working until an explicit installer migration is designed and tested.
+
 Running the installer twice is a no-op. `claude-code` is the default host if you do not pass `--host`. Pass `--force` to replace an existing symlink that points somewhere else. Pass `--dry-run` to see what would change.
 
 ## Uninstall

@@ -41,6 +41,10 @@ sldo-install install
 # Install into a project-local GitHub Copilot skills directory.
 sldo-install --host github-copilot --local install
 
+# These are SLO installer compatibility root paths; current host-native
+# project skill roots may differ (for example `.github/skills` or
+# `.agents/skills`).
+
 # Show what would happen without making changes.
 sldo-install --dry-run install
 
@@ -78,6 +82,7 @@ sldo-install uninstall
 - MSRV: 1.75
 - macOS, Linux, Windows
 - Hosts: Claude Code and GitHub Copilot, plus the other host roots supported by `sldo-install --help`
+- Existing compatibility root paths include `~/.copilot/skills`, `./.copilot/skills`, `~/.codex/skills`, and `./.codex/skills`; they remain stable until an explicit migration is shipped.
 
 ## Status
 

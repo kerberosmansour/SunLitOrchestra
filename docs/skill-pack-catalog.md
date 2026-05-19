@@ -94,16 +94,16 @@ These skills generate exactly one primary artifact each.
 |---|---|---|
 | `/get-api-docs` | Fetch current third-party API docs via `chub` before coding against an external API | `npm install -g @aisuite/chub` |
 
-## Specialist agents (optional, host-native - Claude Code only)
+## Specialist agents (optional, host-native)
 
-Additive Claude-only enhancements that mirror `/slo-critique`'s four-persona rotation. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` - same artifact paths the canonical portable path writes. GitHub Copilot and Codex users continue to use `/slo-critique` directly (canonical portable path; no second-class treatment).
+Additive host-native profiles that mirror `/slo-critique` and `/slo-verify` role boundaries. Claude Code uses `agents/*.md`; GitHub Copilot has bounded counterparts under `.github/agents/*.agent.md`. Output paths are constrained to `docs/slo/critique/` and `docs/slo/verify/` - same artifact paths the canonical portable path writes. Codex users continue to use `/slo-critique` and `/slo-verify` directly.
 
-| Agent | Role | Output paths | Copilot fallback |
-|---|---|---|---|
-| `agents/slo-runbook-review-lead.md` | Lead — scopes a runbook, dispatches specialists, dedupes, writes consolidated critique | `docs/slo/critique/` | `/slo-critique` persona rotation |
-| `agents/slo-security-reviewer.md` | Security specialist — class elimination + variant analysis | `docs/slo/critique/` | `/slo-critique` security persona |
-| `agents/slo-design-reviewer.md` | Design specialist — UI-only; N/A on non-UI runbooks | `docs/slo/critique/` | `/slo-critique` design persona |
-| `agents/slo-verification-lead.md` | Verification specialist — review-time + runtime modes | `docs/slo/critique/`, `docs/slo/verify/` | `/slo-verify` |
+| Role | Claude profile | Copilot profile | Output paths | Portable path |
+|---|---|---|---|---|
+| Lead runbook review | `agents/slo-runbook-review-lead.md` | `.github/agents/slo-runbook-review-lead.agent.md` | `docs/slo/critique/` | `/slo-critique` persona rotation |
+| Security review | `agents/slo-security-reviewer.md` | `.github/agents/slo-security-reviewer.agent.md` | `docs/slo/critique/` | `/slo-critique` security persona |
+| Design review | `agents/slo-design-reviewer.md` | `.github/agents/slo-design-reviewer.agent.md` | `docs/slo/critique/` | `/slo-critique` design persona |
+| Verification review/runtime QA | `agents/slo-verification-lead.md` | `.github/agents/slo-verification-lead.agent.md` | `docs/slo/critique/`, `docs/slo/verify/` | `/slo-verify` |
 
 See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md) for the green-lit decision and host capability rationale.
 
@@ -121,8 +121,11 @@ Synthetic, non-normative gallery at [`examples/`](../examples/) shows what shipp
 
 - Every new feature runbook lives at `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks already authored against it).
 - Every ticket-sized issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`, which preserves the v4 Contract Block, BDD, evidence, static-analysis, assertion, and resource-bound gates in compact form.
+- `references/agent/operating-contract.md` is the shared host-neutral operating contract for AI coding agents. Keep it small and route detailed procedures through installed SLO skills.
 - `README.md` is the orientation doc, `docs/getting-started.md` is the first-run guide, and this file is the host-neutral skill catalog.
 - Host overlays (`CLAUDE.md`, `copilot-instructions.md`, `AGENTS.md`) must stay overlays. They can add session-specific guidance, but they should point back here instead of becoming competing catalogs.
+- Host install docs must distinguish SLO installer compatibility root paths (`.copilot/skills`, `.codex/skills`) from current official host-native project skill roots such as `.github/skills` and `.agents/skills`.
+- Host-native agent/profile docs must keep the canonical portable fallbacks visible: `/slo-critique` and `/slo-verify` remain the cross-host paths, and Copilot profiles are not a SLO headless runtime harness.
 - `references/biz/`, `references/security/`, and `references/sast/` are shared scaffolding trees. They are read by skills, but they are not skill directories.
 
 ## Current host boundaries

@@ -19,8 +19,11 @@ The repo no longer ships `sldo-plan`, `sldo-run`, or `sldo-tauri` as active work
 | `README.md` | Repo orientation for humans browsing the project |
 | `docs/getting-started.md` | First-run guide with exact install and first-use steps |
 | `docs/skill-pack-catalog.md` | Canonical living catalog of shipped skills |
+| `references/agent/operating-contract.md` | Shared host-neutral operating rules for AI coding agents |
 | `CLAUDE.md` | Claude Code overlay for the catalog |
 | `copilot-instructions.md` | GitHub Copilot overlay for the catalog |
+| `.github/copilot-instructions.md` | GitHub Copilot repository-wide custom-instructions entrypoint |
+| `.github/agents/*.agent.md` | Optional GitHub Copilot custom-agent profiles for bounded SLO review/verification roles |
 | `AGENTS.md` | Codex overlay for the catalog |
 | `docs/slo/design/agent-host-capabilities.md` | Capability matrix for install, interactive use, and runtime boundaries |
 
@@ -40,7 +43,7 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 | Utilities | `skills/slo-{freeze,resume,second-opinion}` | Session control, resumption, and disagreement surfacing |
 | Vendored helper | `skills/get-api-docs` | Third-party API doc fetches via `chub` |
 | Examples gallery | `examples/` | Synthetic, non-normative gallery (7 files) showing what shipped SLO outputs look like — read [`examples/README.md`](../examples/README.md). Not installable; not consumed by any skill. |
-| Specialist agents (optional, Claude-only) | `agents/slo-{runbook-review-lead,security-reviewer,design-reviewer,verification-lead}.md` | Host-native agent files for Claude Code that mirror `/slo-critique` persona rotation. Output paths constrained to `docs/slo/critique/` and `docs/slo/verify/`. GitHub Copilot and Codex users use `/slo-critique` directly (canonical portable path). See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md). |
+| Specialist agents (optional, host-native) | `agents/slo-{runbook-review-lead,security-reviewer,design-reviewer,verification-lead}.md` and `.github/agents/slo-*.agent.md` | Host-native agent/profile files that mirror `/slo-critique` and `/slo-verify` role boundaries. Output paths constrained to `docs/slo/critique/` and `docs/slo/verify/`. Codex users use `/slo-critique` and `/slo-verify` directly (canonical portable path). See [`docs/slo/design/host-capability-matrix.md`](slo/design/host-capability-matrix.md). |
 | Distribution channels | `sldo-install` (canonical, multi-host) + optional `.claude-plugin/plugin.json` (Claude-only, additive) | Tagged releases produce a downloadable zip via the SHA-pinned [`release-zip workflow`](../.github/workflows/release-zip.yml). |
 
 For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
@@ -49,10 +52,12 @@ For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
 - **Canonical catalog plus host overlays.** `docs/skill-pack-catalog.md` is the shared catalog. `CLAUDE.md`, `copilot-instructions.md`, and `AGENTS.md` are overlays, not competing sources of truth.
+- **Shared agent operating contract.** `references/agent/operating-contract.md` holds the small host-neutral behavior rules every overlay points at; detailed procedures stay in skills.
 - **Canonical planning artifact.** Every new feature runbook is `docs/RUNBOOK-<FEATURE>.md` and follows `docs/slo/templates/runbook-template_v_4_template.md` (v3 remains in place as the historical artifact for runbooks authored against it).
 - **Ticket-sized planning artifact.** Every bite-sized GitHub issue contract lives at `docs/slo/tickets/ticket-<issue>-<slug>.md` and follows `docs/slo/templates/ticket-contract-template_v_1.md`. The template stays compact while mirroring sprint-flow reversibility, exemplar / anti-exemplar, refactoring discipline, and AI tolerance rows with N/A paths.
 - **Reality-first ARCHITECTURE.md.** This file records implemented surfaces only.
 - **Host-aware installer roots.** Global installs land in `~/.claude/skills/`, `~/.copilot/skills/`, or `~/.codex/skills/`. Local installs land in `./.claude/skills/`, `./.copilot/skills/`, or `./.codex/skills/`.
+- **Installer compatibility roots vs. official host roots.** The roots above are SLO installer compatibility root paths. Current host-native project skill roots can differ: GitHub Copilot documents `.github/skills` and `.agents/skills`, and Codex documents `.agents/skills`. Do not treat a docs refresh as an installer migration.
 - **Cross-platform installer behavior.** Linux and macOS use directory symlinks. Windows tries directory symlinks first and falls back to directory junctions when symlink privileges are unavailable. Home resolution supports `HOME`, `USERPROFILE`, and `HOMEDRIVE` + `HOMEPATH`.
 - **Shared manifest with explicit host ownership.** `~/.sldo/install.toml` stores install records by host so `status`, `verify`, and `uninstall` stay scoped.
 - **Baseline test command.** `cargo test -p sldo-common -p sldo-install -p sldo-research`.
@@ -171,6 +176,8 @@ The current host line is simple:
 - Install support is multi-host.
 - The catalog and the `SKILL.md` contract are host-neutral.
 - Interactive skill use is supported in Claude Code, GitHub Copilot, and Codex.
+- `sldo-install` currently writes SLO compatibility roots for project-local Copilot and Codex installs (`./.copilot/skills`, `./.codex/skills`), while current official host-native repo-skill roots include `.github/skills` and `.agents/skills`.
+- GitHub Copilot has optional custom-agent profiles under `.github/agents/*.agent.md`; these are host-native prompt/tool profiles, not a SLO headless runtime harness. Codex has no shipped SLO host-native custom-agent equivalent.
 - Headless runtime automation is still Claude-specific where it exists today.
 - `/slo-research` interactive use is multi-host today; `sldo-research` remains an optional Claude batch backend.
 - `/slo-second-opinion` is host-neutral: it compares the current host against an external provider CLI (Codex or Gemini), and never silently falls back to asking the current host to imitate the other provider.
