@@ -30,10 +30,10 @@ fn nonblank_line_count(contents: &str) -> usize {
 fn frontmatter<'a>(contents: &'a str, rel_path: &str) -> &'a str {
     let without_open = contents
         .strip_prefix("---\n")
-        .unwrap_or_else(|| panic!("{rel_path} must start with YAML frontmatter"));
+        .unwrap_or_else(|| panic!("{} must start with YAML frontmatter", rel_path));
     let close_pos = without_open
         .find("\n---")
-        .unwrap_or_else(|| panic!("{rel_path} must close YAML frontmatter"));
+        .unwrap_or_else(|| panic!("{} must close YAML frontmatter", rel_path));
     &without_open[..close_pos]
 }
 
