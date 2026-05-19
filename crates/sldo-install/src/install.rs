@@ -358,6 +358,28 @@ pub fn verify(opts: &Options) -> Result<()> {
             bad += 1;
             continue;
         }
+        if let Err(e) = fs::metadata(&actual) {
+            eprintln!(
+                "  {} {}: source path does not resolve: {} ({})",
+                "x".red(),
+                entry.name,
+                actual.display(),
+                e
+            );
+            bad += 1;
+            continue;
+        }
+        let skill_md = actual.join("SKILL.md");
+        if !skill_md.is_file() {
+            eprintln!(
+                "  {} {}: source path is missing SKILL.md: {}",
+                "x".red(),
+                entry.name,
+                skill_md.display()
+            );
+            bad += 1;
+            continue;
+        }
         println!("  {} {}", "ok".green(), entry.name);
     }
     if bad > 0 {
