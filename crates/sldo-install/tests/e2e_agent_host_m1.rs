@@ -194,6 +194,34 @@ fn test_codex_status_and_verify_report_selected_host() {
 }
 
 #[test]
+fn test_verify_rejects_broken_manifest_source_link() {
+    let home = TempDir::new().unwrap();
+    let src = TempDir::new().unwrap();
+    make_skill(src.path(), "slo-ideate");
+
+    let install = sldo_install(home.path(), src.path(), &["--host", "codex", "install"]);
+    assert!(
+        install.status.success(),
+        "codex install failed: {}",
+        String::from_utf8_lossy(&install.stderr)
+    );
+
+    fs::remove_dir_all(src.path().join("slo-ideate")).unwrap();
+
+    let verify = sldo_install(home.path(), src.path(), &["--host", "codex", "verify"]);
+    assert!(
+        !verify.status.success(),
+        "verify should reject a manifest source path that no longer resolves"
+    );
+
+    let stderr = String::from_utf8_lossy(&verify.stderr);
+    assert!(
+        stderr.contains("source path does not resolve"),
+        "verify should explain the broken manifest source, got: {stderr}"
+    );
+}
+
+#[test]
 fn test_github_copilot_local_install_uses_repo_state() {
     let home = TempDir::new().unwrap();
     let src = TempDir::new().unwrap();
