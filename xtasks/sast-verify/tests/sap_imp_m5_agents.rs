@@ -16,11 +16,14 @@
 use sha2::{Digest, Sha256};
 use std::path::{Component, Path, PathBuf};
 
-/// SHA-256 of `skills/slo-critique/SKILL.md` captured 2026-05-07 after the
-/// Fowler AI architecture M4 coherence-pass update. Updating this constant
-/// requires a runbook amendment per F-ENG-6.
+/// SHA-256 of `skills/slo-critique/SKILL.md`. Updated 2026-05-19 by
+/// slo-threat-model runbook M2 (F-ENG-6 amendment recorded in
+/// `docs/RUNBOOK-SLO-THREAT-MODEL.md` §6): the canonical portable critique
+/// path was deliberately, additively extended with the threat-model
+/// read-side contract. No other behavior of the critique path changed.
+/// Prior baseline (post-Fowler M4): 5970f982ebb2f9739efd0186a66556ce1bc3db6d9bff125e5ef901991cbca071.
 const CRITIQUE_SKILL_SHA256: &str =
-    "5970f982ebb2f9739efd0186a66556ce1bc3db6d9bff125e5ef901991cbca071";
+    "9e31b7ddd5f4a440d80e96946b28736b2b5c60c74e0d9906e4ed91a1089f26f8";
 
 const EXPECTED_AGENT_NAMES: &[&str] = &[
     "slo-runbook-review-lead",
