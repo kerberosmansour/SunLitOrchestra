@@ -12,7 +12,7 @@ and complete. Only the GitHub mirror is pending.
 
 ---
 
-## Row 1 — CEO-1 producer runbook
+## Row 1 — CEO-1 producer runbook ✅ DELIVERED BY PR #91 (merged 2026-05-19)
 
 | Field | Value |
 |---|---|
@@ -21,8 +21,8 @@ and complete. Only the GitHub mirror is pending.
 | destination repo | `kerberosmansour/SunLitOrchestra` (origin-resolved; NO `--repo`) |
 | label | `retro-derived` |
 | dedupe disposition | none (3-strike `gh search` clean 2026-05-19) |
-| disposition | `spilled-harness-permission-block` |
-| status | pending — user to file or grant `gh issue create` permission |
+| disposition | **`delivered-without-issue-filing`** — the producer runbook (slo-threat-model-producer) was driven end to end and merged as PR #91 (`e153bced`/`ad208ad8`) before the candidate issue ever got filed. Filing now would be retrospective; leaving the row as a historical record. |
+| status | functionally closed — see PR #91 (`/slo-architect` Step 3.5 emits `<slug>-threat-model.slo.json`, supersede-don't-renumber, demo fixture). The candidate title/body below remains as the audit record of what the issue *would* have said. |
 
 **Candidate title:** Producer: /slo-architect Step 3.5 emits
 `<slug>-threat-model.slo.json` (closes the slo-threat-model loop, CEO-1)
