@@ -21,7 +21,8 @@ fn read(path: impl AsRef<Path>) -> String {
 
 #[test]
 fn cloud_iac_reference_exists_with_hulumi_and_pulumi_rules() {
-    let body = read(repo_root().join("skills/slo-execute/references/cloud-iac-secure-construction.md"));
+    let body =
+        read(repo_root().join("skills/slo-execute/references/cloud-iac-secure-construction.md"));
     for needle in [
         "Pulumi TypeScript",
         "Hulumi explicit or detected",
@@ -33,7 +34,10 @@ fn cloud_iac_reference_exists_with_hulumi_and_pulumi_rules() {
         "preview evidence",
         "drift evidence",
     ] {
-        assert!(body.contains(needle), "cloud-IaC reference missing `{needle}`");
+        assert!(
+            body.contains(needle),
+            "cloud-IaC reference missing `{needle}`"
+        );
     }
 }
 
@@ -48,7 +52,9 @@ fn cloud_threat_model_hands_off_to_secure_iac_lane() {
 fn secure_construction_matrix_covers_cloud_platforms() {
     let matrix = read(repo_root().join("skills/slo-plan/references/secure-construction-matrix.md"));
     for needle in ["AWS", "GitHub", "Cloudflare", "OIDC", "SecureBucket"] {
-        assert!(matrix.contains(needle), "matrix missing cloud/platform `{needle}`");
+        assert!(
+            matrix.contains(needle),
+            "matrix missing cloud/platform `{needle}`"
+        );
     }
 }
-

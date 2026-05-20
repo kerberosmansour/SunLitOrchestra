@@ -60,7 +60,8 @@ fn secure_construction_reference_exists_with_gap_routing() {
 
 #[test]
 fn secure_construction_reference_blocks_silent_hand_rolled_security() {
-    let body = read(repo_root().join("skills/slo-execute/references/secure-construction-preflight.md"));
+    let body =
+        read(repo_root().join("skills/slo-execute/references/secure-construction-preflight.md"));
     for needle in [
         "hand-rolled crypto",
         "hand-rolled auth",
@@ -72,4 +73,3 @@ fn secure_construction_reference_blocks_silent_hand_rolled_security() {
         assert!(body.contains(needle), "missing guardrail `{needle}`");
     }
 }
-

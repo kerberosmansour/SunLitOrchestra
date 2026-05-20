@@ -149,7 +149,13 @@ fn every_agent_has_required_frontmatter() {
                 continue;
             }
         };
-        for required in &["name", "role", "output-paths", "copilot-fallback", "host-required"] {
+        for required in &[
+            "name",
+            "role",
+            "output-paths",
+            "copilot-fallback",
+            "host-required",
+        ] {
             if !map.contains_key(serde_yaml_ng::Value::String((*required).into())) {
                 failures.push(format!(
                     "agents/{}.md frontmatter missing field `{}`",
@@ -197,7 +203,10 @@ fn every_output_path_in_allowed_set() {
         }
         for p in paths {
             let Some(s) = p.as_str() else {
-                failures.push(format!("agents/{}.md `output-paths` entry is not a string", name));
+                failures.push(format!(
+                    "agents/{}.md `output-paths` entry is not a string",
+                    name
+                ));
                 continue;
             };
             // Path traversal / absolute-path rejection (F-SEC-6).
@@ -209,7 +218,10 @@ fn every_output_path_in_allowed_set() {
                 ));
                 continue;
             }
-            if path_obj.components().any(|c| matches!(c, Component::ParentDir)) {
+            if path_obj
+                .components()
+                .any(|c| matches!(c, Component::ParentDir))
+            {
                 failures.push(format!(
                     "agents/{}.md output-path `{}` contains `..` traversal segment (per F-SEC-6)",
                     name, s
@@ -217,7 +229,9 @@ fn every_output_path_in_allowed_set() {
                 continue;
             }
             // Prefix membership.
-            let in_set = ALLOWED_OUTPUT_PATH_PREFIXES.iter().any(|prefix| s.starts_with(prefix));
+            let in_set = ALLOWED_OUTPUT_PATH_PREFIXES
+                .iter()
+                .any(|prefix| s.starts_with(prefix));
             if !in_set {
                 failures.push(format!(
                     "agents/{}.md output-path `{}` not in allowed prefix set {:?}",
@@ -303,8 +317,8 @@ fn agent_file_under_line_cap() {
 #[test]
 fn slo_critique_skill_md_unchanged() {
     let path = workspace_root().join("skills/slo-critique/SKILL.md");
-    let bytes = std::fs::read(&path)
-        .unwrap_or_else(|e| panic!("failed to read {}: {}", path.display(), e));
+    let bytes =
+        std::fs::read(&path).unwrap_or_else(|e| panic!("failed to read {}: {}", path.display(), e));
     let mut hasher = Sha256::new();
     hasher.update(&bytes);
     let hash = hasher.finalize();

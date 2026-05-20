@@ -141,7 +141,8 @@ fn stale_rows_warned() {
 
     for (line_num, _line, date) in &rows {
         if let Ok(d) = NaiveDate::parse_from_str(date, "%Y-%m-%d") {
-            let months_old = ((now.year() - d.year()) * 12) + (now.month() as i32 - d.month() as i32);
+            let months_old =
+                ((now.year() - d.year()) * 12) + (now.month() as i32 - d.month() as i32);
             if months_old > 12 {
                 eprintln!(
                     "WARNING: standards-mapping.md row at line {} has stale retrieval-date {} ({} months old); consider re-fetching",
@@ -162,7 +163,9 @@ fn four_skills_cite_standards_mapping() {
         let skill_md = root.join("skills").join(skill).join("SKILL.md");
         let markdown = read(&skill_md);
         let links = extract_link_destinations(&markdown);
-        let cites = links.iter().any(|d| d.ends_with(target) || d.contains(target));
+        let cites = links
+            .iter()
+            .any(|d| d.ends_with(target) || d.contains(target));
         if !cites {
             failures.push(format!(
                 "skills/{}/SKILL.md does not link to references/security/standards-mapping.md",

@@ -46,7 +46,8 @@ fn secure_construction_matrix_covers_core_surfaces() {
 
 #[test]
 fn vocabulary_distinguishes_hulumi_from_generic_pulumi() {
-    let vocab = read(repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
+    let vocab =
+        read(repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     for needle in [
         "Hulumi explicit",
         "Generic Pulumi TypeScript",
@@ -60,7 +61,8 @@ fn vocabulary_distinguishes_hulumi_from_generic_pulumi() {
 
 #[test]
 fn typescript_and_java_fallback_forbids_model_memory_claims() {
-    let vocab = read(repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
+    let vocab =
+        read(repo_root().join("skills/slo-plan/references/proactive-controls-vocabulary.md"));
     for needle in [
         "TypeScript / Java fallback",
         "do not invent library capability claims",
@@ -70,4 +72,3 @@ fn typescript_and_java_fallback_forbids_model_memory_claims() {
         assert!(vocab.contains(needle), "fallback missing `{needle}`");
     }
 }
-

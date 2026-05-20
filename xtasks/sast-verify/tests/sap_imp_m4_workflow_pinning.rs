@@ -154,7 +154,10 @@ fn host_capability_matrix_exists_with_decision() {
     let has_decision = content.contains("`green-lit`")
         || content.contains("`not green-lit`")
         || content.contains("`deferred`");
-    assert!(has_decision, "decision row missing — must contain `green-lit` / `not green-lit` / `deferred`");
+    assert!(
+        has_decision,
+        "decision row missing — must contain `green-lit` / `not green-lit` / `deferred`"
+    );
 }
 
 #[test]
@@ -184,10 +187,7 @@ fn walk_json_for_paths(v: &JsonValue, ptr: &str, violations: &mut Vec<String>) {
             // Any string containing `..` segments or starting with `/`, `\`,
             // `.claude-plugin/skills/` is suspect.
             if s.split(['/', '\\']).any(|seg| seg == "..") {
-                violations.push(format!(
-                    "{} contains `..` traversal segment (`{}`)",
-                    ptr, s
-                ));
+                violations.push(format!("{} contains `..` traversal segment (`{}`)", ptr, s));
             }
             if Path::new(s).is_absolute() {
                 violations.push(format!("{} is absolute (`{}`)", ptr, s));
@@ -223,7 +223,8 @@ fn release_workflow_trigger_in_acceptable_set() {
 
     // Acceptable triggers: tags:, release:, workflow_dispatch:, schedule:.
     // Forbidden: push: with default branches, pull_request:.
-    let has_tags = content.contains("tags:") || content.contains("- 'v*'") || content.contains("v*");
+    let has_tags =
+        content.contains("tags:") || content.contains("- 'v*'") || content.contains("v*");
     let has_release = content.contains("release:");
     let has_dispatch = content.contains("workflow_dispatch:");
     let has_schedule = content.contains("schedule:");

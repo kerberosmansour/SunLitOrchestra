@@ -71,7 +71,9 @@ fn five_intake_contracts_exist_with_conversational_framing() {
             body.contains("## Restate-and-confirm step"),
             "{rel} must define a restate-and-confirm step"
         );
-        for field in ["### F1.", "### F2.", "### F3.", "### F4.", "### F5.", "### F6."] {
+        for field in [
+            "### F1.", "### F2.", "### F3.", "### F4.", "### F5.", "### F6.",
+        ] {
             assert!(body.contains(field), "{rel} missing required field {field}");
         }
         for forbidden in [
@@ -156,7 +158,9 @@ fn every_advisor_skill_md_cites_m1_authority_files() {
             "{rel} must cite the closed regulator enum"
         );
         assert!(
-            authority_refs.iter().any(|authority| body.contains(authority)),
+            authority_refs
+                .iter()
+                .any(|authority| body.contains(authority)),
             "{rel} must cite at least one source-verified M1 authority file"
         );
     }
@@ -170,7 +174,8 @@ fn legal_intake_form_renamed() {
         "legal-intake-form.md must be renamed, not left as a duplicate"
     );
     assert!(
-        root.join("references/biz/legal-intake-contract.md").exists(),
+        root.join("references/biz/legal-intake-contract.md")
+            .exists(),
         "legal-intake-contract.md must exist after rename"
     );
 }

@@ -133,7 +133,9 @@ fn hmrc_vcm_index_verbatim() {
         "hmrc-vcm-index.md must have quoted_text blocks for VCM34080, VCM3000, VCM31000, and Abingdon Health"
     );
     assert!(
-        body.contains("https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080"),
+        body.contains(
+            "https://www.gov.uk/hmrc-internal-manuals/venture-capital-schemes-manual/vcm34080"
+        ),
         "hmrc-vcm-index.md must cite VCM34080 gov.uk URL"
     );
 }

@@ -141,7 +141,9 @@ fn schema_url_and_sha_are_captured() {
     assert!(script.contains("https://cyclonedx.org/schema/bom-1.6.schema.json"));
     assert!(methodology.contains("https://cyclonedx.org/schema/bom-1.6.schema.json"));
     assert!(script.contains("1ebcb88a2c845ecb6ff7bee7aeabdff9422cb0347f3d6875b241bd444b7e098f"));
-    assert!(methodology.contains("1ebcb88a2c845ecb6ff7bee7aeabdff9422cb0347f3d6875b241bd444b7e098f"));
+    assert!(
+        methodology.contains("1ebcb88a2c845ecb6ff7bee7aeabdff9422cb0347f3d6875b241bd444b7e098f")
+    );
 }
 
 #[test]
