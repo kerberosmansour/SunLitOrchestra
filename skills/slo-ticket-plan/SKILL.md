@@ -64,7 +64,8 @@ The ticket template is deliberately derived from `docs/slo/templates/runbook-tem
    - forbidden shortcuts
 9. Write BDD scenarios for happy path, invalid input, empty/degraded state, and abuse case when any new surface is introduced.
 10. Fill Validation Plan rows with real commands where discoverable. If a command is unknown, write `unknown - ask before execution`.
-11. Update the issue workpad `Plan`, `Acceptance Criteria`, and `Validation` sections.
+11. If the file allow-list or read-list includes an IAM trust-policy JSON, an AWS OIDC config, or a workflow YAML with `role-to-assume:`, run the **secrets→role→trust-policy chase**: for every `secrets.<NAME>` referenced in the relevant workflow YAML, record the IAM role ARN/name it resolves to and the trust policy attached to that role. Put the mapping in the contract (Compact Architecture Delta or a dedicated table). Different `role-to-assume:` secrets in different jobs = different roles = different trust policies — never conflate them. (Source: ticket-180 / issue #92.)
+12. Update the issue workpad `Plan`, `Acceptance Criteria`, and `Validation` sections.
 
 ## Gates
 
@@ -73,6 +74,7 @@ The ticket template is deliberately derived from `docs/slo/templates/runbook-tem
 - Refuse to mark a new surface as having no abuse scenario.
 - Refuse more than 10 implementation steps.
 - Refuse if the branch name, issue link, or validation commands are missing without a documented reason.
+- Refuse a ticket contract that proposes extending or amending an IAM trust policy without an explicit `secrets.<NAME>` → role ARN/name → trust-policy mapping table. The mapping must enumerate every `role-to-assume:` secret used by the workflow(s) the change touches; collapsing two `secrets.<NAME>` values into one role is a refuse-and-redo, not a comment.
 
 ## Anti-patterns
 

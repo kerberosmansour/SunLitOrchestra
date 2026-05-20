@@ -115,6 +115,7 @@ For docs-only or test-only work, write `N/A - no architecture delta` with a one-
 | Reversibility / rollback path | `[rollback/migration path for hard-to-change decisions, or N/A - additive/simple change]` |
 | Exemplar code to copy | `[paths/patterns to follow, or N/A - docs-only/no brownfield exemplar]` |
 | Anti-exemplar code not to copy | `[risky paths/patterns to avoid, or N/A - no anti-exemplar identified, because ...]` |
+| IAM secrets→role→trust-policy mapping | `[REQUIRED when the allow-list or read-list includes IAM trust-policy JSON, AWS OIDC config, or a workflow YAML with role-to-assume:. List every secrets.<NAME> referenced in the touched workflow(s), the IAM role ARN/name each resolves to, and the trust policy attached to that role. Different role-to-assume: secrets = different roles = different trust policies — do not conflate.]` \| `N/A - no IAM trust policy touched` |
 | Refactoring discipline | `[pre-test/microstep/post-test proof if refactor permitted, or N/A - no refactoring performed]` |
 | AI tolerance contract | `[accepted variance, deterministic boundary, eval evidence, bounded sample budget, or N/A - no AI component]` |
 | Forbidden shortcuts | `[no placeholder logic, no silent fallback, no broad refactor, ...]` |
