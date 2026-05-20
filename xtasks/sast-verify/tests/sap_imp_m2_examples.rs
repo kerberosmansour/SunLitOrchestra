@@ -349,11 +349,7 @@ fn every_abbreviates_ref_resolves() {
         };
 
         // Resolution rule (a): walk skills/<name>/SKILL.md for matching frontmatter `name`.
-        let resolves_via_skill_name = root
-            .join("skills")
-            .join(&abbr)
-            .join("SKILL.md")
-            .exists();
+        let resolves_via_skill_name = root.join("skills").join(&abbr).join("SKILL.md").exists();
 
         // Resolution rule (b): treat as filesystem path.
         let resolves_via_path = root.join(&abbr).exists();

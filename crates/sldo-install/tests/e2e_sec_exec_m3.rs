@@ -35,7 +35,12 @@ fn pass4_dast_guidance_converges_on_zaprun() {
     assert!(commands.contains("/slo-dast-tuner"));
     assert!(commands.contains("unauthenticated") && commands.contains("coverage failure"));
 
-    for forbidden in ["zap-api-scan.py", "zap-baseline.py", "zap-full-scan.py", "dastardly:latest"] {
+    for forbidden in [
+        "zap-api-scan.py",
+        "zap-baseline.py",
+        "zap-full-scan.py",
+        "dastardly:latest",
+    ] {
         assert!(
             !commands.contains(forbidden),
             "Pass 4 must not teach direct `{forbidden}` DAST invocation"
@@ -49,4 +54,3 @@ fn dast_tuner_cross_links_verify_selector() {
     assert!(skill.contains("Security-test selector"));
     assert!(skill.contains("skills/slo-verify/references/security-pass-commands.md"));
 }
-

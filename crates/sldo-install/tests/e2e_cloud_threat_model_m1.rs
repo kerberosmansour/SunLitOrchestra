@@ -160,7 +160,11 @@ fn scenario_catalog_covers_aws_github_and_cloudflare() {
     let on_disk: std::collections::BTreeSet<String> = fs::read_dir(&scenarios)
         .expect("scenarios dir missing")
         .filter_map(|e| e.ok())
-        .filter_map(|e| e.path().file_stem().map(|s| s.to_string_lossy().into_owned()))
+        .filter_map(|e| {
+            e.path()
+                .file_stem()
+                .map(|s| s.to_string_lossy().into_owned())
+        })
         .collect();
     let declared: std::collections::BTreeSet<String> =
         SCENARIO_ORDER.iter().map(|s| s.to_string()).collect();
@@ -213,14 +217,23 @@ fn citation_map_stays_in_sync_between_doc_and_script() {
         "SOC2-TSC-2017",
         "Hulumi-Policy",
     ] {
-        assert!(doc.contains(framework), "doc missing framework `{framework}`");
+        assert!(
+            doc.contains(framework),
+            "doc missing framework `{framework}`"
+        );
         assert!(
             script.contains(framework),
             "script missing framework `{framework}`"
         );
     }
     // Hulumi policy rule IDs are cited as bare IDs (framework Hulumi-Policy).
-    for rule in ["CF_DNS_1", "CF_DNSSEC_1", "CF_ORIGIN_1", "X_ORIGIN_1", "G_OIDC_1"] {
+    for rule in [
+        "CF_DNS_1",
+        "CF_DNSSEC_1",
+        "CF_ORIGIN_1",
+        "X_ORIGIN_1",
+        "G_OIDC_1",
+    ] {
         assert!(script.contains(rule), "script missing rule `{rule}`");
         assert!(doc.contains(rule), "doc missing rule `{rule}`");
     }
@@ -260,7 +273,8 @@ fn registered_in_skill_pack_catalog() {
 fn skill_md_does_not_link_to_examples() {
     let body = read(skill_path().join("SKILL.md"));
     assert!(
-        !body.contains("](examples/") && !body.contains("](../examples/")
+        !body.contains("](examples/")
+            && !body.contains("](../examples/")
             && !body.contains("](../../examples/"),
         "SKILL.md must not link into examples/"
     );

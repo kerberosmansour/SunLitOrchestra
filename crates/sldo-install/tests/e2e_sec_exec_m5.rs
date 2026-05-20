@@ -56,4 +56,3 @@ fn loops_doc_mentions_secure_construction_loop() {
     assert!(loops.contains("/slo-execute"));
     assert!(loops.contains("/slo-sec-libs"));
 }
-
