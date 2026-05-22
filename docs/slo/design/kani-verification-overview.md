@@ -19,7 +19,7 @@ A new **host-neutral** skill `skills/slo-kani/` that brings the [Kani Rust model
 
 The feature is **self-referential**: it is itself a Rust-adjacent addition to a Rust workspace, and the failure-bar demonstration (M4) is a separate seeded-bug crate where the full skill flow catches deliberately-planted bugs, remediates them, and re-verifies green.
 
-> **M4 demo repo (delivered):** `kerberosmansour/sunlit-kani-demo` @ commit `959b23e36a4d6a2e66ed36d07f85884490ec27f6`, verified against `kani-verifier 0.67.0` (the pinned `tools.toml` version). Red→green evidence for K1–K4 is recorded in [docs/slo/verify/kani-verification-kani.md](../verify/kani-verification-kani.md). (Public push pending one terminal authorization — see that report's "Demo repo status".)
+> **M4 demo repo (delivered + published):** [`kerberosmansour/sunlit-kani-demo`](https://github.com/kerberosmansour/sunlit-kani-demo) @ commit `c7953f638dd6ddd1a264cbec2842d30ded82482b`, verified against `kani-verifier 0.67.0` (the pinned `tools.toml` version). Red→green evidence for K1–K4 is recorded in [docs/slo/verify/kani-verification-kani.md](../verify/kani-verification-kani.md).
 
 Wedge ships as **one runbook, ≤5 milestones**:
 
@@ -27,7 +27,7 @@ Wedge ships as **one runbook, ≤5 milestones**:
 - **M2** — harness-generation + run/triage methodology reference files + honesty/scope gates.
 - **M3** — integration seams: `kani_required` in `/slo-architect`, §5 Kani sub-block in the v4 runbook template + `/slo-plan`, execute/verify/retro hooks.
 - **M4** — separate test repo (seeded-bug crate) + the documented catch→remediate→green failure-bar demonstration.
-- **M5** — TLA+ pairing (action→fn→harness refinement map) + CI split (quick PR proofs vs. nightly deep proofs).
+- **M5** — TLA+ pairing (action→fn→harness refinement map) + local deep-verification workflow (quick + deep tiers on the dev laptop; no CI automation in v1).
 
 ## Frontmatter rationale
 

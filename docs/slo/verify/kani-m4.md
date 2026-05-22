@@ -37,10 +37,10 @@ Threat-model: K-series each prove non-vacuous via the mandatory red-first step (
 N/A — the harnesses + verdicts are deterministic `cargo kani` runs.
 
 ## Environment
-- macOS; `cargo-kani 0.67.0` (matches `tools.toml` pin); demo crate `~/Dev/GitHub/sunlit-kani-demo` @ `959b23e`.
+- macOS; `cargo-kani 0.67.0` (matches `tools.toml` pin); demo crate `~/Dev/GitHub/sunlit-kani-demo` @ `c7953f6`.
 
 ## Coverage gaps
-- **Public push pending.** The demo crate is built, verified, and committed locally; the public `kerberosmansour/sunlit-kani-demo` push awaits one user-run `gh` command (harness auto-classifier blocks the agent from creating a public surface). The commit SHA (`959b23e`) is final and unaffected by the push. Once pushed, the overview's URL resolves; the evidence here is already complete.
+- None outstanding. The demo is published at https://github.com/kerberosmansour/sunlit-kani-demo @ `c7953f6` (the user ran the `gh` command; commit re-authored with the GitHub noreply email to clear email-privacy protection, giving the final SHA).
 
 ## Verdict
-The failure bar is met: all four kernels demonstrated catch→remediate→green at stated bounds with real Kani output, naive-first throughout. Verified. (One non-blocking follow-up: user runs the `gh repo create` push command.)
+The failure bar is met: all four kernels demonstrated catch→remediate→green at stated bounds with real Kani output, naive-first throughout. Demo published. Verified.

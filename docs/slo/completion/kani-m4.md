@@ -4,7 +4,7 @@
 - The failure bar is **met and documented**: four Rust kernels (off-by-one bounded loop, unsafe one-past-the-end pointer read, `u32` overflow, recursive `gcd` div-by-zero) each had a deliberate bug that Kani **caught** (red), a documented remediation that made it **green**, all at stated bounds, naive-first throughout. "More stable because of Kani" is now mechanically demonstrated.
 
 ## Files changed
-- External: `~/Dev/GitHub/sunlit-kani-demo` (NEW repo, commit `959b23e`) — `Cargo.toml`, `src/lib.rs` (K1–K4 + harnesses), `README.md`, `.gitignore`.
+- External: `~/Dev/GitHub/sunlit-kani-demo` (NEW repo, commit `c7953f6`) — `Cargo.toml`, `src/lib.rs` (K1–K4 + harnesses), `README.md`, `.gitignore`.
 - `docs/slo/verify/kani-verification-kani.md` (NEW — scope report with red→green evidence)
 - `docs/slo/design/kani-verification-overview.md` (demo repo URL + commit)
 - `README.md` (Formal verification demo note)
@@ -29,7 +29,7 @@
 - SLO repo `git status` clean apart from intended files; demo's `target/` gitignored.
 
 ## Deferred follow-ups
-- **User action:** run the provided `gh repo create … --public --push` command to publish `kerberosmansour/sunlit-kani-demo` (the agent is blocked from creating a public surface by the harness auto-classifier). Commit `959b23e` is final; the push does not change it.
+- None. The demo is published at https://github.com/kerberosmansour/sunlit-kani-demo @ `c7953f6` (user ran the `gh` command; commit re-authored with the GitHub noreply email to clear email-privacy protection).
 
 ## Known non-blocking limitations
 - K4 `ensures` proves `*r != 0` (the div-by-zero-elimination property), not full GCD correctness — chosen for fast, reliable verification.

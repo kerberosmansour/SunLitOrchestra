@@ -120,6 +120,7 @@ Load only the reference needed for the current phase:
 | Run + triage (fail-closed parsing, failure ladder) | [`references/run-and-triage.md`](references/run-and-triage.md) |
 | Fallback (stubs, contracts, solver, cover, out-of-scope routing) | [`references/fallback-strategies.md`](references/fallback-strategies.md) |
 | Write the verified-scope report | [`references/verified-scope-writeup.md`](references/verified-scope-writeup.md) |
+| Run proofs locally (quick + deep tiers, deep before release) | [`references/local-deep-verification.md`](references/local-deep-verification.md) |
 
 ## Common Gates And Anti-Patterns
 

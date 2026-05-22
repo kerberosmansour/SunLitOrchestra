@@ -1,7 +1,7 @@
 # Lessons Learned — kani Milestone 4
 
 ## What changed
-- A separate seeded-bug crate (`~/Dev/GitHub/sunlit-kani-demo`, commit `959b23e`) with four kernels (K1–K4), each demonstrated red→green against `kani-verifier 0.67.0`. SLO-repo artifacts: scope report `docs/slo/verify/kani-verification-kani.md`, overview demo-repo line, README "Formal verification demo" note, `tools.toml` pin bump 0.56.0→0.67.0.
+- A separate seeded-bug crate (`~/Dev/GitHub/sunlit-kani-demo`, commit `c7953f6`) with four kernels (K1–K4), each demonstrated red→green against `kani-verifier 0.67.0`. SLO-repo artifacts: scope report `docs/slo/verify/kani-verification-kani.md`, overview demo-repo line, README "Formal verification demo" note, `tools.toml` pin bump 0.56.0→0.67.0.
 
 ## Design decisions and why
 - **Bumped the pin to 0.67.0** (the installed, verified version). 0.56.0 was an unverified placeholder; the only honest pin is one verified against. This was the `tools.toml` "re-verify the demo on bump" step in action. Required an M4 allow-list extension (user-confirmed).
