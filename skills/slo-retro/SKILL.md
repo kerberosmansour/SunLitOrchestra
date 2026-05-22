@@ -36,9 +36,12 @@ After those three are on disk, run the issue-filing flow as described under "Iss
 Refuse to run and list the blockers if any of these are true:
 
 - The Evidence Log has blank "Actual Result" cells.
+- A **Kani-obligation Evidence-Log row is blank** (the milestone had `kani_required` proof obligations but the `cargo kani` verdict / bound was never recorded) — same refusal as any blank Evidence row.
 - The Self-Review Gate questions in the runbook template are not all "yes".
 - Any BDD scenario in the milestone is still marked pending.
 - `git status` shows untracked test artifacts.
+
+When a milestone had Kani proof obligations, record the proved properties, assumptions, bounds, stubs/contracts, and what remains unproved in the lessons file (sourced from `docs/slo/verify/<slug>-kani.md`).
 
 Do not fix these yourself. Tell the user which rows are blank, which questions are not answered, which scenarios are pending. They decide whether to go finish execution or override.
 

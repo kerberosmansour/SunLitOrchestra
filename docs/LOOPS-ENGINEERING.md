@@ -35,8 +35,9 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
 
 1. `/slo-ideate` — interrogate the idea, produce `docs/slo/idea/<slug>.md`.
 2. `/slo-research` — sourced dossier under `docs/slo/research/<slug>/`.
-3. `/slo-architect` — `ARCHITECTURE.md` updates plus stack lock-in, sets `tla_required`.
-4. `/slo-tla` — only when `tla_required: true`; verify the design.
+3. `/slo-architect` — `ARCHITECTURE.md` updates plus stack lock-in, sets `tla_required` / `kani_required`.
+4. `/slo-tla` — only when `tla_required: true`; verify the design (protocol level).
+4b. `/slo-kani` — only when `kani_required: true`; verify small bounded Rust kernels (code level). Pairs with `/slo-tla` by refinement (action → fn → harness); Kani never claims concurrency.
 5. `/slo-plan` — author `docs/RUNBOOK-<feature>.md` interactively, one milestone at a time.
 6. `/slo-critique` — adversarial four-pass review BEFORE any milestone executes.
 7. Per milestone: `/slo-execute M<N>` → `/slo-verify M<N>` → `/slo-retro M<N>`.
@@ -46,7 +47,7 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
 
 **Artifacts**: `docs/slo/idea/<slug>.md`, `docs/slo/research/<slug>/`, `docs/RUNBOOK-<feature>.md`, `docs/slo/lessons/<prefix>-m<N>.md`, `docs/slo/completion/<prefix>-m<N>.md`, the PR.
 
-**Skills involved**: `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-plan`, `/slo-critique`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship`.
+**Skills involved**: `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-kani`, `/slo-plan`, `/slo-critique`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship`.
 
 ```
    /slo-ideate ──► /slo-research ──► /slo-architect ──► /slo-plan

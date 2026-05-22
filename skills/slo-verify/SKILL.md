@@ -157,6 +157,10 @@ For deterministic, docs-only, template-only, or non-AI milestones, record `N/A �
 - Skipping empty-state because "it's just a screenshot" — empty states are where AI-slop lives.
 - Batching multiple bugs into one "fix and re-verify" cycle. Do one at a time so the regression test per bug is clean.
 
+## Kani-obligation verification (when the milestone has Kani proof obligations)
+
+When a milestone carries Kani proof obligations (the design had `kani_required: true`), confirm that the named **Kani harnesses** ran green **at the stated bounds** recorded in `docs/slo/verify/<slug>-kani.md`, and that scope claims are honest: every green carries its bound/assumptions/stubs, no whole-system claim, and no concurrency/interleaving claim (that is `/slo-tla`'s scope). A green with no scope block, an unsound stub, or an unrecognized `cargo kani` output treated as success is a finding — apply the bug-found flow.
+
 ## Handoff
 
 When every BDD scenario has a runtime row with a `pass` result, suggest `/slo-retro M<N>` to close out the milestone. If bugs were found and fixed, the retro should mention them as "missing coverage" in the lessons file.

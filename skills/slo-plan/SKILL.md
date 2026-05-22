@@ -34,7 +34,7 @@ One file in the user's project: `docs/RUNBOOK-<kebab-slug>.md`. Use `references/
 2. Check architecture docs; generate a reality-first orientation doc if missing.
 3. Propose 2–5 milestones; split the runbook if scope needs more than 5.
 4. For each milestone, follow [`references/methodology-milestone-authoring.md`](references/methodology-milestone-authoring.md), then confirm scope, allow-list, and BDD specificity.
-5. Fill the Documentation Update Table, architecture diagram, and TLA+ section.
+5. Fill the Documentation Update Table, architecture diagram, and §5 Formal-Verification section. When the design has `kani_required: true`, author the §5.8 Kani proof-obligation sub-block (target fn, property, bound, expected pre-fix/post-fix) and add a matching Kani-obligation row to each relevant milestone's Evidence Log; otherwise mark §5.8 `N/A`.
 
 ## Contract Block Sentinels
 

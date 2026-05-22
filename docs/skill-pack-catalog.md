@@ -21,8 +21,9 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 |---|---|---|
 | Ideate | `/slo-ideate` | YC-style product interrogation before any code |
 | Research | `/slo-research` | Host-native interactive research first; optional Claude batch backend for sourced dossiers |
-| Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` flag |
+| Architect | `/slo-architect` | Stack + `ARCHITECTURE.md` + interfaces lock-in + `tla_required` / `kani_required` flags |
 | Verify design | `/slo-tla` | TLC model-check the design when concurrency or ordering risk is real |
+| Verify code | `/slo-kani` | Kani model-check small bounded Rust kernels (unsafe, arithmetic, invariants) when `kani_required`; code-level peer to `/slo-tla` |
 | Plan | `/slo-plan` | Interactive v4 runbook authoring, one milestone at a time |
 | Critique | `/slo-critique` | Four-persona adversarial review before execution |
 | Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |

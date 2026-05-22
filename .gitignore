@@ -66,3 +66,7 @@ dist/
 # Python bytecode caches
 __pycache__/
 *.pyc
+
+# Kani / CBMC generated artifacts (target/ already ignored; these catch stragglers)
+**/*.kani-metadata.json
+kani_concrete_playback_*

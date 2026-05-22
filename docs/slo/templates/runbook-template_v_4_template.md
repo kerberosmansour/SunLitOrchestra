@@ -299,6 +299,16 @@ The minimum set of state variables needed to capture correctness. Flag anything 
 |---|---|
 | `[simplification]` | `[reason]` |
 
+### 5.8 Kani proof obligations (code-level, when `kani_required: true`)
+
+Additive to the design-level modeling above (it does not replace it). Fill this sub-block when the stack is Rust and `/slo-architect` set `kani_required: true`; otherwise mark `N/A — <reason>` (e.g. `N/A — no Rust kernels`). `/slo-kani` is the SLO skill that drives it. Where the design also has a TLA+ spec, each Kani obligation should correspond to a TLA+ atomic action (refinement pairing: action → Rust fn → Kani harness) — TLA+ proves the protocol, Kani proves the kernel; **Kani never claims concurrency/interleavings.**
+
+| # | Target fn | Property | Bound / assumptions | Expected pre-fix | Expected post-fix |
+|---|---|---|---|---|---|
+| `K1` | `[fn]` | `[no panic / no UB / invariant / postcondition]` | `[#[kani::unwind(N)], sizes, kani::assume(...)]` | `[FAILED — why]` | `SUCCESSFUL` |
+
+A green Kani run is **proved within the stated harness, assumptions, and bounds** — never "whole system proved." Each obligation's pre-fix variant must fail first (anti-vacuity). Bounds, assumptions, stubs, and contracts are recorded in `docs/slo/verify/<slug>-kani.md`.
+
 ---
 
 ## 6. Global Execution Rules

@@ -141,9 +141,9 @@ proposal.
 ## Handoff
 
 After `-verified.md` is written and TLC is green at the declared bound, suggest
-`/slo-plan` if a runbook does not yet exist or `/slo-critique` if it does. If
-the suitability gate short-circuited, suggest `/slo-plan` and include the
-alternative verification approach as a milestone.
+`/slo-plan` (or `/slo-critique` if a runbook exists); for a Rust target with
+bounded kernels also suggest `/slo-kani` (refinement: TLA+ action → Rust fn →
+Kani harness; TLA+ owns interleavings, Kani is out of scope for concurrency). If the suitability gate short-circuited, suggest `/slo-plan` with the alternative approach as a milestone.
 
 ---
 

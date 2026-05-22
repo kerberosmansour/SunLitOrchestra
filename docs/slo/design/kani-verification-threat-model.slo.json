@@ -1,0 +1,52 @@
+{
+  "slo_schema_version": "0.1.0",
+  "slug": "kani-verification",
+  "sensitivity": "internal",
+  "otm_compatible": false,
+  "provenance": {
+    "produced_by": "slo-architect",
+    "producer_skill_sha": "e4ccfdf1e3b5b5e4257a50196b7463195a408e9e",
+    "generated_at": "2026-05-22",
+    "inputs": [
+      {
+        "path": "~/Downloads/deep-research-report-Kani.md",
+        "sha": "8c2c5ef02b306c13bbe778c47e652bc47bf67ab70d5d2c9adfff4f7fe5f8873f"
+      },
+      {
+        "path": "docs/slo/design/kani-verification-threat-model.md",
+        "sha": "uncommitted-at-emit-time"
+      }
+    ]
+  },
+  "stride": [
+    { "component": "/slo-kani agent (LLM harness author + interpreter)", "class": "Tampering", "state": "mitigated", "control_or_reason": "structural-contract test pins SKILL.md shape + output-path allow-list" },
+    { "component": "/slo-kani agent (LLM harness author + interpreter)", "class": "Repudiation", "state": "mitigated", "control_or_reason": "verified-scope report records every assumption / bound / stub / solver / command" },
+    { "component": "/slo-kani agent (LLM harness author + interpreter)", "class": "Denial of service", "state": "mitigated", "control_or_reason": "per-harness runtime budget + bound caps from research thresholds (arrays 8-16, vecs 0-2)" },
+    { "component": "/slo-kani agent (LLM harness author + interpreter)", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "output-path constraint: harnesses in target crate src/ + reports in docs/slo/verify/ only; no host-config writes" },
+    { "component": "cargo kani subprocess + toolchain acquisition", "class": "Spoofing", "state": "mitigated", "control_or_reason": "version-pinned tools.toml; prereq cascade refuses mismatch" },
+    { "component": "cargo kani subprocess + toolchain acquisition", "class": "Tampering", "state": "mitigated", "control_or_reason": "cargo install --locked (lockfile-fixed deps) + pinned kani-verifier version" },
+    { "component": "cargo kani subprocess + toolchain acquisition", "class": "Denial of service", "state": "mitigated", "control_or_reason": "prereq cascade refuses to run on missing / mismatched toolchain" },
+    { "component": "cargo kani subprocess + toolchain acquisition", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "subprocess runs with the user's existing cargo perms; no escalation introduced" },
+    { "component": "Target Rust workspace / demo crate", "class": "Tampering", "state": "mitigated", "control_or_reason": "#[cfg(kani)] gating: harnesses never enter release/test builds" },
+    { "component": "Target Rust workspace / demo crate", "class": "Denial of service", "state": "mitigated", "control_or_reason": "small-bound defaults prevent solver state explosion" },
+    { "component": "Verified-scope report (docs/slo/verify/<slug>-kani.md)", "class": "Tampering", "state": "mitigated", "control_or_reason": "honesty gate: no green claim without an explicit scope block (bounds/assumptions/stubs)" },
+    { "component": "Verified-scope report (docs/slo/verify/<slug>-kani.md)", "class": "Repudiation", "state": "mitigated", "control_or_reason": "report is the durable audit trail of what was and was not proved" }
+  ],
+  "abuse_cases": [
+    { "id": "tm-kani-verification-abuse-1", "surface": "cargo kani subprocess (S1)", "attacker": "Crafted target source", "attack_step": "Plant code that makes a vacuous harness pass (over-strong assume, unreachable assertions) so a bug ships marked proved", "attacker_outcome": "Get a false green", "control": "kani::cover! anti-vacuity sanity checks mandated in harness-gen reference; honesty gate rejects green without cover evidence on weak harnesses", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-kani-verification-abuse-2", "surface": "cargo kani subprocess (S1)", "attacker": "Over-eager agent", "attack_step": "Claim concurrency / data-race / async correctness verified from a sequential-kernel proof", "attacker_outcome": "Overstate guarantees to the user", "control": "Hard gate: skill REFUSES to claim concurrency scope; await/atomics/threads route to extract-sequential-kernel or out-of-scope per research report", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-kani-verification-abuse-3", "surface": "cargo kani subprocess (S1)", "attacker": "Over-eager agent", "attack_step": "Introduce an under-approximating (unsound) stub to make an expensive proof terminate green", "attacker_outcome": "Hide a real failure behind a fake model", "control": "Stubbing reference mandates over-approximating, behaviourally-safe stubs only; every stub recorded in the scope report; unsound stub = rejected finding", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-kani-verification-abuse-4", "surface": "toolchain acquisition (S2)", "attacker": "Network / supply-chain attacker", "attack_step": "Serve a tampered kani-verifier build or a different version than intended", "attacker_outcome": "Run attacker code in dev/CI under cargo", "control": "cargo install --locked + version pin in tools.toml; prereq cascade verifies cargo kani --version matches pin before any run", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-kani-verification-abuse-5", "surface": "harness/report file writes (S3)", "attacker": "Path-injection via candidate path", "attack_step": "Coerce the skill to write a harness outside the target crate (e.g. into host config)", "attacker_outcome": "Arbitrary file write", "control": "Output-path allow-list (harnesses inside target crate src/; reports inside docs/slo/verify/); structural-contract test asserts the constraint", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+  ],
+  "residual_risks": [
+    { "risk": "Bounded proofs are not unbounded proofs", "exploit_path": "A green Kani result at N=8 says nothing about N=9; a consumer could read the scope report's green as a total guarantee", "compensating_control": "Scope report always states the bound; honesty gate forbids whole-system language. Inherent to bounded model checking; disclosed not eliminated.", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-08-22", "classification": "internal" },
+    { "risk": "skills/slo-kani/references/ files are NOT SHA-pinned by sldo-install", "exploit_path": "Local tamper of a reference file weakens harness-gen or honesty guidance; next session follows weakened guidance", "compensating_control": "Structural-contract test on SKILL.md + code review. Same residual the SAST pack documents. Re-evaluate if reference-file pinning is added pack-wide.", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-08-22", "classification": "internal" }
+  ],
+  "compliance": [
+    { "control": "Subprocess + toolchain integrity (pinned version, cargo install --locked)", "soc2": "CC7.1 (vuln mgmt) / CC8.1 (change mgmt)", "asvs": "V10.3 Dependency integrity" },
+    { "control": "Output-path allow-list (no arbitrary write)", "soc2": "CC6.1 (logical access)", "asvs": "V12.3 File path / traversal" },
+    { "control": "Verified-scope audit trail", "soc2": "CC7.2 (monitoring)", "asvs": "V1.11 Business-logic documentation" },
+    { "control": "Verdict derived from cargo kani output, not LLM narration", "soc2": "CC7.1", "asvs": "V5.4 Output Encoding — no code-interpreter context" }
+  ]
+}
