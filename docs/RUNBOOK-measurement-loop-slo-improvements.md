@@ -55,7 +55,7 @@ Follow the v4 Global Entry Protocol (§7), Carmack practices (§4), and Global E
 | # | Milestone | Status | Started | Completed | Lessons File | Completion Summary |
 |---|---|---|---|---|---|---|
 | 1 | `/slo-ideate` philosophy shift (wedge → complete value slice) + Success thesis section | `done` | 2026-05-22 | 2026-05-22 | [mloop-m1](slo/lessons/mloop-m1.md) | [mloop-m1](slo/completion/mloop-m1.md) |
-| 2 | `/slo-product metrics` feature measurement spec + `feature_measurement_spec` schema key | `not_started` | | | | |
+| 2 | `/slo-product metrics` feature measurement spec + `feature_measurement_spec` schema key | `done` | 2026-05-22 | 2026-05-22 | [mloop-m2](slo/lessons/mloop-m2.md) | [mloop-m2](slo/completion/mloop-m2.md) |
 | 3 | v4 template Measurement Contract section + Contract Block row + `/slo-plan` requirement | `not_started` | | | | |
 | 4 | `/slo-verify` measurement pass + `/slo-retro` Results-vs-thesis + **failure-bar demo** | `not_started` | | | | |
 | 5 | Document the Feature-performance loop in `LOOPS-ENGINEERING.md` + cross-ref in `LOOPS-BUSINESS.md` | `not_started` | | | | |
@@ -473,15 +473,15 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sast-verify` | all green | | | |
-| BDD test created | `mloop_m2_product.rs` | fails for expected reason | | | |
-| Implementation | add section + key + cross-ref | contract satisfied | | | |
-| Formatter | `cargo fmt --all -- --check` | clean | | | |
-| Static analyzer | `cargo clippy --workspace --all-targets -- -D warnings` | clean | | | |
-| Full tests | `cargo test -p sast-verify` | green | | | |
-| Split / enum check | sentinels | unchanged | | | |
-| Skill discovery | `./target/release/sldo-install --dry-run` | `/slo-product` listed | | | |
-| Test artifact cleanup | `git status` | clean | | | |
+| Baseline tests | `cargo test -p sast-verify` | all green | full suite green pre-edit | Pass | |
+| BDD test created | `mloop_m2_product.rs` | fails for expected reason | 4 new-content tests FAILED (section/key/pseudonym/single-key absent), 2 (split/tier) passed | Pass | correct anti-vacuity |
+| Implementation | add §6 spec + flag + schema key | contract satisfied | §6 added; `feature_measurement_spec: true` flag rule + frontmatter line; one schema row added | Pass | cross-ref + tier enum untouched |
+| Formatter | `cargo fmt --all -- --check` | clean | clean | Pass | |
+| Static analyzer | `cargo clippy -p sast-verify --all-targets -- -D warnings` | clean | same pre-existing red as M1 (3 out-of-scope files); `mloop_m2_product.rs` clean | Documented exception | see mloop-m1 lessons |
+| Full tests | `cargo test -p sast-verify` | green | 17 test binaries green incl. `mloop_m2_product` 6/6 | Pass | |
+| Split / enum check | sentinels | unchanged | CAC/LTV/NDR→/slo-metrics cross-ref present; `tier` enum still `confidential \| public` | Pass | `slo_product_split_preserved` + `artifact_schema_tier_enum_unchanged` green |
+| Skill discovery | `cargo run -q -p sldo-install -- --dry-run` | `/slo-product` listed | `= slo-product` listed | Pass | frontmatter additive only |
+| Test artifact cleanup | `git status` | clean | only `M artifact-schema.md`, `M slo-product/SKILL.md`, `?? mloop_m2_product.rs` | Pass | |
 
 #### Definition of Done
 
