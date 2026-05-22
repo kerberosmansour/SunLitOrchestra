@@ -58,7 +58,7 @@ Follow the v4 Global Entry Protocol (§7), Carmack practices (§4), and Global E
 | 2 | `/slo-product metrics` feature measurement spec + `feature_measurement_spec` schema key | `done` | 2026-05-22 | 2026-05-22 | [mloop-m2](slo/lessons/mloop-m2.md) | [mloop-m2](slo/completion/mloop-m2.md) |
 | 3 | v4 template Measurement Contract section + Contract Block row + `/slo-plan` requirement | `done` | 2026-05-22 | 2026-05-22 | [mloop-m3](slo/lessons/mloop-m3.md) | [mloop-m3](slo/completion/mloop-m3.md) |
 | 4 | `/slo-verify` measurement pass + `/slo-retro` Results-vs-thesis + **failure-bar demo** | `done` | 2026-05-22 | 2026-05-22 | [mloop-m4](slo/lessons/mloop-m4.md) | [mloop-m4](slo/completion/mloop-m4.md) |
-| 5 | Document the Feature-performance loop in `LOOPS-ENGINEERING.md` + cross-ref in `LOOPS-BUSINESS.md` | `not_started` | | | | |
+| 5 | Document the Feature-performance loop in `LOOPS-ENGINEERING.md` + cross-ref in `LOOPS-BUSINESS.md` | `done` | 2026-05-22 | 2026-05-22 | [mloop-m5](slo/lessons/mloop-m5.md) | [mloop-m5](slo/completion/mloop-m5.md) |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
 <!-- Lessons files go in docs/slo/lessons/mloop-m<N>.md -->
@@ -898,14 +898,14 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sast-verify` | all green | | | |
-| BDD test created | `mloop_m5_loops.rs` | fails for expected reason | | | |
-| Implementation | loop entry + cross-ref | contract satisfied | | | |
-| Formatter | `cargo fmt --all -- --check` | clean | | | |
-| Static analyzer | `cargo clippy --workspace --all-targets -- -D warnings` | clean | | | |
-| Full tests | `cargo test -p sast-verify` | green | | | |
-| Anchor / no-restructure check | existing loop headings | unchanged | | | |
-| Test artifact cleanup | `git status` | clean | | | |
+| Baseline tests | `cargo test -p sast-verify` | all green | full suite green pre-edit | Pass | |
+| BDD test created | `mloop_m5_loops.rs` | fails for expected reason | 2 failed (loop entry + cross-ref absent); 2 passed (single-home + existing-loops) | Pass | anti-vacuity correct |
+| Implementation | loop entry + cross-ref | contract satisfied | `## Feature-performance loop` (standard format + diagram) in LOOPS-ENGINEERING; Start-here row + See-also; cross-ref (Start-here row + See-also note) in LOOPS-BUSINESS | Pass | single home, no full duplication |
+| Formatter | `cargo fmt --all -- --check` | clean | clean after `cargo fmt --all` | Pass | |
+| Static analyzer | `cargo clippy -p sast-verify --all-targets -- -D warnings` | clean | same pre-existing out-of-scope red; new test clean | Documented exception | see mloop-m1 lessons |
+| Full tests | `cargo test -p sast-verify` | green | 20 test binaries green incl. `mloop_m5_loops` 4/4 | Pass | |
+| Anchor / no-restructure check | existing loop headings | unchanged | Sprint/Lessons/Library-feedback (ENG) + GTM/Pricing/User-interview (BUS) all asserted present | Pass | `existing_loops_preserved` green |
+| Test artifact cleanup | `git status` | clean | only 2 loop-doc edits + new test | Pass | |
 
 #### Definition of Done
 

@@ -20,6 +20,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 | "Am I OK? Is the cofounder relationship OK? Do we have enough runway?" | `/slo-founder-check` | [Founder-check loop](#founder-check-loop) | `docs/biz/founder-check.md` (confidential) |
 | "We've launched and we want a tactic plan" | `/slo-marketing` (b2b or b2c) | [GTM loop](#gtm-loop) | `docs/biz-public/marketing/<b2b\|b2c>-plan.md` |
 | "I want to file an SEIS / EIS Advance Assurance — am I ready?" | `/slo-fundraise` (triage mode) | [Pricing loop](#pricing-loop) (qualifying-trade gate) → fundraise advisor | `docs/biz/fundraise/<artifact>.md` |
+| "Did the feature we shipped actually create value?" | `/slo-metrics` (cohort vs thesis window) | Feature-performance loop — see [LOOPS-ENGINEERING.md#feature-performance-loop](LOOPS-ENGINEERING.md#feature-performance-loop) | `docs/biz-public/metrics.md` cohort tracking against the success thesis |
 
 Each loop below documents **user-visible outcome**, **trigger**, **steps**, **exit condition**, **artifacts**, **skills involved**, and a **diagram**.
 
@@ -227,7 +228,7 @@ Every loop here exists because it produces a user-visible outcome the static ski
 ## See also
 
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md) — static structure of the skill pack at HEAD.
-- [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — engineering-side loops (sprint, security-tuning, lessons, library-feedback).
+- [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md) — engineering-side loops (sprint, security-tuning, lessons, library-feedback, **Feature-performance loop**). The Feature-performance loop spans both sides: its engineering half (success thesis → measurement contract → `/slo-verify` Pass 6 → results-vs-thesis) lives there; its business half is the post-ship `/slo-metrics consumer|b2b` cohort readout against the success-thesis window.
 - [docs/slo/design/biz-skill-pack-overview.md](design/biz-skill-pack-overview.md) — design doc for the biz skill pack.
 - [references/biz/jurisdiction-uk.md](../references/biz/jurisdiction-uk.md) — UK-only jurisdiction discipline shared across biz skills.
 - [references/biz/triage-gate.md](../references/biz/triage-gate.md) — the four-gate hard-block (regulated / >£5,000 / counterparty / GDPR) used by the four advisor skills.
