@@ -57,7 +57,7 @@ Follow the v4 Global Entry Protocol (§7), Carmack practices (§4), and Global E
 | 1 | `/slo-ideate` philosophy shift (wedge → complete value slice) + Success thesis section | `done` | 2026-05-22 | 2026-05-22 | [mloop-m1](slo/lessons/mloop-m1.md) | [mloop-m1](slo/completion/mloop-m1.md) |
 | 2 | `/slo-product metrics` feature measurement spec + `feature_measurement_spec` schema key | `done` | 2026-05-22 | 2026-05-22 | [mloop-m2](slo/lessons/mloop-m2.md) | [mloop-m2](slo/completion/mloop-m2.md) |
 | 3 | v4 template Measurement Contract section + Contract Block row + `/slo-plan` requirement | `done` | 2026-05-22 | 2026-05-22 | [mloop-m3](slo/lessons/mloop-m3.md) | [mloop-m3](slo/completion/mloop-m3.md) |
-| 4 | `/slo-verify` measurement pass + `/slo-retro` Results-vs-thesis + **failure-bar demo** | `not_started` | | | | |
+| 4 | `/slo-verify` measurement pass + `/slo-retro` Results-vs-thesis + **failure-bar demo** | `done` | 2026-05-22 | 2026-05-22 | [mloop-m4](slo/lessons/mloop-m4.md) | [mloop-m4](slo/completion/mloop-m4.md) |
 | 5 | Document the Feature-performance loop in `LOOPS-ENGINEERING.md` + cross-ref in `LOOPS-BUSINESS.md` | `not_started` | | | | |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
@@ -763,17 +763,17 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sast-verify` | all green | | | |
-| BDD test + bad fixture created | `mloop_m4_verify_retro.rs` + `bad.md` | fails for expected reason | | | |
-| Implementation | pass + retro section | contract satisfied | | | |
-| Remediated fixture | `remediated.md` | bad fails, remediated passes | | | |
-| Formatter | `cargo fmt --all -- --check` | clean | | | |
-| Static analyzer | `cargo clippy --workspace --all-targets -- -D warnings` | clean | | | |
-| Full tests | `cargo test -p sast-verify` | green | | | |
-| Failure-bar (catch→remediate→green) | failure-bar tests | non-vacuous demo passes | | | |
-| Pass/section no-renumber | headings | unchanged | | | |
-| Fixture PII review | read fixtures | synthetic only | | | |
-| Test artifact cleanup | `git status` | clean | | | |
+| Baseline tests | `cargo test -p sast-verify` | all green | full suite green pre-edit | Pass | |
+| BDD test + bad fixture created | `mloop_m4_verify_retro.rs` + `bad.md` | fails for expected reason | 7 failed (remediated absent + Pass6/retro prose absent); 2 passed — incl. `failure_bar_bad_fixture_is_caught` (mechanism already catches bad.md) | Pass | anti-vacuity correct; the catch works pre-implementation |
+| Implementation | Pass 6 (six checks) + retro `## Results vs thesis` | contract satisfied | Pass 6 added after Pass 5 (no renumber); retro section added after `## What changed` | Pass | lockstep sentence ("mechanically-demonstrated"/"failure-bar") included |
+| Remediated fixture | `remediated.md` | bad fails, remediated passes | created; bad → 4 failures, remediated → 0 | Pass | |
+| Formatter | `cargo fmt --all -- --check` | clean | clean | Pass | |
+| Static analyzer | `cargo clippy -p sast-verify --all-targets -- -D warnings` | clean | same pre-existing out-of-scope red; new test clean | Documented exception | see mloop-m1 lessons |
+| Full tests | `cargo test -p sast-verify` | green | 19 test binaries green incl. `mloop_m4_verify_retro` 9/9 | Pass | |
+| Failure-bar (catch→remediate→green) | failure-bar tests | non-vacuous demo passes | `failure_bar_bad_fixture_is_caught` (abuse-1/2/3 + missing-event), `..._remediated_..._green`, `..._is_non_vacuous` all green | Pass | the M4 failure bar, proven |
+| Pass/section no-renumber | Pass 1/4/5 headings | unchanged | all three asserted present | Pass | `slo_verify_passes_not_renumbered` green |
+| Fixture PII review | read fixtures | synthetic only | both carry `SYNTHETIC PII` header; `alice@example.com` is synthetic | Pass | `failure_bar_fixtures_marked_synthetic` green |
+| Test artifact cleanup | `git status` | clean | only the 2 SKILL edits + new test + fixtures dir | Pass | |
 
 #### Definition of Done
 
