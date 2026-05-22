@@ -116,10 +116,10 @@ Load only the reference needed for the current phase:
 | Phase | Read |
 |---|---|
 | Score candidates | [`references/candidate-scoring.md`](references/candidate-scoring.md) |
-| Write harnesses + validate write-paths | `references/harness-generation.md` *(M2)* |
-| Run + triage (fail-closed parsing, failure ladder) | `references/run-and-triage.md` *(M2)* |
-| Fallback (stubs, contracts, solver, cover, out-of-scope routing) | `references/fallback-strategies.md` *(M2)* |
-| Write the verified-scope report | `references/verified-scope-writeup.md` *(M2)* |
+| Write harnesses + validate write-paths | [`references/harness-generation.md`](references/harness-generation.md) |
+| Run + triage (fail-closed parsing, failure ladder) | [`references/run-and-triage.md`](references/run-and-triage.md) |
+| Fallback (stubs, contracts, solver, cover, out-of-scope routing) | [`references/fallback-strategies.md`](references/fallback-strategies.md) |
+| Write the verified-scope report | [`references/verified-scope-writeup.md`](references/verified-scope-writeup.md) |
 
 ## Common Gates And Anti-Patterns
 

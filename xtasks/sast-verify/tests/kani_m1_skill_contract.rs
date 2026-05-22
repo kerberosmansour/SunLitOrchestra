@@ -145,3 +145,118 @@ fn slo_kani_candidate_scoring_reference_present() {
         "candidate-scoring.md must describe scoring signals (e.g. raise score for unsafe code)"
     );
 }
+
+// ---------------------------------------------------------------------------
+// M2 extensions: harness-generation + run/triage methodology + honesty/scope
+// gates. Gate phrases are asserted as EXACT contiguous substrings (kani-m1
+// lesson: a `contains()` check is not satisfied by interleaved prose).
+// ---------------------------------------------------------------------------
+
+fn reference(name: &str) -> String {
+    read(&workspace_root().join(format!("skills/slo-kani/references/{name}")))
+}
+
+const M2_REFERENCES: &[&str] = &[
+    "harness-generation.md",
+    "run-and-triage.md",
+    "fallback-strategies.md",
+    "verified-scope-writeup.md",
+];
+
+const EVAL_CASES: &[&str] = &[
+    "happy-path.md",
+    "adversarial.md",
+    "ambiguous-input.md",
+    "missing-context.md",
+    "tool-failure.md",
+    "high-risk-case.md",
+    "outdated-information.md",
+];
+
+#[test]
+fn slo_kani_m2_reference_files_present() {
+    let mut failures: Vec<String> = Vec::new();
+    for name in M2_REFERENCES {
+        let path = workspace_root().join(format!("skills/slo-kani/references/{name}"));
+        match std::fs::read_to_string(&path) {
+            Ok(c) if c.len() > 300 => {}
+            Ok(c) => failures.push(format!("{name} too small ({} bytes)", c.len())),
+            Err(_) => failures.push(format!("{name} missing")),
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "M2 method-dispatch references incomplete:\n  - {}",
+        failures.join("\n  - ")
+    );
+}
+
+#[test]
+fn slo_kani_naive_first_documented() {
+    let text = reference("run-and-triage.md");
+    assert!(
+        text.contains("pre-fix variant must fail first"),
+        "run-and-triage.md must carry the anti-vacuity rule (`pre-fix variant must fail first`)"
+    );
+}
+
+#[test]
+fn slo_kani_sound_stub_rule_documented() {
+    let text = reference("fallback-strategies.md").to_lowercase();
+    assert!(
+        text.contains("sound over-approximating stubs only"),
+        "fallback-strategies.md must carry the sound-stub rule (`sound over-approximating stubs only`) — tm-kani-verification-abuse-3"
+    );
+}
+
+#[test]
+fn slo_kani_verdict_from_tool_documented() {
+    let text = reference("run-and-triage.md");
+    assert!(
+        text.contains("never from narration"),
+        "run-and-triage.md must state the verdict comes from the tool (`never from narration`)"
+    );
+}
+
+#[test]
+fn slo_kani_parser_fails_closed_documented() {
+    // ENG-2: unrecognized cargo kani output must fail closed.
+    let text = reference("run-and-triage.md");
+    assert!(
+        text.contains("fail closed") && text.contains("non-pass"),
+        "run-and-triage.md must carry the fail-closed parsing rule (`fail closed` + `non-pass`) — ENG-2"
+    );
+}
+
+#[test]
+fn slo_kani_write_path_validation_documented() {
+    // SEC-1 / CWE-22: harness write-path validated by construction.
+    let text = reference("harness-generation.md");
+    let lc = text.to_lowercase();
+    assert!(
+        lc.contains("target-crate root") && lc.contains("symlink") && lc.contains("reject"),
+        "harness-generation.md must carry write-path validation (`target-crate root`, reject `..`/absolute/`symlink`) — SEC-1 / CWE-22"
+    );
+}
+
+#[test]
+fn slo_kani_eval_cases_present() {
+    let dir = workspace_root().join("skills/slo-kani/evals");
+    let mut failures: Vec<String> = Vec::new();
+    for name in EVAL_CASES {
+        let path = dir.join(name);
+        match std::fs::read_to_string(&path) {
+            Ok(c) => {
+                if !c.contains("skill: slo-kani") {
+                    failures.push(format!("{name} missing `skill: slo-kani` frontmatter"));
+                }
+            }
+            Err(_) => failures.push(format!("{name} missing")),
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "M2 eval cases incomplete:\n  - {}",
+        failures.join("\n  - ")
+    );
+}
