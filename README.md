@@ -292,6 +292,10 @@ cargo xtask sast-verify gate .semgrep/rust/cwe-755-panic-on-result-fn.yaml
 
 CI wiring is documented in [`references/sast/CI-WIRING.md`](references/sast/CI-WIRING.md).
 
+### Formal verification demo (Kani)
+
+`/slo-kani` brings the [Kani](https://model-checking.github.io/kani/) Rust model checker into the loop as a code-level peer to `/slo-tla`. The seeded-bug demo crate [`kerberosmansour/sunlit-kani-demo`](https://github.com/kerberosmansour/sunlit-kani-demo) proves the catch→remediate→green failure bar (off-by-one, unsafe one-past-end read, overflow, gcd contract). Red→green evidence: [`docs/slo/verify/kani-verification-kani.md`](docs/slo/verify/kani-verification-kani.md).
+
 ## Host reality
 
 - Claude Code, GitHub Copilot, and Codex can install and use the `SKILL.md` pack interactively.

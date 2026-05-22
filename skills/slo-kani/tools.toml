@@ -18,9 +18,9 @@
 
 [kani]
 crate = "kani-verifier"
-version = "0.56.0"
+version = "0.67.0"
 # Acquisition (the cascade INSTRUCTS the user to run these; it never auto-runs them):
-install = "cargo install --locked kani-verifier@0.56.0"
+install = "cargo install --locked kani-verifier@0.67.0"
 setup = "cargo kani setup"
 # Probe used by the prereq cascade to confirm the installed toolchain matches the pin:
 version_probe = "cargo kani --version"

@@ -19,6 +19,8 @@ A new **host-neutral** skill `skills/slo-kani/` that brings the [Kani Rust model
 
 The feature is **self-referential**: it is itself a Rust-adjacent addition to a Rust workspace, and the failure-bar demonstration (M4) is a separate seeded-bug crate where the full skill flow catches deliberately-planted bugs, remediates them, and re-verifies green.
 
+> **M4 demo repo (delivered):** `kerberosmansour/sunlit-kani-demo` @ commit `959b23e36a4d6a2e66ed36d07f85884490ec27f6`, verified against `kani-verifier 0.67.0` (the pinned `tools.toml` version). Red→green evidence for K1–K4 is recorded in [docs/slo/verify/kani-verification-kani.md](../verify/kani-verification-kani.md). (Public push pending one terminal authorization — see that report's "Demo repo status".)
+
 Wedge ships as **one runbook, ≤5 milestones**:
 
 - **M1** — `/slo-kani` skill skeleton + tool prereq cascade (pinned `kani-verifier` + `cargo kani setup`) + candidate-scoring rubric + structural-contract test.
