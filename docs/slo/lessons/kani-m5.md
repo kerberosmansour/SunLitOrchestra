@@ -9,10 +9,11 @@
 - The worked example reuses M4's real harnesses rather than inventing fictional ones, so the pairing doc is grounded in something that actually verified.
 
 ## Mistakes made
-- None. Applied the kani-m2 lowercase-haystack rule and the kani-m3 read-pinning-tests-first rule from the start.
+- The reciprocal note added to `slo-tla/SKILL.md` was a 7-line paragraph that pushed the file from 150 → 158 lines, breaking `sldo-install`'s `e2e_eng_imp_m3::slo_tla_skill_md_at_or_under_150_lines_without_exception` (the thin-dispatcher ≤150-line budget). Caught at `/slo-ship` by the FULL baseline suite (not by the per-crate `sast-verify` runs during M5). Fixed by folding the `/slo-kani` reference into the existing 4-line handoff paragraph (net 0 lines added; file back to exactly 150).
+- The M3 §5.8 edit to `docs/slo/templates/runbook-template_v_4_template.md` was NOT mirrored to `skills/slo-plan/references/runbook-template_v_4_template.md`; `e2e_v4_template::v4_skill_local_copy_matches_docs_mirror` requires the two to be byte-identical. Also surfaced only at `/slo-ship` by the full suite. Fixed by copying docs → skill reference.
 
 ## Root causes
-- N/A — clean run.
+- `slo-tla/SKILL.md` was already at its 150-line budget; ANY net line addition breaks the thin-dispatcher test. A "small additive note" to a budget-constrained file is not free. The per-crate test runs during a milestone can miss cross-crate assertions — only the full baseline catches them.
 
 ## What was harder than expected
 - Nothing technical. The conceptual care was in stating the refinement relationship precisely enough to be both a useful template and a testable contract.

@@ -141,17 +141,9 @@ proposal.
 ## Handoff
 
 After `-verified.md` is written and TLC is green at the declared bound, suggest
-`/slo-plan` if a runbook does not yet exist or `/slo-critique` if it does. If
-the suitability gate short-circuited, suggest `/slo-plan` and include the
-alternative verification approach as a milestone.
-
-**Reciprocal with `/slo-kani`:** TLA+ proves the protocol at the design level by
-treating actions as atomic; `/slo-kani` proves the Rust kernel implementing each
-atomic action is panic-free / invariant-preserving (code level). When the target
-is Rust and the design has bounded kernels worth proving, suggest `/slo-kani`
-and build the refinement map (TLA+ action → Rust fn → Kani harness). TLA+ owns
-interleavings; Kani is out of scope for concurrency — neither claims the other's
-guarantee.
+`/slo-plan` (or `/slo-critique` if a runbook exists); for a Rust target with
+bounded kernels also suggest `/slo-kani` (refinement: TLA+ action → Rust fn →
+Kani harness; TLA+ owns interleavings, Kani is out of scope for concurrency). If the suitability gate short-circuited, suggest `/slo-plan` with the alternative approach as a milestone.
 
 ---
 
