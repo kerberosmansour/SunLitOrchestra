@@ -18,6 +18,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 | "I have a repeated regression — where do I start?" | `/slo-resume` (orient) then check prior `docs/slo/lessons/` | [Lessons loop](#lessons-loop) | A scope candidate at the next milestone's pre-flight |
 | "Findings keep coming back from SAST — how do I tune?" | `/slo-rulegen --extend` | [Security-tuning loop](#security-tuning-loop) | A new rule pack rev under `.semgrep/<lang>/` |
 | "A milestone needs secure code or secure cloud resources — what should the agent use?" | `/slo-execute` | [Secure-construction loop](#secure-construction-loop) | A surface map with matched secure libraries, tests, gaps, or residual risks |
+| "Did the feature we shipped actually create value?" | `/slo-ideate` (success thesis) then `/slo-plan` (§5A) | [Feature-performance loop](#feature-performance-loop) | A success thesis, a §5A Measurement Contract, Pass 6 telemetry evidence, and a results-vs-thesis readout |
 | "An upstream tool has a gap — what now?" | `/slo-sec-libs` (when shipped) | [Library-feedback loop](#library-feedback-loop) | An issue in the upstream repo |
 | "I stepped away — where was I?" | `/slo-resume` | (any) | A one-screen orientation message |
 
@@ -245,6 +246,49 @@ declaration updates.
 
 ---
 
+## Feature-performance loop
+
+> **User-visible outcome**: the team can answer "did the feature we shipped actually create value, and what should we change next?" — not just "does it technically work?". Every value-bearing feature leaves planning with a written success thesis + measurement contract, ships with verified telemetry, and gets an honest results-vs-thesis readout.
+
+**Trigger**: a value-bearing feature enters the sprint loop — `/slo-ideate` names a success thesis, and `/slo-plan` requires a §5A Measurement Contract.
+
+**Steps**:
+
+1. `/slo-ideate` — Q3 asks for the smallest *complete* value slice and the idea doc's `## Success thesis` names the leading metric, lagging metric, guardrails, and review window.
+2. `/slo-product metrics` — the feature gets a measurement spec (north-star link, leading/lagging metric, guardrails, telemetry requirements) and the artifact sets `feature_measurement_spec: true`.
+3. `/slo-plan` — the runbook's §5A Measurement Contract is filled (value hypothesis, review windows, metrics, guardrails, telemetry deliverables, rollout, diagnosis, experiment, privacy controls); each value-bearing milestone names its slice in the Contract Block **Measurement deliverables** row.
+4. `/slo-execute` → `/slo-verify` Pass 6 — milestones emit the named telemetry; Pass 6 checks events fire, are masked/pseudonymised, emit on failure paths, the `feature_measurement_spec` flag isn't gamed, and author strings are fenced.
+5. `/slo-retro` — the lessons file's `## Results vs thesis` records whether the leading + lagging metrics moved and what that implies (iterate / hold / cut / ship next).
+6. Post-ship — the founder reads the financial half via `/slo-metrics consumer|b2b` cohort tracking against the thesis window (see [LOOPS-BUSINESS.md](LOOPS-BUSINESS.md)); PM-side adoption is refreshed via `/slo-product metrics`.
+
+**Exit condition**: the success thesis is either affirmed (telemetry verified, leading/lagging on-target) or disconfirmed (a review-window threshold breached) — and the next runbook's scope reflects the decision.
+
+**Artifacts**: idea-doc `## Success thesis`; `docs/biz-public/product/metrics.md` feature spec (`feature_measurement_spec: true`); runbook §5A Measurement Contract + per-milestone Measurement-deliverables rows; `/slo-verify` Pass 6 evidence; lessons-file `## Results vs thesis`.
+
+**Skills involved**: `/slo-ideate`, `/slo-product`, `/slo-plan`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-metrics`.
+
+```
+   /slo-ideate (## Success thesis)
+        │
+        ▼
+   /slo-product metrics (feature spec; feature_measurement_spec: true)
+        │
+        ▼
+   /slo-plan §5A Measurement Contract ──► per-milestone Measurement deliverables
+        │
+        ▼
+   /slo-execute ──► /slo-verify Pass 6 (events fire? masked? failure-path? flag? fenced?)
+        │
+        ▼
+   /slo-retro ## Results vs thesis ──► affirmed / disconfirmed
+        │
+        ├── post-ship: /slo-metrics consumer|b2b (cohort vs thesis window)
+        │
+        └── decision feeds the next runbook's scope
+```
+
+---
+
 ## Library-feedback loop
 
 > **User-visible outcome**: when SLO discovers a capability gap or bug in an upstream tool (Semgrep, Playwright, `cargo audit`, etc.), the lesson does not die in a local markdown file — it gets filed against the upstream repo and re-checked when the upstream improves.
@@ -310,3 +354,4 @@ If a future addition to this doc cannot point at a concrete user-visible outcome
 - [skills/slo-retro/SKILL.md](../skills/slo-retro/SKILL.md) — the writer end of the lessons loop.
 - [skills/slo-execute/SKILL.md](../skills/slo-execute/SKILL.md) — the reader end of the lessons loop (pre-flight carry-forward).
 - [skills/slo-resume/SKILL.md](../skills/slo-resume/SKILL.md) — one-screen orientation across loops.
+- [docs/RUNBOOK-measurement-loop-slo-improvements.md](RUNBOOK-measurement-loop-slo-improvements.md) — the runbook that introduced the Feature-performance loop (success thesis → measurement contract → Pass 6 → results-vs-thesis).

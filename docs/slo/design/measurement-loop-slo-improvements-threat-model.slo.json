@@ -1,0 +1,49 @@
+{
+  "slo_schema_version": "0.1.0",
+  "slug": "measurement-loop-slo-improvements",
+  "sensitivity": "internal",
+  "otm_compatible": false,
+  "provenance": {
+    "produced_by": "slo-architect",
+    "producer_skill_sha": "2052149e511ab0e112916582e4dd0497ddf53a2a",
+    "generated_at": "2026-05-22",
+    "inputs": [
+      {
+        "path": "~/Downloads/deep-research-report(5).md",
+        "sha": "b97d94224b5c4e40e0b85459aa017f4503aa665b"
+      },
+      {
+        "path": "docs/slo/design/measurement-loop-slo-improvements-threat-model.md",
+        "sha": "uncommitted-at-emit-time"
+      }
+    ]
+  },
+  "stride": [
+    { "component": "Idea-doc Success thesis (Markdown)", "class": "Information disclosure", "state": "residual", "control_or_reason": "author may paste a real customer name; routed to /slo-verify Pass 4 PII scan + Privacy controls row" },
+    { "component": "/slo-product metrics feature spec + feature_measurement_spec flag", "class": "Spoofing", "state": "mitigated", "control_or_reason": "flag is author-set, /slo-verify cross-checks flag against actual presence of the spec section" },
+    { "component": "/slo-product metrics feature spec + feature_measurement_spec flag", "class": "Information disclosure", "state": "mitigated", "control_or_reason": "tier: public default + Pass 4 PII/telemetry-field scan over docs/biz-public/" },
+    { "component": "v4 Measurement Contract section / Contract Block row", "class": "Information disclosure", "state": "eliminated", "control_or_reason": "mandatory Privacy controls sub-row: pseudonymise + mask + minimise + DPIA trigger by class" },
+    { "component": "v4 Measurement Contract section / Contract Block row", "class": "Repudiation", "state": "mitigated", "control_or_reason": "Evidence Log + Results-vs-thesis record who/what/when for ship decisions" },
+    { "component": "/slo-verify measurement pass", "class": "Tampering", "state": "mitigated", "control_or_reason": "read-only heuristic checks, no network, no writes (same shape as Pass 4)" },
+    { "component": "/slo-verify measurement pass", "class": "Denial of service", "state": "mitigated", "control_or_reason": "bounded heuristic scan over a bounded file set" },
+    { "component": "Template / SECURITY-adjacent string interpolation", "class": "Tampering", "state": "eliminated", "control_or_reason": "user-provided strings wrapped in ~~~text fences in any generated SECURITY/threat-model output (existing SLO rule)" },
+    { "component": "Template / SECURITY-adjacent string interpolation", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "generated text renders to descriptive Markdown only; never selects control fields (id/status/classification)" },
+    { "component": "xtasks/sast-verify structural baselines", "class": "Tampering", "state": "mitigated", "control_or_reason": "SHA baseline change is explicit and PR-reviewed; never waived" }
+  ],
+  "abuse_cases": [
+    { "id": "tm-measurement-loop-abuse-1", "surface": "Generated artifact string interpolation", "attacker": "Unwary author / content-injector", "attack_step": "Paste a crafted string into a success-thesis or feature-spec field containing Markdown/YAML/HTML metacharacters to break out of the section or smuggle agent-readable instructions into a generated SECURITY/threat-model artifact", "attacker_outcome": "Template-placeholder injection altering security defaults or injecting instructions", "control": "All user-provided strings rendered into generated security/threat artifacts wrapped in ~~~text fences (reuse of the load-bearing /slo-architect fence rule); measurement sections render user text as plain Markdown body only and never select control fields", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-measurement-loop-abuse-2", "surface": "Generated measurement contract telemetry guidance + docs/biz-public/ artifacts", "attacker": "Privacy-careless team using the framework", "attack_step": "Generated contract drives collection of raw identifiers / unmasked PII into analytics, or a feature spec quotes a real customer, and lands under git-tracked docs/biz-public/", "attacker_outcome": "PII leak to a public remote; PECR/GDPR breach", "control": "Mandatory Privacy controls row (pseudonymised event ids by default, masking, minimisation, consent for non-essential cookies, DPIA trigger); /slo-verify measurement pass extends Pass 4 PII scan to telemetry field definitions; pii_scan_override + reason required for intentional matches", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-measurement-loop-abuse-3", "surface": "/slo-plan and /slo-verify gating", "attacker": "Author gaming the gate", "attack_step": "Set feature_measurement_spec: true or check the Measurement Contract box without an actual spec/telemetry", "attacker_outcome": "False 'measured' signal; ship-decision made on absent telemetry", "control": "/slo-verify measurement pass cross-checks the flag against actual presence of the spec section and the failure-path emission check; /slo-retro Results-vs-thesis refuses on blank actuals (existing rule)", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+  ],
+  "residual_risks": [
+    { "risk": "Author can hand-author a thin or dishonest measurement contract", "exploit_path": "Framework forces the shape and cross-checks, not the team's integrity; a determined author can still fake a thin contract", "compensating_control": "/slo-verify + /slo-retro raise the cost of faking; mitigation not elimination (tm-measurement-loop-abuse-3)", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-08-22", "classification": "internal" },
+    { "risk": "This work generates guidance; it does not enforce the target product's runtime privacy", "exploit_path": "SLO ships no telemetry runtime; a target product could ignore the recommended defaults", "compensating_control": "Contract makes safe defaults the path of least resistance; direct-marketing/cookie questions routed to /slo-legal triage (PECR) per existing biz-pack wiring. Disclosed, not eliminated.", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-08-22", "classification": "internal" }
+  ],
+  "compliance": [
+    { "control": "Telemetry PII minimisation + pseudonymisation by default", "soc2": "CC6.1 (least data)", "asvs": "V8 Data protection", "gdpr": "Art. 5(1)(c) minimisation; Art. 25 data-protection-by-design" },
+    { "control": "Consent for non-essential tracking", "soc2": "CC2.3", "asvs": "V3 Session/consent", "gdpr": "PECR reg. 6 active consent; strictly-necessary exemption only" },
+    { "control": "DPIA trigger for high-risk processing", "soc2": "CC3.2 (risk assessment)", "asvs": "N/A", "gdpr": "DPIA where high risk (innovative tech, behaviour/geolocation tracking); living process feeding the plan" },
+    { "control": "Replay/session tooling masking by default", "soc2": "CC6.7", "asvs": "V8.3 Sensitive client data", "gdpr": "Default masking of inputs/numbers/emails; unmasking only as explicit justified action" },
+    { "control": "Audit trail of ship decisions", "soc2": "CC7.2 / CC7.3", "asvs": "V7 Logging", "gdpr": "Art. 5(2) accountability — Evidence Log + Results-vs-thesis" }
+  ]
+}

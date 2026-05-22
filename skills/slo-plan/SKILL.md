@@ -46,6 +46,11 @@ Every milestone Contract Block includes the base rows plus:
 - **Data classification**: `Public`, `Internal`, `Confidential`, or `Restricted`; see [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md).
 - **Proactive controls in play**: cite stack-aware controls from [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md) as actionable implementation constraints, using [`references/secure-construction-matrix.md`](references/secure-construction-matrix.md) to map each touched surface to secure defaults and tests.
 - **Abuse acceptance scenarios**: cite [`references/abuse-case-examples.md`](references/abuse-case-examples.md); required for every new surface. If no new surface, write `N/A — no new surface introduced, see <reason>`. Silent omission is forbidden.
+- **Measurement deliverables**: required for any **value-bearing** milestone. Cite the runbook's §5A Measurement Contract and name this milestone's slice (events / runtime metrics / saved queries + guardrail owner + readout date). For non-value-bearing milestones, write `N/A — not value-bearing, see <reason>`.
+
+## Measurement Contract requirement
+
+A runbook for a **value-bearing feature** MUST carry the §5A Measurement Contract before it is complete. **"Value-bearing" is defined deterministically**: the work *introduces or changes user-facing capability*. It **EXCLUDES** internal refactor, docs-only, and test-only work (those mark §5A `N/A — not a value-bearing feature`). Pull the per-feature inputs forward from the idea doc's `## Success thesis` (`/slo-ideate`) and the `/slo-product metrics` feature measurement spec (`feature_measurement_spec: true`). If a value-bearing runbook reaches completion without a filled Measurement Contract, **flag the gap** and require it before handoff — but do **not** retroactively invalidate legacy runbooks authored before this section existed (they remain valid; the requirement is forward-looking, mirroring the §10 Carry-forward backward-compat posture).
 
 When the Refactor budget is anything except `No refactor permitted beyond direct implementation`, apply [`references/refactoring-discipline.md`](references/refactoring-discipline.md): behavior-preserving microsteps, pre-test evidence, and post-test proof.
 

@@ -63,6 +63,11 @@ Do not fix these yourself. Tell the user which rows are blank, which questions a
 ## What changed
 - <summary>
 
+## Results vs thesis
+- <for a value-bearing milestone with a §5A Measurement Contract: did the primary LEADING metric move in the review window? did the LAGGING outcome move? did any guardrail regress?>
+- <what the actual-vs-predicted gap implies for the next milestone or runbook — iterate / hold / cut / ship next>
+- <`N/A — not a value-bearing milestone` is valid here, with the one-line reason>
+
 ## Design decisions and why
 - <decision> — <reason>
 

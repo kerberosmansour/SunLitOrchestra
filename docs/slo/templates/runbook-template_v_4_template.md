@@ -311,6 +311,31 @@ A green Kani run is **proved within the stated harness, assumptions, and bounds*
 
 ---
 
+## 5A. Measurement Contract
+
+> **Optional section.** Legacy runbooks without this section remain valid (same backward-compat posture as §10 Carry-forward). But `/slo-plan` REQUIRES it for any **value-bearing feature** (one that introduces or changes user-facing capability; internal refactor / docs-only / test-only work is exempt). It is the planning-time half of the feature-performance loop: it makes telemetry a contracted deliverable, not a best-effort afterthought, so post-release questions ("did this work? what do we change next?") are answerable.
+
+Fill this for value-bearing features. Carry the per-feature inputs forward from the idea doc's `## Success thesis` (`/slo-ideate`) and the `/slo-product metrics` feature measurement spec (`feature_measurement_spec: true`).
+
+| Field | Meaning |
+|---|---|
+| Value hypothesis | The change in user behaviour / outcome we expect this feature to cause |
+| Review windows | When we read results — e.g. 24h / 7d / 28d (or equivalent for the cadence) |
+| Primary leading metric | The first behavioural signal the feature created value, observable within the first window |
+| Primary lagging metric | The durable user / business outcome that should eventually move |
+| Guardrails | What must NOT regress (core conversion, error rate, latency, support load) + each guardrail's owner |
+| Telemetry deliverables | Named behavioural events + runtime/reliability metrics + saved queries/dashboards the milestones must ship; failure paths emit a visible signal |
+| Rollout plan | Flags, cohorts, staged release |
+| Diagnosis plan | For each likely drop-off, the question to ask (technical / pricing / confusing UX / weak demand) and the evidence that distinguishes them |
+| Experiment plan | The first iteration to run if the baseline misses |
+| Privacy controls | Pseudonymised event identifiers + masking + data minimisation by default; consent for non-essential cookies/tracking (route to `/slo-legal triage` for PECR); DPIA trigger for behaviour/geolocation tracking |
+
+Each value-bearing milestone then names its slice of these telemetry deliverables in its Contract Block **Measurement deliverables** row, and `/slo-verify`'s measurement pass checks they fire, are masked/pseudonymised, and emit on failure paths. `/slo-retro` records actual-vs-thesis movement.
+
+For non-value-bearing runbooks (pure refactor / docs / tooling), mark this section `N/A — not a value-bearing feature, see <reason>`.
+
+---
+
 ## 6. Global Execution Rules
 
 These rules apply to every milestone without exception.
@@ -885,6 +910,7 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Data classification (optional) | [Public / Internal / Confidential / Restricted — per project threat-model conventions] |
 | Proactive controls in play (optional) | [OWASP Proactive Controls citations, e.g., C1, C5, C9] |
 | Abuse acceptance scenarios (optional) | [`tm-<feature>-abuse-N: <description>` — mitigation noted in BDD] |
+| Measurement deliverables (required for value-bearing milestones) | [which named events / runtime metrics / saved queries this milestone ships, the guardrail owner, and the readout date — ties to the §5A Measurement Contract; or `N/A — not value-bearing, see <reason>`] |
 
 #### Out of Scope / Must Not Do
 

@@ -24,7 +24,7 @@ Ask one at a time. Do not accept hypotheticals ("it would be nice if", "people p
 
 1. **Whose life is worse right now because this doesn't exist?** Name a person (or a role if the person is hypothetical), and the day they last had the problem.
 2. **What did they throw away, give up, or tolerate because nothing worked?** Concrete loss. Not "time" — how much time, on what.
-3. **What is the smallest wedge that would be obviously better within one week?** If the answer is "the whole thing", the wedge isn't small enough yet — keep cutting.
+3. **What is the smallest complete value slice?** Not the smallest wedge for its own sake, and not a fat MVP — the smallest slice that is *complete enough for a user to experience the core value AND complete enough for you to learn why it worked or failed*. A slice too thin to teach you anything is as wrong as a release too big to ship. If the answer is "the whole thing", it isn't sliced enough yet — keep cutting. Then press for two things: **what user behaviour would prove this created value within the first review window**, and **what evidence would tell you a miss is technical, pricing, confusing UX, or weak demand** rather than a wrong idea. (These feed the Success thesis below.)
 4. **What business model does this imply?** Wedge products often become distribution for something else. Ask what the second product is.
 5. **What are three legitimately different approaches?** One conservative, one cloud/SaaS, one local/desktop. Effort in person-weeks. Risks named.
 6. **What if this is actually a feature of something bigger?** Sometimes the right answer is "don't build, pitch X to do it". Offer this option honestly.
@@ -81,7 +81,15 @@ tla_required: false    # provisional — /slo-architect finalizes this
 - (same structure)
 
 ## Recommendation
-<one paragraph — which approach, why, and what is the one-week wedge>
+<one paragraph — which approach, why, and what is the smallest complete value slice>
+
+## Success thesis
+<the smallest complete value slice's measurement intent — name behaviour, not PII (real-user quotes / identifiers are routed to the /slo-verify PII scan, never pasted here)>
+- **Leading metric**: <the first user-behaviour signal that the slice created value, observable within the review window>
+- **Lagging metric**: <the durable user/business outcome that should eventually move>
+- **Guardrails**: <1–3 things that must NOT regress (e.g. core conversion, error rate, latency)>
+- **Review window**: <when we read the result — e.g. 24h / 7d / 28d>
+- **If it misses**: <which diagnosis — technical / pricing / confusing UX / weak demand — and the evidence that distinguishes them>
 
 ## Open questions for /slo-research
 <numbered list — things only external data can answer>
@@ -97,6 +105,7 @@ Stop when all of these are true:
 - The recommendation is one of the three (not "we'll decide later").
 - The open-questions list hands the baton to `/slo-research`.
 - **Top risks is populated with three named entries** — one breach, one compliance-fine, one prolonged-outage. Generic risks ("security matters") do not count.
+- **The Success thesis names a leading metric, a lagging metric, and guardrails** — behaviour, not PII — plus the review window and the technical/pricing/UX/demand diagnosis path. A slice with no success thesis is not done.
 
 Before stopping, restate the recommendation to the user and ask "did I hear that right?" Take their correction. Then write the file.
 

@@ -115,6 +115,23 @@ Verify the AI tolerance contract from [`slo-plan/references/ai-tolerance-contrac
 
 For deterministic, docs-only, template-only, or non-AI milestones, record `N/A — no AI component` and do not run AI-specific sampling.
 
+### Pass 6. Measurement (gated)
+
+Run this pass only when the milestone ships a slice of a runbook's §5A Measurement Contract (its Contract Block has a non-`N/A` **Measurement deliverables** row, or the feature carries a `/slo-product metrics` spec with `feature_measurement_spec: true`). It is additive — it runs after Passes 1–5 and never renumbers them. Like Pass 4, it is **heuristic and tool-optional**: when the telemetry context is absent (no events emitted yet, no analytics backend reachable), emit an explicit `skipped — no telemetry context (<reason>)` row using the `pass/fail/skipped/N/A` vocabulary; missing telemetry context never hard-fails Pass 6.
+
+Six checks:
+
+1. **event presence** — every behavioural event named in the Measurement Contract / feature spec actually appears (a synthetic smoke path emits each critical event at least once, or the event name is present in the shipped instrumentation). A named-but-absent critical event is a finding.
+2. **telemetry PII / masking** — telemetry field definitions carry pseudonymised identifiers and masked sensitive fields; a raw email / NI / sort-code / unmasked identifier in an event field is a finding (reuse the Pass 4 PII regexes). Routes consent/cookie questions to `/slo-legal triage` (PECR).
+3. **failure-path emission** — every major "Then it failed" branch emits a visible signal (structured error / metric / event); a silent failure path is a finding.
+4. **replay tagging** — where session-replay is enabled, events/sessions carry the agreed cohort/experiment tags and replay masking is on by default; `N/A` when replay is not used.
+5. **`feature_measurement_spec` flag↔section cross-check** — if an artifact sets `feature_measurement_spec: true` it MUST carry the actual feature measurement spec section; a true flag with no spec is a gamed-gate finding (`tm-measurement-loop-abuse-3`).
+6. **unfenced user-string / template-injection** — author-supplied strings (success-thesis text, feature names, metric labels) interpolated into a generated artifact must be `~~~text`-fenced / neutralized; an unfenced injection payload is a finding (`tm-measurement-loop-abuse-1`, CWE-1336 / CWE-94). Class-elimination remains the `/slo-architect` `~~~text` fence rule; this check verifies it held.
+
+**Hard, mechanically-demonstrated signals.** Checks 1, 2, 5, and 6 are the hard, **mechanically-demonstrated** subset: the `mloop` runbook's M4 **failure-bar** fixture pair (`xtasks/sast-verify/tests/fixtures/mloop_failure_bar/{bad,remediated}.md`) proves they are non-vacuous — they FAIL on the bad fixture (catching abuse-1/2/3 + a missing event) and PASS on the remediated fixture. Checks 3 and 4 are heuristic / where-enabled. When Pass 6 surfaces a finding, reuse the existing bug-found flow (STOP → regression test first → hand back to `/slo-execute` → re-verify); it invents no new flow.
+
+**Threat-model rows** — Pass 6 addresses `tm-measurement-loop-abuse-1` (injection), `tm-measurement-loop-abuse-2` (PII leak), `tm-measurement-loop-abuse-3` (gamed flag). See [`docs/slo/design/measurement-loop-slo-improvements-threat-model.md`](../../docs/slo/design/measurement-loop-slo-improvements-threat-model.md).
+
 ## When you find a bug
 
 1. **STOP** and write a regression test that reproduces it. The test should fail today.

@@ -1,0 +1,17 @@
+# Reversibility Matrix — measurement-loop-slo-improvements
+
+| Decision | Why hard to change | Reversibility tactic | Rollback / migration path | Proof required |
+|---|---|---|---|---|
+| Ideation philosophy: "smallest wedge" → "smallest *complete* value slice" | Cultural / framing change in `/slo-ideate`; once authors internalise it, idea docs and downstream expectations shift. Reverting confuses the team. | Keep the Q-slot count and existing section names stable; the change is wording + one added section, not a new contract shape. | Revert the SKILL.md edit; legacy idea docs (with or without a success thesis) stay valid because the section is optional. | Diff shows only Q3 wording + additive `## Success thesis` section; existing idea-doc fixtures still parse. |
+| New optional frontmatter key `feature_measurement_spec: bool` in the biz artifact schema | Frontmatter is a declared **stable interface**; once artifacts in the wild carry the key, removing it could break a future reader. | Default-absent = `false` (backward compatible); register it in `artifact-schema.md` as optional. Single key only — no cluster. | Removing the key is safe *only because* absence already means `false`; readers must treat absent == false. Document this invariant in the schema row. | `/slo-verify` measurement pass treats absent key as `false`; legacy `/slo-product metrics` artifacts validate unchanged. |
+| Inline-first measurement contract (vs machine-readable `.slo.json` schema) | If we later promote to a machine schema, runbooks/artifacts authored inline must be migratable. | Keep the inline section field names aligned with the report's 10-field table so a future schema is a 1:1 lift, not a redesign. | Future `/slo-architect` pass adds the `.slo.json` companion; inline sections become the human-readable mirror (same pattern as threat-model md ↔ .slo.json). No data loss. | Inline field names match the documented Measurement Contract table; a future schema can be generated from them. |
+| New optional v4 template section + Contract Block row | The v4 template is the output contract of `/slo-plan`; renumbering or removing sections breaks runbooks authored against it. | Insert as additive section + optional row (mirror the v4 "Carry-forward from prior retros" optional-section precedent); do not renumber existing §1–§20. | Revert the template edit; legacy runbooks without the section remain valid; `/slo-plan` falls back to flagging the gap. | Existing v4 runbooks still satisfy the template; structural test (if any pins template shape) updated deliberately. |
+| `/slo-verify` measurement pass added as additive (not a renumber of Pass 1–5) | Pass numbers are referenced across docs; renumbering would break references. | Add as a clearly-scoped additive pass (e.g., a measurement sub-pass) without renumbering existing passes. | Revert the SKILL.md edit; existing passes unaffected. | Pass 1–5 references elsewhere remain accurate; structural baseline updated in same milestone. |
+
+## Hard-to-reverse summary
+
+The only genuinely sticky decision is the **`feature_measurement_spec` frontmatter key** — once artifacts
+carry it, the schema must keep tolerating it. The reversibility tactic (absent == false, single key, no
+cluster) keeps even that low-regret. Everything else is additive Markdown that reverts by reverting the diff.
+The deliberate deferral of the machine-readable schema is itself the primary reversibility hedge: we avoid
+freezing a telemetry schema before fixtures exist, so we never have to migrate one we regret.

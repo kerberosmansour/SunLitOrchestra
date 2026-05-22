@@ -46,6 +46,7 @@ mode_arg: roadmap | metrics | okrs
 jurisdiction: uk
 baseline_ref: references/biz/product-prioritization-frameworks.md@2026-05-03
 expires_or_review_by: <YYYY-MM-DD + 90 days for roadmap and okrs; +180 for metrics>
+feature_measurement_spec: true   # optional (metrics mode only) — set when a per-feature measurement spec (§6) is present; absent ⇒ false
 ---
 ```
 
@@ -120,6 +121,26 @@ Per major feature: % of activated users who use it weekly. Target threshold for 
 ### 5. Cross-reference
 
 Explicit list of metrics that BELONG to `/slo-metrics` (Runbook B2), not here. Founder is told which skill to use for which metric.
+
+### 6. Feature measurement specification (optional, per-feature)
+
+When the founder is working a *specific* capability (not just the product-wide dashboard), produce a feature
+measurement spec — the PM-side half of the feature-performance loop. This is **PM-side only**; financial mix
+(CAC / LTV / NDR / burn) still lives in `/slo-metrics` (the split is unchanged). For each feature:
+
+- **North-star link**: which north-star metric (§1) this feature is supposed to move, and through which step of the activation funnel (§2).
+- **Primary leading metric**: the first user-behaviour signal the feature created value (observable within the review window).
+- **Primary lagging metric**: the durable adoption/retention outcome that should eventually move.
+- **Guardrails**: 1–3 product metrics that must NOT regress (e.g. core conversion, error rate, activation).
+- **Activation / completion funnel**: the per-feature step funnel with conversion targets and the biggest expected drop-off.
+- **Adoption thresholds**: the % of activated users using the feature weekly that counts as feature-market-fit.
+- **Diagnostic questions**: for each likely drop-off, the interpretation to test (technical / pricing / confusing UX / weak demand).
+- **Segmentation plan**: which cohorts to split by (new vs returning, market, device) when reading the result.
+- **Experiment backlog**: the first iteration to run if the baseline misses.
+- **Telemetry requirements**: the named behavioural events the feature must emit, each carrying **pseudonymised** identifiers and **masked** sensitive fields by default (data minimisation — never raw PII in analytics; route consent/cookie questions to `/slo-legal triage` for PECR). This list is what `/slo-plan`'s Measurement Contract and `/slo-verify`'s measurement pass consume.
+
+When a feature measurement spec is present in the artifact, set `feature_measurement_spec: true` in the
+frontmatter so `/slo-verify` and downstream tooling can detect it. Absent ⇒ treated as `false`.
 
 ## `mode_arg: okrs` body
 
