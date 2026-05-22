@@ -176,6 +176,10 @@ Each smoke test is a manual verification step. Check off each as you do it.
 
 Walk the Compatibility Checklist one item at a time. Mark each check.
 
+### 8.5 Kani proof obligations (when the milestone has them)
+
+If the milestone's Evidence Log carries a **Kani-obligation** row (the design had `kani_required: true` and `/slo-plan` authored §5.8), drive it with `/slo-kani`: write the `#[cfg(kani)]` harness, run `cargo kani`, and if it fails, remediate the code (not the harness) and re-verify so the obligation goes red→green. The verdict comes from the `cargo kani` tool output, never from narration; record the bound/assumptions in the scope report. Do not mark the row done on a missing toolchain — surface the prereq-cascade skip instead.
+
 ### 9. Clean up
 
 - `git status` — confirm no untracked test artifacts.

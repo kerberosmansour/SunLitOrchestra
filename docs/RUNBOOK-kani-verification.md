@@ -45,7 +45,7 @@
 |---|---|---|---|---|---|---|
 | 1 | `/slo-kani` skill skeleton + tool prereq cascade + candidate-scoring rubric | `done` | 2026-05-22 | 2026-05-22 | [kani-m1](docs/slo/lessons/kani-m1.md) | [kani-m1](docs/slo/completion/kani-m1.md) |
 | 2 | Harness-generation + run/triage methodology + honesty/scope gates | `done` | 2026-05-22 | 2026-05-22 | [kani-m2](docs/slo/lessons/kani-m2.md) | [kani-m2](docs/slo/completion/kani-m2.md) |
-| 3 | Integration seams (architect `kani_required`, §5 sub-block, execute/verify/retro hooks) | `not_started` | | | | |
+| 3 | Integration seams (architect `kani_required`, §5 sub-block, execute/verify/retro hooks) | `done` | 2026-05-22 | 2026-05-22 | [kani-m3](docs/slo/lessons/kani-m3.md) | [kani-m3](docs/slo/completion/kani-m3.md) |
 | 4 | Test repo + catch→remediate→green failure-bar demonstration | `not_started` | | | | |
 | 5 | TLA+ pairing refinement map + local deep-verification workflow | `not_started` | | | | |
 
@@ -547,22 +547,22 @@ All BDD pass; the four honesty/scope gate sentences are present and asserted; fa
 
 #### Smoke Tests
 
-- [ ] `cargo test -p sast-verify -- kani_m3` passes
-- [ ] Diff shows TLA+ §5 prose byte-unchanged
-- [ ] `git status` clean
+- [x] `cargo test -p sast-verify -- kani_m3` passes (6/6)
+- [x] TLA+ §5.1–5.7 prose unchanged (the Kani sub-block is appended as §5.8)
+- [x] `git status` clean
 
 #### Evidence Log
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sast-verify` | green | | | |
-| BDD tests created | `kani_m3_integration.rs` | fail (seams absent) | | | |
-| Implementation | 6 skill/template edits | contract satisfied | | | |
-| Formatter | `cargo fmt --all -- --check` | clean | | | |
-| Static analyzer | `cargo clippy ... -D warnings` | clean | | | |
-| Full tests | `cargo test -p sast-verify` | green | | | |
-| Compatibility checks | existing overviews/runbooks | parse/valid | | | |
-| Test artifact cleanup | `git status` | clean | | | |
+| Baseline tests | `cargo test -p sast-verify` | green | green | PASS | |
+| BDD tests created | `kani_m3_integration.rs` | fail (seams absent) | 5/6 failed (additivity test passed trivially) | PASS | red-first confirmed |
+| Implementation | 6 skill/template edits + interfaces.md | contract satisfied | architect key+5.5 step; v4 §5.8; plan/execute/verify/retro hooks; interfaces stable | PASS | all additive |
+| Formatter | `cargo fmt --all -- --check` | clean | clean | PASS | |
+| Static analyzer | `cargo clippy -p sast-verify --all-targets` | clean for new code | `kani_m3_integration` clippy-clean | PASS (waiver) | pre-existing warnings unchanged |
+| Full tests | `cargo test -p sast-verify` | green | all green incl. `slo_tm_m2_consumers` (slo-verify phrase-presence) + `sap_imp_m5_agents` (slo-critique SHA) | PASS | additive edits did not break either baseline |
+| Compatibility checks | existing overviews/runbooks | parse/valid | `existing_overview_without_key_still_parses` green; §5.1–5.7 TLA+ prose intact | PASS | |
+| Test artifact cleanup | `git status` | clean | only intended files | PASS | |
 
 #### Definition of Done
 

@@ -31,9 +31,10 @@ Seven files (creating or updating as appropriate):
 6. `docs/slo/design/<slug>-reversibility.md` — hard-to-change decisions, why each is hard to reverse, the reversibility tactic, rollback / migration path, and proof required.
 7. `docs/slo/design/<slug>-code-map.md` — for a non-empty brownfield repo, a four-object summary, exemplar code to copy, anti-exemplar code not to copy, and dangerous seams. Greenfield projects write `N/A — greenfield; no existing codebase to map`.
 
-Set four frontmatter keys in `docs/slo/design/<slug>-overview.md`:
+Set the frontmatter keys in `docs/slo/design/<slug>-overview.md`:
 
 - `tla_required: <bool>` — how `/slo-tla` knows whether to run (see Step 5).
+- `kani_required: <bool>` — how `/slo-kani` knows whether to run (see Step 5.5). Default when absent: `false` (existing overviews stay valid). When `true`, also emit a candidate-module shortlist for `/slo-kani` to consume.
 - `security_libs_required: <bool>` — how `/slo-sec-libs` (Phase 4 of the security-embedding work) knows whether to recommend Hulumi / SunLitSecurityLibraries components. Default when absent: `false`.
 - `ai_component: <bool>` — `true` when the target system invokes or embeds an LLM / AI agent. Gates the MITRE ATLAS + OWASP LLM Top 10 + NIST AI RMF triad in the threat model and tells `/slo-plan` plus `/slo-verify` to require an AI tolerance contract for nondeterministic behavior. Default when absent: `false`.
 - `compliance: [<list>]` — framework columns for the threat model. Default when absent: `[soc2, asvs]`. Allowed values: `soc2`, `asvs`, `gdpr`, `hipaa`, `pci-dss`, `nist-800-53`, `iso-27001`. Unknown values are rejected by the frontmatter-type-check documented below.
@@ -123,12 +124,25 @@ Set it to true if and only if the system involves any of:
 
 Otherwise false. In both cases, write a one-line justification in the frontmatter.
 
+### 5.5 Decide `kani_required`
+
+Set it to true if and only if the stack is **Rust** AND the design has at least one small, bounded, deterministic kernel worth a code-level proof:
+
+- `unsafe` blocks or safe APIs wrapping unsafe internals
+- raw pointers / `NonNull` / pointer arithmetic / manual indexing
+- arithmetic with shifts, casts, overflow-sensitive logic
+- representation invariants on constructors / mutators
+- bounded state-machine steps or parser branches
+
+Otherwise false. Default when absent: `false`. Do not set `kani_required: true` for a non-Rust target or kernel-free Rust just to look rigorous — false positives waste a milestone (same anti-pattern as `tla_required`). When true, emit a candidate-module shortlist in the overview for `/slo-kani`. `tla_required` and `kani_required` are independent and can both be true: TLA+ proves the protocol, Kani proves the atomic action's Rust kernel (refinement pairing).
+
 ### 6. Hand off
 
 Suggest next:
 
 - `tla_required: true` → `/slo-tla <slug>`
-- `tla_required: false` → `/slo-plan <slug>`
+- `kani_required: true` (and TLA+ done or not needed) → `/slo-kani <slug>`
+- both false → `/slo-plan <slug>`
 
 ## Stack decision shape
 

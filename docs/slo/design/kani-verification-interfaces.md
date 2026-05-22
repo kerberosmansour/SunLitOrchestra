@@ -29,7 +29,7 @@ Interfaces downstream milestones must not rename or reshape without explicit mig
 
 | Interface | Description | Stability |
 |---|---|---|
-| §5 "High-Level Design for State Modeling / Formal Verification" → **Kani proof-obligation sub-block** | Per-function: target, property, bound, assumptions, expected outcome. Authored by `/slo-plan`, executed by `/slo-execute`. Additive to the existing TLA+ content in §5 — does not replace it. | stable |
+| §5.8 "Kani proof obligations" sub-block (in `runbook-template_v_4_template.md`) | Per-function: target, property, bound, assumptions, expected pre-fix/post-fix. Authored by `/slo-plan`, executed by `/slo-execute`. Additive to the existing TLA+ content in §5 — does not replace it. **Landed M3.** | stable |
 | Milestone Evidence Log → Kani-obligation rows | `/slo-execute` fills "Actual Result" with the `cargo kani` outcome; `/slo-retro` refuses to close on blank rows (existing rule, extended to Kani rows). | stable |
 
 ## Cross-skill handoff contract
