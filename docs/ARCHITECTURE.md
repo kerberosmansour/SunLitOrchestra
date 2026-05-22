@@ -48,6 +48,8 @@ The skill pack is the primary user-facing product. Each skill lives in `skills/<
 
 For the full host-neutral skill inventory, read `docs/skill-pack-catalog.md`.
 
+> **Planned (not yet at HEAD):** `/slo-kani` — a host-neutral Rust formal-verification skill that drives the Kani model checker as a code-level peer to `/slo-tla`. Design locked in [`docs/slo/design/kani-verification-overview.md`](slo/design/kani-verification-overview.md); runbook pending `/slo-plan`. This row is removed and folded into the table above once the skill ships.
+
 ## Skill pack invariants (reality at HEAD)
 
 - **Markdown-only skill contract.** The portable unit is `skills/<name>/SKILL.md`.
