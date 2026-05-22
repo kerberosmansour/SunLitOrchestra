@@ -1,0 +1,26 @@
+# Pinned Kani toolchain for /slo-kani. Do not bump without re-verifying the demo.
+#
+# Kani is acquired through cargo, not a downloaded artifact, so the integrity
+# control is the version pin + `cargo install --locked` (lockfile-fixed deps),
+# verified by the prereq cascade BEFORE any proof run (tm-kani-verification-abuse-4).
+#
+# When updating:
+#   1. Bump `version` here.
+#   2. Re-run the demo crate's catch->remediate->green suite on the new pin
+#      (the M4 failure-bar demonstration) and confirm it still goes red->green.
+#   3. Re-anchor the run/triage output parser to the new version's output format
+#      if any anchor string changed (ENG-2: parser is version-anchored).
+#   4. Update BOTH the version and any changed output anchors in the same commit.
+#   5. Add a note to skills/slo-kani/UPSTREAM.md explaining why.
+#
+# Pin a CONCRETE version. Never `latest`, never `*` — the structural-contract
+# test (xtasks/sast-verify/tests/kani_m1_skill_contract.rs) refuses a floating spec.
+
+[kani]
+crate = "kani-verifier"
+version = "0.56.0"
+# Acquisition (the cascade INSTRUCTS the user to run these; it never auto-runs them):
+install = "cargo install --locked kani-verifier@0.56.0"
+setup = "cargo kani setup"
+# Probe used by the prereq cascade to confirm the installed toolchain matches the pin:
+version_probe = "cargo kani --version"
