@@ -14,8 +14,9 @@ Sprint flow: Think → Plan → Build → Review → Test → Ship → Reflect.
 |---|---|---|
 | Ideate | `/slo-ideate` | YC-style product interrogation before any code |
 | Research | `/slo-research` | Host-native research first; optional Claude batch backend via `sldo-research` |
-| Architect | `/slo-architect` | Stack + ARCHITECTURE.md + interfaces lock-in + `tla_required` flag |
+| Architect | `/slo-architect` | Stack + ARCHITECTURE.md + interfaces lock-in + `tla_required` / `kani_required` flags |
 | Verify design | `/slo-tla` | TLC model-check the design (when `tla_required: true`) |
+| Verify code | `/slo-kani` | Kani model-check small bounded Rust kernels (when `kani_required: true`); code-level peer to `/slo-tla` |
 | Plan | `/slo-plan` | Interactive v3 runbook authoring, one milestone at a time |
 | Critique | `/slo-critique` | Four-persona adversarial review (CEO, eng, security, design) |
 | Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |
