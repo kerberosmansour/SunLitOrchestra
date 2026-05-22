@@ -56,7 +56,7 @@ Follow the v4 Global Entry Protocol (§7), Carmack practices (§4), and Global E
 |---|---|---|---|---|---|---|
 | 1 | `/slo-ideate` philosophy shift (wedge → complete value slice) + Success thesis section | `done` | 2026-05-22 | 2026-05-22 | [mloop-m1](slo/lessons/mloop-m1.md) | [mloop-m1](slo/completion/mloop-m1.md) |
 | 2 | `/slo-product metrics` feature measurement spec + `feature_measurement_spec` schema key | `done` | 2026-05-22 | 2026-05-22 | [mloop-m2](slo/lessons/mloop-m2.md) | [mloop-m2](slo/completion/mloop-m2.md) |
-| 3 | v4 template Measurement Contract section + Contract Block row + `/slo-plan` requirement | `not_started` | | | | |
+| 3 | v4 template Measurement Contract section + Contract Block row + `/slo-plan` requirement | `done` | 2026-05-22 | 2026-05-22 | [mloop-m3](slo/lessons/mloop-m3.md) | [mloop-m3](slo/completion/mloop-m3.md) |
 | 4 | `/slo-verify` measurement pass + `/slo-retro` Results-vs-thesis + **failure-bar demo** | `not_started` | | | | |
 | 5 | Document the Feature-performance loop in `LOOPS-ENGINEERING.md` + cross-ref in `LOOPS-BUSINESS.md` | `not_started` | | | | |
 
@@ -516,7 +516,7 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 | Inputs | A founder running `/slo-plan` on a feature with a success thesis (M1) and optionally a feature spec (M2) |
 | Outputs | A runbook with a Measurement Contract section + per-milestone Measurement-deliverables row; `/slo-plan` flags the gap when missing for a value-bearing feature |
 | Interfaces touched | v4 template section list + Contract Block row set; `/slo-plan` authoring contract |
-| Files allowed to change | `docs/slo/templates/runbook-template_v_4_template.md`; `skills/slo-plan/SKILL.md`; `xtasks/sast-verify/tests/mloop_m3_plan.rs` (NEW) |
+| Files allowed to change | `docs/slo/templates/runbook-template_v_4_template.md`; **`skills/slo-plan/references/runbook-template_v_4_template.md`** (allow-list EXTENDED 2026-05-22, user-approved: this is the skill-PRIMARY copy that `/slo-plan` reads first; the repo path is its byte-identical mirror — both must carry the identical edit or `/slo-plan` authors from a stale template); `skills/slo-plan/SKILL.md`; `xtasks/sast-verify/tests/mloop_m3_plan.rs` (NEW) |
 | Files to read before changing anything | the v4 template (esp. §5, §10, §17 Contract Block); `skills/slo-plan/SKILL.md`; `docs/slo/design/measurement-loop-slo-improvements-interfaces.md` |
 | New files allowed | `xtasks/sast-verify/tests/mloop_m3_plan.rs` |
 | New dependencies allowed | `none` |
@@ -546,6 +546,7 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 | File | Planned Change |
 |---|---|
 | `docs/slo/templates/runbook-template_v_4_template.md` | Insert optional **Measurement Contract** section (10 fields) without renumbering §6–§20; add `Measurement deliverables` row to the §17 Contract Block template |
+| `skills/slo-plan/references/runbook-template_v_4_template.md` | Apply the IDENTICAL edit (skill-primary mirror; allow-list extension above) so the two copies stay byte-identical |
 | `skills/slo-plan/SKILL.md` | Add Contract Block Sentinel: Measurement Contract required for value-bearing features; **define "value-bearing"** crisply (= introduces or changes user-facing capability; EXCLUDES internal refactor, docs-only, test-only) so the trigger is deterministic; flag the gap (don't invalidate legacy); cite the success thesis (M1) + feature spec (M2) as inputs |
 | `xtasks/sast-verify/tests/mloop_m3_plan.rs` | NEW: assert template section + 10 fields + Contract Block row + plan sentinels + **value-bearing definition sentinel** + no-renumber |
 
@@ -610,15 +611,17 @@ Apply §11–§16 of [the v4 template](slo/templates/runbook-template_v_4_templa
 
 | Step | Command / Check | Expected Result | Actual Result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| Baseline tests | `cargo test -p sast-verify` | all green | | | |
-| BDD test created | `mloop_m3_plan.rs` | fails for expected reason | | | |
-| Implementation | section + row + plan sentinel | contract satisfied | | | |
-| Formatter | `cargo fmt --all -- --check` | clean | | | |
-| Static analyzer | `cargo clippy --workspace --all-targets -- -D warnings` | clean | | | |
-| Full tests | `cargo test -p sast-verify` | green | | | |
-| No-renumber check | §6/§10/§17 headings | unchanged | | | |
-| Skill discovery | `./target/release/sldo-install --dry-run` | `/slo-plan` listed | | | |
-| Test artifact cleanup | `git status` | clean | | | |
+| Baseline tests | `cargo test -p sast-verify` | all green | full suite green pre-edit | Pass | |
+| BDD test created | `mloop_m3_plan.rs` | fails for expected reason | 3 new-content tests FAILED (section/plan-requirement/value-bearing absent); byte-identity + no-renumber + kani-subblock passed | Pass | anti-vacuity correct |
+| Implementation | §5A section + §17 row + plan sentinel + value-bearing def | contract satisfied | §5A added (10 fields, optional/legacy framing); `Measurement deliverables` row; `/slo-plan` Measurement Contract requirement + deterministic value-bearing def | Pass | inserted between §5 and §6, no renumber |
+| Mirror sync | `diff` primary vs repo template | byte-identical | edited repo mirror then `cp` → skill-primary; `diff` IDENTICAL | Pass | allow-list extended (user-approved) to skill-primary copy |
+| Formatter | `cargo fmt --all -- --check` | clean | clean | Pass | |
+| Static analyzer | `cargo clippy -p sast-verify --all-targets -- -D warnings` | clean | same pre-existing out-of-scope red; `mloop_m3_plan.rs` clean | Documented exception | see mloop-m1 lessons |
+| Full tests | `cargo test -p sast-verify` | green | 18 test binaries green incl. `mloop_m3_plan` 6/6 | Pass | |
+| No-renumber check | §6/§10/§17 headings | unchanged | all three headings asserted present | Pass | `template_existing_sections_not_renumbered` green |
+| kani_m3 regression | `cargo test -p sast-verify --test kani_m3_integration` | stays green | 6/6 green; §5 Kani sub-block survived (`template_section5_kani_subblock_preserved`) | Pass | the M3 hard compatibility check |
+| Skill discovery | `cargo run -q -p sldo-install -- --dry-run` | `/slo-plan` listed | listed | Pass | |
+| Test artifact cleanup | `git status` | clean | only the 4 intended edits + new test | Pass | |
 
 #### Definition of Done
 
