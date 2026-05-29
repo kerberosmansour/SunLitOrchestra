@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "conventions": {
+    "actingPaths": ["apps/**", "services/**", "packages/**", "cmd/**", "crates/**"],
+    "excludePaths": [
+      "**/examples/**",
+      "**/example/**",
+      "**/testdata/**",
+      "**/tests/**",
+      "**/test/**",
+      "**/__tests__/**",
+      "**/fixtures/**",
+      "**/*fixture*/**",
+      "**/vendor/**",
+      "**/third_party/**",
+      "**/.archive/**",
+      "tools/sca/**",
+      "dogfood/**"
+    ],
+    "actingTrack": "cadence",
+    "excludedTrack": "report-only",
+    "unclassifiedTrack": "report-only"
+  },
+  "manifests": [
+    {
+      "path": "Cargo.lock",
+      "ecosystem": "crates.io",
+      "parser": "Cargo.lock",
+      "track": "cadence"
+    }
+  ]
+}
