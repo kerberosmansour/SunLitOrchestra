@@ -1,0 +1,46 @@
+name: sca-scope-drift
+
+on:
+  schedule:
+    - cron: "0 6 * * 1,4"
+  # Runs on every PR so it can be promoted to a required check. Filtering
+  # lives inside the SCA command, not in workflow path filters.
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sca-scope-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scope-drift:
+    name: scope-drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Node (to run the bundled SCA brain)
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 20
+
+      - name: Run scope-sync (read-only; fails on unclassified drift)
+        run: |
+          node tools/sca/dist/scope-sync.mjs scope-sync \
+            --scope sca-scope.json \
+            --report .cache/sca-scope-drift.json \
+            --apply false
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sca-scope-drift-report
+          path: .cache/sca-scope-drift.json
+          if-no-files-found: warn
+          retention-days: 7
