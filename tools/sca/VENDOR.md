@@ -23,7 +23,7 @@ Rust tree. The Rust supply-chain scanners find no npm manifest to parse.
 ## Provenance
 
 - Source repo: `kerberosmansour/AutomoatedSCA`
-- Source commit: `267d35924702f03354137755102a6fa9895ca15b`
+- Source commit: `6e8528121b0b1d3e853d561f87c24c37abd90eca`
 - Bundler: `esbuild --bundle --platform=node --format=esm --target=node20`
 
 ## Regenerate
