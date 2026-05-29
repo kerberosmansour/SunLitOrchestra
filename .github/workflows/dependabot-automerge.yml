@@ -1,0 +1,37 @@
+name: dependabot-automerge
+
+# Track B auto-merge: aged minor/patch cargo (and actions) Dependabot PRs merge
+# themselves once the sca-solo-main-protection required checks pass. Majors are
+# left for a human. SHA-pinned action; least-privilege; squash.
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  dependabot-automerge:
+    name: dependabot-automerge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for aged minor/patch updates
+        if: ${{ steps.meta.outputs.update-type == 'version-update:semver-minor' || steps.meta.outputs.update-type == 'version-update:semver-patch' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
+
+      - name: Note when a major update needs a human
+        if: ${{ steps.meta.outputs.update-type == 'version-update:semver-major' }}
+        run: echo "Major update (${{ steps.meta.outputs.dependency-names }}) — left for human review."
