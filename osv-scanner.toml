@@ -1,0 +1,8 @@
+[[sca_lockfile]]
+ecosystem = "crates.io"
+path = "dogfood/review-loop/Cargo.lock"
+parser = "Cargo.lock"
+package = "time"
+badVersion = "0.2.23"
+knownAdvisory = "RUSTSEC-2020-0071"
+fixture = true
