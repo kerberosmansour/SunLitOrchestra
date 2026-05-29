@@ -5,4 +5,4 @@ edition = "2021"
 publish = false
 
 [dependencies]
-time = "0.2.23"
+time = "0.2.25"
