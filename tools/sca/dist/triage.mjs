@@ -14807,6 +14807,15 @@ var defaultEnrichments = {
     cvss: 9.8,
     epssScore: 0.2,
     present: true
+  },
+  // Seed for the crates.io (Cargo) review-loop drill: a synthetic emergency
+  // with a fix available, mirroring PYSEC-2010-12 for the PyPI drill.
+  "RUSTSEC-2020-0071": {
+    fixedVersion: "0.2.25",
+    severityClass: "critical",
+    cvss: 9.8,
+    epssScore: 0.5,
+    present: true
   }
 };
 var triage = async (findings, options = {}) => {
@@ -14975,7 +14984,7 @@ async function writeJson(path, value) {
   await writeFile2(path, `${JSON.stringify(value, null, 2)}
 `);
 }
-if (process.argv[1]?.endsWith("triage.ts")) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch((error51) => {
     const message = error51 instanceof external_exports.ZodError ? error51.message : error51 instanceof Error ? error51.message : String(error51);
     process.stderr.write(`${message}
