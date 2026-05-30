@@ -252,7 +252,7 @@ jobs:
             Do not merge, push, read secrets, or alter branch protection.
             Prefer a top-level review body over inline review threads.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*),Bash(cargo build:*),Bash(cargo test:*),Bash(node tools/sca/dist/dependency-review.mjs)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push:*),Bash(gh secret:*)"
 
@@ -283,7 +283,7 @@ jobs:
             Do not delete tests, edit unrelated files, run `osv-scanner fix`, merge, read secrets, or alter branch protection.
             Push the smallest safe correction to the existing PR branch.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Bash(gh pr view:*),Bash(gh pr checkout:*),Bash(git diff:*),Bash(git status:*),Bash(git add:*),Bash(git commit -s:*),Bash(git push:*),Bash(cargo update:*),Edit,MultiEdit"
             --disallowedTools "Bash(gh pr merge:*),Bash(osv-scanner fix:*),Bash(gh secret:*)"
 
@@ -304,7 +304,7 @@ jobs:
             Do not merge, push, read secrets, or alter branch protection.
             Prefer a top-level review body over inline review threads.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*),Bash(cargo build:*),Bash(cargo test:*),Bash(node tools/sca/dist/dependency-review.mjs)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push:*),Bash(gh secret:*)"
 
