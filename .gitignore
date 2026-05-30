@@ -70,3 +70,6 @@ __pycache__/
 # Kani / CBMC generated artifacts (target/ already ignored; these catch stragglers)
 **/*.kani-metadata.json
 kani_concrete_playback_*
+
+.cache/
+findings.osv.json
