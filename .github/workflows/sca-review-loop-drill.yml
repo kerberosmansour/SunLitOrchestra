@@ -76,7 +76,11 @@ jobs:
           knownAdvisory = "RUSTSEC-2020-0071"
           fixture = true
           EOF
-          git add dogfood/review-loop/Cargo.toml dogfood/review-loop/Cargo.lock osv-scanner.toml
+          # Ignore the scan/triage artifacts so no later `git add` (agent or
+          # otherwise) can sweep them into the remediation PR. The remediation
+          # plan is force-added (`git add -f`) when the PR is opened.
+          printf '\n.cache/\nfindings.osv.json\n' >> .gitignore
+          git add dogfood/review-loop/Cargo.toml dogfood/review-loop/Cargo.lock osv-scanner.toml .gitignore
           git commit -m "test: seed SCA review-loop drill cargo dependency"
           git push --set-upstream origin "$base_branch"
           {
@@ -116,11 +120,14 @@ jobs:
         run: |
           set -euo pipefail
           git switch -c "${{ steps.branches.outputs.head_branch }}"
+          # Exercise the remediator (plan lands in .cache, which is gitignored).
           node tools/sca/dist/remediate.mjs remediate-emergency \
             --work-items .cache/sca-work-items.json \
             --output .cache/sca-remediation-plan.json
-          git add -f .cache/sca-remediation-plan.json
-          git commit -m "test: open incomplete SCA remediation drill PR"
+          # Open the incomplete PR with an EMPTY commit: the plan/artifacts are
+          # never committed, so the only diff that ever appears in this PR is the
+          # fixer's cargo bump — nothing for the reviewer to object to.
+          git commit --allow-empty -m "test: open incomplete SCA remediation drill PR"
           git push --set-upstream origin "${{ steps.branches.outputs.head_branch }}"
           gh pr create \
             --base "${{ steps.branches.outputs.base_branch }}" \
@@ -135,6 +142,15 @@ jobs:
               --jq '.[0].number'
           )"
           echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
+
+      - name: Scrub scan artifacts from the worktree (deterministic)
+        # The agentic fixer can run a force `git add` that bypasses both the
+        # prompt and .gitignore. Remove every scan/triage artifact so there is
+        # literally nothing for it to add — the PR can only contain the bump.
+        run: |
+          rm -f findings.osv.json
+          rm -rf .cache
+          git status --porcelain --untracked-files=all || true
 
       - name: Validate Claude credential mode
         id: claude_auth
@@ -169,13 +185,13 @@ jobs:
           prompt: |
             You are the Track A SCA reviewer identity in an authorized SunLitOrchestra drill.
             Review PR #${{ steps.open_pr.outputs.pr_number }}.
-            The PR intentionally includes a remediation plan but has not applied it.
+            The PR is intentionally empty so far — the dependency bump has NOT been applied yet.
             You MUST submit a request-changes review unless the PR bumps the vulnerable `time`
             crate from `0.2.23` to `0.2.25` in dogfood/review-loop/Cargo.toml and dogfood/review-loop/Cargo.lock.
             In the request-changes body, tell the fixer to make only that exact dependency change and no unrelated edits.
             Do not approve, merge, push, read secrets, or alter branch protection.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push:*),Bash(gh secret:*)"
 
@@ -200,13 +216,17 @@ jobs:
           anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           prompt: |
             You are the bounded Track A remediation fixer in an authorized SunLitOrchestra drill.
-            Fix reviewer-requested issues on PR #${{ steps.open_pr.outputs.pr_number }}.
-            Make exactly this change: update the `time` crate from `0.2.23` to `0.2.25` in
-            dogfood/review-loop/Cargo.toml and dogfood/review-loop/Cargo.lock.
-            Do not edit tests, workflows, repo settings, unrelated files, secrets, or branch protection.
-            Commit and push the smallest correction to the existing PR branch.
+            Do exactly these steps on PR #${{ steps.open_pr.outputs.pr_number }}, then stop:
+            1. Run `gh pr checkout ${{ steps.open_pr.outputs.pr_number }}`.
+            2. In dogfood/review-loop/Cargo.toml change `time = "0.2.23"` to `time = "0.2.25"`.
+            3. In dogfood/review-loop/Cargo.lock change the `time` package `version = "0.2.23"` to `version = "0.2.25"`.
+            4. Stage ONLY the two files you changed:
+               `git add dogfood/review-loop/Cargo.toml dogfood/review-loop/Cargo.lock`
+               (do NOT `git add -A` — leftover .cache/ and findings.osv.json scan artifacts must stay unstaged).
+            5. Run `git commit -m "fix: bump time to 0.2.25"`, then `git push`.
+            Make no other edits. Do not merge, touch other files, secrets, or branch protection.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Read,Edit,MultiEdit,Bash(gh pr view:*),Bash(gh pr checkout:*),Bash(git diff:*),Bash(git status:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(osv-scanner fix:*),Bash(gh secret:*)"
 
@@ -220,14 +240,15 @@ jobs:
           anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
           anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           prompt: |
-            Re-review PR #${{ steps.open_pr.outputs.pr_number }} after the remediation fixer changes.
-            Approve only if the PR now bumps `time` from `0.2.23` to `0.2.25` in
-            dogfood/review-loop/Cargo.toml and dogfood/review-loop/Cargo.lock and makes no unrelated changes
-            beyond the drill remediation plan.
-            Otherwise request changes with concrete recommendations.
-            Do not merge, push, read secrets, or alter branch protection.
+            Re-review PR #${{ steps.open_pr.outputs.pr_number }} in one pass, then stop.
+            Run `gh pr diff ${{ steps.open_pr.outputs.pr_number }}` once.
+            If the diff shows `time` updated to `0.2.25` in BOTH dogfood/review-loop/Cargo.toml and
+            dogfood/review-loop/Cargo.lock (and no unrelated changes), run exactly:
+            `gh pr review ${{ steps.open_pr.outputs.pr_number }} --approve --body "Verified: time bumped to 0.2.25."`
+            Otherwise run `gh pr review ${{ steps.open_pr.outputs.pr_number }} --request-changes --body "<reason>"`.
+            Submit exactly one review and stop. Do not merge, push, read secrets, or alter branch protection.
           claude_args: |
-            --max-turns 16
+            --max-turns 30
             --allowedTools "Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push:*),Bash(gh secret:*)"
 
@@ -253,7 +274,7 @@ jobs:
           gh pr checkout "${{ steps.open_pr.outputs.pr_number }}"
           grep -q 'version = "0.2.25"' dogfood/review-loop/Cargo.lock
           grep -q '0.2.25' dogfood/review-loop/Cargo.toml
-          gh pr merge "${{ steps.open_pr.outputs.pr_number }}" --merge
+          gh pr merge "${{ steps.open_pr.outputs.pr_number }}" --squash --delete-branch
 
       - name: Cleanup drill branches
         if: always()
