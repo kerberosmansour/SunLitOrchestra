@@ -1,0 +1,57 @@
+{
+  "slo_schema_version": "0.1.0",
+  "slug": "secure-value-loop",
+  "sensitivity": "internal",
+  "otm_compatible": false,
+  "provenance": {
+    "produced_by": "slo-architect",
+    "producer_skill_sha": "2052149e511ab0e112916582e4dd0497ddf53a2a",
+    "generated_at": "2026-06-02",
+    "inputs": [
+      {
+        "path": "docs/slo/idea/secure-value-loop.md",
+        "sha": "e870342045a8ead48bcfa767c050a2ca027e7d7c"
+      },
+      {
+        "path": "docs/slo/research/secure-value-loop/synthesis.md",
+        "sha": "5deef3709bf91e2529ccadcc4ea37b52b65f0bdc"
+      },
+      {
+        "path": "docs/slo/design/secure-value-loop-threat-model.md",
+        "sha": "uncommitted-at-emit-time"
+      }
+    ]
+  },
+  "stride": [
+    { "component": "Generated SECURE-VALUE-LOOP.md / contract-row string interpolation", "class": "Tampering", "state": "eliminated", "control_or_reason": "user-provided strings wrapped in ~~~text fences; rendered as descriptive Markdown only, never selecting status/disposition/control fields" },
+    { "component": "Generated SECURE-VALUE-LOOP.md / contract-row string interpolation", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "generated text never chooses id/status/disposition/classification; author-controlled" },
+    { "component": "Operator Readiness Gate", "class": "Spoofing", "state": "mitigated", "control_or_reason": "validation column requires executable proof of readiness, not a self-asserted checkbox; /slo-execute Global Entry re-reads" },
+    { "component": "Operator Readiness Gate", "class": "Elevation of privilege", "state": "mitigated", "control_or_reason": "safe_to_continue_without_blockers:false makes /slo-execute refuse to start — fails closed" },
+    { "component": "Detected Work Ledger", "class": "Repudiation", "state": "mitigated", "control_or_reason": "every row carries Owner + Evidence/link + Due; /slo-execute refuses done while a row is undisposed" },
+    { "component": "Detected Work Ledger", "class": "Information disclosure", "state": "mitigated", "control_or_reason": "secrets-in-evidence prevented by existing secrets-scan lane + no-secrets red line" },
+    { "component": "Additive milestone-status enum", "class": "Tampering", "state": "mitigated", "control_or_reason": "closed enum; unknown value -> parser fallback to blocked (never silent done); structural test asserts old four still parse" },
+    { "component": "Ledger to /slo-retro disposition bridge", "class": "Spoofing", "state": "mitigated", "control_or_reason": "reuses /slo-retro filing discipline (dedupe, fence, per-session cap); no new privileged path" },
+    { "component": "/slo-ship secure-release checklist", "class": "Repudiation", "state": "mitigated", "control_or_reason": "ship_state + residual-risk owner + monitoring links recorded; SBOM/provenance when applicable" },
+    { "component": "Structural-contract test (xtasks/sast-verify)", "class": "Tampering", "state": "mitigated", "control_or_reason": "baseline/SHA changes explicit and PR-reviewed; never waived" },
+    { "component": "Whole envelope", "class": "Denial of service", "state": "n/a", "control_or_reason": "no runtime, no network, no bounded resource at risk" },
+    { "component": "Whole envelope", "class": "Information disclosure", "state": "residual", "control_or_reason": "a determined author can hand-author a thin/dishonest contract; framework raises cost of faking, cannot enforce integrity" }
+  ],
+  "abuse_cases": [
+    { "id": "tm-secure-value-loop-abuse-1", "surface": "Generated artifact / contract-field string interpolation", "attacker": "Unwary author / content-injector", "attack_step": "Paste Markdown/YAML/HTML metacharacters into a Value Wedge / ledger / readiness field to break out of the section or smuggle agent-readable instructions into a generated artifact", "attacker_outcome": "Template-placeholder injection altering security defaults or injecting instructions", "control": "All user strings rendered into generated security/threat artifacts wrapped in ~~~text fences (reuse of /slo-architect + /slo-resume fence rules); fields render user text as plain Markdown body only and never select control fields", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-secure-value-loop-abuse-2", "surface": "Operator Readiness Gate", "attacker": "Author gaming the gate", "attack_step": "Mark Operator Readiness ready / safe_to_continue_without_blockers:true without the prerequisite actually provisioned", "attacker_outcome": "/slo-execute starts and stalls mid-run or proceeds on a degraded/mocked path", "control": "validation column requires an executable proof of readiness; /slo-execute Global Entry re-reads and must name the deferred path when degraded; status falls to blocked_by_operator rather than silent in_progress", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-secure-value-loop-abuse-3", "surface": "Detected Work Ledger disposition", "attacker": "Author laundering a disposition", "attack_step": "Mark a real cross-boundary finding fix_now (or omit it) to avoid filing an issue or splitting scope", "attacker_outcome": "Security debt silently absorbed; finding never reaches /slo-retro filing", "control": "fix_now reserved for safe/local/in-allow-list findings (proposal s6 list); /slo-execute refuses done while a row is undisposed; /slo-retro re-reads the ledger and files file_github_issue/upstream_feedback through existing lanes (dedupe + cap apply)", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-secure-value-loop-abuse-4", "surface": "Additive milestone-status enum", "attacker": "Legacy parser / silent-degradation", "attack_step": "A new status value is read by a legacy parser that does not recognise it and is silently treated as done", "attacker_outcome": "An unfinished/blocked milestone reads as complete", "control": "documented parser rule unknown-status -> blocked semantics, never done; structural test asserts the old four parse and new values are listed in the template comment", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+  ],
+  "residual_risks": [
+    { "risk": "Author can hand-author a thin/dishonest Secure Value Contract", "exploit_path": "Framework forces shape and cross-checks, not the team's integrity", "compensating_control": "/slo-plan + /slo-verify + /slo-retro raise the cost of faking; mitigation not elimination (tm-secure-value-loop-abuse-3)", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-02", "classification": "internal" },
+    { "risk": "Envelope generates guidance; does not enforce a target product's runtime security", "exploit_path": "SLO ships no security runtime; a target runbook could ignore recommended controls", "compensating_control": "Contract makes secure defaults the path of least resistance and routes infra/cloud/AI surfaces to existing security skills; disclosed, not eliminated", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-02", "classification": "internal" },
+    { "risk": "Bundle table drifts behind cited standards' editions", "exploit_path": "A new edition renumbers/renames and the table goes stale (the OWASP-2018->2024 drift this work fixes)", "compensating_control": "Bundles cite by name + edition year; LOOPS doc names the review cadence", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-02", "classification": "internal" }
+  ],
+  "compliance": [
+    { "control": "Operator-readiness fail-closed gate before execution", "soc2": "CC8.1 change-management readiness before change", "asvs": "V1 Architecture / secure SDLC" },
+    { "control": "Detected-work disposition + audit trail (owner/evidence/due)", "soc2": "CC7.2 / CC7.3 finding handling", "asvs": "V7 Logging & error handling" },
+    { "control": "Generated-artifact injection neutralisation (~~~text fence)", "soc2": "CC6.8 malicious input", "asvs": "V5 Validation, sanitization & encoding" },
+    { "control": "Honest exit states (no silent done)", "soc2": "CC4.1 accurate status monitoring", "asvs": "V1 SDLC / V7" },
+    { "control": "Residual-risk record with owner + expiry", "soc2": "CC3.2 risk assessment", "asvs": "V1.6 security decisions documented" }
+  ]
+}

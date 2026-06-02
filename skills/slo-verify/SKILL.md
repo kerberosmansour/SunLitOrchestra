@@ -1,4 +1,5 @@
 ---
+# soft-cap-exception: six-pass runtime-QA skill (Passes 1-6) plus Secure Value Loop Bundle A-F selection
 name: slo-verify
 description: >
   Use this skill after /slo-execute finishes a milestone, before /slo-retro
@@ -62,6 +63,19 @@ For any scenario that has a "partial failure" category, construct the failure (p
 Pass 4 is additive: it runs after Passes 1–3 and never replaces them. It catches classes of problems that behavioral testing alone misses: vulnerable dependencies, known-bad code patterns lurking in files the milestone didn't edit, and (when applicable) runtime exposure via DAST.
 
 **Security-test selector** — before command dispatch, use the milestone threat model and touched surface to choose checks. HTTP routes with a smoke service route DAST through `/slo-dast-tuner` and `zaprun`; authenticated routes require logged-in proof or a coverage-failure row; pure library code keeps DAST `N/A` and relies on unit/abuse/SAST/variant checks; cloud IaC uses policy, preview, and drift evidence. Do not run noisy scanners just to fill a row.
+
+**Secure Value Loop — Bundle A–F evidence rows.** When the milestone's §5B Secure Value & Security Contract names a Security Test Plan, resolve its referenced **Bundle(s)** to concrete Pass 4 (and Pass 5 for Bundle E) checks and record each as a **first-class evidence row** — never a free-text note. The Bundles are *selection inputs* to the existing surface detection below, not a new test runner:
+
+| Bundle | Trigger surface | Maps to |
+|---|---|---|
+| Bundle A | docs/planning only | security assessment + secrets scan |
+| Bundle B | application code | SAST/SCA/secrets + authz/abuse (OWASP ASVS 5.0) |
+| Bundle C | backend/API | Bundle B + `/slo-dast-tuner` (OWASP API Top 10 2023) |
+| Bundle D | cloud/IaC/K8s | `/slo-cloud-threat-model` + IaC/policy + container scan |
+| Bundle E | AI/LLM/agent | Pass 5 (OWASP LLM Top 10 2025, MITRE ATLAS) |
+| Bundle F | mobile/native/client | Pass 4 + platform/permission/pinning checks (OWASP MASVS) |
+
+Every Bundle evidence row resolves to exactly one of `pass | not_applicable | waived_with_reason` — **never blank**. SBOM/provenance stays conditional: `not_applicable` unless the milestone builds a released artifact. See [docs/SECURE-VALUE-LOOP.md §6](../../docs/SECURE-VALUE-LOOP.md).
 
 **Stack detection** — inspect the target repo's manifests: `Cargo.toml` → Rust; `package.json` → Node / TypeScript; `pyproject.toml` or `requirements.txt` → Python; `go.mod` → Go. When multiple are present (**polyglot** targets: the real common case for many projects), Pass 4 runs **all applicable command sets**, and each stack gets its own row in the Pass 4 section of the verification report. No arbitrary tiebreaker; one row per stack.
 

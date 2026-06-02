@@ -8,11 +8,36 @@ use std::str::FromStr;
 use regex::Regex;
 
 /// Status of a milestone in the tracker table.
+///
+/// The Secure Value Loop (svl M3) extends this enum **additively** to be total
+/// over the documented status set. The original `not_started | in_progress |
+/// done` keep their exact `Display`/`FromStr` behaviour; `blocked` (always
+/// documented in the v4 template but never previously parsed) plus the five
+/// honest exit states are now first-class. **Fail-safe:** an unrecognised
+/// status parses to `Blocked` via [`parse_tracker`] — never silently `Done` or
+/// `NotStarted` — so [`all_done`] can never report a runbook complete while an
+/// unknown or blocked row is unfinished.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MilestoneStatus {
     NotStarted,
     InProgress,
+    Blocked,
     Done,
+    // Secure Value Loop honest exit states (svl M3, additive):
+    HumanReviewRequired,
+    BlockedByOperator,
+    BlockedByUpstream,
+    IssueFiled,
+    AcceptedRisk,
+}
+
+impl MilestoneStatus {
+    /// True only for the green-complete terminal state. The honest exit states
+    /// (`accepted_risk`, `issue_filed`) and every blocked variant are terminal
+    /// but NOT green — `all_done` must not count them as complete.
+    pub fn is_complete(&self) -> bool {
+        matches!(self, MilestoneStatus::Done)
+    }
 }
 
 impl fmt::Display for MilestoneStatus {
@@ -20,7 +45,13 @@ impl fmt::Display for MilestoneStatus {
         match self {
             MilestoneStatus::NotStarted => write!(f, "not_started"),
             MilestoneStatus::InProgress => write!(f, "in_progress"),
+            MilestoneStatus::Blocked => write!(f, "blocked"),
             MilestoneStatus::Done => write!(f, "done"),
+            MilestoneStatus::HumanReviewRequired => write!(f, "human_review_required"),
+            MilestoneStatus::BlockedByOperator => write!(f, "blocked_by_operator"),
+            MilestoneStatus::BlockedByUpstream => write!(f, "blocked_by_upstream"),
+            MilestoneStatus::IssueFiled => write!(f, "issue_filed"),
+            MilestoneStatus::AcceptedRisk => write!(f, "accepted_risk"),
         }
     }
 }
@@ -32,7 +63,13 @@ impl FromStr for MilestoneStatus {
         match s.trim().trim_matches('`') {
             "not_started" => Ok(MilestoneStatus::NotStarted),
             "in_progress" => Ok(MilestoneStatus::InProgress),
+            "blocked" => Ok(MilestoneStatus::Blocked),
             "done" => Ok(MilestoneStatus::Done),
+            "human_review_required" => Ok(MilestoneStatus::HumanReviewRequired),
+            "blocked_by_operator" => Ok(MilestoneStatus::BlockedByOperator),
+            "blocked_by_upstream" => Ok(MilestoneStatus::BlockedByUpstream),
+            "issue_filed" => Ok(MilestoneStatus::IssueFiled),
+            "accepted_risk" => Ok(MilestoneStatus::AcceptedRisk),
             other => Err(format!("Unknown milestone status: '{}'", other)),
         }
     }
@@ -55,21 +92,34 @@ pub struct MilestoneRow {
 /// `| 1 | Title | \`not_started\` | | | |`
 pub fn parse_tracker(runbook_content: &str) -> Vec<MilestoneRow> {
     let row_re = Regex::new(r"^\|\s*(\d+)\s*\|").unwrap();
-    let status_re = Regex::new(r"`(not_started|in_progress|done)`").unwrap();
+    // A milestone row carries a backtick-wrapped lowercase status token in the
+    // status column (col 3). Gating on this shape — rather than on a fixed list
+    // of status words — means a `blocked` / `accepted_risk` / future / unknown
+    // status row is still recognised as a milestone row and is NEVER silently
+    // dropped (svl M3 / F-ENG-1). Non-milestone numbered tables (e.g. the
+    // Documentation Update Table, whose col 3 is free text) have no
+    // backtick-wrapped status token and are skipped.
+    let status_token_re = Regex::new(r"^`([a-z_]+)`$").unwrap();
 
     let mut rows = Vec::new();
 
     for line in runbook_content.lines() {
         // Must start with | <number> |
         if let Some(caps) = row_re.captures(line) {
-            // Must contain a backtick-wrapped status
-            if let Some(status_caps) = status_re.captures(line) {
-                let number: u32 = caps[1].parse().unwrap_or(0);
-                let status = MilestoneStatus::from_str(&status_caps[1])
-                    .unwrap_or(MilestoneStatus::NotStarted);
+            // Parse columns by splitting on |
+            let cols: Vec<&str> = line.split('|').collect();
 
-                // Parse columns by splitting on |
-                let cols: Vec<&str> = line.split('|').collect();
+            // The status column (col 3) must be a backtick-wrapped token for
+            // this to be a milestone row.
+            let status_cell = cols.get(3).map(|s| s.trim()).unwrap_or("");
+            if let Some(status_caps) = status_token_re.captures(status_cell) {
+                let number: u32 = caps[1].parse().unwrap_or(0);
+                // Fail-safe: an unrecognised status maps to `Blocked` — never
+                // `NotStarted` or `Done` — so all_done can't report complete on
+                // a row it doesn't understand.
+                let status =
+                    MilestoneStatus::from_str(&status_caps[1]).unwrap_or(MilestoneStatus::Blocked);
+
                 // cols[0] = "" (before first |)
                 // cols[1] = number
                 // cols[2] = title
@@ -258,5 +308,110 @@ mod tests {
         // When: next_incomplete is called
         // Then: Returns None
         assert!(next_incomplete(&rows).is_none());
+    }
+
+    // --- Secure Value Loop (svl M3) additive status set ---
+
+    /// Every documented status (old four + blocked + five honest exit states)
+    /// round-trips through Display↔FromStr.
+    #[test]
+    fn every_documented_status_roundtrips() {
+        let all = [
+            MilestoneStatus::NotStarted,
+            MilestoneStatus::InProgress,
+            MilestoneStatus::Blocked,
+            MilestoneStatus::Done,
+            MilestoneStatus::HumanReviewRequired,
+            MilestoneStatus::BlockedByOperator,
+            MilestoneStatus::BlockedByUpstream,
+            MilestoneStatus::IssueFiled,
+            MilestoneStatus::AcceptedRisk,
+        ];
+        for s in all {
+            let rendered = s.to_string();
+            let parsed = MilestoneStatus::from_str(&rendered)
+                .unwrap_or_else(|e| panic!("status {rendered:?} must round-trip: {e}"));
+            assert_eq!(parsed, s, "round-trip mismatch for {rendered:?}");
+            // Backtick-wrapped form (as it appears in the tracker) also parses.
+            assert_eq!(
+                MilestoneStatus::from_str(&format!("`{rendered}`")).unwrap(),
+                s
+            );
+        }
+    }
+
+    /// F-ENG-2: `blocked` (always documented in the v4 template) was never
+    /// parsed before svl M3. It must now be a first-class status.
+    #[test]
+    fn blocked_status_is_supported() {
+        let table = r#"
+| # | Milestone | Status | Started | Completed | Lessons File |
+|---|---|---|---|---|---|
+| 1 | First | `done` | 2026-01-01 | 2026-01-02 | `m1.md` |
+| 2 | Second | `blocked` | 2026-01-03 | | |
+"#;
+        let rows = parse_tracker(table);
+        assert_eq!(rows.len(), 2, "the blocked row must NOT be dropped");
+        assert_eq!(rows[1].status, MilestoneStatus::Blocked);
+    }
+
+    /// F-ENG-1 (the headline critique defect): a row with a honest-exit /
+    /// blocked status must be parsed (not silently dropped), and `all_done`
+    /// must return false while it is unfinished. Before the fix the regex
+    /// skipped the row and `all_done` over the remaining all-`done` rows
+    /// returned true — falsely reporting a blocked runbook complete.
+    #[test]
+    fn all_done_false_when_a_row_is_blocked_by_operator() {
+        let table = r#"
+| # | Milestone | Status | Started | Completed | Lessons File |
+|---|---|---|---|---|---|
+| 1 | First | `done` | 2026-01-01 | 2026-01-02 | `m1.md` |
+| 2 | Second | `blocked_by_operator` | 2026-01-03 | | |
+"#;
+        let rows = parse_tracker(table);
+        assert_eq!(
+            rows.len(),
+            2,
+            "the blocked_by_operator row must be parsed, not dropped"
+        );
+        assert_eq!(rows[1].status, MilestoneStatus::BlockedByOperator);
+        assert!(
+            !all_done(&rows),
+            "all_done must be false while a row is blocked_by_operator"
+        );
+        let next = next_incomplete(&rows).expect("the blocked row is the next incomplete");
+        assert_eq!(next.number, 2);
+    }
+
+    /// Fail-safe: an unknown/future status maps to `Blocked` (never silently
+    /// dropped, never `NotStarted`/`Done`).
+    #[test]
+    fn unknown_status_maps_to_blocked() {
+        let table = r#"
+| # | Milestone | Status | Started | Completed | Lessons File |
+|---|---|---|---|---|---|
+| 1 | First | `frobnicated` | | | |
+"#;
+        let rows = parse_tracker(table);
+        assert_eq!(rows.len(), 1, "unknown-status row must NOT be dropped");
+        assert_eq!(rows[0].status, MilestoneStatus::Blocked);
+        assert!(!all_done(&rows));
+    }
+
+    /// Regression: the Documentation Update Table (numbered rows whose status
+    /// column is free text, not a backtick-wrapped token) is still skipped.
+    #[test]
+    fn non_milestone_numbered_table_is_skipped() {
+        let table = r#"
+| Milestone | ARCHITECTURE.md Update | README.md Update | Other |
+|---|---|---|---|
+| 1 | [Section to add] | [Section to update] | [file] |
+| 2 | [Section to add] | [Section to update] | [file] |
+"#;
+        let rows = parse_tracker(table);
+        assert!(
+            rows.is_empty(),
+            "free-text numbered tables must not be parsed as milestones"
+        );
     }
 }

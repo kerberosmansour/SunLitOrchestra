@@ -219,6 +219,10 @@ Example (pseudonymised): Alice runs a 30-minute call with Bob. Pre-interview scr
 
 ---
 
+## Security-visible proof of safety (Secure Value Loop cross-ref)
+
+Product / value review is not only "is this wedge valuable?" — it is also "is this wedge **safe enough to ship to a real user**?" Under the [Secure Value Loop](LOOPS-ENGINEERING.md#secure-value-loop-overlay-every-stage-carries-a-security-output), every value-bearing wedge carries a **security-visible proof of safety** alongside its user-visible proof of value (the §5B Value Wedge captures both). For business-side work this means: a feature that handles identity, payment, PII, or user-connected accounts must show *how a user can tell it is safe* (consent surfaced, data minimised, the security-relevant trigger routed to a threat model) before it counts as "valuable". Canonical definition: [docs/SECURE-VALUE-LOOP.md](SECURE-VALUE-LOOP.md). Direct-marketing / cookie / consent questions still route to `/slo-legal triage` (PECR), as elsewhere in this doc.
+
 ## Anti-process-theatre check
 
 Every loop here exists because it produces a user-visible outcome the static skill catalog cannot make visible. The check the runbook itself enforces — "does this added surface reduce user decisions or reviewer work?" — applies to every future addition: if a future addition cannot point at a concrete user-visible outcome that an existing loop already produces, that addition belongs in a skill's reference file or in `references/biz/`, not in this doc.

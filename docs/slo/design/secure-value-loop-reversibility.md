@@ -1,0 +1,17 @@
+# Reversibility — secure-value-loop
+
+Hard-to-change decisions, why each is hard to reverse, the tactic that keeps it
+reversible, and the proof required. This work is additive Markdown discipline, so
+most decisions are cheap to reverse; the two that bite are the **status enum** and
+the **disposition taxonomy** because once authored into runbooks they create a
+parsing/consumer contract.
+
+| Decision | Why hard to change | Reversibility tactic | Rollback / migration path | Proof required |
+|---|---|---|---|---|
+| Additive milestone-status enum (`human_review_required` etc.) | Once runbooks use the new values, parsers + the Tracker depend on them; renaming a value orphans existing runbooks | Keep the enum **closed and documented in one place** (template status comment); define the "unknown → `blocked`" fallback so even a removed value degrades safe | Remove a value by mapping it to `blocked`/`done` in the comment + a one-time sed over `docs/slo/current/*`; the fallback rule means no parser crashes mid-migration | Structural test: old four values present; new values listed; `/slo-resume` + `/slo-execute` handle an unknown value as `blocked` |
+| Ledger dispositions mapped onto `/slo-retro` lanes (no third taxonomy) | If we later fork a separate disposition vocabulary, every authored ledger row would need re-mapping | The mapping table in [interfaces](secure-value-loop-interfaces.md) is the single source; dispositions are *names that resolve to* existing lanes, not new verbs | To diverge later, add the new lane to `/slo-retro` first, then update the mapping table — additive, not a rename | Structural test asserts the five dispositions and that they reference existing lane verbs only |
+| "Secure Value & Security Contract" placed between §5A and §6 | Section ordering is referenced by the structural tests and by authors' muscle memory | Insert **without renumbering** existing §6/§10/§17 (proven safe by the measurement-loop §5A insertion) | If removed, delete the section; legacy runbooks never required it (optional) | Structural test: §6/§10/§17 headings unchanged; new section optional |
+| Dual-template byte-identity (primary + mirror) | A drift between the two copies silently ships two different contracts | Edit both copies in the same change; assert byte-identity in CI | Re-sync by copying primary → mirror; test catches drift before merge | Structural test: `read(PRIMARY) == read(MIRROR)` |
+| OWASP controls cited by name + edition (2024) | A future OWASP edition renumbers again | Cite name + year, never bare number; name the review cadence in LOOPS | Bump the cited edition in `docs/SECURE-VALUE-LOOP.md` + the Contract Block row wording | Structural test: Contract Block row contains an edition year + a named control, not a bare `Cn` |
+| SBOM/provenance conditional (`not_applicable` default) | Making it unconditional later would retro-invalidate closed markdown milestones | Keep it a `when applicable` row in the Ship checklist, never a hard gate | Promote to mandatory only for release-artifact runbooks; markdown milestones stay `not_applicable` | Ship checklist shows the conditional wording |
+| No new crate / inline-first | Reversal = adding a crate later if fixtures demand it | Same low-regret ordering as the measurement-loop telemetry-schema deferral | Add `sldo-secure-value` in a *future* `/slo-architect` pass once ledger fixtures exist | n/a (deferral documented in stack-decision) |

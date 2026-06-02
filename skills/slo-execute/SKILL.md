@@ -35,6 +35,10 @@ You are a disciplined implementer. You just got handed one milestone of a runboo
 3. **Run the baseline test command from the runbook metadata.** If it's red, stop and fix the baseline first — do not begin on a red baseline.
 4. **Read the files listed in "Files To Read Before Changing Anything".** Understand the current shape.
 4.5. **Secure-construction pre-flight.** Read [`references/secure-construction-preflight.md`](references/secure-construction-preflight.md) and build a short surface map from the Contract Block, `SECURITY.md`, and the threat model before writing BDD tests or code. Prefer declared secure libraries; route gaps through `/slo-sec-libs` or a residual-risk row.
+4.7. **Operator Readiness Gate (fail closed).** If the milestone's §5B Secure Value & Security Contract has a "Security Definition of Ready (Operator Readiness)" sub-block, read it before any file edits. For each prerequisite row, confirm its `validation` (an executable proof — not a self-asserted checkbox) actually passes. Then read the `safe_to_continue_without_blockers` flag:
+   - **`false` → STOP. Do not start the milestone.** Set the milestone status to `blocked_by_operator`, surface the unmet prerequisite(s) and their owners to the user, and wait. This gate fails closed: an unprovisioned prerequisite (cloud account, OAuth app, API key, test device, DNS, cert, approval) must never be silently mocked or deferred mid-run.
+   - **`true` → proceed, but name the degraded path** in the Evidence Log: which prerequisite is partially ready and exactly what is deferred. Do not treat a degraded start as a clean start.
+   - **No §5B / no Operator Readiness sub-block** → legacy/non-security milestone; skip this gate (backward compatible). See [docs/SECURE-VALUE-LOOP.md §3](../../docs/SECURE-VALUE-LOOP.md). This addresses `tm-secure-value-loop-abuse-2` (readiness-gate bypass).
 5. **Update the Milestone Tracker** — current milestone to `in_progress`, record Started date.
 6. **Copy the Evidence Log template into working memory.** You'll fill it as you go.
 7. **Restate the milestone constraints in your own words**, in the chat, before coding. Include: goal, allowed files, forbidden changes, compatibility requirements, tests that must pass.
@@ -135,6 +139,25 @@ If you discover the milestone needs a change to a file NOT on the allow-list:
 4. Do not proceed until the user answers.
 
 This is the single most common failure mode of AI-driven runbook execution. The discipline is strict for a reason.
+
+## The Detected Work Ledger — never leave a finding "observed"
+
+When the milestone's §5B Secure Value & Security Contract has a Detected Work Ledger, open it at milestone start and append a row for **every** finding you discover during execution (a too-broad scope, a missing upstream API, a lint/policy violation in a touched file, a pre-existing scanner failure you noticed, etc.). Each row gets exactly **one disposition** — a finding may never end as merely "observed":
+
+| Disposition | When | Routes to (existing mechanism — NO new lane verb, F-SEC-1) |
+|---|---|---|
+| `fix_now` | safe, local, inside the allow-list (lint, small test gap, obvious null/unwrap, stale doc caused by the change) | fixed in this milestone; carry-forward `micro` |
+| `file_github_issue` | real but out-of-scope (schema/API change, broad refactor, new dependency, product/security trade-off) | `/slo-retro` lane `product` or `slo-process` (+ carry-forward `milestone`/`fresh-runbook`) |
+| `operator_action` | a human must provide an account/credential/approval/external action | the Operator Readiness Gate; status `blocked_by_operator` |
+| `upstream_feedback` | needs an issue/PR to a dependency or upstream project | `/slo-retro` lane `upstream-OSS` |
+| `accepted_risk` | known risk accepted with owner + expiry | threat-model Residual-risks convention; status `accepted_risk` |
+
+Rules:
+
+- **Refuse to mark the milestone `done` while any ledger row is undisposed.** This is part of the Definition of Done, alongside the Evidence Log.
+- `fix_now` is reserved for safe/local/in-allow-list work — using it to silently absorb a cross-boundary finding is disposition laundering (`tm-secure-value-loop-abuse-3`). When in doubt, `file_github_issue`.
+- The five dispositions introduce **no new `/slo-retro` lane verb** — they route to the existing lanes. `/slo-retro` re-reads the ledger at close-out and files the `file_github_issue` / `upstream_feedback` rows through its existing filing discipline (dedupe + per-session cap). See [docs/SECURE-VALUE-LOOP.md §4](../../docs/SECURE-VALUE-LOOP.md).
+- Legacy milestones with no §5B ledger skip this section (backward compatible).
 
 ## Step-by-step
 
