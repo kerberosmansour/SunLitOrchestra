@@ -55,6 +55,33 @@ If the runbook **introduced new public surface**, append a security-summary sect
 
 A high-severity finding from `/slo-critique` or `/slo-verify` Pass 4 referenced in the section MAY also be expanded inline using [`../../references/security/security-finding-template.md`](../../references/security/security-finding-template.md) when reviewer evidence would otherwise be lost.
 
+### Secure-release checklist + `ship_state` (Secure Value Loop)
+
+When the runbook carried a §5B Secure Value & Security Contract, complete the secure-release checklist before opening the PR and record a `ship_state`. Canonical definition: [docs/SECURE-VALUE-LOOP.md §8](../../docs/SECURE-VALUE-LOOP.md). This is the Ship-stage security output of the Secure Value Loop overlay.
+
+Checklist (each item: met / not-applicable-with-reason):
+
+- tests + security scans complete; no critical/high **untriaged** finding (every `/slo-verify` Pass 4/5 finding is `pass | not_applicable | waived_with_reason`);
+- every Detected Work Ledger row is disposed (`fix_now | file_github_issue | operator_action | upstream_feedback | accepted_risk`) — no row left "observed";
+- **SBOM / provenance — when applicable**: required only for a milestone that builds a **released artifact** (crates.io publish, release zip, container image). For a markdown / skill-contract / docs runbook this is `not_applicable` — never a hard gate;
+- deployment uses least-privilege credentials (or `not_applicable` for non-deploy);
+- canary / staged rollout defined (or `not_applicable`);
+- monitoring / alerts exist for new failure modes (or `not_applicable`);
+- rollback path tested or documented (or `not_applicable`);
+- residual risks have named owners + dates (reuse the threat-model Residual-risks convention);
+- operator actions (e.g. `gh label create`, account/cred provisioning) surfaced to the user — not silently skipped.
+
+Record a closed `ship_state` in the PR body / handoff:
+
+~~~text
+ship_state: shipped | human_review_required | blocked | canary_only | docs_only
+reason: "..."
+rollback: "..."
+monitoring_links: ["..."]
+~~~
+
+`shipped` requires the checklist complete and no critical/high untriaged finding. A runbook that closed with a `human_review_required` / `blocked_by_operator` / `blocked_by_upstream` milestone ships as the matching non-`shipped` state, never silently `shipped`.
+
 ## Gates — refuse when
 
 - On `main` or `master`.

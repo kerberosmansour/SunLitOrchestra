@@ -60,6 +60,8 @@ This is the single source of truth for progress. Update as each milestone comple
 | 3 | `[Milestone title]` | `not_started` | | | | |
 
 <!-- Status values: not_started | in_progress | blocked | done -->
+<!-- Secure Value Loop honest exit states (additive, optional): human_review_required | blocked_by_operator | blocked_by_upstream | issue_filed | accepted_risk -->
+<!-- Fail-safe: any consumer that does not recognise a status value MUST treat it as `blocked` — never silently `done` or `not_started`. Enforced in skill prose and in sldo-common::runbook::MilestoneStatus (svl M3). -->
 <!-- Lessons files go in docs/slo/lessons/<prefix>-m<N>.md -->
 <!-- Completion summaries go in docs/slo/completion/<prefix>-m<N>.md -->
 
@@ -333,6 +335,73 @@ Fill this for value-bearing features. Carry the per-feature inputs forward from 
 Each value-bearing milestone then names its slice of these telemetry deliverables in its Contract Block **Measurement deliverables** row, and `/slo-verify`'s measurement pass checks they fire, are masked/pseudonymised, and emit on failure paths. `/slo-retro` records actual-vs-thesis movement.
 
 For non-value-bearing runbooks (pure refactor / docs / tooling), mark this section `N/A — not a value-bearing feature, see <reason>`.
+
+---
+
+## 5B. Secure Value and Security Contract
+
+> **Optional section.** Legacy runbooks without this section remain valid (same backward-compat posture as §5A Measurement Contract and §10 Carry-forward). But `/slo-plan` REQUIRES it for any **value-bearing OR security-relevant** milestone — security-relevant means the work touches identity, secrets, PII, payment, cloud accounts, AI agents, public/network boundaries, CI/CD, or infrastructure. It is the planning-time half of the Secure Value Loop (see [docs/SECURE-VALUE-LOOP.md](../../SECURE-VALUE-LOOP.md)): it makes operator readiness, security tests, and finding-disposition contracted deliverables rather than best-effort afterthoughts. It reuses the shipped security machinery (`/slo-architect` threat model, `/slo-verify` Pass 4/5, `/slo-retro` lanes) — it does not rebuild it.
+
+Fill this for value-bearing/security-relevant milestones. For pure refactor / docs / tooling with no security-relevant surface, mark this section `N/A — not value-bearing or security-relevant, see <reason>`.
+
+### Value Wedge
+
+| Field | Value |
+|---|---|
+| Value hypothesis | [what user/business/security outcome changes] |
+| Smallest valuable wedge | [smallest slice that proves value without becoming useless] |
+| User-visible proof of value | [how a user experiences the value] |
+| Security-visible proof of safety | [how safety is demonstrable] |
+| What would make this wedge too small to matter? | [the decision rule] |
+
+### Security Definition of Ready (Operator Readiness)
+
+> The Operator Readiness Gate is enforced by `/slo-execute`'s Global Entry from the M3 release of the Secure Value Loop onward. If `safe_to_continue_without_blockers` is `false`, the milestone MUST NOT start (fail closed). `validation` must be an executable proof, not a self-asserted checkbox.
+
+| Prerequisite | Owner (`human \| agent \| upstream`) | Needed by | Validation (executable proof) | Status (`ready \| partially_ready \| blocked`) |
+|---|---|---|---|---|
+| | | M[N] | | |
+
+`safe_to_continue_without_blockers: true | false`
+
+### Threat Model Summary
+
+> Populated from the existing `/slo-architect` threat model (`docs/slo/design/<slug>-threat-model.md` + `.slo.json`) — cite it, do not re-derive. Cite abuse cases by their frozen `tm-<slug>-abuse-N` IDs.
+
+| Area | Summary |
+|---|---|
+| Assets | |
+| Actors | |
+| Trust boundaries | |
+| Entry points | |
+| Abuse cases | [`tm-<slug>-abuse-N: <description>`] |
+| Required controls | |
+| Residual risks | [owner + review-by date] |
+
+### Security Test Plan
+
+> Reference the security-test **Bundle(s)** the milestone's surface triggers (Bundle A docs / B app / C backend-API / D cloud-IaC / E AI-LLM / F mobile — see [docs/SECURE-VALUE-LOOP.md §6](../../SECURE-VALUE-LOOP.md)). Each row resolves to `pass | not_applicable | waived_with_reason` at `/slo-verify` time — never blank. SBOM/provenance is conditional: `not_applicable` unless the milestone builds a released artifact.
+
+| Test | Required? | Command/tool | Evidence path | Waiver if not applicable |
+|---|---|---|---|---|
+| SAST | | | | |
+| SCA/dependency audit | | | | |
+| Secrets scan | | | | |
+| IaC scan | | | | |
+| Container/image scan | | | | |
+| DAST/API security | | | | |
+| Authn/authz negative tests | | | | |
+| Abuse-case tests | | | | |
+| Privacy/telemetry tests | | | | |
+| Fuzz/property/formal tests | | | | |
+
+### Detected Work Ledger
+
+> Every finding discovered during execution gets exactly one **disposition** and may never end as merely "observed". The five dispositions route to existing `/slo-retro` lanes — they introduce **no new lane verb** (see [docs/SECURE-VALUE-LOOP.md §4](../../SECURE-VALUE-LOOP.md)). `/slo-execute` refuses to mark the milestone `done` while any row is undisposed. Dispositions: `fix_now | file_github_issue | operator_action | upstream_feedback | accepted_risk`.
+
+| ID | Finding | Severity | Disposition | Owner | Evidence/link | Due |
+|---|---|---:|---|---|---|---|
+| DW-001 | | | | | | |
 
 ---
 
@@ -908,7 +977,7 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | AI tolerance contract | [required for AI/LLM behavior: accepted variance, deterministic boundary, eval evidence, retry / fallback, must-never outcomes, sample budget; or `N/A — no AI component`] |
 | Forbidden shortcuts | [mocks in prod, TODOs, silent fallbacks, broad refactor, etc.] |
 | Data classification (optional) | [Public / Internal / Confidential / Restricted — per project threat-model conventions] |
-| Proactive controls in play (optional) | [OWASP Proactive Controls citations, e.g., C1, C5, C9] |
+| Proactive controls in play (optional) | [OWASP Proactive Controls 2024 cited **by name**, e.g., `C1 Implement Access Control`, `C4 Address Security from the Start`, `C9 Implement Security Logging and Monitoring` — never a bare number (OWASP renumbered C1–C10 between 2018 and 2024)] |
 | Abuse acceptance scenarios (optional) | [`tm-<feature>-abuse-N: <description>` — mitigation noted in BDD] |
 | Measurement deliverables (required for value-bearing milestones) | [which named events / runtime metrics / saved queries this milestone ships, the guardrail owner, and the readout date — ties to the §5A Measurement Contract; or `N/A — not value-bearing, see <reason>`] |
 

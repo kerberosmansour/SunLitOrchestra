@@ -66,6 +66,24 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
                           /slo-ship
 ```
 
+### Secure Value Loop overlay (every stage carries a security output)
+
+The Sprint loop runs inside a **Secure Value Envelope**: each stage produces a cybersecurity artefact, so security is unavoidable rather than bolted on. Canonical definition: [docs/SECURE-VALUE-LOOP.md](SECURE-VALUE-LOOP.md). The rule: *optimize for the smallest valuable, secure, testable, unblocked, reviewable outcome.*
+
+| Stage | Security output | Where |
+|---|---|---|
+| Idea | high-level risks, data-classification guess, trust-boundary hints | `/slo-ideate` |
+| Research | security source pack (standards, scopes, threat intel, prereqs) | `/slo-research` |
+| Architect | threat model (STRIDE, abuse cases, mitigations) | `/slo-architect` Step 3.5 |
+| Critique | security assessment (class-elimination, variant analysis) | `/slo-critique` |
+| Plan | §5B Secure Value & Security Contract (Value Wedge, Operator Readiness, Security Test Plan, Detected Work Ledger) | `/slo-plan` |
+| Execute | proactive controls, Operator Readiness Gate (fail closed), Detected Work Ledger (every finding disposed) | `/slo-execute` |
+| Verify | Bundle A–F security tests as first-class evidence (Pass 4/5) | `/slo-verify` |
+| Ship | secure-release checklist, `ship_state`, SBOM/provenance when applicable, residual-risk sign-off | `/slo-ship` |
+| Retro | dispose every ledger row through existing lanes; upstream feedback; reusable rules | `/slo-retro` |
+
+Honest exit states (additive milestone status): `human_review_required | blocked_by_operator | blocked_by_upstream | issue_filed | accepted_risk` — an unknown status is treated as `blocked`, never silently `done`. **Review cadence**: re-check the Bundle table and cited standard editions (OWASP Proactive Controls / ASVS / MASVS / API / LLM Top 10, by name + year) when an upstream edition changes — that is the anti-drift control.
+
 ---
 
 ## Secure-construction loop

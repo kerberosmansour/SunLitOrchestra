@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const PUBLISH_READY_VERSION: &str = "0.1.2";
+const PUBLISH_READY_VERSION: &str = "0.1.3";
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

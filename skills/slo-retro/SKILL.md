@@ -138,9 +138,23 @@ After the lessons file, completion summary, and tracker update are on disk, clas
 
 Read [`references/issue-filing-discipline.md`](references/issue-filing-discipline.md) for the locked rules. The procedure below is the in-prose summary; the reference file is the authoritative source.
 
+### Step 0 — re-read the Detected Work Ledger (Secure Value Loop)
+
+If the milestone's §5B Secure Value & Security Contract has a **Detected Work Ledger**, re-read it before classifying lessons. Every ledger row must already carry a disposition (`/slo-execute` refuses `done` otherwise). Reconcile each disposition onto the **existing** lane vocabulary below — the five dispositions introduce **no new lane verb** (F-SEC-1), they route to existing mechanisms:
+
+| Ledger disposition | Routes to |
+|---|---|
+| `fix_now` | already fixed in the milestone — no filing (carry-forward `micro` if a trace is wanted) |
+| `file_github_issue` | the `product` or `slo-process` lane below |
+| `upstream_feedback` | the `upstream-OSS` lane below |
+| `operator_action` | the Operator Readiness Gate — surfaced to the user, not filed as a code issue |
+| `accepted_risk` | recorded in the threat-model Residual-risks convention (owner + expiry); not a filing |
+
+This reuses the lane vocabulary and filing discipline below verbatim — do NOT introduce a fourth taxonomy. See [docs/SECURE-VALUE-LOOP.md §4](../../docs/SECURE-VALUE-LOOP.md). Milestones with no §5B ledger skip this step (backward compatible).
+
 ### Step 1 — classify each lesson
 
-For every flagged lesson in `docs/slo/lessons/<prefix>-m<N>.md`, decide one of:
+For every flagged lesson in `docs/slo/lessons/<prefix>-m<N>.md` (and every `file_github_issue` / `upstream_feedback` row carried in from the Detected Work Ledger Step 0), decide one of:
 
 - **`product`** — lesson applies to the current target product / repo. Filed against the current repo (resolved via `git config remote.origin.url`).
 - **`upstream-OSS`** — lesson applies to a third-party tool (Semgrep, Playwright, `cargo audit`, etc.). Filed against the resolved upstream repo via `.sldo/upstream-mapping.toml` (with crates.io / npm fallback).

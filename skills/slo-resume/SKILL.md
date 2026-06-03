@@ -24,6 +24,13 @@ You are returning to a runbook after a pause. Your job is to figure out what sta
    - `not_started` → suggest `/slo-execute M<N>` (or earlier: `/slo-plan` if the milestone is sparse).
    - `in_progress` → check the Evidence Log. If BDD scenarios are untested at runtime, suggest `/slo-verify`. Otherwise suggest finishing `/slo-execute`.
    - `blocked` → print the blocker (from the row's Notes column or the last lessons file's "Mistakes made" section) and ask the user what to do (do not suggest `/slo-execute`).
+   - **Secure Value Loop honest exit states (additive — read-only orientation):**
+     - `blocked_by_operator` → print the unmet operator prerequisite from the §5B Operator Readiness sub-block and its owner; ask the user to provision it (do not suggest `/slo-execute`).
+     - `blocked_by_upstream` → print the upstream dependency / issue link; ask the user (do not suggest `/slo-execute`).
+     - `human_review_required` → suggest a human review the completed work before close; do not suggest `/slo-execute`.
+     - `issue_filed` → note the work was captured as a filed issue and intentionally not completed here; suggest the next milestone.
+     - `accepted_risk` → note the recorded residual-risk decision (owner + expiry) and treat the row as closed-with-risk; continue to the next non-terminal row.
+   - **Unknown / unrecognised status → treat as `blocked`** (fail-safe; never assume `done`). Print the raw value and ask the user. This matches `sldo-common::runbook::MilestoneStatus` (svl M3) and [docs/SECURE-VALUE-LOOP.md §5](../../docs/SECURE-VALUE-LOOP.md).
 4. Classify the recommended next action with a **lane**:
    - `micro` — bounded follow-up; safe to fold into the current or immediate next milestone.
    - `milestone` — real milestone work inside the current runbook.
