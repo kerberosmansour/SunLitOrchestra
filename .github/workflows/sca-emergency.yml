@@ -2,7 +2,11 @@ name: sca-emergency
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    # Twice daily (00:00 and 12:00 UTC). Reduced from every-15-min (*/15),
+    # which was ~2,900 runs/mo and the single largest GitHub Actions cost
+    # across the SunLit repos (~$186/mo). Use workflow_dispatch for an
+    # on-demand emergency scan between scheduled runs.
+    - cron: "0 0,12 * * *"
   workflow_dispatch:
 
 permissions:
