@@ -5,7 +5,7 @@
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
-**Shipped skills at HEAD: 41** (10 sprint flow + 5 ticket flow + 10 power tools + 4 business advisor + 11 business generator + 1 vendored). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 41 entries.
+**Shipped skills at HEAD: 49** (10 sprint flow + 5 ticket flow + 10 power tools + 8 innovation-sandbox + 4 business advisor + 11 business generator + 1 vendored). The innovation-sandbox flow is shipping across the innovation-loop runbook (M1 ships `/slo-experiment`; M2–M5 add the 7 phase skills, rising to 49). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 49 entries.
 
 ## Repo reality at HEAD
 
@@ -42,6 +42,21 @@ GitHub Issues-first path for small, reviewable work that should keep v4 rigor wi
 | Execute | `/slo-ticket-execute` | Implement the ticket contract BDD-first inside the exact file allow-list |
 | Verify | `/slo-ticket-verify` | Run ticket-sized runtime QA, static/security checks, and regression-test-first bug handling |
 | Close | `/slo-ticket-close` | Fill closure summary, open/update the PR, and move the issue to review without auto-merge |
+
+## Innovation-Sandbox flow
+
+A discovery lane that sits **before** the Sprint flow and feeds it. Where the Sprint flow turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into a promotable candidate or a documented dead-end, authored into one durable artifact — the **Experiment Book** (`docs/slo/experiments/<slug>/EXPERIMENT.md`, the experimentation peer of the v4 runbook: Definition of Learned, not Done). Design: [slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md); loop: [LOOPS-ENGINEERING.md#innovation-sandbox-loop](LOOPS-ENGINEERING.md#innovation-sandbox-loop). Shipping across the innovation-loop runbook — M1 ships the umbrella + template below; M2–M5 add `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`.
+
+| Stage | Skill | Purpose |
+|---|---|---|
+| Open | `/slo-experiment` | Open/resume the Experiment Book from `experiment-book-template_v_1.md`; seed §0–§2 + tracker; validate the slug; fence user strings |
+| Sandbox | `/slo-sandbox` | Fill §3 — choose the material (not the feature), boundaries, safety rails, weirdness budget, ≥3 probe seeds, kill criteria |
+| Play | `/slo-play` | Fill §4 — raw probes (divergent, judge safety only), dead-ends, surprises |
+| Pattern | `/slo-pattern` | Fill §5 — name reusable tricks (convergent), cite probe IDs, ≤5 cap, next-curve + DICEE checks |
+| Precision | `/slo-precision` | Fill §6 — make claims falsifiable: handles + accept/kill thresholds + resource bounds + security invariants |
+| Spike | `/slo-spike` | Fill §7 — the ONLY code phase: bounded proof artifacts under `experiments/<slug>/<spike-id>/` (git-ignored), mandatory budget, evidence-derived verdict, delete-or-promote, no production promotion |
+| Curate | `/slo-curate` | Fill §8 — exactly one disposition per candidate (the frozen 8 route decisions), each citing a probe/spike; dead-ends compost to §11 |
+| Demo | `/slo-demo` | Fill §9 + §10 — package the discovery + the typed promotion handoff (`/slo-ideate` \| `/slo-ticket-plan` \| `/slo-research` \| `/slo-plan`), a suggestion never an auto-invoke. Closes the loop |
 
 ## Power tools
 

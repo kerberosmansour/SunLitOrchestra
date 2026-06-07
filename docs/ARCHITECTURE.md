@@ -160,6 +160,40 @@ Feature runbooks land Markdown / YAML / JSON structural-contract tests under `xt
 | `sap_imp_m4_workflow_pinning` | Every workflow `uses:` SHA-pinned (40-char hex) and has explicit `permissions:` block; `host-capability-matrix.md` carries a decision row; plugin.json has no path traversal; release workflow uses `git archive` + tag-trigger only. |
 | `sap_imp_m5_agents` | Exactly 4 agent files; frontmatter complete; `output-paths` constrained to `{docs/slo/critique/, docs/slo/verify/}` with traversal/absolute-path rejected; `copilot-fallback` non-empty; ≤ 200 lines per agent; `skills/slo-critique/SKILL.md` SHA-256 byte-identical to pinned baseline. |
 
+## Innovation Sandbox loop (Experiment Book v1) — SHIPPED
+
+A discovery lane that sits **before** the Sprint loop and feeds it. Where the Sprint loop turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into either a promotable candidate or a documented dead-end, without breaking the creative nature of experimentation. Design source of truth: [docs/slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md). Dashed = planned.
+
+```
+  fuzzy "what if?" / theme
+            │
+            ▼
+   /slo-experiment ───► docs/slo/experiments/<slug>/EXPERIMENT.md   (Experiment Book v1 — SHIPPED M1)
+            │              the single durable, contract-driven artifact
+            ▼
+   /slo-sandbox ┄┄► §3 choose material + safety rails + probe seeds   (divergent setup)
+            ▼
+   /slo-play ┄┄┄┄► §4 raw probes, dead-ends, surprises               (DIVERGENT — judgment deferred)
+            ▼
+   /slo-pattern ┄► §5 name reusable tricks + next-curve + DICEE      (convergent)
+            ▼
+   /slo-precision► §6 make invisible variables measurable           (SHIPPED M3)
+            ▼
+   /slo-spike ┄┄┄► §7 bounded proof artifacts + evidence            (the ONLY code phase → experiments/<slug>/)
+            ▼
+   /slo-curate ┄┄► §8 one disposition per candidate                  (convergent)
+            ▼
+   /slo-demo ────► §9 demo pack + §10 PromotionPacket  (SHIPPED M5)
+            │
+            ├┄┄► promote_to_idea     → /slo-ideate
+            ├┄┄► promote_to_ticket   → /slo-ticket-plan
+            ├┄┄► promote_to_research → /slo-research
+            ├┄┄► promote_to_runbook  → /slo-plan
+            └┄┄► killed_but_reusable / archive_no_action → §11 Compost
+```
+
+**Components**: 8 new `skills/slo-<name>/SKILL.md` files + one new template `docs/slo/templates/experiment-book-template_v_1.md` + structural-contract tests in `xtasks/sast-verify/tests/innovation_loop_m<N>_*.rs`. No new crate, no service surface. **Status**: M1 SHIPPED — `/slo-experiment` + the Experiment Book template + `innovation_loop_m1_spine.rs`; the 7 phase skills (`/slo-sandbox`…`/slo-demo`) remain dashed (planned, M2–M5). **Hard rule**: nothing promotes to production without re-entering the Sprint or Ticket loop (plan → critique → execute → verify). The cyclic view of this loop is registered in [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md#innovation-sandbox-loop).
+
 ## Feedback loops
 
 The skill pack improves itself through cyclic feedback structures that are not visible in a static dependency diagram. They are documented separately so newcomers and freshly-loaded Claude instances can answer "which loop am I in, and what do I run next?" in 90 seconds.

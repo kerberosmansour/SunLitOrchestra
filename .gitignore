@@ -51,6 +51,17 @@ output/
 # from /slo-equity, /slo-fundraise, /slo-legal, /slo-accounting.
 docs/biz/
 
+# Innovation Sandbox loop: spike scratch code (the ONLY code phase, /slo-spike).
+# The single canonical scratch root — git-ignored so prototype-becomes-production
+# drift is structurally prevented (innovation-loop runbook M1/M4, critique E3).
+# Durable evidence worth keeping is copied into the tracked
+# docs/slo/experiments/<slug>/evidence/ instead. The Experiment Books themselves
+# (docs/slo/experiments/<slug>/EXPERIMENT.md) ARE tracked.
+# LEADING SLASH is load-bearing: it anchors the pattern to the repo root so it
+# matches ONLY ./experiments/ and NOT docs/slo/experiments/ (where the tracked
+# Books live). An unanchored `experiments/` would wrongly ignore the Books.
+/experiments/
+
 # TLA+ tool cache location if a user accidentally symlinks it into the repo
 .sldo/
 

@@ -13,6 +13,7 @@ Follow [references/agent/operating-contract.md](references/agent/operating-contr
 1. [docs/getting-started.md](docs/getting-started.md) - first-run path
 2. [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) - canonical living catalog
 3. [docs/slo/design/agent-host-capabilities.md](docs/slo/design/agent-host-capabilities.md) - what works today and what is still host-specific
+4. [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md#innovation-sandbox-loop) - the Innovation Sandbox loop (`/slo-experiment` -> Experiment Book), a pre-idea discovery lane that feeds the Sprint flow (M1 shipped; phase skills land M2-M5)
 
 ## Install into Codex
 

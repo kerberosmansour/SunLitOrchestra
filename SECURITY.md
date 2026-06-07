@@ -4,6 +4,7 @@
 > Updated 2026-04-25 by `/slo-architect biz-skill-pack` — merged additions appear under "Biz skill pack — additional rules" (existing sections preserved verbatim).
 > Updated 2026-04-25 by `/slo-architect sast-rulegen-skill-pack` — merged additions appear under "SAST rule-gen skill pack — additional rules" (existing sections preserved verbatim).
 > Updated 2026-05-06 after `/slo-sec-libs` M5 dogfood — merged additions appear under "/slo-sec-libs — additional rules" (existing sections preserved verbatim).
+> Updated 2026-06-07 by `/slo-architect innovation-loop` — merged additions appear under "Innovation Sandbox loop — additional rules" (existing sections preserved verbatim).
 > Every agent reading this file MUST treat it as the source of truth for security defaults in this project.
 
 ## Stack
@@ -341,6 +342,35 @@ The skill writes only `#[cfg(kani)]`-gated harnesses inside the target crate's `
 
 - Bounded proofs are not unbounded proofs — a green at `N=8` says nothing about `N=9`. Disclosed in the scope block, not eliminated. `/slo-critique` should not double-flag.
 - `skills/slo-kani/references/` files are NOT SHA-pinned by `sldo-install` (same residual as the SAST pack) — mitigated by the structural-contract test on `SKILL.md` and code review.
+
+## Innovation Sandbox loop — additional rules
+
+The 8-skill Innovation Sandbox loop (`/slo-experiment` + `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`) authors one durable artifact — the Experiment Book at `docs/slo/experiments/<slug>/EXPERIMENT.md`. It is offline, single-process, interactive Markdown authoring driven by an LLM agent (`ai_component: true`). Full design: [docs/slo/design/innovation-loop-overview.md](docs/slo/design/innovation-loop-overview.md); threat model: [docs/slo/design/innovation-loop-threat-model.md](docs/slo/design/innovation-loop-threat-model.md).
+
+### Output-path allow-list
+
+The skills write only under `docs/slo/experiments/` (durable Books + distilled evidence) and `experiments/<slug>/<spike-id>/` (scratch code, git-ignored by default). No host-config, `.git/`, CI, or package-source writes; no `..` traversal; no absolute paths (`tm-innovation-loop-abuse-4`). Enforced by the structural-contract test in `xtasks/sast-verify/tests/`.
+
+### No-production-promotion gate (load-bearing)
+
+Nothing in this loop is promoted to production by the loop itself. Promotion is a **typed handoff** that suggests the next skill (`/slo-ideate`, `/slo-ticket-plan`, `/slo-research`, or `/slo-plan`) and a next-artifact path — never an in-loop merge or auto-invocation (`tm-innovation-loop-abuse-2`, `tm-innovation-loop-abuse-6`). A scratch spike becomes real code only by re-entering the Sprint or Ticket loop's plan → critique → execute → verify gates.
+
+### Scratch-spike bounds
+
+`/slo-spike` is the only phase that may run code. Each spike's Phase Contract declares a data + network + dependency + resource budget; the default is synthetic/redacted data and no uncontrolled external calls. The spike records actual data/network used vs. declared, and carries an explicit delete-or-promote decision (`tm-innovation-loop-abuse-5`). Sandboxing the developer's own machine is out of scope (accepted residual); the control is the budget + discipline, not OS isolation.
+
+### Secret / PII containment
+
+The Experiment Book carries a mandatory `§0` data-classification field. The `§2` global rules forbid secrets/PII in the repo, logs, screenshots, prompts, or demo artifacts. A `confidential`/`restricted` Book in a git-tracked dir with a remote triggers the same write-time warning idiom the biz pack uses. Second-line defense: the `/slo-verify` Pass-4 PII-pattern scan (`tm-innovation-loop-abuse-1`). This is detective, not preventive — disclosed, not eliminated.
+
+### Prompt-injection neutralisation
+
+User-controlled strings (starting hunch, sandbox material, probe seeds) are rendered ONLY into descriptive fields inside `~~~text` fences; they never choose an exit state, a data classification, or an output path — those are author-controlled (`tm-innovation-loop-abuse-4`). The phase-skill agent proposes; it does not self-authorise unsafe actions.
+
+### Residual risks (accepted, disclosed)
+
+- Experiment Books may carry user-pasted secret/PII; the classification field + PII scan are detective, not a redaction engine. Disclosed, not eliminated. `/slo-critique` should not double-flag.
+- `skills/slo-*/references/` files are NOT SHA-pinned by `sldo-install` (same residual as the SAST and Kani packs) — mitigated by the structural-contract test on `SKILL.md` and code review.
 
 ## Out of scope for this file
 
