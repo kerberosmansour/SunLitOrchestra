@@ -265,7 +265,7 @@ fn seven_canonical_evals_present_with_required_shape() {
 fn registered_in_skill_pack_catalog() {
     let catalog = read(repo_root().join("docs/skill-pack-catalog.md"));
     assert!(catalog.contains("/slo-cloud-threat-model"));
-    assert!(catalog.contains("Shipped skills at HEAD: 41"));
+    assert!(catalog.contains("Shipped skills at HEAD: 49"));
     assert!(catalog.contains("10 power tools"));
 }
 

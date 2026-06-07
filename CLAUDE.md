@@ -32,6 +32,10 @@ Power tools:
 | `/slo-freeze <path>` | Lock edits to one directory for the session |
 | `/slo-resume` | Read current runbook's tracker, suggest next step |
 
+## Innovation Sandbox loop — first-party `/slo-experiment` discovery lane
+
+A pre-idea discovery lane that sits *before* the Sprint flow and feeds it (`promote_to_idea` → `/slo-ideate`, etc.). It turns a fuzzy technical hunch into a promotable candidate or a documented dead-end, authored into one durable artifact — the **Experiment Book** (`docs/slo/experiments/<slug>/EXPERIMENT.md`), the experimentation peer of the v4 runbook: **Definition of Learned, not Done**. Canonical list: [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md); loop: [docs/LOOPS-ENGINEERING.md](docs/LOOPS-ENGINEERING.md); design: [docs/slo/design/innovation-loop-overview.md](docs/slo/design/innovation-loop-overview.md). M1 ships `/slo-experiment` + the template; the 7 phase skills (`/slo-sandbox`…`/slo-demo`) land M2–M5 of `docs/RUNBOOK-innovation-loop.md`. Spike scratch lives under `experiments/<slug>/<spike-id>/` (git-ignored); nothing promotes to production without re-entering the Sprint or Ticket loop.
+
 ## Biz skill pack — first-party advisor + generator skills
 
 UK-only (v1). Advisor skills (4) operate as `draft | translate | triage | prepare` modes with hard-block gates from [references/biz/triage-gate.md](references/biz/triage-gate.md) (regulated / >£5,000 / counterparty-with-lawyer / GDPR). Generator skills (11; shipped in Runbooks B1, B2, C — out of Runbook A scope) produce one artifact each.
