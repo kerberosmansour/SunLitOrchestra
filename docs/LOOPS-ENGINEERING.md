@@ -85,6 +85,64 @@ The Sprint loop runs inside a **Secure Value Envelope**: each stage produces a c
 
 Honest exit states (additive milestone status): `human_review_required | blocked_by_operator | blocked_by_upstream | issue_filed | accepted_risk` — an unknown status is treated as `blocked`, never silently `done`. **Review cadence**: re-check the Bundle table and cited standard editions (OWASP Proactive Controls / ASVS / MASVS / API / LLM Top 10, by name + year) when an upstream edition changes — that is the anti-drift control.
 
+### Outcome-First overlay (the user outcome is the primary Definition of Done)
+
+Distinct from the Secure Value overlay (security envelope) above: the Outcome-First overlay makes **user outcomes first-class, testable artifacts**. *Code completion alone is insufficient — a value-bearing milestone is done only when the promised user outcome exists AND existing important outcomes still exist.* The test pyramid is **authority-inverted**:
+
+```
+        OUTCOME      ← smallest layer, HIGHEST authority  (/slo-verify Pass 0)
+          E2E
+      Integration
+         Unit        ← largest layer, base authority
+```
+
+| Stage | Outcome-First output | Where |
+|---|---|---|
+| Plan | §5C Outcome Validation Contract + §17 Outcome Scenarios (`oc-N`) / Critical User Journeys (`cuj-N`) / Core Capability Regression Matrix | `/slo-plan` (required for value-bearing milestones) |
+| Execute | Outcome Scenario + Critical Journey tests written first, front-to-end (never mock-only) | `/slo-execute` |
+| Verify | **Pass 0 Outcome Validation** — runs outcomes/journeys/regression front-to-end; highest authority (fails the milestone even if Passes 1–6 are green) | `/slo-verify` |
+| Critique | flags outcome-test theatre (vacuous / single-`And` / mock-only) as `ask` | `/slo-critique` |
+| Retro | refuses to close on an unproven outcome row; records `## Outcome vs promise` | `/slo-retro` |
+
+The rule: **if 1000 unit tests pass but one Outcome Scenario, Critical User Journey, or required Regression-Matrix row fails, the milestone fails.** Enforced by `/slo-verify` Pass 0 + `/slo-retro`'s refusal gate; the principle is in [`references/agent/operating-contract.md`](../references/agent/operating-contract.md).
+
+---
+
+## Innovation Sandbox loop
+
+> **User-visible outcome**: a fuzzy technical hunch turns into either a promotable candidate (idea / ticket / research / runbook) or a documented dead-end with reusable lessons — never dying in chat. Every experiment closes with exactly one honest exit state.
+
+**Trigger**: the user has a material, theme, technology, surprising failure, or "what if?" but **not yet a crisp feature** — the pre-idea phase `/slo-ideate` is too early for.
+
+**Steps** (shipping across the innovation-loop runbook; M1 ships `/slo-experiment` + the template, M2–M5 the phase skills):
+
+1. `/slo-experiment <slug>` — open/resume `docs/slo/experiments/<slug>/EXPERIMENT.md` from `experiment-book-template_v_1.md`; seed §0–§2 + tracker; validate the slug; fence user strings.
+2. `/slo-sandbox` — §3 choose the material (not the feature) + safety rails + probe seeds. *(M2)*
+3. `/slo-play` — §4 raw probes, dead-ends, surprises; **divergent, judge safety only**. *(M2)*
+4. `/slo-pattern` — §5 name reusable tricks + next-curve + DICEE. *(M3)*
+5. `/slo-precision` — §6 make invisible variables measurable (accept/kill thresholds). *(M3)*
+6. `/slo-spike` — §7 bounded proof artifacts, the only code phase (scratch under `experiments/<slug>/`). *(M4)*
+7. `/slo-curate` — §8 one disposition per candidate. *(M5)*
+8. `/slo-demo` — §9 demo + §10 PromotionPacket → `/slo-ideate` | `/slo-ticket-plan` | `/slo-research` | `/slo-plan`, or §11 compost. *(M5)*
+
+**Exit condition**: every experiment closes with exactly one of the frozen 8 states (`promote_to_idea | promote_to_ticket | promote_to_research | promote_to_runbook | needs_more_play | blocked_by_unknown | killed_but_reusable | archive_no_action`); promoted candidates carry a filled §10 handoff seed; nothing reaches production without re-entering the Sprint or Ticket loop.
+
+**Artifacts**: `docs/slo/experiments/<slug>/EXPERIMENT.md` (+ optional `probes/`, `spikes/`, `evidence/`); scratch under `experiments/<slug>/<spike-id>/` (git-ignored).
+
+**Skills involved**: `/slo-experiment`, `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`.
+
+```
+   fuzzy "what if?" ──► /slo-experiment ──► EXPERIMENT.md (§0–§11)
+                              │
+   /slo-sandbox ─► /slo-play ─► /slo-pattern ─► /slo-precision ─► /slo-spike ─► /slo-curate ─► /slo-demo
+   (framing)     (DIVERGENT)   (converge)      (measure)         (evidence)    (decide)        (handoff)
+                              │
+                              └──► promote_to_idea/ticket/research/runbook → Sprint/Ticket loop
+                                   killed_but_reusable / archive_no_action → §11 compost
+```
+
+> **Promotion is a typed handoff, never an in-loop merge** — the hard rule is that nothing becomes production without the normal SLO plan → critique → execute → verify gates. *(All 8 skills shipped across innovation-loop M1–M5; the loop is closed end-to-end.)*
+
 ---
 
 ## Innovation Sandbox loop

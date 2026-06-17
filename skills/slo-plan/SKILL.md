@@ -47,6 +47,7 @@ Every milestone Contract Block includes the base rows plus:
 - **Proactive controls in play**: cite stack-aware controls from [`references/proactive-controls-vocabulary.md`](references/proactive-controls-vocabulary.md) as actionable implementation constraints, using [`references/secure-construction-matrix.md`](references/secure-construction-matrix.md) to map each touched surface to secure defaults and tests.
 - **Abuse acceptance scenarios**: cite [`references/abuse-case-examples.md`](references/abuse-case-examples.md); required for every new surface. If no new surface, write `N/A — no new surface introduced, see <reason>`. Silent omission is forbidden.
 - **Measurement deliverables**: required for any **value-bearing** milestone. Cite the runbook's §5A Measurement Contract and name this milestone's slice (events / runtime metrics / saved queries + guardrail owner + readout date). For non-value-bearing milestones, write `N/A — not value-bearing, see <reason>`.
+- **Outcome Validation deliverables / Critical user journeys**: required for any **value-bearing** milestone — cite §5C + the `cuj-<slug>-N` ids; else `N/A — not value-bearing`.
 
 ## Measurement Contract requirement
 
@@ -56,13 +57,15 @@ A runbook for a **value-bearing feature** MUST carry the §5A Measurement Contra
 
 A **value-bearing OR security-relevant** milestone (security-relevant = touches identity, secrets, PII, payment, cloud, AI agents, public/network boundaries, CI/CD, or infrastructure) MUST carry the §5B Secure Value & Security Contract — populate Value Wedge, Operator Readiness, Threat Model Summary (cite the `/slo-architect` model), Security Test Plan (Bundles A–F), and the Detected Work Ledger (five dispositions → existing `/slo-retro` lanes, no new verb). Cite proactive controls by OWASP Proactive Controls 2024 name. The Operator Readiness Gate is **enforced** by `/slo-execute` from the **M3** Secure Value Loop release onward. Forward-looking: **flag** a missing §5B; never invalidate **legacy** runbooks (mirrors §5A / §10). Non-security refactor/docs/tooling → `N/A`. Full authoring detail: [`references/secure-value-contract.md`](references/secure-value-contract.md); canonical: [docs/SECURE-VALUE-LOOP.md](../../docs/SECURE-VALUE-LOOP.md).
 
+**Outcome Validation Contract requirement.** A **value-bearing** milestone (same deterministic definition as the Measurement Contract; EXCLUDES refactor / docs-only / test-only) MUST carry the §5C **Outcome Validation Contract** plus, in §17, its **Outcome Scenarios** (`oc-<slug>-N`), **Critical User Journeys** (`cuj-<slug>-N`), and a **Core Capability Regression Matrix** (every row `pass | not_applicable | waived_with_reason`, **never blank**). This is **Outcome First Engineering**: the promised user outcome is the **primary Definition of Done** — code completion alone is insufficient (§6.12). §5C **Front-to-End Validation** steps are **per-layer** (`applicable | not_applicable(reason)`) with **≥1 real cross-layer assertion** — a single-layer / mock-only assertion does not satisfy it. Forward-looking like §5A / §5B: **flag** a missing §5C; never invalidate legacy runbooks. Full detail: [`references/outcome-validation-contract.md`](references/outcome-validation-contract.md).
+
 When the Refactor budget is anything except `No refactor permitted beyond direct implementation`, apply [`references/refactoring-discipline.md`](references/refactoring-discipline.md): behavior-preserving microsteps, pre-test evidence, and post-test proof.
 
-BDD includes happy path, invalid input, empty state, dependency failure, retry/concurrency/persistence/backward compat as applicable, and **abuse case** for new surfaces.
+BDD includes happy path, invalid input, empty state, dependency failure, retry/concurrency/persistence/backward compat as applicable, and **abuse case** for new surfaces. For value-bearing milestones, **Outcome Scenarios** are outcome-shaped (one observable user outcome + follow-on `And`s) and are the primary Definition of Done — they are distinct from, and rank above, the per-scenario BDD Acceptance table.
 
 ## Gates
 
-Refuse when file ownership is unclear, BDD is generic, Definition of Done or Evidence Log is absent, or Forbidden shortcuts is empty.
+Refuse when file ownership is unclear, BDD is generic, Definition of Done or Evidence Log is absent, or Forbidden shortcuts is empty. For a value-bearing milestone, also refuse when: an **Outcome Scenario is vacuous / single-`And` / mock-only (theatre)**, the §5C Front-to-End path is **monolithic instead of per-layer** (no `not_applicable(reason)` granularity, no cross-layer assertion), or a **Core Capability Regression Matrix row is blank** (every row must be `pass | not_applicable | waived_with_reason`).
 
 ## Anti-Patterns
 

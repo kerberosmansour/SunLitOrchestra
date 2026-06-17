@@ -169,6 +169,8 @@ Before tests or code, map touched surfaces to secure defaults: Rust/axum uses Su
 
 For every scenario in the milestone's BDD Acceptance Scenarios table, create the test file. Make each test fail for the EXPECTED reason — not a compile error, not "todo!()". The test should fail because the production code hasn't been written yet, and the failure message should match what an empty implementation would look like.
 
+**For a value-bearing milestone, write the Outcome tests first too** (Outcome First Engineering, template §5C / §6.12): create the **Outcome Scenario** (`oc-<slug>-N`) and **Critical User Journey** (`cuj-<slug>-N`) tests — driven front-to-end over the highest applicable layer chain, never mock-only — before the production code, alongside the BDD tests. These are the primary Definition of Done; `/slo-verify` Pass 0 runs them and `/slo-retro` refuses to close while any is unproven.
+
 Run the tests. Confirm they fail for the right reasons. Record in Evidence Log.
 
 ### 2. Write E2E runtime validation stubs
