@@ -23,7 +23,7 @@ use std::path::{Component, Path, PathBuf};
 /// read-side contract. No other behavior of the critique path changed.
 /// Prior baseline (post-Fowler M4): 5970f982ebb2f9739efd0186a66556ce1bc3db6d9bff125e5ef901991cbca071.
 const CRITIQUE_SKILL_SHA256: &str =
-    "9e31b7ddd5f4a440d80e96946b28736b2b5c60c74e0d9906e4ed91a1089f26f8";
+    "c6d1ede52553ca26f962f012340f2b736d5c9de82fa27ddde84553a9d97f3b55";
 
 const EXPECTED_AGENT_NAMES: &[&str] = &[
     "slo-runbook-review-lead",

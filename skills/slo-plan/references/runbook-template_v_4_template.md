@@ -405,6 +405,25 @@ Fill this for value-bearing/security-relevant milestones. For pure refactor / do
 
 ---
 
+## 5C. Outcome Validation Contract
+
+> **Optional section.** Legacy runbooks without this section remain valid (same backward-compat posture as §5A Measurement Contract and §5B Secure Value Contract). But `/slo-plan` REQUIRES it for any **value-bearing** milestone (one that introduces or changes user-facing capability; internal refactor / docs-only / test-only work is exempt). It is the planning-time half of **Outcome First Engineering**: it makes the *promised user outcome* a contracted, testable deliverable — the **primary Definition of Done** — not an afterthought. **Code completion alone is insufficient: a milestone is done only when the promised user outcome exists AND existing important outcomes still exist.**
+
+Fill this for every value-bearing milestone. For pure refactor / docs / tooling with no user-facing outcome, mark this section `N/A — not value-bearing, see <reason>`.
+
+| Field | Meaning |
+|---|---|
+| Outcome | The promised user value in one sentence — the outcome this milestone makes exist. |
+| Success Criteria | Bulleted, each independently observable (e.g. discovered / classified / visible in UI / remediation shown / appears in history / survives restart). |
+| Front-to-End Validation | The proof path, authored **per layer** — each step is `applicable \| not_applicable(reason)`: seed test data → run → verify backend result → verify persisted record → verify API/IPC response → verify UI display. **At least one real cross-layer assertion is required** (e.g. backend→persisted) even when the UI layer is `not_applicable` — a single-layer or mock-only assertion does NOT satisfy this row. |
+| Regression Requirements | Which existing critical capabilities must still work (ties to the §17 Core Capability Regression Matrix). |
+
+User-provided strings rendered into any generated security/threat artifact are wrapped in a `~~~text` fence (the load-bearing `/slo-architect` rule). Authored outcome text is **descriptive Markdown only** and **never selects control fields** (`oc-`/`cuj-`/`tm-` ids, resolution verbs, or gate outcomes).
+
+Each value-bearing milestone names its Outcome Scenarios (`oc-<slug>-N`) and Critical User Journeys (`cuj-<slug>-N`) in §17, and `/slo-verify`'s Outcome Validation pass runs them front-to-end at runtime as the highest-authority gate (§6.12, §11.8).
+
+---
+
 ## 6. Global Execution Rules
 
 These rules apply to every milestone without exception.
@@ -487,6 +506,10 @@ Never claim a command passed unless it ran or the limitation is explicitly state
 - Never commit test output data, temporary fixtures, scratch files, or generated artifacts to source control.
 - Every test that creates files on disk must clean up after itself (`tempdir`, `tempfile`, `afterEach`, equivalent). Tests must not leave residual data in the working tree.
 - Record the `.gitignore` review in the Evidence Log.
+
+### 6.12 Outcome outranks unit (Outcome First Engineering)
+
+Code completion alone is insufficient. A value-bearing milestone is done only when the **promised user outcome exists** (its Outcome Scenarios + Critical User Journeys pass front-to-end) **AND existing important outcomes still exist** (the §17 Core Capability Regression Matrix has no required-row failures). A failing Outcome Scenario, Critical User Journey, or required Regression-Matrix row blocks milestone completion **regardless of how many unit / integration tests pass**. This is the highest-authority gate (§11.8), enforced at runtime by `/slo-verify`'s Outcome Validation pass and at close-out by `/slo-retro`'s refusal gate. Non-value-bearing milestones (pure refactor / docs / tooling) are exempt with `N/A — not value-bearing`.
 
 ---
 
@@ -715,6 +738,7 @@ it("descriptive test name", () => {
 | Scenario / e2e tests | `tests/scenarios/<prefix>_scenario_<name>.rs` | `src-tauri/tests/scenarios/` (or equivalent) |
 | E2E runtime validation (backend) | `tests/e2e_<prefix>_m<N>.rs` | `src-tauri/tests/` (or equivalent) |
 | E2E runtime validation (frontend) | `e2e/<feature>.e2e.test.tsx` | `src/e2e/` |
+| Outcome (front-to-end, highest authority) | `tests/outcome/<prefix>_outcome_<journey>.<ext>` (backend) / `outcome/<journey>.outcome.test.tsx` (frontend, Playwright-driven) | `tests/outcome/` / `src/outcome/` |
 
 ### 11.5 Test Artifact Cleanup Rules
 
@@ -745,6 +769,19 @@ Every milestone must include E2E tests that go beyond compilation and verify the
 4. Assert against observable behavior.
 5. Prefer at least one test that crosses the backend/frontend boundary when both layers changed.
 6. Prefer at least one test that exercises a resource-bound boundary when one was introduced or modified.
+
+### 11.8 Outcome Tests (highest authority)
+
+Above unit / integration / E2E sits the **Outcome** layer — the smallest layer but the **highest authority**. The pyramid is authority-inverted:
+
+```
+        Outcome      ← smallest layer, HIGHEST authority
+          E2E
+      Integration
+         Unit        ← largest layer, base authority
+```
+
+Outcome tests are user-centric and cross-system: `input → backend → storage → processing → UI → user outcome`. They prove the *promised user outcome exists* and that *existing critical outcomes still exist*. The authority inversion (§6.12): **if 1000 unit tests pass but one Outcome Scenario, Critical User Journey, or required Regression-Matrix row fails, the milestone fails.** `/slo-verify`'s Outcome Validation pass runs them front-to-end (Playwright for UI) over the highest *applicable* layer chain — a mock-only assertion never satisfies an Outcome test.
 
 ---
 
@@ -980,6 +1017,8 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Proactive controls in play (optional) | [OWASP Proactive Controls 2024 cited **by name**, e.g., `C1 Implement Access Control`, `C4 Address Security from the Start`, `C9 Implement Security Logging and Monitoring` — never a bare number (OWASP renumbered C1–C10 between 2018 and 2024)] |
 | Abuse acceptance scenarios (optional) | [`tm-<feature>-abuse-N: <description>` — mitigation noted in BDD] |
 | Measurement deliverables (required for value-bearing milestones) | [which named events / runtime metrics / saved queries this milestone ships, the guardrail owner, and the readout date — ties to the §5A Measurement Contract; or `N/A — not value-bearing, see <reason>`] |
+| Outcome Validation deliverables (required for value-bearing milestones) | [the §5C Outcome statement + Success Criteria + per-layer Front-to-End Validation path; ties to §5C; or `N/A — not value-bearing, see <reason>`] |
+| Critical user journeys (required for value-bearing milestones) | [the `cuj-<slug>-N` ids this milestone must keep working front-to-end; or `N/A — not value-bearing, see <reason>`] |
 
 #### Out of Scope / Must Not Do
 
@@ -1032,6 +1071,39 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | [Scenario name] | compatibility | [Old behavior/state] | [Operation] | [Still works] |
 
 Add more rows as needed. If a category does not apply, state why under Notes.
+
+#### Outcome Scenarios
+
+**These are the primary Definition of Done** — the user value this milestone promises (ties to §5C). All Outcome Scenarios MUST be automated, and `/slo-verify`'s Outcome Validation pass runs them front-to-end at runtime. Each carries a frozen id `oc-<slug>-N` (contiguous from 1, never renumbered) and is outcome-shaped: one observable user outcome plus follow-on `And`s. A single-`And`, trivially-true, or mock-only scenario is non-conformant (`/slo-plan` rejects it; `/slo-critique` flags it `ask`). For non-value-bearing milestones, write `N/A — not value-bearing, see <reason>`.
+
+| ID | Type | Scenario (Given / When / Then + And…) |
+|---|---|---|
+| `oc-<slug>-1` | user value | Given [precondition] When [action] Then [observable user outcome] And [severity/visibility shown] And [appears in history] And [survives restart] |
+| `oc-<slug>-2` | security (cite `tm-<slug>-abuse-N`) | Given user A and user B When B requests A's data Then access is denied And an audit event is created |
+| `oc-<slug>-3` | reliability | Given [dependency outage] When the operation runs Then it completes with local data And the outage is visible |
+
+#### Critical User Journeys
+
+The end-to-end paths this milestone must keep working — each a frozen id `cuj-<slug>-N` (contiguous from 1, never renumbered), each a mandatory automated test run front-to-end by `/slo-verify`'s Outcome Validation pass. For non-value-bearing milestones, write `N/A — not value-bearing, see <reason>`.
+
+| ID | Journey (ordered front-to-end path) |
+|---|---|
+| `cuj-<slug>-1` | [e.g. sensitive file exists → scan runs → finding generated → risk visible → user remediates] |
+| `cuj-<slug>-2` | [e.g. false positive → user dismisses → finding stays dismissed across restart] |
+
+#### Core Capability Regression Matrix
+
+"Did this milestone break anything important?" Every core capability resolves to exactly one of `pass | not_applicable | waived_with_reason` — **never blank** (mirrors the §5B Bundle discipline). Failure of any required row blocks milestone completion (§6.12).
+
+| Capability | Must still pass | Evidence path | Resolution (`pass \| not_applicable \| waived_with_reason`) |
+|---|---|---|---|
+| Login / auth | yes | | |
+| Device / data sync | yes | | |
+| Findings / core feature | yes | | |
+| Dashboard / primary view | yes | | |
+| Notifications | yes | | |
+
+Add the capabilities that actually exist in this product; remove rows that do not apply (mark them `not_applicable` rather than deleting if a reader might expect them).
 
 #### Regression Tests
 
@@ -1099,6 +1171,9 @@ Add more rows as needed. If a category does not apply, state why under Notes.
 
 The milestone is done only when all of the following are true:
 
+- all Outcome Scenarios (`oc-<slug>-N`) pass front-to-end at runtime — the **primary Definition of Done** (§5C, §6.12); or the milestone is `N/A — not value-bearing`
+- all Critical User Journeys (`cuj-<slug>-N`) pass front-to-end
+- the Core Capability Regression Matrix has no blank rows and no required row failing (every row `pass | not_applicable | waived_with_reason`)
 - all listed BDD scenarios pass
 - all listed E2E runtime validations pass
 - full existing test suite remains green

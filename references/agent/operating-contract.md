@@ -18,6 +18,10 @@ When an SLO runbook or ticket names files allowed to change, treat that list as 
 
 Evidence beats confidence. Run the relevant formatter, build, lint, structural tests, runtime checks, or manual smoke steps before saying work is done. If a check cannot run, record why.
 
+## Outcome First Engineering
+
+Code completion alone is insufficient. For a value-bearing milestone, "done" means the **promised user outcome exists AND existing important outcomes still exist** — proven, not asserted. Treat the milestone's Outcome Scenarios and Critical User Journeys (the runbook §5C Outcome Validation Contract) as the **primary Definition of Done**, exercised front-to-end at runtime; a failing outcome, journey, or required regression-matrix row blocks completion no matter how many unit tests pass. Internal refactor / docs-only / test-only work is exempt.
+
 ## Keep Host Boundaries Honest
 
 Do not invent parity between Claude Code, Codex, and GitHub Copilot. Before claiming a host supports skills, instructions, agents, plugins, or runtime automation, check `docs/slo/design/agent-host-capabilities.md`.

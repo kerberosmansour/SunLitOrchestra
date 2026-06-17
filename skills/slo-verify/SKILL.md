@@ -42,7 +42,23 @@ If it's a pure backend / CLI milestone, skip the UI cascade and stick to runtime
 - Scanner/tool execution follows [`../../references/templates/tool-safety-section.md`](../../references/templates/tool-safety-section.md).
 - False-positive triage and override routing follow [`../../references/templates/escalation.md`](../../references/templates/escalation.md).
 
-## Method — three passes
+## Method — passes (Pass 0 is the highest-authority gate)
+
+Pass 0 is a **non-renumbering leading insertion**: Passes 1–6 keep their numbers and content. See [`references/outcome-validation-pass.md`](references/outcome-validation-pass.md) for the full Pass 0 procedure.
+
+### Pass 0. Outcome Validation (highest authority)
+
+Run this pass **first**, and treat it as the **highest authority** in the whole verification: **a Pass 0 failure fails the milestone even if Passes 1–6 are green.** This is Outcome First Engineering (template §6.12) — code completion alone is insufficient. Run Pass 0 only for **value-bearing** milestones; for pure refactor / docs / tooling, record `N/A — not value-bearing` and proceed to Pass 1.
+
+For the milestone's §5C Outcome Validation Contract + §17 outcome sub-sections, run at runtime:
+
+1. **Outcome Scenarios** (`oc-<slug>-N`) — every scenario, front-to-end. The promised user outcome must actually exist.
+2. **Critical User Journeys** (`cuj-<slug>-N`) — every journey, end-to-end.
+3. **Core Capability Regression Matrix** — re-run every required capability's journey ("did this milestone break anything important?"); a required-row failure blocks completion.
+
+**Front-to-end, not mock-only.** Drive each journey over the **highest applicable layer chain** (`seed → backend → persisted → API/IPC → UI`; Playwright for the UI layer when applicable). A value-bearing milestone needs **at least one real cross-layer assertion** — **never a single mock**. On a no-UI / library / CLI target, mark the UI layer `not_applicable(reason)` but still assert a real cross-layer path (e.g. `backend → persisted`). This is the runtime defense against outcome-test theatre (`tm-outcome-first-abuse-2`).
+
+**Bug-found flow — Pass 0 reuses the existing one.** When Pass 0 surfaces a failing outcome/journey/regression row, it reuses the existing **regression-test-first** flow Passes 1–6 use: STOP; write the regression test first; hand the fix back to `/slo-execute`; re-run Pass 0 to confirm green; re-run the other passes for no regression. Pass 0 invents no new flow.
 
 ### Pass 1. Happy path
 
@@ -156,6 +172,7 @@ Six checks:
 
 ## Gates — do not mark verified when
 
+- For a value-bearing milestone, any **Pass 0** Outcome Scenario (`oc-<slug>-N`), Critical User Journey (`cuj-<slug>-N`), or required Core Capability Regression Matrix row is untested at runtime, failing, or satisfied only by a mock-only / single-layer assertion. (Pass 0 is the highest authority — see §6.12.)
 - Any BDD scenario is untested at runtime (including empty-state).
 - A regression test was added without a fix being applied in the same branch.
 - The milestone's Evidence Log still has blank runtime rows.

@@ -85,6 +85,27 @@ The Sprint loop runs inside a **Secure Value Envelope**: each stage produces a c
 
 Honest exit states (additive milestone status): `human_review_required | blocked_by_operator | blocked_by_upstream | issue_filed | accepted_risk` — an unknown status is treated as `blocked`, never silently `done`. **Review cadence**: re-check the Bundle table and cited standard editions (OWASP Proactive Controls / ASVS / MASVS / API / LLM Top 10, by name + year) when an upstream edition changes — that is the anti-drift control.
 
+### Outcome-First overlay (the user outcome is the primary Definition of Done)
+
+Distinct from the Secure Value overlay (security envelope) above: the Outcome-First overlay makes **user outcomes first-class, testable artifacts**. *Code completion alone is insufficient — a value-bearing milestone is done only when the promised user outcome exists AND existing important outcomes still exist.* The test pyramid is **authority-inverted**:
+
+```
+        OUTCOME      ← smallest layer, HIGHEST authority  (/slo-verify Pass 0)
+          E2E
+      Integration
+         Unit        ← largest layer, base authority
+```
+
+| Stage | Outcome-First output | Where |
+|---|---|---|
+| Plan | §5C Outcome Validation Contract + §17 Outcome Scenarios (`oc-N`) / Critical User Journeys (`cuj-N`) / Core Capability Regression Matrix | `/slo-plan` (required for value-bearing milestones) |
+| Execute | Outcome Scenario + Critical Journey tests written first, front-to-end (never mock-only) | `/slo-execute` |
+| Verify | **Pass 0 Outcome Validation** — runs outcomes/journeys/regression front-to-end; highest authority (fails the milestone even if Passes 1–6 are green) | `/slo-verify` |
+| Critique | flags outcome-test theatre (vacuous / single-`And` / mock-only) as `ask` | `/slo-critique` |
+| Retro | refuses to close on an unproven outcome row; records `## Outcome vs promise` | `/slo-retro` |
+
+The rule: **if 1000 unit tests pass but one Outcome Scenario, Critical User Journey, or required Regression-Matrix row fails, the milestone fails.** Enforced by `/slo-verify` Pass 0 + `/slo-retro`'s refusal gate; the principle is in [`references/agent/operating-contract.md`](../references/agent/operating-contract.md).
+
 ---
 
 ## Innovation Sandbox loop

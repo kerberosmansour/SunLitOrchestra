@@ -39,6 +39,7 @@ Refuse to run and list the blockers if any of these are true:
 - A **Kani-obligation Evidence-Log row is blank** (the milestone had `kani_required` proof obligations but the `cargo kani` verdict / bound was never recorded) — same refusal as any blank Evidence row.
 - The Self-Review Gate questions in the runbook template are not all "yes".
 - Any BDD scenario in the milestone is still marked pending.
+- For a **value-bearing** milestone, an **Outcome Validation** row is unproven: any Outcome Scenario (`oc-<slug>-N`), Critical User Journey (`cuj-<slug>-N`), or required Core Capability Regression Matrix row is unproven at runtime, blank, or `waived_with_reason` without a reason. This is the Outcome First Engineering close gate (template §6.12) — code completion alone is insufficient; the milestone is done only when the promised user outcome exists AND existing important outcomes still exist. (Non-value-bearing milestones are exempt.)
 - `git status` shows untracked test artifacts.
 
 When a milestone had Kani proof obligations, record the proved properties, assumptions, bounds, stubs/contracts, and what remains unproved in the lessons file (sourced from `docs/slo/verify/<slug>-kani.md`).
@@ -66,6 +67,11 @@ Do not fix these yourself. Tell the user which rows are blank, which questions a
 ## Results vs thesis
 - <for a value-bearing milestone with a §5A Measurement Contract: did the primary LEADING metric move in the review window? did the LAGGING outcome move? did any guardrail regress?>
 - <what the actual-vs-predicted gap implies for the next milestone or runbook — iterate / hold / cut / ship next>
+- <`N/A — not a value-bearing milestone` is valid here, with the one-line reason>
+
+## Outcome vs promise
+- <for a value-bearing milestone (§5C): did the promised user OUTCOME actually materialise at runtime (Pass 0 Outcome Scenarios + Critical User Journeys green front-to-end)?>
+- <which adjacent critical outcomes were at risk, and how the Core Capability Regression Matrix proved they were preserved?>
 - <`N/A — not a value-bearing milestone` is valid here, with the one-line reason>
 
 ## Design decisions and why

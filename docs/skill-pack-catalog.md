@@ -27,9 +27,11 @@ Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](..
 | Plan | `/slo-plan` | Interactive v4 runbook authoring, one milestone at a time |
 | Critique | `/slo-critique` | Four-persona adversarial review before execution |
 | Execute | `/slo-execute M<N>` | Per-milestone driver with allow-list enforcement |
-| Verify | `/slo-verify M<N>` | Runtime QA with Playwright for UI surfaces |
-| Close | `/slo-retro M<N>` | Lessons + completion + tracker update |
+| Verify | `/slo-verify M<N>` | Runtime QA — **Pass 0 Outcome Validation** (highest authority) + Playwright for UI surfaces |
+| Close | `/slo-retro M<N>` | Lessons + completion + tracker update; refuses to close on an unproven outcome |
 | Ship | `/slo-ship` | Open a runbook-aware PR |
+
+> **Outcome First Engineering** (the [Outcome-First overlay](LOOPS-ENGINEERING.md#sprint-loop) on the Sprint loop): a value-bearing milestone is done only when the promised user outcome exists AND existing important outcomes still exist. The runbook §5C **Outcome Validation Contract** (Outcome Scenarios `oc-N`, Critical User Journeys `cuj-N`, Core Capability Regression Matrix) is the primary Definition of Done, gated at `/slo-verify` **Pass 0** and at `/slo-retro` close — code completion alone is insufficient.
 
 ## Ticket-sized SLO flow
 

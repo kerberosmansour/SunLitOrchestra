@@ -1,0 +1,49 @@
+{
+  "slo_schema_version": "0.1.0",
+  "slug": "outcome-first",
+  "sensitivity": "internal",
+  "otm_compatible": false,
+  "provenance": {
+    "produced_by": "slo-architect",
+    "producer_skill_sha": "2052149e511ab0e112916582e4dd0497ddf53a2a",
+    "generated_at": "2026-06-17",
+    "inputs": [
+      {
+        "path": "founder-authored Outcome First Engineering proposal (in-session, not repo-tracked)",
+        "sha": "in-session-not-repo-tracked"
+      },
+      {
+        "path": "docs/slo/design/outcome-first-threat-model.md",
+        "sha": "uncommitted-at-emit-time"
+      }
+    ]
+  },
+  "stride": [
+    { "component": "v4 template §5C/§17 outcome sections", "class": "Tampering", "state": "mitigated", "control_or_reason": "author strings render as plain Markdown body / inside ~~~text fences in any generated security artifact; never select control fields (tm-/oc-/cuj- ids, resolution verbs, gate outcomes)" },
+    { "component": "v4 template §5C/§17 outcome sections", "class": "Information disclosure", "state": "residual", "control_or_reason": "author may paste a real customer name / secret into an outcome scenario or journey; routed to /slo-verify Pass 4 PII scan + data-classification row" },
+    { "component": "v4 template §5C/§17 outcome sections", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "authored outcome text is descriptive only; it cannot choose a tm-/oc-/cuj- id, a resolution verb, or a gate outcome" },
+    { "component": "/slo-verify Pass 0 (Outcome Validation)", "class": "Repudiation", "state": "mitigated", "control_or_reason": "Evidence Log records command/expected/actual per outcome row (who/what/when)" },
+    { "component": "/slo-verify Pass 0 (Outcome Validation)", "class": "Elevation of privilege", "state": "eliminated", "control_or_reason": "a green Pass 0 is 'proved at runtime for the declared rows', never 'whole system proved'" },
+    { "component": "/slo-verify Pass 0 (Outcome Validation)", "class": "Denial of service", "state": "mitigated", "control_or_reason": "bounded to the milestone's declared journeys/regression rows" },
+    { "component": "/slo-retro outcome refusal gate", "class": "Elevation of privilege", "state": "mitigated", "control_or_reason": "fail-closed: unknown/blank resolution treated as not-passing, never silently done" },
+    { "component": "xtasks/sast-verify structural test", "class": "Tampering", "state": "mitigated", "control_or_reason": "SHA baseline change is explicit and PR-reviewed; never waived" }
+  ],
+  "abuse_cases": [
+    { "id": "tm-outcome-first-abuse-1", "surface": "authored §5C/§17 strings interpolated into a generated SECURITY/threat-model artifact", "attacker": "Unwary author / content-injector", "attack_step": "Paste a crafted string (Markdown/YAML/HTML metacharacters or agent-readable instructions) into an Outcome statement, journey step, or scenario Then clause", "attacker_outcome": "Template-placeholder injection: break out of the section or smuggle instructions into a generated security default", "control": "Reuse the /slo-architect fence rule — every user-provided string in a generated security/threat artifact wrapped in ~~~text; outcome sections render author text as plain Markdown body only and never select control fields", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-outcome-first-abuse-2", "surface": "/slo-execute (or any agent) authoring Outcome Scenarios / Critical User Journey tests", "attacker": "An agent or hurried author optimising for green over truth", "attack_step": "Emit an Outcome test that asserts something trivially true (assert(true), a 200 without the user outcome, or a mock's return instead of the real front-to-end path), then mark the Outcome Scenario passed", "attacker_outcome": "A milestone closes as 'outcome proven' while the promised user value does not exist — the central AI-assisted-development failure mode", "control": "§5C Front-to-End Validation requires PER-LAYER applicable|not_applicable(reason) steps (seed->backend->persisted record->API/IPC->UI) with >=1 real cross-layer assertion (e.g. backend->persisted) even when UI is N/A; /slo-critique flags vacuous/single-And/mock-only scenarios as ask; /slo-verify Pass 0 runs the journey front-to-end at runtime over the highest APPLICABLE layer chain (Playwright for UI), never a single mock; Outcome Scenarios require >=1 observable-outcome Then plus follow-on Ands per §11.3", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-outcome-first-abuse-3", "surface": "/slo-retro outcome refusal gate + Core Capability Regression Matrix resolution column", "attacker": "Author gaming the gate", "attack_step": "Mark every Regression Matrix row pass (or waived_with_reason with an empty reason) without running the journeys, or set an Outcome Scenario passed without an Evidence Log row", "attacker_outcome": "False 'nothing broke' / 'outcome exists' signal; an adjacent capability silently regresses", "control": "Every matrix row resolves to exactly one of pass | not_applicable | waived_with_reason with a non-empty evidence path/reason (never blank, mirrors §5B Bundle discipline); /slo-verify Pass 0 re-runs the matrix journeys and writes actuals; /slo-retro refuses on any blank actual or reasonless waiver", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-outcome-first-abuse-4", "surface": "the two existing SHA-pin test files (sap_imp_m5_agents.rs, slo_tm_m2_consumers.rs) allow-listed in M4", "attacker": "An executor or contributor optimising for a green gate", "attack_step": "Instead of updating only the slo-critique SHA baseline CONSTANT, weaken or remove the F-ENG-6 SHA assertion (or the ## Rotation order / persona-anchor assertions) in a pin test to make it pass", "attacker_outcome": "The canonical-critique-path tamper-evidence is silently removed; slo-critique/SKILL.md can thereafter be modified undetected", "control": "M4 constrains edits in those two files to the baseline-constant VALUE only (Forbidden shortcuts + guard); outcome_first_m4_consumers.rs cross-checks BOTH critique baselines == the live slo-critique SHA; PR review of the two pin files", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+  ],
+  "residual_risks": [
+    { "risk": "An author can still hand-author a thin/dishonest outcome contract or fake an Evidence-Log actual", "exploit_path": "The framework forces shape + re-runs journeys but cannot enforce author integrity; a determined author can fake a thin contract", "compensating_control": "/slo-verify Pass 0 runtime re-run + /slo-critique theatre review + /slo-retro refusal raise the cost of faking; mitigation not elimination (tm-outcome-first-abuse-2/3)", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-17", "classification": "internal" },
+    { "risk": "This change ships discipline, not the target product's outcome-test runner", "exploit_path": "SLO defines the §5C contract + Pass 0 expectation; a target product with no E2E/Playwright harness can mark UI outcome rows not_applicable", "compensating_control": "The contract makes the front-to-end path the path of least resistance; not_applicable requires a reason; cross-device tooling explicitly deferred", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-17", "classification": "internal" },
+    { "risk": "PII/secret pasted into an outcome scenario or journey could reach a git-tracked artifact", "exploit_path": "Author embeds a real customer name/credential in a §17 row that lands under a tracked path", "compensating_control": "Data-classification row + /slo-verify Pass 4 PII scan + ~~~text fence in generated artifacts; pii_scan_override + reason required for intentional matches", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-17", "classification": "internal" }
+  ],
+  "compliance": [
+    { "control": "Outcome-test authority inversion = explicit, evidenced Definition of Done", "soc2": "CC8.1 change management — evidence before done", "asvs": "N/A" },
+    { "control": "Security-BDD outcome rows exercise authn/authz + audit-event assertions", "soc2": "CC6.1 logical access; CC7.2 audit logging", "asvs": "V1 Architecture; V4 Access Control; V7 Logging" },
+    { "control": "Authored-string fence + no-control-field-selection (anti-injection)", "soc2": "CC7.1", "asvs": "V5 Validation/Encoding" },
+    { "control": "Gate fail-closed (unknown/blank resolution != done)", "soc2": "CC8.1", "asvs": "N/A" },
+    { "control": "Reliability-BDD outcome rows (degraded/outage visible, no silent failure)", "soc2": "A1.2 availability; CC7.3", "asvs": "N/A" }
+  ]
+}
