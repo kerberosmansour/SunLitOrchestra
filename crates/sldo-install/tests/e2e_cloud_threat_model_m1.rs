@@ -264,9 +264,14 @@ fn seven_canonical_evals_present_with_required_shape() {
 #[test]
 fn registered_in_skill_pack_catalog() {
     let catalog = read(repo_root().join("docs/skill-pack-catalog.md"));
+    let skill_count = fs::read_dir(repo_root().join("skills"))
+        .unwrap()
+        .filter_map(Result::ok)
+        .filter(|entry| entry.path().is_dir() && entry.path().join("SKILL.md").is_file())
+        .count();
     assert!(catalog.contains("/slo-cloud-threat-model"));
-    assert!(catalog.contains("Shipped skills at HEAD: 49"));
-    assert!(catalog.contains("10 power tools"));
+    assert!(catalog.contains(&format!("Shipped skills at HEAD: {skill_count}")));
+    assert!(catalog.contains("11 power tools"));
 }
 
 #[test]

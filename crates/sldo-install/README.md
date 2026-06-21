@@ -17,6 +17,7 @@ Key properties:
 - **Multi-host** — pick the target host per invocation.
 - **Project-local or global** — install into your global `~/.claude/skills/` or a project-local `./.claude/skills/`.
 - **Dry-run friendly** — `--dry-run` shows exactly what would be linked without writing.
+- **Graphify-aware** — `sldo-install graphify` checks whether the Graphify CLI or a local source checkout is ready for SLO evidence-loop work, and prints macOS/Linux/Windows install commands without downloading anything itself.
 
 ## Install
 
@@ -56,6 +57,12 @@ sldo-install verify
 
 # Reverse every change recorded in the manifest.
 sldo-install uninstall
+
+# Check Graphify readiness for graph-backed knowledge/security/troubleshooting workflows.
+sldo-install --host codex graphify
+
+# Print the Graphify install plan without requiring a skills/ directory.
+sldo-install --host codex --local graphify --install-plan
 ```
 
 ## Subcommands
@@ -66,6 +73,7 @@ sldo-install uninstall
 | `uninstall` | Reverses every change recorded in the manifest. |
 | `status` | Prints what's currently installed according to the manifest. |
 | `verify` | Confirms that on-disk managed links match the manifest and the source skills (catches drift). |
+| `graphify` | Checks Graphify CLI/source-checkout readiness and prints host-aware install instructions for Graphify. Does not install or download Graphify. |
 
 ## Common flags
 
@@ -83,6 +91,7 @@ sldo-install uninstall
 - macOS, Linux, Windows
 - Hosts: Claude Code and GitHub Copilot, plus the other host roots supported by `sldo-install --help`
 - Existing compatibility root paths include `~/.copilot/skills`, `./.copilot/skills`, `~/.codex/skills`, and `./.codex/skills`; they remain stable until an explicit migration is shipped.
+- Graphify readiness checks work without a SunLit Orchestra checkout and print OS-specific commands. The recommended Graphify package is `graphifyy`; the command it installs is `graphify`.
 
 ## Status
 
