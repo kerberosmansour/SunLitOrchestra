@@ -36,6 +36,14 @@ The paths above are SLO installer compatibility root paths. Current host-native 
 
 Running the installer twice is a no-op. `claude-code` is the default host if you do not pass `--host`. Pass `--force` to replace an existing symlink that points somewhere else. Pass `--dry-run` to see what would change.
 
+Graph-backed investigation workflows can also ask the installer to check
+Graphify readiness without touching skill links:
+
+```bash
+./target/release/sldo-install graphify --install-plan
+./target/release/sldo-install --host codex graphify
+```
+
 ## Uninstall
 
 ```bash

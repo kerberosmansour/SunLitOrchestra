@@ -46,6 +46,8 @@ If it's a pure backend / CLI milestone, skip the UI cascade and stick to runtime
 
 Pass 0 is a **non-renumbering leading insertion**: Passes 1–6 keep their numbers and content. See [`references/outcome-validation-pass.md`](references/outcome-validation-pass.md) for the full Pass 0 procedure.
 
+**Optional Graphify Lens.** For large, unfamiliar, issue-driven, cross-language, or security-sensitive repos, `/slo-graphify` may be run before Pass 0/Pass 4 to map likely journeys, affected files, findings, and missing tests. It is not a pass/fail gate and does not replace runtime verification. For private repos, use only anonymized summaries in tracked reports.
+
 ### Pass 0. Outcome Validation (highest authority)
 
 Run this pass **first**, and treat it as the **highest authority** in the whole verification: **a Pass 0 failure fails the milestone even if Passes 1–6 are green.** This is Outcome First Engineering (template §6.12) — code completion alone is insufficient. Run Pass 0 only for **value-bearing** milestones; for pure refactor / docs / tooling, record `N/A — not value-bearing` and proceed to Pass 1.

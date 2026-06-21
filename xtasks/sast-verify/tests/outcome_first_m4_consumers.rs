@@ -55,7 +55,7 @@ const SLO_TM_M2: &str = "xtasks/sast-verify/tests/slo_tm_m2_consumers.rs";
 const RETRO_SKILL_SHA256: &str = "5c6362645a89189ca03c2ccb94bcc3412735e85bedc7ced7ecf6960a14d857b9";
 /// SHA-256 of `skills/slo-execute/SKILL.md` after the M4 outcome-first edit.
 const EXECUTE_SKILL_SHA256: &str =
-    "b85d47907704efab2702a9293df37cdddc7417a9c0f94bd7d289116576ec4607";
+    "468b294fec2acef714ceee449c0f58ead70ca1e2cf655531b4ef2e4878fcac04";
 
 #[test]
 fn retro_refuses_unproven_outcome() {

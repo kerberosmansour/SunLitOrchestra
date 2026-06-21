@@ -30,9 +30,14 @@ fn nettacker_skill_is_discoverable_and_cataloged() {
     assert!(skill.contains("custom Nettacker"));
 
     let catalog = read(repo_root().join("docs/skill-pack-catalog.md"));
-    assert!(catalog.contains("Shipped skills at HEAD: 49"));
+    let skill_count = fs::read_dir(repo_root().join("skills"))
+        .unwrap()
+        .filter_map(Result::ok)
+        .filter(|entry| entry.path().is_dir() && entry.path().join("SKILL.md").is_file())
+        .count();
+    assert!(catalog.contains(&format!("Shipped skills at HEAD: {skill_count}")));
     assert!(catalog.contains("/slo-nettacker"));
-    assert!(catalog.contains("10 power tools"));
+    assert!(catalog.contains("11 power tools"));
 }
 
 #[test]

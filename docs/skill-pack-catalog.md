@@ -5,7 +5,7 @@
 
 Use this file for the host-neutral list of shipped skills. Use [../CLAUDE.md](../CLAUDE.md) for the Claude Code overlay, [../copilot-instructions.md](../copilot-instructions.md) for the GitHub Copilot overlay, [../AGENTS.md](../AGENTS.md) for the Codex overlay, [getting-started.md](getting-started.md) for the first-run path, and [slo/design/agent-host-capabilities.md](slo/design/agent-host-capabilities.md) for current host support boundaries. Acronyms used here (TLA+, BDD, ICP, SEIS, IR35, ...) are defined in [GLOSSARY.md](GLOSSARY.md).
 
-**Shipped skills at HEAD: 49** (10 sprint flow + 5 ticket flow + 10 power tools + 8 innovation-sandbox + 4 business advisor + 11 business generator + 1 vendored). The innovation-sandbox flow is shipping across the innovation-loop runbook (M1 ships `/slo-experiment`; M2–M5 add the 7 phase skills, rising to 49). Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 49 entries.
+**Shipped skills at HEAD: 51** (11 sprint flow + 5 ticket flow + 11 power tools + 8 innovation-sandbox + 4 business advisor + 11 business generator + 1 vendored). The innovation-sandbox flow ships as the pre-sprint discovery lane, and `/slo-graphify` adds the graph-backed investigation lane. Skills with mode variants (`/slo-product roadmap|metrics|okrs`, `/slo-marketing b2b|b2c`, `/slo-metrics consumer|b2b`, `/slo-hire swe|ae|designer|ops`) are one skill per row in their section, except `/slo-product` whose three modes are listed individually because the output paths differ. To reconcile against disk, run `ls skills/ | grep -v README` - should be 51 entries.
 
 ## Repo reality at HEAD
 
@@ -65,6 +65,7 @@ A discovery lane that sits **before** the Sprint flow and feeds it. Where the Sp
 | Skill | Purpose | Host story |
 |---|---|---|
 | `/slo-second-opinion` | Cross-model disagreement surfacer | Host-neutral. Compares the current host against an external provider (Codex / Gemini). |
+| `/slo-graphify` | Graph-backed codebase investigation for knowledge, troubleshooting, security, and QA-risk triage | Host-neutral. Uses Graphify as the graph layer, rust-analyzer / TypeScript language service as semantic providers, and OpenGrep/Semgrep-compatible rules as analysis providers. Raw private evidence stays ignored; committed readouts are anonymized. |
 | `/slo-freeze <path>` | Lock edits to one directory for the session | Host-neutral. |
 | `/slo-resume` | Read the current runbook tracker and suggest the next move | Host-neutral. |
 | `/slo-rulegen` | Bootstrap or extend Semgrep rule packs for Rust workspaces | Host-neutral. The bug-summary input can come from any agent-driven workflow. |

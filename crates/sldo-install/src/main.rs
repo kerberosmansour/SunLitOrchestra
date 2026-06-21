@@ -12,6 +12,7 @@ use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+mod graphify;
 mod host;
 mod install;
 mod manifest;
@@ -61,11 +62,17 @@ enum Command {
     Status,
     /// Verify that installed managed links match the manifest and source skills.
     Verify,
+    /// Check or plan Graphify setup for evidence-loop workflows.
+    Graphify(graphify::Args),
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let command = cli.command.unwrap_or(Command::Install);
+
+    if let Command::Graphify(args) = command {
+        return graphify::doctor(&args, cli.host, cli.local);
+    }
 
     let opts = install::Options {
         skills_dir: resolve_skills_dir(cli.skills_dir)?,
@@ -80,6 +87,7 @@ fn main() -> Result<()> {
         Command::Uninstall => install::uninstall(&opts),
         Command::Status => install::status(&opts),
         Command::Verify => install::verify(&opts),
+        Command::Graphify(_) => unreachable!("graphify command handled before skill options"),
     }
 }
 

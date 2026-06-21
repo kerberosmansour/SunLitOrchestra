@@ -36,6 +36,7 @@ Coverage-gap summaries may use [`../../references/security/security-assessment-s
 1. Confirm cwd is a repo; otherwise exit non-zero with `/slo-sast must run inside a git repository (cwd=$PWD)`.
 2. Resolve `docs/slo/design/<slug>-threat-model.md`; if unresolved, exit non-zero with `/slo-sast cannot determine slug; pass it as the first argument or run inside a directory with docs/slo/current/RUNBOOK-<slug>.md`.
 3. If the threat model does not exist, exit non-zero with `threat-model not found: docs/slo/design/<slug>-threat-model.md`; do not print a partial list.
+4. Optional Graphify Lens: for large/polyglot repos or noisy finding sets, `/slo-graphify` may map findings to code paths, GitHub Issues, and tests. It never replaces threat-model parsing, rule selection, or explicit finding disposition.
 
 ## Method Dispatch
 
