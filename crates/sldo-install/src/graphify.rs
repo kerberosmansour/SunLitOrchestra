@@ -98,22 +98,69 @@ fn graphify_cli_check() -> Check {
 }
 
 fn command_check(program: &str, args: &[&str]) -> Check {
-    match Command::new(program).args(args).output() {
-        Ok(output) if output.status.success() => {
-            let text = first_non_empty_line(&output.stdout)
-                .or_else(|| first_non_empty_line(&output.stderr))
-                .unwrap_or_else(|| "found".to_string());
-            Check::Found(text)
+    for candidate in command_candidates(program, OsFamily::current()) {
+        match Command::new(&candidate).args(args).output() {
+            Ok(output) if output.status.success() => {
+                let text = first_non_empty_line(&output.stdout)
+                    .or_else(|| first_non_empty_line(&output.stderr))
+                    .unwrap_or_else(|| "found".to_string());
+                return Check::Found(text);
+            }
+            Ok(output) => {
+                let text = first_non_empty_line(&output.stderr)
+                    .or_else(|| first_non_empty_line(&output.stdout))
+                    .unwrap_or_else(|| format!("exit {}", output.status));
+                return Check::Failed(text);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(error) => return Check::Failed(error.to_string()),
         }
-        Ok(output) => {
-            let text = first_non_empty_line(&output.stderr)
-                .or_else(|| first_non_empty_line(&output.stdout))
-                .unwrap_or_else(|| format!("exit {}", output.status));
-            Check::Failed(text)
-        }
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Check::Missing,
-        Err(error) => Check::Failed(error.to_string()),
     }
+    Check::Missing
+}
+
+fn command_candidates(program: &str, os: OsFamily) -> Vec<String> {
+    let mut candidates = vec![program.to_string()];
+    if os != OsFamily::Windows || Path::new(program).extension().is_some() {
+        return candidates;
+    }
+
+    for extension in windows_path_extensions() {
+        let candidate = format!("{program}{extension}");
+        if !candidates
+            .iter()
+            .any(|existing| existing.eq_ignore_ascii_case(&candidate))
+        {
+            candidates.push(candidate);
+        }
+    }
+    candidates
+}
+
+fn windows_path_extensions() -> Vec<String> {
+    let raw = env::var("PATHEXT").unwrap_or_else(|_| ".COM;.EXE;.BAT;.CMD;.PS1".to_string());
+    let mut extensions: Vec<String> = raw
+        .split(';')
+        .map(str::trim)
+        .filter(|extension| !extension.is_empty())
+        .map(|extension| {
+            if extension.starts_with('.') {
+                extension.to_string()
+            } else {
+                format!(".{extension}")
+            }
+        })
+        .collect();
+
+    for fallback in [".COM", ".EXE", ".BAT", ".CMD"] {
+        if !extensions
+            .iter()
+            .any(|extension| extension.eq_ignore_ascii_case(fallback))
+        {
+            extensions.push(fallback.to_string());
+        }
+    }
+    extensions
 }
 
 fn first_non_empty_line(bytes: &[u8]) -> Option<String> {
@@ -226,6 +273,24 @@ mod tests {
         assert!(lines
             .iter()
             .any(|line| line == "graphify install --platform copilot"));
+    }
+
+    #[test]
+    fn windows_command_candidates_include_cmd_shims() {
+        let candidates = command_candidates("graphify", OsFamily::Windows);
+        assert_eq!(candidates[0], "graphify");
+        assert!(candidates
+            .iter()
+            .any(|candidate| candidate.eq_ignore_ascii_case("graphify.exe")));
+        assert!(candidates
+            .iter()
+            .any(|candidate| candidate.eq_ignore_ascii_case("graphify.cmd")));
+    }
+
+    #[test]
+    fn windows_command_candidates_do_not_extend_explicit_extension() {
+        let candidates = command_candidates("graphify.cmd", OsFamily::Windows);
+        assert_eq!(candidates, vec!["graphify.cmd"]);
     }
 
     #[test]
