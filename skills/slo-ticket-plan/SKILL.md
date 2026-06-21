@@ -37,6 +37,7 @@ The ticket template is deliberately derived from `docs/slo/templates/runbook-tem
 
 1. Re-fetch the issue so the plan uses current labels, body, comments, and state.
 2. Read `docs/ARCHITECTURE.md` or `ARCHITECTURE.md` if present. If absent, inspect repo manifests and entry points enough to avoid guessing.
+2.5. Optional Graphify Lens: for large, unfamiliar, issue-driven, cross-language, or security-sensitive repos, run `/slo-graphify` after its privacy gate and use the readout to shrink "files to read first" and identify cross-boundary tests. It does not replace the sizing gate or allow-list.
 3. Identify the smallest user-visible outcome and write it as one sentence.
 4. Run the sizing gate from the template. If any row pushes the work beyond one ticket, stop and recommend `/slo-plan`.
 5. Fill Ticket Metadata:

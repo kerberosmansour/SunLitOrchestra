@@ -54,6 +54,23 @@ queries mirror real work waiting for an engineer.
 | "Refactor is scary" | dependency fan-in/fan-out and changed-file blast radius | Safer planning |
 | "Agent keeps opening the wrong files" | issue keywords to graph neighborhoods | Fewer false starts |
 
+## Optional Graphify Lens For Existing SLO Loops
+
+Graphify is optional and additive. Use it when the normal loop would otherwise
+start by opening many files or guessing where behavior lives.
+
+| SLO loop / skill | Optional trigger | What Graphify contributes |
+|---|---|---|
+| Sprint / `/slo-execute` | Large, unfamiliar, cross-language milestone | files to inspect first, dependency paths, cross-boundary calls |
+| `/slo-verify` | Broad Pass 0 or Pass 4 scope | affected journeys, finding-to-test mapping, untested reliability paths |
+| Ticket loop | Ambiguous GitHub Issue or scary read-list | issue-to-code-path map and smaller file read-list |
+| `/slo-sast` / Security-tuning | Many findings or polyglot stacks | finding clusters, trust-boundary paths, custom-rule candidates |
+| Secure-construction loop | New secure surface with unclear ownership | control locations, guard placement, missing test paths |
+
+The lens must not widen a runbook or ticket allow-list by itself. It proposes
+evidence; the active SLO loop still owns scope, gates, tests, and final
+disposition.
+
 ## Security and QA Query Set
 
 Run these as graph queries or equivalent filtered reports:

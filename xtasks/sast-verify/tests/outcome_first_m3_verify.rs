@@ -51,7 +51,7 @@ const PASS_REF: &str = "skills/slo-verify/references/outcome-validation-pass.md"
 /// orchestration SKILL.md files are pinned byte-identical; the constant moves in
 /// lockstep with the edit, inside M3's allow-list.
 const VERIFY_SKILL_SHA256: &str =
-    "3f6ca779267aafe4158191451d55a609ca403f36588a009d2def0816bbd2aa61";
+    "755e2016440f4ca4fe1459cc3678dd2a3f12fcaa25b68287c9c4c9375d8de2c8";
 
 #[test]
 fn verify_has_pass_0_outcome_validation_before_pass_1() {

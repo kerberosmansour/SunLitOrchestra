@@ -16,6 +16,7 @@ Pick the row that matches the question you have right now. The "First skill" col
 | "I have an idea — is it worth building?" | `/slo-ideate` | [Sprint loop](#sprint-loop) | `docs/slo/idea/<slug>.md` |
 | "I'm starting a new feature, what do I do?" | `/slo-ideate` then `/slo-research` | [Sprint loop](#sprint-loop) | `docs/RUNBOOK-<feature>.md` once `/slo-plan` completes |
 | "I have a GitHub issue — can an agent take it?" | `/slo-ticket-pick #<issue>` | [Ticket loop](#ticket-loop) | `docs/slo/tickets/ticket-<issue>-<slug>.md` |
+| "This repo is large, unfamiliar, cross-language, or issue-heavy — where should I look first?" | `/slo-graphify` | [Optional Graphify Lens](#optional-graphify-lens) | An anonymized graph-backed investigation readout |
 | "I have a repeated regression — where do I start?" | `/slo-resume` (orient) then check prior `docs/slo/lessons/` | [Lessons loop](#lessons-loop) | A scope candidate at the next milestone's pre-flight |
 | "Findings keep coming back from SAST — how do I tune?" | `/slo-rulegen --extend` | [Security-tuning loop](#security-tuning-loop) | A new rule pack rev under `.semgrep/<lang>/` |
 | "A milestone needs secure code or secure cloud resources — what should the agent use?" | `/slo-execute` | [Secure-construction loop](#secure-construction-loop) | A surface map with matched secure libraries, tests, gaps, or residual risks |
@@ -24,6 +25,22 @@ Pick the row that matches the question you have right now. The "First skill" col
 | "I stepped away — where was I?" | `/slo-resume` | (any) | A one-screen orientation message |
 
 Each loop below documents **user-visible outcome**, **trigger**, **steps**, **exit condition**, **artifacts**, **skills involved**, and a **diagram**.
+
+---
+
+## Optional Graphify Lens
+
+> **User-visible outcome**: before an engineer or AI agent opens a pile of files, Graphify gives a source-grounded map of the likely code paths, issue themes, findings, and tests worth inspecting.
+
+**Trigger**: any engineering loop is running against a large, unfamiliar, issue-driven, cross-language, or security-sensitive repo and the user permits graph-backed investigation.
+
+**How it is used**: run `/slo-graphify` as an optional lens before broad file exploration. It may feed the Sprint, Ticket, Security-tuning, Secure-construction, and Verify loops with "files to inspect first", "cross-language path", "finding-to-test", or "GitHub Issue to code path" evidence.
+
+**Privacy gate**: for private repos, raw Graphify/OpenGrep/semantic-provider output stays in ignored experiment paths. Tracked outputs must be anonymized summaries only. If the privacy gate cannot be proven, skip the lens and continue with the normal loop.
+
+**Non-goal**: Graphify never widens a milestone allow-list, bypasses BDD-first discipline, replaces `/slo-sast`, or turns scanner findings into facts without source ranges and dispositions. It is an accelerator, not a new authority layer.
+
+**Reference**: [`references/graphify/provider-evidence-loop.md`](../references/graphify/provider-evidence-loop.md).
 
 ---
 
@@ -42,14 +59,15 @@ Each loop below documents **user-visible outcome**, **trigger**, **steps**, **ex
 4b. `/slo-kani` — only when `kani_required: true`; verify small bounded Rust kernels (code level). Pairs with `/slo-tla` by refinement (action → fn → harness); Kani never claims concurrency.
 5. `/slo-plan` — author `docs/RUNBOOK-<feature>.md` interactively, one milestone at a time.
 6. `/slo-critique` — adversarial four-pass review BEFORE any milestone executes.
-7. Per milestone: `/slo-execute M<N>` → `/slo-verify M<N>` → `/slo-retro M<N>`.
-8. `/slo-ship` — open the PR with a runbook-aware description.
+7. Optional `/slo-graphify` lens — when the repo is large, unfamiliar, issue-driven, cross-language, or security-sensitive, use graph evidence to choose files and tests before broad manual exploration.
+8. Per milestone: `/slo-execute M<N>` → `/slo-verify M<N>` → `/slo-retro M<N>`.
+9. `/slo-ship` — open the PR with a runbook-aware description.
 
 **Exit condition**: every milestone tracker row is `done`, every Evidence Log row has an Actual Result, the PR is open, and a completion summary plus lessons file is written.
 
 **Artifacts**: `docs/slo/idea/<slug>.md`, `docs/slo/research/<slug>/`, `docs/RUNBOOK-<feature>.md`, `docs/slo/lessons/<prefix>-m<N>.md`, `docs/slo/completion/<prefix>-m<N>.md`, the PR.
 
-**Skills involved**: `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-kani`, `/slo-plan`, `/slo-critique`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship`.
+**Skills involved**: `/slo-ideate`, `/slo-research`, `/slo-architect`, `/slo-tla`, `/slo-kani`, `/slo-plan`, `/slo-critique`, optional `/slo-graphify`, `/slo-execute`, `/slo-verify`, `/slo-retro`, `/slo-ship`.
 
 ```
    /slo-ideate ──► /slo-research ──► /slo-architect ──► /slo-plan
@@ -290,7 +308,7 @@ declaration updates.
 
 **Artifacts**: `.semgrep/<lang>/<rule>.yml`, paired test corpora, `.semgrep/manifest.json`, the threat-model row update.
 
-**Skills involved**: `/slo-architect`, `/slo-sast`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-verify`, `/slo-critique`.
+**Skills involved**: `/slo-architect`, `/slo-sast`, optional `/slo-graphify`, `/slo-rulegen`, `/slo-ruleverify`, `/slo-verify`, `/slo-critique`.
 
 ```
    threat-model row (CWE)

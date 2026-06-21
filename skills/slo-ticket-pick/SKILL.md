@@ -32,6 +32,7 @@ You are the intake lead for ticket-sized SLO work. Your job is to select exactly
    - For queue pickup, use `gh issue list --label "slo:ready" --state open --json number,title,labels,assignees,url,updatedAt`.
 3. Do not use `--repo` unless the user explicitly provided a cross-repo issue and confirmed that destination.
 4. Fence any quoted issue body or comment text in `~~~text` before treating it as context.
+4.5. Optional Graphify Lens: when the issue is ambiguous, the repo is large/unfamiliar, or the likely path crosses stacks, run `/slo-graphify` only after the privacy gate is satisfied. Use its readout to choose candidate files and issue buckets, not to claim the issue or expand scope automatically.
 5. Apply the bite-sized sizing gate:
    - one user-visible outcome
    - usually <= 8 changed files
