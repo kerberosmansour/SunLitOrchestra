@@ -44,7 +44,7 @@ jobs:
         # softprops/action-gh-release pinned by SHA per F-ENG-5 / F-SEC-4.
         # SHA captured 2026-05-01 from `gh api repos/softprops/action-gh-release/branches/master`.
         # Re-pin via the same command on tag movement.
-        uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
+        uses: softprops/action-gh-release@f3453378888d5ef6208e2788af1c5ba50d8a898d
         with:
           files: dist/*.zip
           fail_on_unmatched_files: true
