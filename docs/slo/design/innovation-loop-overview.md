@@ -41,14 +41,14 @@ The 8 skills:
 | 1 | `/slo-sandbox` | choose the material before the feature | §3 Sandbox Charter |
 | 2 | `/slo-play` | generate raw probes, defer judgment (divergent) | §4 Play Log |
 | 3 | `/slo-pattern` | name reusable tricks + next-curve + DICEE | §5 Pattern Catalog |
-| 4 | `/slo-precision` | make invisible variables measurable | §6 Precision Model |
-| 5 | `/slo-spike` | bounded proof artifacts (the only code phase) | §7 Spike Cards |
-| 6 | `/slo-curate` | kill / pivot / combine / promote — one disposition each | §8 Curation Decision |
-| 7 | `/slo-demo` | package the discovery + emit the promotion handoff | §9 Demo + §10 Handoff |
+| 4 | `/slo-precision` | make variables measurable and freeze the confirmatory protocol | §6 Precision Model + Protocol Freeze |
+| 5 | `/slo-spike` | separate bounded discovery from held-out validation (the only code phase) | §7 Discovery/Validation Records |
+| 6 | `/slo-curate` | calibrate confidence, ablations/failures, and one disposition each | §8 Curation Decision |
+| 7 | `/slo-demo` | package method, limitations, confidence, and typed handoff | §9 Demo + §10 RecommendationPacket |
 
-Wedge ships as **one runbook, ≤5 milestones** (exact milestone cut is
-`/slo-plan`'s job; the architect's recommended shape is in the
-[interfaces doc](innovation-loop-interfaces.md) §Milestone-shape hint).
+The eight-skill wedge is shipped. The additive experiment-rigor update preserves
+the creative front half and strengthens the confirmatory back half without
+changing the Experiment Book v1 path, §0–§11 order, or route vocabulary.
 
 ## Frontmatter rationale
 
@@ -120,8 +120,8 @@ honest-exit-state discipline the Secure Value Loop overlay already enforces.
 
 ## Outputs (this skill, this run)
 
-- [docs/ARCHITECTURE.md](../../ARCHITECTURE.md) — new "Innovation Sandbox loop
-  (Experiment Book v1)" section with dashed (planned) components.
+- [docs/ARCHITECTURE.md](../../ARCHITECTURE.md) — shipped Innovation Sandbox loop
+  (Experiment Book v1) component view.
 - [docs/slo/design/innovation-loop-stack-decision.md](innovation-loop-stack-decision.md)
 - [docs/slo/design/innovation-loop-interfaces.md](innovation-loop-interfaces.md)
 - [docs/slo/design/innovation-loop-experiment-book-spec.md](innovation-loop-experiment-book-spec.md) — the authoritative Creative-Experiment-Contract-v1 template spec (Definition of Learned, Judgment Timing Rule / phase moods, per-phase output objects, Safety Rails, promotion-seed tables) that M1 implements.
@@ -135,5 +135,6 @@ honest-exit-state discipline the Secure Value Loop overlay already enforces.
 
 ## Handoff
 
-Next: `/slo-plan innovation-loop` (no TLA — `tla_required: false`; no Kani —
-`kani_required: false`).
+The initial architecture/runbook is complete (no TLA — `tla_required: false`; no
+Kani — `kani_required: false`). Future changes consume the stable interfaces and
+use the normal SLO plan/critique/execute/verify gates.

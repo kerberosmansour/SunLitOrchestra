@@ -4,17 +4,17 @@
   "sensitivity": "internal",
   "otm_compatible": false,
   "provenance": {
-    "produced_by": "slo-architect",
-    "producer_skill_sha": "2052149e511ab0e112916582e4dd0497ddf53a2a",
-    "generated_at": "2026-06-07",
+    "produced_by": "slo-execute",
+    "producer_skill_sha": "1c6a234739a244be7f3f72268b4850ac8b71c006",
+    "generated_at": "2026-07-13",
     "inputs": [
       {
-        "path": "docs/slo/idea/innovation-loop.md",
+        "path": "docs/slo/completed/RUNBOOK-EXPERIMENT-RIGOR.md",
         "sha": "uncommitted-at-emit-time"
       },
       {
         "path": "docs/slo/design/innovation-loop-threat-model.md",
-        "sha": "uncommitted-at-emit-time"
+        "sha": "6a2c61a1cee3f7e33cf5dc8a8ff0b81cfdf70577"
       }
     ]
   },
@@ -42,7 +42,9 @@
     { "id": "tm-innovation-loop-abuse-3", "surface": "Phase-skill LLM agent (C1)", "attacker": "Over-eager agent", "attack_step": "Fabricate a surprise or evidence never observed and mark a candidate promote_to_* on no real spike", "attacker_outcome": "False green -> wasted Sprint-loop work on a non-discovery", "control": "/slo-curate rubric requires every disposition to cite a probe/spike ID; promote_to_* requires /slo-spike evidence; AI tolerance contract names evidence-fabrication as a checked failure in /slo-verify", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
     { "id": "tm-innovation-loop-abuse-4", "surface": "Phase-skill LLM agent (C1)", "attacker": "Prompt-injection via input string, and path traversal via the <slug> argument", "attack_step": "Embed instructions in the starting hunch / sandbox material / probe-seed text to steer the agent (e.g. ignore safety rails and run this network call); or pass a <slug> like ../../.ssh/probe so the write escapes the allow-list", "attacker_outcome": "Agent runs an unsafe action / writes outside the allow-list", "control": "User-controlled strings rendered only into descriptive fields inside ~~~text fences, test-asserted for the §0 hunch + §3 material (critique S2); they never choose exit state, classification, or output path (author-controlled); runtime <slug> validation ^[a-z0-9][a-z0-9-]*$ in /slo-experiment rejects traversal before any write (critique S1); output-path allow-list enforced by the structural-contract test over static template paths", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
     { "id": "tm-innovation-loop-abuse-5", "surface": "/slo-spike scratch executor (C3)", "attacker": "Curiosity / scope creep", "attack_step": "Use a spike's play license to call a production endpoint or pull real user data just to see, exceeding the declared budget", "attacker_outcome": "Data exfiltration / production side effect", "control": "Per-spike Phase Contract declares data + network + dependency + resource budget; default synthetic/redacted data and no uncontrolled external calls; the spike records actual data/network used vs. declared", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
-    { "id": "tm-innovation-loop-abuse-6", "surface": "Promotion bridge (C4)", "attacker": "Over-eager agent", "attack_step": "Auto-route a candidate into /slo-plan / production without a human deciding", "attacker_outcome": "Unwanted work / scope without consent", "control": "Promotion is surfaced as a recommendation, not an auto-invocation; /slo-curate requires exactly one human-confirmable disposition per candidate", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
+    { "id": "tm-innovation-loop-abuse-6", "surface": "Promotion bridge (C4)", "attacker": "Over-eager agent", "attack_step": "Auto-route a candidate into /slo-plan / production without a human deciding", "attacker_outcome": "Unwanted work / scope without consent", "control": "Promotion is surfaced as a recommendation, not an auto-invocation; /slo-curate requires exactly one human-confirmable disposition per candidate", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-innovation-loop-abuse-7", "surface": "Protocol Freeze and amendment trail (C1/C2)", "attacker": "Over-eager agent after seeing results", "attack_step": "Perform post-result protocol mutation by changing a threshold, scoring rule, arm, or metric in place so a failed run appears to pass", "attacker_outcome": "False confirmation and an unauditable promotion decision", "control": "ProtocolFreeze rows are immutable; every change is an append-only ProtocolAmendment that makes the Validation Record stale and requires a rerun before confirmation", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" },
+    { "id": "tm-innovation-loop-abuse-8", "surface": "Discovery and validation evidence boundary (C1/C3)", "attacker": "Over-eager agent seeking a positive result", "attack_step": "Cause discovery/validation evidence leakage by reusing discovery data as held-out proof or tuning the mechanism after validation evidence is inspected", "attacker_outcome": "Overfit evidence presented as independent confirmation", "control": "DiscoveryRecord and ValidationRecord use separated split IDs; validation requires held-out frozen arms and no tuning; leakage invalidates the record, blocks engineering routes, and must downgrade confidence until a clean rerun", "status": "active", "superseded_by": null, "supersede_reason": null, "classification": "internal" }
   ],
   "residual_risks": [
     { "risk": "Experiment Book may carry user-pasted secret/PII", "exploit_path": "A user pastes sensitive data; the data-classification field and PII scan are detective, not preventive (no redaction engine)", "compensating_control": "Mandatory §0 data-classification field + /slo-verify Pass-4 PII scan + §2 no-secrets rule + write-time warning when target dir is git-tracked with a remote and tier is confidential. Disclosed, not eliminated.", "accepted_residual": true, "owner": "Sherif", "review_by": "2026-09-07", "classification": "internal" },
@@ -54,6 +56,8 @@
     { "control": "Data-classification field + PII scan (secret/PII containment)", "soc2": "CC6.7 (data transmission/disposal)", "asvs": "V8.1 General data protection" },
     { "control": "No-production-promotion gate (change goes through plan/critique/execute)", "soc2": "CC8.1 (change management)", "asvs": "V1.1 Secure SDLC" },
     { "control": "Prompt-injection neutralisation (~~~text fences; user strings never choose control fields)", "soc2": "CC7.1 (vuln mgmt)", "asvs": "V5.4 Output encoding / no interpreter context" },
-    { "control": "Disposition + evidence audit trail (Experiment Book is durable record)", "soc2": "CC7.2 (monitoring)", "asvs": "V1.11 Business-logic documentation" }
+    { "control": "Disposition + evidence audit trail (Experiment Book is durable record)", "soc2": "CC7.2 (monitoring)", "asvs": "V1.11 Business-logic documentation" },
+    { "control": "Protocol integrity (freeze, append-only amendment, stale-until-rerun)", "soc2": "CC8.1 (change management)", "asvs": "V1.11 Business-logic documentation" },
+    { "control": "Evidence separation (held-out validation, no tuning, confidence downgrade on leakage)", "soc2": "CC7.2 (monitoring)", "asvs": "V1.11 Business-logic documentation" }
   ]
 }

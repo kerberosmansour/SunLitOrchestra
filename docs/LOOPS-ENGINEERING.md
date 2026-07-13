@@ -132,20 +132,20 @@ The rule: **if 1000 unit tests pass but one Outcome Scenario, Critical User Jour
 
 **Trigger**: the user has a material, theme, technology, surprising failure, or "what if?" but **not yet a crisp feature** — the pre-idea phase `/slo-ideate` is too early for.
 
-**Steps** (shipping across the innovation-loop runbook; M1 ships `/slo-experiment` + the template, M2–M5 the phase skills):
+**Steps** (all eight skills shipped; creative divergence first, confirmatory rigor only after patterns emerge):
 
 1. `/slo-experiment <slug>` — open/resume `docs/slo/experiments/<slug>/EXPERIMENT.md` from `experiment-book-template_v_1.md`; seed §0–§2 + tracker; validate the slug; fence user strings.
-2. `/slo-sandbox` — §3 choose the material (not the feature) + safety rails + probe seeds. *(M2)*
-3. `/slo-play` — §4 raw probes, dead-ends, surprises; **divergent, judge safety only**. *(M2)*
-4. `/slo-pattern` — §5 name reusable tricks + next-curve + DICEE. *(M3)*
-5. `/slo-precision` — §6 make invisible variables measurable (accept/kill thresholds). *(M3)*
-6. `/slo-spike` — §7 bounded proof artifacts, the only code phase (scratch under `experiments/<slug>/`). *(M4)*
-7. `/slo-curate` — §8 one disposition per candidate. *(M5)*
-8. `/slo-demo` — §9 demo + §10 PromotionPacket → `/slo-ideate` | `/slo-ticket-plan` | `/slo-research` | `/slo-plan`, or §11 compost. *(M5)*
+2. `/slo-sandbox` — §3 choose the material (not the feature) + safety rails + probe seeds.
+3. `/slo-play` — §4 raw probes, dead-ends, surprises; **divergent, judge safety only**.
+4. `/slo-pattern` — §5 name reusable tricks + next-curve + DICEE.
+5. `/slo-precision` — §6 make claims measurable, then write a versioned **Protocol Freeze** before confirmation; amendments stale validation until rerun.
+6. `/slo-spike` — §7 bounded scratch, the only code phase: exploratory `DiscoveryRecord` first, then a held-out/no-tuning **Validation Record** against the active freeze.
+7. `/slo-curate` — §8 derive confidence, run ablations, classify residual failures, and give exactly one disposition per candidate.
+8. `/slo-demo` — §9 demo + §10 `RecommendationPacket` → `/slo-ideate` | `/slo-ticket-plan` | `/slo-research` | `/slo-plan`, or §11 compost.
 
 **Exit condition**: every experiment closes with exactly one of the frozen 8 states (`promote_to_idea | promote_to_ticket | promote_to_research | promote_to_runbook | needs_more_play | blocked_by_unknown | killed_but_reusable | archive_no_action`); promoted candidates carry a filled §10 handoff seed; nothing reaches production without re-entering the Sprint or Ticket loop.
 
-**Artifacts**: `docs/slo/experiments/<slug>/EXPERIMENT.md` (+ optional `probes/`, `spikes/`, `evidence/`); scratch under `experiments/<slug>/<spike-id>/` (git-ignored).
+**Artifacts**: `docs/slo/experiments/<slug>/EXPERIMENT.md` (+ optional `probes/`, `spikes/`, `evidence/`); scratch under `experiments/<slug>/<spike-id>/` (git-ignored). The [synthetic gallery Book](slo/experiments/example-context-validator/EXPERIMENT.md) demonstrates freeze → discovery → validation → ablation/failures → RecommendationPacket without claiming real-world validation.
 
 **Skills involved**: `/slo-experiment`, `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`.
 
@@ -153,44 +153,7 @@ The rule: **if 1000 unit tests pass but one Outcome Scenario, Critical User Jour
    fuzzy "what if?" ──► /slo-experiment ──► EXPERIMENT.md (§0–§11)
                               │
    /slo-sandbox ─► /slo-play ─► /slo-pattern ─► /slo-precision ─► /slo-spike ─► /slo-curate ─► /slo-demo
-   (framing)     (DIVERGENT)   (converge)      (measure)         (evidence)    (decide)        (handoff)
-                              │
-                              └──► promote_to_idea/ticket/research/runbook → Sprint/Ticket loop
-                                   killed_but_reusable / archive_no_action → §11 compost
-```
-
-> **Promotion is a typed handoff, never an in-loop merge** — the hard rule is that nothing becomes production without the normal SLO plan → critique → execute → verify gates. *(All 8 skills shipped across innovation-loop M1–M5; the loop is closed end-to-end.)*
-
----
-
-## Innovation Sandbox loop
-
-> **User-visible outcome**: a fuzzy technical hunch turns into either a promotable candidate (idea / ticket / research / runbook) or a documented dead-end with reusable lessons — never dying in chat. Every experiment closes with exactly one honest exit state.
-
-**Trigger**: the user has a material, theme, technology, surprising failure, or "what if?" but **not yet a crisp feature** — the pre-idea phase `/slo-ideate` is too early for.
-
-**Steps** (shipping across the innovation-loop runbook; M1 ships `/slo-experiment` + the template, M2–M5 the phase skills):
-
-1. `/slo-experiment <slug>` — open/resume `docs/slo/experiments/<slug>/EXPERIMENT.md` from `experiment-book-template_v_1.md`; seed §0–§2 + tracker; validate the slug; fence user strings.
-2. `/slo-sandbox` — §3 choose the material (not the feature) + safety rails + probe seeds. *(M2)*
-3. `/slo-play` — §4 raw probes, dead-ends, surprises; **divergent, judge safety only**. *(M2)*
-4. `/slo-pattern` — §5 name reusable tricks + next-curve + DICEE. *(M3)*
-5. `/slo-precision` — §6 make invisible variables measurable (accept/kill thresholds). *(M3)*
-6. `/slo-spike` — §7 bounded proof artifacts, the only code phase (scratch under `experiments/<slug>/`). *(M4)*
-7. `/slo-curate` — §8 one disposition per candidate. *(M5)*
-8. `/slo-demo` — §9 demo + §10 PromotionPacket → `/slo-ideate` | `/slo-ticket-plan` | `/slo-research` | `/slo-plan`, or §11 compost. *(M5)*
-
-**Exit condition**: every experiment closes with exactly one of the frozen 8 states (`promote_to_idea | promote_to_ticket | promote_to_research | promote_to_runbook | needs_more_play | blocked_by_unknown | killed_but_reusable | archive_no_action`); promoted candidates carry a filled §10 handoff seed; nothing reaches production without re-entering the Sprint or Ticket loop.
-
-**Artifacts**: `docs/slo/experiments/<slug>/EXPERIMENT.md` (+ optional `probes/`, `spikes/`, `evidence/`); scratch under `experiments/<slug>/<spike-id>/` (git-ignored).
-
-**Skills involved**: `/slo-experiment`, `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`.
-
-```
-   fuzzy "what if?" ──► /slo-experiment ──► EXPERIMENT.md (§0–§11)
-                              │
-   /slo-sandbox ─► /slo-play ─► /slo-pattern ─► /slo-precision ─► /slo-spike ─► /slo-curate ─► /slo-demo
-   (framing)     (DIVERGENT)   (converge)      (measure)         (evidence)    (decide)        (handoff)
+   (framing)     (DIVERGENT)   (converge)      (freeze)          (validate)    (calibrate)     (handoff)
                               │
                               └──► promote_to_idea/ticket/research/runbook → Sprint/Ticket loop
                                    killed_but_reusable / archive_no_action → §11 compost

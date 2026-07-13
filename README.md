@@ -27,6 +27,7 @@ SunLit Orchestra is a portable `/slo-*` skill pack for disciplined AI-assisted d
 
 | If you have... | Start with... | You get... |
 |---|---|---|
+| A weird technical hunch that is not yet a feature | `/slo-experiment <slug>` | An Innovation Sandbox Experiment Book: playful probes first, then a Protocol Freeze, separate Discovery/Validation Records, and a confidence-calibrated RecommendationPacket or reusable dead end |
 | A new product or feature idea | `/slo-ideate` | Problem framing, risks, and a path into research/design |
 | A scoped GitHub issue | `/slo-ticket-pick #<issue>` | A compact ticket contract, evidence log, and PR handoff |
 | A full feature that needs planning | `/slo-plan` after ideate/research/architecture | A v4 runbook with milestones, BDD, abuse cases, and gates |
@@ -362,6 +363,7 @@ Start here:
 
 - [docs/getting-started.md](docs/getting-started.md) — first-run guide with exact commands and expected results
 - [docs/skill-pack-catalog.md](docs/skill-pack-catalog.md) — canonical living catalog of shipped skills
+- [docs/slo/experiments/example-context-validator/EXPERIMENT.md](docs/slo/experiments/example-context-validator/EXPERIMENT.md) — synthetic Innovation Sandbox gallery: creative discovery → Protocol Freeze → held-out Validation Record → RecommendationPacket
 - [skills/slo-sast/README.md](skills/slo-sast/README.md) — plain-language intro to the code-scanning skill (what SAST is, why, quick start)
 - [skills/slo-dast-tuner/README.md](skills/slo-dast-tuner/README.md) — plain-language intro to the running-app scanning skill, the SAST→DAST bridge, and the 12-framework adapter catalog
 - [docs/slo/templates/runbook-template_v_4_template.md](docs/slo/templates/runbook-template_v_4_template.md) — the canonical v4 runbook contract `/slo-plan` produces (Carmack-style reliability controls on top of v3)
