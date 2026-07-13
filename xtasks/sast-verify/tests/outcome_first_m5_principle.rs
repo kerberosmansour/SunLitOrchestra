@@ -81,9 +81,15 @@ fn catalog_names_outcome_gate() {
 #[test]
 fn catalog_skill_count_preserved() {
     let c = read(CATALOG);
+    let skills_dir = workspace_root().join("skills");
+    let shipped = std::fs::read_dir(&skills_dir)
+        .expect("read skills directory")
+        .filter_map(Result::ok)
+        .filter(|entry| entry.path().join("SKILL.md").is_file())
+        .count();
     assert!(
-        c.contains("Shipped skills at HEAD: 49"),
-        "M5 must NOT change the catalog skill-count line"
+        c.contains(&format!("Shipped skills at HEAD: {shipped}")),
+        "catalog skill-count headline must reconcile with skills/*/SKILL.md ({shipped})"
     );
 }
 

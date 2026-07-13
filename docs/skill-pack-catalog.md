@@ -47,7 +47,7 @@ GitHub Issues-first path for small, reviewable work that should keep v4 rigor wi
 
 ## Innovation-Sandbox flow
 
-A discovery lane that sits **before** the Sprint flow and feeds it. Where the Sprint flow turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into a promotable candidate or a documented dead-end, authored into one durable artifact — the **Experiment Book** (`docs/slo/experiments/<slug>/EXPERIMENT.md`, the experimentation peer of the v4 runbook: Definition of Learned, not Done). Design: [slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md); loop: [LOOPS-ENGINEERING.md#innovation-sandbox-loop](LOOPS-ENGINEERING.md#innovation-sandbox-loop). Shipping across the innovation-loop runbook — M1 ships the umbrella + template below; M2–M5 add `/slo-sandbox`, `/slo-play`, `/slo-pattern`, `/slo-precision`, `/slo-spike`, `/slo-curate`, `/slo-demo`.
+A discovery lane that sits **before** the Sprint flow and feeds it. Where the Sprint flow turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into a promotable candidate or a documented dead-end, authored into one durable artifact — the **Experiment Book** (`docs/slo/experiments/<slug>/EXPERIMENT.md`, the experimentation peer of the v4 runbook: Definition of Learned, not Done). The front half stays playful and divergent; the back half freezes the protocol, separates discovery from validation, exposes ablations/failures, and emits a confidence-calibrated RecommendationPacket. All eight skills are shipped. Design: [slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md); loop: [LOOPS-ENGINEERING.md#innovation-sandbox-loop](LOOPS-ENGINEERING.md#innovation-sandbox-loop).
 
 | Stage | Skill | Purpose |
 |---|---|---|
@@ -55,10 +55,10 @@ A discovery lane that sits **before** the Sprint flow and feeds it. Where the Sp
 | Sandbox | `/slo-sandbox` | Fill §3 — choose the material (not the feature), boundaries, safety rails, weirdness budget, ≥3 probe seeds, kill criteria |
 | Play | `/slo-play` | Fill §4 — raw probes (divergent, judge safety only), dead-ends, surprises |
 | Pattern | `/slo-pattern` | Fill §5 — name reusable tricks (convergent), cite probe IDs, ≤5 cap, next-curve + DICEE checks |
-| Precision | `/slo-precision` | Fill §6 — make claims falsifiable: handles + accept/kill thresholds + resource bounds + security invariants |
-| Spike | `/slo-spike` | Fill §7 — the ONLY code phase: bounded proof artifacts under `experiments/<slug>/<spike-id>/` (git-ignored), mandatory budget, evidence-derived verdict, delete-or-promote, no production promotion |
-| Curate | `/slo-curate` | Fill §8 — exactly one disposition per candidate (the frozen 8 route decisions), each citing a probe/spike; dead-ends compost to §11 |
-| Demo | `/slo-demo` | Fill §9 + §10 — package the discovery + the typed promotion handoff (`/slo-ideate` \| `/slo-ticket-plan` \| `/slo-research` \| `/slo-plan`), a suggestion never an auto-invoke. Closes the loop |
+| Precision | `/slo-precision` | Fill §6 — make claims falsifiable, then record a versioned Protocol Freeze; later changes are append-only amendments and stale validation until rerun |
+| Spike | `/slo-spike` | Fill §7 — the ONLY code phase: bounded scratch under `experiments/<slug>/<spike-id>/`; separate exploratory `DiscoveryRecord` from held-out/no-tuning `ValidationRecord`; exact rerun context; no production promotion |
+| Curate | `/slo-curate` | Fill §8 — derive `exploratory \| confirmatory \| engineering_ready`, require ablation/failure evidence for engineering routes, and give exactly one frozen disposition per candidate |
+| Demo | `/slo-demo` | Fill §9 + §10 — emit the method-rich `RecommendationPacket` plus typed handoff (`/slo-ideate` \| `/slo-ticket-plan` \| `/slo-research` \| `/slo-plan`), a suggestion never an auto-invoke |
 
 ## Power tools
 

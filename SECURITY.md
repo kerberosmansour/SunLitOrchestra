@@ -367,6 +367,27 @@ The Experiment Book carries a mandatory `§0` data-classification field. The `§
 
 User-controlled strings (starting hunch, sandbox material, probe seeds) are rendered ONLY into descriptive fields inside `~~~text` fences; they never choose an exit state, a data classification, or an output path — those are author-controlled (`tm-innovation-loop-abuse-4`). The phase-skill agent proposes; it does not self-authorise unsafe actions.
 
+### Protocol integrity
+
+Before confirmatory work, `/slo-precision` records a versioned Protocol Freeze.
+Frozen thresholds, arms, scoring, metrics, and budgets are never rewritten after
+results are inspected. A change is an append-only `ProtocolAmendment`, makes the
+current Validation Record stale, and requires a rerun before confirmation
+(`tm-innovation-loop-abuse-7`). This makes post-result protocol mutation visible;
+it does not cryptographically attest that an agent followed the contract.
+
+### Evidence separation
+
+`/slo-spike` records exploratory `DiscoveryRecord` evidence separately from a
+`ValidationRecord` tied to the active freeze. Validation uses held-out/frozen arms
+with no tuning after inspection and records per-arm results, repetitions,
+stability, exact commands, environment, and deviations. Reusing discovery data as
+held-out proof or tuning on validation evidence invalidates the record, blocks an
+engineering route, and downgrades confidence until a clean rerun
+(`tm-innovation-loop-abuse-8`). Curation then requires ablation and a failure
+taxonomy before `engineering_ready`; `/slo-demo` carries the method and uncertainty
+in a `RecommendationPacket`.
+
 ### Residual risks (accepted, disclosed)
 
 - Experiment Books may carry user-pasted secret/PII; the classification field + PII scan are detective, not a redaction engine. Disclosed, not eliminated. `/slo-critique` should not double-flag.

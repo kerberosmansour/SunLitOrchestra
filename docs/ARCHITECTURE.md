@@ -162,7 +162,7 @@ Feature runbooks land Markdown / YAML / JSON structural-contract tests under `xt
 
 ## Innovation Sandbox loop (Experiment Book v1) — SHIPPED
 
-A discovery lane that sits **before** the Sprint loop and feeds it. Where the Sprint loop turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into either a promotable candidate or a documented dead-end, without breaking the creative nature of experimentation. Design source of truth: [docs/slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md). Dashed = planned.
+A discovery lane that sits **before** the Sprint loop and feeds it. Where the Sprint loop turns a *decision* into shippable work, this loop turns a *fuzzy technical hunch* into either a promotable candidate or a documented dead-end, without breaking the creative nature of experimentation. Its front half deliberately protects divergent play; its confirmatory back half adds a Protocol Freeze, separate Discovery/Validation Records, ablation and failure analysis, and a confidence-calibrated RecommendationPacket. Design source of truth: [docs/slo/design/innovation-loop-overview.md](slo/design/innovation-loop-overview.md). All eight skills are shipped.
 
 ```
   fuzzy "what if?" / theme
@@ -171,19 +171,19 @@ A discovery lane that sits **before** the Sprint loop and feeds it. Where the Sp
    /slo-experiment ───► docs/slo/experiments/<slug>/EXPERIMENT.md   (Experiment Book v1 — SHIPPED M1)
             │              the single durable, contract-driven artifact
             ▼
-   /slo-sandbox ┄┄► §3 choose material + safety rails + probe seeds   (divergent setup)
+   /slo-sandbox ───► §3 choose material + safety rails + probe seeds   (framing)
             ▼
-   /slo-play ┄┄┄┄► §4 raw probes, dead-ends, surprises               (DIVERGENT — judgment deferred)
+   /slo-play ─────► §4 raw probes, dead-ends, surprises               (DIVERGENT — judgment deferred)
             ▼
-   /slo-pattern ┄► §5 name reusable tricks + next-curve + DICEE      (convergent)
+   /slo-pattern ──► §5 name reusable tricks + next-curve + DICEE      (convergent)
             ▼
-   /slo-precision► §6 make invisible variables measurable           (SHIPPED M3)
+   /slo-precision► §6 handles + versioned Protocol Freeze             (measurement)
             ▼
-   /slo-spike ┄┄┄► §7 bounded proof artifacts + evidence            (the ONLY code phase → experiments/<slug>/)
+   /slo-spike ────► §7 DiscoveryRecord → held-out ValidationRecord    (ONLY code phase → experiments/<slug>/)
             ▼
-   /slo-curate ┄┄► §8 one disposition per candidate                  (convergent)
+   /slo-curate ───► §8 confidence + ablation/failures + disposition   (convergent)
             ▼
-   /slo-demo ────► §9 demo pack + §10 PromotionPacket  (SHIPPED M5)
+   /slo-demo ─────► §9 demo + §10 RecommendationPacket                (communication)
             │
             ├┄┄► promote_to_idea     → /slo-ideate
             ├┄┄► promote_to_ticket   → /slo-ticket-plan
@@ -192,7 +192,7 @@ A discovery lane that sits **before** the Sprint loop and feeds it. Where the Sp
             └┄┄► killed_but_reusable / archive_no_action → §11 Compost
 ```
 
-**Components**: 8 new `skills/slo-<name>/SKILL.md` files + one new template `docs/slo/templates/experiment-book-template_v_1.md` + structural-contract tests in `xtasks/sast-verify/tests/innovation_loop_m<N>_*.rs`. No new crate, no service surface. **Status**: M1 SHIPPED — `/slo-experiment` + the Experiment Book template + `innovation_loop_m1_spine.rs`; the 7 phase skills (`/slo-sandbox`…`/slo-demo`) remain dashed (planned, M2–M5). **Hard rule**: nothing promotes to production without re-entering the Sprint or Ticket loop (plan → critique → execute → verify). The cyclic view of this loop is registered in [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md#innovation-sandbox-loop).
+**Components**: 8 shipped `skills/slo-<name>/SKILL.md` files + the Experiment Book v1 template + structural-contract tests in `xtasks/sast-verify/tests/innovation_loop_*.rs`. No new crate or service surface. **Compatibility boundary**: the v1 path/§0–§11 order, frozen vocabularies, four typed destinations, and suggestion-only human gate remain stable; legacy Books are readable as degraded/unconfirmed rather than upgraded by inference. **Hard rule**: nothing promotes to production without re-entering the Sprint or Ticket loop (plan → critique → execute → verify). The cyclic view and synthetic gallery are linked from [docs/LOOPS-ENGINEERING.md](LOOPS-ENGINEERING.md#innovation-sandbox-loop).
 
 ## Feedback loops
 
