@@ -29,7 +29,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -174,7 +174,7 @@ jobs:
           fi
 
       - name: Claude drill reviewer must request changes
-        uses: anthropics/claude-code-action@700e7f8316990de46bed556429765647af760efc # v1
+        uses: anthropics/claude-code-action@e0cf66d1d257526b5d07f141838c338921cb8455 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -206,7 +206,7 @@ jobs:
           fi
 
       - name: Claude drill remediation fixer
-        uses: anthropics/claude-code-action@700e7f8316990de46bed556429765647af760efc # v1
+        uses: anthropics/claude-code-action@e0cf66d1d257526b5d07f141838c338921cb8455 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -231,7 +231,7 @@ jobs:
             --disallowedTools "Bash(gh pr merge:*),Bash(osv-scanner fix:*),Bash(gh secret:*)"
 
       - name: Claude drill reviewer after fixer
-        uses: anthropics/claude-code-action@700e7f8316990de46bed556429765647af760efc # v1
+        uses: anthropics/claude-code-action@e0cf66d1d257526b5d07f141838c338921cb8455 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
