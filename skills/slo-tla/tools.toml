@@ -16,7 +16,7 @@
 [tlc]
 version = "1.8.0"
 url = "https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar"
-sha256 = "d5d07d5dab38ddb840c91ec48fa02f28b37a608d5af9a73570018591dbc8ef7f"
+sha256 = "b658b4e504fdf0b721caf7066320f6b6fe5805f4dd2f717d0e47baba4097205e"
 
 # Apalache is fetched lazily only when TLC reports state explosion.
 # This entry exists so the lazy-download helper has a pinned reference.
