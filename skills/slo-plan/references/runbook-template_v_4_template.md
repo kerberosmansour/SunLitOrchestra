@@ -27,6 +27,7 @@
 |---|---|
 | Runbook ID | `[short-id]` |
 | Project name | `[project]` |
+| Target repository | `[owner]/[repo]` and `[canonical repository URL]` |
 | Primary stack | `[e.g., Rust + Tauri + React + TypeScript]` |
 | Primary package/app names | `[package names]` |
 | Prefix for tests and lesson files | `[prefix]` |
@@ -999,7 +1000,7 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Outputs | [UI state, return values, persisted state, events] |
 | Interfaces touched | [commands, APIs, routes, events, structs, files] |
 | Files allowed to change | [explicit list] |
-| Files to read before changing anything | [explicit list] |
+| Files to read before changing anything | [explicit list with repo-of-origin, revision and repo-relative path for each item; see convention below] |
 | New files allowed | [explicit list or `none`] |
 | New dependencies allowed | [explicit list or `none`] |
 | Migration allowed | [`yes` or `no`] |
@@ -1019,6 +1020,28 @@ Path: `docs/slo/completion/<prefix>-m<N>.md`
 | Measurement deliverables (required for value-bearing milestones) | [which named events / runtime metrics / saved queries this milestone ships, the guardrail owner, and the readout date — ties to the §5A Measurement Contract; or `N/A — not value-bearing, see <reason>`] |
 | Outcome Validation deliverables (required for value-bearing milestones) | [the §5C Outcome statement + Success Criteria + per-layer Front-to-End Validation path; ties to §5C; or `N/A — not value-bearing, see <reason>`] |
 | Critical user journeys (required for value-bearing milestones) | [the `cuj-<slug>-N` ids this milestone must keep working front-to-end; or `N/A — not value-bearing, see <reason>`] |
+
+#### Repository origin for read-before-change references
+
+Every item in "Files to read before changing anything" must identify its
+**repo-of-origin**, revision and path relative to that repository's root. Use the
+repository named in Runbook Metadata for target-repository files; name each
+upstream repository explicitly and pin its commit. A path alone does not establish
+that a file is local. For example:
+
+| Repo-of-origin | Revision | Repo-relative path | Why read it |
+|---|---|---|---|
+| `[target owner]/[target repo]` (Runbook Metadata) | `[milestone baseline revision]` | `[path within target repo]` | `[implementation context]` |
+| `[upstream owner]/[upstream repo]` | `[pinned commit SHA]` | `[path within upstream repo]` | `[planning corpus / reference context]` |
+
+Resolve missing repository, revision or access information before opening an
+ambiguous reference. Upstream context is read-only: this table does not authorize
+edits there or widen "Files allowed to change". List the repository and exact
+paths separately in the user-confirmed edit scope if an upstream change is needed.
+
+This convention applies to newly authored v4 runbooks. Preserve completed/frozen
+runbooks and the historical v3 template; do not rewrite their paths or repin their
+snapshot hashes merely to backfill this convention.
 
 #### Out of Scope / Must Not Do
 
