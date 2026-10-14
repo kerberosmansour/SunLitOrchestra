@@ -1,6 +1,6 @@
 # Hulumi31 — repository origin for current runbook read lists
 
-Status: in_progress. Source: https://github.com/kerberosmansour/hulumi/issues/31
+Status: done. Source: https://github.com/kerberosmansour/hulumi/issues/31
 Target: kerberosmansour/SunLitOrchestra. Lane: micro, docs-only.
 
 The issue predates v4. Current canonical pointers target v4; v3 is a historical
@@ -48,7 +48,9 @@ adaptation rather than claim its old v3 artifact was edited.
 Actual results: v4 now has explicit Target repository metadata and the read-list
 origin/revision/repo-relative-path convention with target/upstream examples and
 read-only scope limits. Both v4 copies are byte-identical. Both unchanged v3 copies
-retain all32369 bytes and frozen FNV0xe9ee05c51944d857; no hash is repinned. Reviewed
+retain all 32369 bytes and frozen FNV 0xe9ee05c51944d857; no hash is repinned. Reviewed
 all existing v4 required-field markers and additive compatibility; table row shapes
 and git diff --check pass. No dependencies changed/installed and no runtime code
-was compiled. Existing upstream CI and PR review remain pending.
+was compiled. Existing upstream installer/template tests passed on Linux, macOS and Windows, alongside Semgrep read-only admission/pack and scope checks on implementation 1b298b78. Final closeout changes this evidence ticket only; template bytes remain exactly those validated. No dependency, lock or runtime code changes.
+
+Closeout: current-v4 compatibility adaptation is explicit; frozen v3/Hulumi artifacts preserved and no snapshot hashes repinned. The user-authorized issue maintenance scope covers this required upstream documentation repair. No additional issue filing or skill reinstall.
