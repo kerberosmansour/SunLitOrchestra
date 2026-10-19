@@ -36,14 +36,14 @@ jobs:
     steps:
       - name: Mint remediator app token (PR-author identity B)
         id: remediator_token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.SCA_REMEDIATOR_APP_ID }}
           private-key: ${{ secrets.SCA_REMEDIATOR_PRIVATE_KEY }}
 
       - name: Mint merger app token (merge-only identity C)
         id: merger_token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.SCA_MERGER_APP_ID }}
           private-key: ${{ secrets.SCA_MERGER_PRIVATE_KEY }}
@@ -238,7 +238,7 @@ jobs:
 
       - name: Claude security reviewer
         if: steps.active_pr.outputs.pr_number != '' && steps.claude_auth.outputs.credential_mode != '' && steps.current_review.outputs.claude_approved != 'true'
-        uses: anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc # v1
+        uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -271,7 +271,7 @@ jobs:
 
       - name: Claude remediation fixer
         if: steps.active_pr.outputs.pr_number != '' && steps.claude_auth.outputs.credential_mode != '' && steps.review.outputs.decision != 'APPROVED'
-        uses: anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc # v1
+        uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -293,7 +293,7 @@ jobs:
 
       - name: Claude security reviewer after fixer
         if: steps.active_pr.outputs.pr_number != '' && steps.claude_auth.outputs.credential_mode != '' && steps.review.outputs.decision != 'APPROVED'
-        uses: anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc # v1
+        uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
