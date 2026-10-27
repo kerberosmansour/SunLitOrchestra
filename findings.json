@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": 1,
+  "revision": 2,
   "findings": {
     "crates.io:unsafe-libyaml@0.2.11:RUSTSEC-2024-0449": {
       "findingKey": "crates.io:unsafe-libyaml@0.2.11:RUSTSEC-2024-0449",
@@ -17,6 +17,23 @@
       ],
       "firstSeen": "2026-10-12T12:09:01.267Z",
       "lastSeen": "2026-10-12T12:09:01.267Z",
+      "reason": "no fix"
+    },
+    "crates.io:block-buffer@0.12.0:GHSA-qwgh-2vcv-g2f7": {
+      "findingKey": "crates.io:block-buffer@0.12.0:GHSA-qwgh-2vcv-g2f7",
+      "advisoryId": "GHSA-qwgh-2vcv-g2f7",
+      "ecosystem": "crates.io",
+      "package": "block-buffer",
+      "affectedVersion": "0.12.0",
+      "class": "critical",
+      "track": "dropped",
+      "fixedVersion": null,
+      "state": "dropped",
+      "manifestPaths": [
+        "Cargo.lock"
+      ],
+      "firstSeen": "2026-10-27T12:06:20.615Z",
+      "lastSeen": "2026-10-27T12:06:20.615Z",
       "reason": "no fix"
     }
   }
