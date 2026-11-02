@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": 2,
+  "revision": 3,
   "findings": {
     "crates.io:unsafe-libyaml@0.2.11:RUSTSEC-2024-0449": {
       "findingKey": "crates.io:unsafe-libyaml@0.2.11:RUSTSEC-2024-0449",
@@ -34,6 +34,23 @@
       ],
       "firstSeen": "2026-10-27T12:06:20.615Z",
       "lastSeen": "2026-10-27T12:06:20.615Z",
+      "reason": "no fix"
+    },
+    "crates.io:pulldown-cmark@0.13.5:RUSTSEC-2026-0433": {
+      "findingKey": "crates.io:pulldown-cmark@0.13.5:RUSTSEC-2026-0433",
+      "advisoryId": "RUSTSEC-2026-0433",
+      "ecosystem": "crates.io",
+      "package": "pulldown-cmark",
+      "affectedVersion": "0.13.5",
+      "class": "critical",
+      "track": "dropped",
+      "fixedVersion": null,
+      "state": "dropped",
+      "manifestPaths": [
+        "Cargo.lock"
+      ],
+      "firstSeen": "2026-11-02T12:04:11.370Z",
+      "lastSeen": "2026-11-02T12:04:11.370Z",
       "reason": "no fix"
     }
   }
