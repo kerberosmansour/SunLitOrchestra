@@ -71,7 +71,7 @@ jobs:
       - name: Cache cargo
         # Swatinem/rust-cache@v2 — pinned by SHA to match semgrep.yml.
         # Re-pin via: gh api repos/Swatinem/rust-cache/git/ref/tags/v2
-        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
+        uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
